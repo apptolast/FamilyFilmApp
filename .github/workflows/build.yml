@@ -3,12 +3,13 @@ name: Android Build
 on: pull_request
 
 jobs:
-
-  build_job:
+  build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '17' ]
     steps:
-
       - name: Checkout
         uses: actions/checkout@v2
 

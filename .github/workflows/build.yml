@@ -27,12 +27,6 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
-      - name: Set up Android SDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-          distribution: 'android-sdk'
-
       #- name: Decode google-services.json
       #  env:
       #    FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}

@@ -1,0 +1,38 @@
+name: Android Build
+
+on: pull_request
+
+jobs:
+
+  build_job:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Restore Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      #- name: Decode google-services.json
+      #  env:
+      #    FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+      #  run: echo $FIREBASE_JSON > app/google-services.json
+
+      - name: Run Debug Tests
+        run: ./gradlew testDebug --continue
+
+      - name: Upload Test Reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'

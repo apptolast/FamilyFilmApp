@@ -1,10 +1,11 @@
 package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
+import com.digitalsolution.familyfilmapp.ui.screens.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -18,4 +19,10 @@ fun AppNavigation() {
         }
 
     }
+}
+
+@Preview
+@Composable
+fun AppNavigationPreview() {
+    AppNavigation()
 }

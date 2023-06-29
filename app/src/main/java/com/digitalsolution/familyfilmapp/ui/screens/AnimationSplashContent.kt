@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.navigation
+package com.digitalsolution.familyfilmapp.ui.screens
 
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.Animatable
@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -30,10 +31,12 @@ fun AnimationSplashContent(
 
         delay(timeMillis = delayScreen)
 
-        navController.navigate(route =
-        Routes.SplashScreenDest.routes) {
-            popUpTo(route =
-            Routes.Login.routes) {
+        navController.navigate(
+            route = Routes.SplashScreenDest.routes
+        ) {
+            popUpTo(
+                route = Routes.Login.routes
+            ) {
                 inclusive = true
             }
         }

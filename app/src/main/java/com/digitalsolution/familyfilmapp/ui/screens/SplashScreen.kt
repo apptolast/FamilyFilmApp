@@ -1,11 +1,13 @@
-package com.digitalsolution.familyfilmapp.navigation
+package com.digitalsolution.familyfilmapp.ui.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.R
 
 @Composable
@@ -21,7 +23,7 @@ fun SplashScreen(navController: NavController) {
         delayScreen = 3000L
     )
 
-    DesignSplashScreen(
+    ContentSplashScreen (
         imagePainter = painterResource(id =
         R.drawable.icons8_kotlin),
         scaleAnimation = scaleAnimation

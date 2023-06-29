@@ -5,7 +5,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.digitalsolution.familyfilmapp.ui.screens.SplashScreen
+import com.digitalsolution.familyfilmapp.ui.screens.splash.SplashScreen
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 
 @Composable
 fun AppNavigation() {
@@ -18,6 +19,9 @@ fun AppNavigation() {
             SplashScreen(navController = navController)
         }
 
+        composable(route = Routes.Login.routes) {
+            LoginScreen(navController = navController)
+        }
     }
 }
 

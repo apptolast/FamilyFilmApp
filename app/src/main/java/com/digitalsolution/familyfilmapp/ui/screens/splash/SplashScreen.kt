@@ -18,15 +18,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenOne
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenThree
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenTwo
-
+import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenBlue
+import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenOrange
+import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenPurple
 @Composable
 fun SplashScreen(navController: NavController) {
 
-    val scaleAnimation: Animatable<Float, AnimationVector1D> =
-        remember { Animatable(initialValue = 0f) }
+    val scaleAnimation: Animatable<Float, AnimationVector1D> = remember { Animatable(initialValue = 0f) }
 
     AnimationSplashContent(
         scaleAnimation = scaleAnimation,
@@ -51,9 +49,9 @@ fun ContentSplashScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        GradientSplashScreenOne,
-                        GradientSplashScreenTwo,
-                        GradientSplashScreenThree,
+                        GradientSplashScreenOrange,
+                        GradientSplashScreenPurple,
+                        GradientSplashScreenBlue,
                     )
                 )
             ),

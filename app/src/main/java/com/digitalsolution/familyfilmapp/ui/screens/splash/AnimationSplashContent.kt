@@ -9,13 +9,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import kotlinx.coroutines.delay
-
 @Composable
 fun AnimationSplashContent(
     scaleAnimation: Animatable<Float, AnimationVector1D>,
-    navigate: (String) -> Unit,
     durationMillisAnimation: Int,
-    delayScreen: Long
+    delayScreen: Long,
+    navigate: (String) -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         scaleAnimation.animateTo(

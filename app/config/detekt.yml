@@ -1,0 +1,11 @@
+
+
+config:
+  validation: true
+  warningsAsErrors: true
+  excludes: ''
+
+
+naming:
+  FunctionNaming:
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'

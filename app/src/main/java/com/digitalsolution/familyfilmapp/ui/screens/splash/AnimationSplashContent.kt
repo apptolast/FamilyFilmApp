@@ -6,9 +6,9 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import kotlinx.coroutines.delay
+
 @Composable
 fun AnimationSplashContent(
     scaleAnimation: Animatable<Float, AnimationVector1D>,

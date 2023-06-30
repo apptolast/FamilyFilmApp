@@ -21,6 +21,7 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenBlue
 import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenOrange
 import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenPurple
+
 @Composable
 fun SplashScreen(navController: NavController) {
 

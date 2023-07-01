@@ -1,5 +1,4 @@
 
-
 config:
   validation: true
   warningsAsErrors: true
@@ -7,12 +6,46 @@ config:
 
 
 naming:
+  ClassNaming:
+    excludes: &testFolders
+      - '**/test/**'
+      - '**/androidTest/**'
+  ConstructorParameterNaming:
+    excludes: *testFolders
   FunctionNaming:
     functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
   TopLevelPropertyNaming:
     constantPattern: '[A-Z][A-Za-z0-9]*'
 
+build:
+  maxIssues: 0
+  weights:
+    complexity: 2
+    LongParameterList: 1
+    comments: 1
+
+console-reports:
+  active: true
+
+output-reports:
+  active: true
+
+processors:
+  active: true
+
+empty-blocks:
+  active: true
+  severity: error
+  EmptyCatchBlock:
+    active: true
+    severity: info
+
+
 complexity:
+  TooManyFunctions:
+    thresholdInFiles: 6
+    excludes:
+      - '**/internal/**'
   LongParameterList:
     functionThreshold: 6
     ignoreDefaultParameters: true

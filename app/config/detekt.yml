@@ -57,3 +57,16 @@ style:
   UnusedPrivateMember:
     ignoreAnnotated:
       - 'Preview'
+  CommentOverPrivateProperty:
+    active: true
+
+comments:
+  KDocStyle:
+    active: false
+    matchTypeParameters: true
+    matchDeclarationsOrder: true
+    allowParamOnConstructorProperties: true
+  DeprecatedBlockTag:
+    active: true
+  KDocReferencesNonPublicProperty:
+    active: true

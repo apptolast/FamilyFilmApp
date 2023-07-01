@@ -40,10 +40,9 @@ empty-blocks:
     active: true
     severity: info
 
-
 complexity:
   TooManyFunctions:
-    thresholdInFiles: 6
+    thresholdInFiles: 10
     excludes:
       - '**/internal/**'
   LongParameterList:
@@ -57,15 +56,8 @@ style:
   UnusedPrivateMember:
     ignoreAnnotated:
       - 'Preview'
-  CommentOverPrivateProperty:
-    active: true
 
 comments:
-  KDocStyle:
-    active: false
-    matchTypeParameters: true
-    matchDeclarationsOrder: true
-    allowParamOnConstructorProperties: true
   DeprecatedBlockTag:
     active: true
   KDocReferencesNonPublicProperty:

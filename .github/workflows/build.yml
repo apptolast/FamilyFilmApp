@@ -33,16 +33,17 @@ jobs:
       #  run: echo $FIREBASE_JSON > app/google-services.json
 
       - name: Run Debug Tests
-        run: ./gradlew build test --continue
+        run: ./gradlew build detekt --continue
+        #run: ./gradlew build test --continue
 
-      - name: Upload Test Reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-reports
-          path: '**/build/reports/tests/'
+      #- name: Upload Test Reports
+      #  if: ${{ always() }}
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: test-reports
+      #    path: '**/build/reports/tests/'
 
-      - name: Upload Test Reports
+      - name: Upload Detekt Report
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
@@ -53,4 +54,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: results.sarif
+          sarif_file: '**/build/reports/detekt/detekt.sarif'

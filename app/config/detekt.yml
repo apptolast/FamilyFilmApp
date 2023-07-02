@@ -1,0 +1,67 @@
+config:
+  validation: true
+  warningsAsErrors: true
+  excludes: ''
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9]*'
+  ClassNaming:
+    excludes: &testFolders
+      - '**/test/**'
+      - '**/androidTest/**'
+  ConstructorParameterNaming:
+    excludes: *testFolders
+
+build:
+  maxIssues: 0
+  weights:
+    complexity: 2
+    LongParameterList: 1
+    comments: 1
+
+console-reports:
+  active: true
+
+output-reports:
+  active: true
+
+processors:
+  active: true
+
+empty-blocks:
+  active: true
+  severity: error
+  EmptyCatchBlock:
+    active: true
+    severity: info
+
+complexity:
+  TooManyFunctions:
+    thresholdInFiles: 10
+    excludes:
+      - '**/internal/**'
+  LongParameterList:
+    functionThreshold: 6
+    ignoreDefaultParameters: true
+
+style:
+  MagicNumber:
+    active: false
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  UnusedPrivateMember:
+    ignoreAnnotated:
+      - 'Preview'
+  OptionalWhenBraces:
+    active: false
+
+comments:
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+  UndocumentedPublicProperty:
+    active: false

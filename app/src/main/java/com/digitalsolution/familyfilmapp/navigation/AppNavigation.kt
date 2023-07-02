@@ -22,7 +22,7 @@ fun AppNavigation() {
         }
 
         composable(route = Routes.Login.routes) {
-            LoginScreen(navController = navController)
+            LoginScreen(/*navController = navController*/)
         }
     }
 }

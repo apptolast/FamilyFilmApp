@@ -1,8 +1,12 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'io.gitlab.arturbosch.detekt'
 }
 
 android {
@@ -83,4 +87,35 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+}
+
+
+// Add detekt configuration
+detekt {
+    buildUponDefaultConfig = false // preconfigure defaults
+    allRules = true // activate all available (even unstable) rules.
+    config = files("$projectDir/config/detekt.yml")
+    // point to your custom config defining rules to run, overwriting default behavior
+    basePath = rootProject.projectDir.absolutePath
+    baseline = file("$projectDir/config/baseline.xml") // a way of suppressing issues before introducing detekt
+}
+
+tasks.withType(Detekt).configureEach {
+    reports {
+        html.required.set(true) // observe findings in your browser with structure and code snippets
+        xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
+        txt.required.set(true)
+        // similar to the console output, contains issue signature to manually edit baseline files
+        sarif.required.set(true)
+        // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with GitHub Code Scanning
+        md.required.set(true) // simple Markdown format
+    }
+}
+
+tasks.withType(Detekt).configureEach {
+    jvmTarget = JavaVersion.VERSION_17
+}
+
+tasks.withType(DetektCreateBaselineTask).configureEach {
+    jvmTarget = JavaVersion.VERSION_17
 }

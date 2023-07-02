@@ -1,21 +1,19 @@
-
 config:
   validation: true
   warningsAsErrors: true
   excludes: ''
 
-
 naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9]*'
   ClassNaming:
     excludes: &testFolders
       - '**/test/**'
       - '**/androidTest/**'
   ConstructorParameterNaming:
     excludes: *testFolders
-  FunctionNaming:
-    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
-  TopLevelPropertyNaming:
-    constantPattern: '[A-Z][A-Za-z0-9]*'
 
 build:
   maxIssues: 0
@@ -51,14 +49,19 @@ complexity:
 
 style:
   MagicNumber:
+    active: false
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
   UnusedPrivateMember:
     ignoreAnnotated:
       - 'Preview'
+  OptionalWhenBraces:
+    active: false
 
 comments:
-  DeprecatedBlockTag:
-    active: true
-  KDocReferencesNonPublicProperty:
-    active: true
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+  UndocumentedPublicProperty:
+    active: false

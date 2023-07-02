@@ -47,5 +47,3 @@ jobs:
         if: success() || failure()
         with:
           sarif_file: build/reports/detekt/detekt.sarif
-
-      - name:

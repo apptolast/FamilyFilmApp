@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,8 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.getGoogleFontFamily
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +42,7 @@ fun LoginScreen() {
     var textEmailState by remember { mutableStateOf("") }
     var textPasswordState by remember { mutableStateOf("") }
     val snackBarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+//    val scope = rememberCoroutineScope()
 
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         LoginContent(
@@ -54,14 +51,7 @@ fun LoginScreen() {
             textPasswordState = textPasswordState,
             changeEmailState = { textEmailState = it },
             changePasswordState = { textPasswordState = it }
-        ) {
-            scope.launch {
-                snackBarHostState.showSnackbar(
-                    message = "Implementar lógica de login",
-                    actionLabel = "Ok, _rndev ;)"
-                )
-            }
-        }
+        )
     }
 }
 
@@ -71,8 +61,7 @@ fun LoginContent(
     textFieldEmailState: String,
     textPasswordState: String,
     changeEmailState: (String) -> Unit,
-    changePasswordState: (String) -> Unit,
-    showSnackBar: () -> Job
+    changePasswordState: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -92,14 +81,12 @@ fun LoginContent(
             text = "Login",
             backgroundColor = MaterialTheme.colorScheme.tertiary,
             paddingVertical = 8.dp,
-            showSnackBar = showSnackBar,
             textColor = MaterialTheme.colorScheme.surface
         )
         CardLoginsButton(
             text = "Sign in with Google",
             backgroundColor = MaterialTheme.colorScheme.background,
             paddingVertical = 0.dp,
-            showSnackBar = showSnackBar,
             contentImage = {
                 Image(
                     painter = painterResource(R.drawable.google_logo),
@@ -176,12 +163,12 @@ private fun CardLoginsButton(
     text: String,
     backgroundColor: Color,
     paddingVertical: Dp,
-    showSnackBar: () -> Job,
+//    showSnackBar: () -> Job,
     textColor: Color = Color.Unspecified,
     contentImage: @Composable () -> Unit = {}
 ) {
     Card(
-        onClick = { showSnackBar() },
+        onClick = { },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = paddingVertical)

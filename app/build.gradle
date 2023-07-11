@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace 'com.digitalsolution.familyfilmapp'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.digitalsolution.familyfilmapp"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -71,6 +71,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.4.3")
 
     // Hilt
     implementation "com.google.dagger:hilt-android:2.46.1"

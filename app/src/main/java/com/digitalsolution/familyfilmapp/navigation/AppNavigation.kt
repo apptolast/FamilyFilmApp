@@ -14,9 +14,8 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Login.routes
+        startDestination = Routes.SplashScreenDest.routes
     ) {
-
         composable(route = Routes.SplashScreenDest.routes) {
             SplashScreen(navController = navController)
         }

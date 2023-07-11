@@ -10,7 +10,5 @@ fun String.getGoogleFontFamily(): FontFamily {
         providerPackage = "com.google.android.gms",
         certificates = R.array.com_google_android_gms_fonts_certs
     )
-    return FontFamily(
-        Font(googleFont = GoogleFont(this), fontProvider = provider)
-    )
+    return FontFamily(Font(googleFont = GoogleFont(this), fontProvider = provider))
 }

@@ -65,7 +65,6 @@ fun LoginScreen() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginContent(
     innerPadding: PaddingValues,
@@ -83,57 +82,12 @@ fun LoginContent(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Card {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.logo_film_family),
-                    contentDescription = "Snail Logo",
-                    modifier = Modifier
-                        .width(134.dp)
-                        .padding(8.dp)
-                )
-                Text(
-                    text = "Film Family",
-                    color = MaterialTheme.colorScheme.background,
-                    textAlign = TextAlign.Center,
-                    fontFamily = "Alfa Slab One".getGoogleFontFamily(),
-                    fontSize = 36.sp
-                )
-                Text(
-                    text = "Shared your films with your family and friends",
-                    fontFamily = "Anton".getGoogleFontFamily(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 14.sp
-                )
-                OutlinedTextField(
-                    value = textFieldEmailState,
-                    onValueChange = changeEmailState,
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    label = {
-                        Text(
-                            text = "Enter your email",
-                            color = Color.Gray
-                        )
-                    }
-                )
-                OutlinedTextField(
-                    value = textPasswordState,
-                    onValueChange = changePasswordState,
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    label = {
-                        Text(
-                            text = "Enter your password",
-                            color = Color.Gray
-                        )
-                    }
-                )
-            }
-        }
+        CardLoginMain(
+            textFieldEmailState = textFieldEmailState,
+            changeEmailState = changeEmailState,
+            textPasswordState = textPasswordState,
+            changePasswordState = changePasswordState
+        )
         CardLoginsButton(
             text = "Login",
             backgroundColor = MaterialTheme.colorScheme.tertiary,
@@ -162,6 +116,67 @@ fun LoginContent(
             color = MaterialTheme.colorScheme.background
         )
         Text(text = "Forgot your password?", color = Color.Blue)
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CardLoginMain(
+    textFieldEmailState: String,
+    changeEmailState: (String) -> Unit,
+    textPasswordState: String,
+    changePasswordState: (String) -> Unit
+) {
+    Card {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_film_family),
+                contentDescription = "Snail Logo",
+                modifier = Modifier
+                    .width(134.dp)
+                    .padding(8.dp)
+            )
+            Text(
+                text = "Film Family",
+                color = MaterialTheme.colorScheme.background,
+                textAlign = TextAlign.Center,
+                fontFamily = "Alfa Slab One".getGoogleFontFamily(),
+                fontSize = 36.sp
+            )
+            Text(
+                text = "Shared your films with your family and friends",
+                fontFamily = "Anton".getGoogleFontFamily(),
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp
+            )
+            OutlinedTextField(
+                value = textFieldEmailState,
+                onValueChange = changeEmailState,
+                modifier = Modifier.padding(vertical = 4.dp),
+                label = {
+                    Text(
+                        text = "Enter your email",
+                        color = Color.Gray
+                    )
+                }
+            )
+            OutlinedTextField(
+                value = textPasswordState,
+                onValueChange = changePasswordState,
+                modifier = Modifier.padding(vertical = 4.dp),
+                label = {
+                    Text(
+                        text = "Enter your password",
+                        color = Color.Gray
+                    )
+                }
+            )
+        }
     }
 }
 

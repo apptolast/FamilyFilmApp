@@ -158,23 +158,13 @@ private fun CardLoginMain(
                 value = textFieldEmailState,
                 onValueChange = changeEmailState,
                 modifier = Modifier.padding(vertical = 4.dp),
-                label = {
-                    Text(
-                        text = "Enter your email",
-                        color = Color.Gray
-                    )
-                }
+                label = { Text(text = "Enter your email", color = Color.Gray) }
             )
             OutlinedTextField(
                 value = textPasswordState,
                 onValueChange = changePasswordState,
                 modifier = Modifier.padding(vertical = 4.dp),
-                label = {
-                    Text(
-                        text = "Enter your password",
-                        color = Color.Gray
-                    )
-                }
+                label = { Text(text = "Enter your password", color = Color.Gray) }
             )
         }
     }

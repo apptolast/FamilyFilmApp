@@ -26,8 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginMain
-import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginsButton
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,16 +70,22 @@ fun LoginContent(
             changePasswordState = changePasswordState
         )
         CardLoginsButton(
+            text = stringResource(R.string.login),
+            backgroundColor = MaterialTheme.colorScheme.tertiary,
+            paddingVertical = 8.dp,
+            textColor = MaterialTheme.colorScheme.surface
+        )
+        CardLoginsButton(
             text = stringResource(R.string.sign_in_with_google),
             backgroundColor = MaterialTheme.colorScheme.background,
-            paddingVertical = 13.dp,
+            paddingVertical = 0.dp,
             contentImage = {
                 Image(
-                    painter = painterResource(R.drawable.logo_google),
+                    painter = painterResource(R.drawable.google_logo),
                     contentDescription = stringResource(R.string.google_logo),
                     modifier = Modifier
-                        .size(30.dp)
-                        .padding(end = 6.dp)
+                        .size(32.dp)
+                        .padding(end = 4.dp)
                 )
             }
         )

@@ -26,7 +26,7 @@ fun CardLoginsButton(
     contentImage: @Composable () -> Unit = {}
 ) {
     Card(
-        onClick = { },
+        onClick = {},
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = paddingVertical)

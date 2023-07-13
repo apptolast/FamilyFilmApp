@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Family Film</string>
+    <string name="shared_your_films_with_your_family_and_friends">Shared your films with your family and friends</string>
+    <string name="film_family">Film Family</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="snail_logo">Snail Logo</string>
 </resources>

@@ -26,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.digitalsolution.familyfilmapp.ui.theme.red40
+import com.digitalsolution.familyfilmapp.ui.theme.redRed200
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +59,7 @@ fun LoginContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(red40)
             .padding(innerPadding)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +72,7 @@ fun LoginContent(
         )
         CardLoginsButton(
             text = "Login",
-            backgroundColor = MaterialTheme.colorScheme.tertiary,
+            backgroundColor = redRed200,
             paddingVertical = 8.dp,
             textColor = MaterialTheme.colorScheme.surface
         )

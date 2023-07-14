@@ -60,7 +60,7 @@ fun ContentSplashScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.icons8_kotlin),
+                painter = painterResource(id = R.drawable.logo_film_family),
                 contentDescription = "Logotipo Splash Screen",
                 modifier = modifier
                     .size(400.dp)

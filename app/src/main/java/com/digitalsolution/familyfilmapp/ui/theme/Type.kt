@@ -24,17 +24,15 @@ val Typography = Typography(
         fontFamily = "Holtwood One SC".getGoogleFontFamily(),
         fontWeight = FontWeight(200),
         color = Color(0xFFFFFFFF),
-        textAlign = TextAlign.Center,
-        lineHeight = 10.sp
+        textAlign = TextAlign.Center
     ),
 
     titleMedium = TextStyle(
-        fontSize = 16.sp,
+        fontSize = 18.sp,
         fontFamily = "Homenaje".getGoogleFontFamily(),
         fontWeight = FontWeight(400),
         color = Color(0xFFFFFFFF),
-        textAlign = TextAlign.Center,
-        lineHeight = 10.sp
+        textAlign = TextAlign.Center
     )
 
     /* Other default text styles to override

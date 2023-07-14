@@ -1,8 +1,15 @@
 <resources>
     <string name="app_name">Family Film</string>
-    <string name="shared_your_films_with_your_family_and_friends">Shared your films with your family and friends</string>
+
+<!--    LOGIN-->
+    <string name="snail_logo">Snail Logo</string>
     <string name="film_family">Film Family</string>
+    <string name="shared_your_films_with_your_family_and_friends">Shared your films with your family and friends</string>
     <string name="enter_your_email">Enter your email</string>
     <string name="enter_your_password">Enter your password</string>
-    <string name="snail_logo">Snail Logo</string>
+    <string name="login">Login</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="google_logo">Google Logo</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign up</string>
+    <string name="forgot_your_password">Forgot your password?</string>
 </resources>

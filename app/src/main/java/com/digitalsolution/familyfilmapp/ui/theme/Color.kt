@@ -16,8 +16,10 @@ val GradientSplashScreenBlue = Color(0, 47, 187)
 
 //Rndev colors theme
 
-val red80 = Color(0xFFD3839B)
+val red80 = Color(0xFFFFACC5)
 val red60 = Color(0xFFBD5674)
 val red40 = Color(0xFF84344C)
 val redRed200 = Color(0xFFE14B4B)
+val red50 = Color(0xFF9E6D7B)
+
 val white40Opacity = Color(0x65D9D9D9)

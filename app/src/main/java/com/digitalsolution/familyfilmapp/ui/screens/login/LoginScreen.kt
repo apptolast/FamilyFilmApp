@@ -70,15 +70,9 @@ fun LoginContent(
             changePasswordState = changePasswordState
         )
         CardLoginsButton(
-            text = stringResource(R.string.login),
-            backgroundColor = MaterialTheme.colorScheme.tertiary,
-            paddingVertical = 8.dp,
-            textColor = MaterialTheme.colorScheme.surface
-        )
-        CardLoginsButton(
             text = stringResource(R.string.sign_in_with_google),
             backgroundColor = MaterialTheme.colorScheme.background,
-            paddingVertical = 0.dp,
+            paddingVertical = 10.dp,
             contentImage = {
                 Image(
                     painter = painterResource(R.drawable.google_logo),

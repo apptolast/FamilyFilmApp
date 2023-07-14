@@ -77,7 +77,7 @@ fun LoginContent(
             paddingVertical = 10.dp,
             contentImage = {
                 Image(
-                    painter = painterResource(R.drawable.google_logo),
+                    painter = painterResource(R.drawable.logo_google),
                     contentDescription = stringResource(R.string.google_logo),
                     modifier = Modifier
                         .size(32.dp)

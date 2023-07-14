@@ -80,9 +80,10 @@ fun CardLoginMainContent(
                 textFieldState = textFieldEmailState,
                 changeTextFieldState = changeEmailState,
                 labelText = stringResource(R.string.enter_your_email),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.padding(top = 8.dp),
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             LoginTextField(
                 textFieldState = textPasswordState,
                 changeTextFieldState = changePasswordState,

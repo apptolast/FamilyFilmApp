@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.login
+package com.digitalsolution.familyfilmapp.ui.screens.login.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions

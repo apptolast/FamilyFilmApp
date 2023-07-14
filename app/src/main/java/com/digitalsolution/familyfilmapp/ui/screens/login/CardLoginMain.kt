@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,11 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import com.digitalsolution.familyfilmapp.ui.theme.white40Opacity
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +34,7 @@ fun CardLoginMain(
     textPasswordState: String,
     changePasswordState: (String) -> Unit
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = white40Opacity)) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -59,6 +61,7 @@ fun CardLoginMain(
                 onValueChange = changeEmailState,
                 modifier = Modifier.padding(vertical = 4.dp),
                 label = { Text(text = stringResource(R.string.enter_your_email), color = Color.Gray) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = TextFieldDefaults.textFieldColors(
                     textColor = Color.DarkGray,
                     containerColor = Color.White
@@ -69,6 +72,7 @@ fun CardLoginMain(
                 onValueChange = changePasswordState,
                 modifier = Modifier.padding(vertical = 4.dp),
                 label = { Text(text = stringResource(R.string.enter_your_password), color = Color.Gray) },
+                visualTransformation = PasswordVisualTransformation(),
                 colors = TextFieldDefaults.textFieldColors(
                     textColor = Color.DarkGray,
                     containerColor = Color.White

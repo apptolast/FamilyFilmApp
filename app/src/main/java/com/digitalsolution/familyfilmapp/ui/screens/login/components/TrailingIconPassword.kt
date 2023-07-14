@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.login
+package com.digitalsolution.familyfilmapp.ui.screens.login.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility

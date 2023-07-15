@@ -51,6 +51,6 @@ fun CardLoginsButton(
 @Composable
 fun CardLoginsButtonPreview() {
     FamilyFilmAppTheme {
-        CardLoginsButton(text = "", backgroundColor = Color.White, paddingVertical = 2.dp)
+        CardLoginsButton(text = "Sign in", backgroundColor = Color.White, paddingVertical = 2.dp)
     }
 }

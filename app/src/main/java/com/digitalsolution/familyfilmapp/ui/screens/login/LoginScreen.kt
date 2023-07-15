@@ -72,14 +72,14 @@ fun LoginContent(
         CardLoginsButton(
             text = stringResource(R.string.sign_in_with_google),
             backgroundColor = MaterialTheme.colorScheme.background,
-            paddingVertical = 10.dp,
+            paddingVertical = 13.dp,
             contentImage = {
                 Image(
                     painter = painterResource(R.drawable.google_logo),
                     contentDescription = stringResource(R.string.google_logo),
                     modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 4.dp)
+                        .size(30.dp)
+                        .padding(end = 6.dp)
                 )
             }
         )

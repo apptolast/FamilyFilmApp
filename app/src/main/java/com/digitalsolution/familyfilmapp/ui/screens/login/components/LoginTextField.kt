@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,3 +38,17 @@ fun LoginTextField(
         )
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun LoginTextFieldPreview() {
+    FamilyFilmAppTheme {
+        LoginTextField(
+            textFieldState = "",
+            changeTextFieldState = {},
+            labelText = "",
+            keyboardOptions = KeyboardOptions.Default
+        )
+    }
+}
+

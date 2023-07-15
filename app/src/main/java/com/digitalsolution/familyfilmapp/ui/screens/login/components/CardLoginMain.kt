@@ -116,9 +116,11 @@ fun CardLoginMainContent(
 @Composable
 fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
-        CardLoginMain(textFieldEmailState = "",
+        CardLoginMain(
+            textFieldEmailState = "",
             textPasswordState = "",
             changeEmailState = {},
-            changePasswordState = {})
+            changePasswordState = {}
+        )
     }
 }

@@ -6,6 +6,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun TrailingIconPassword(isPasswordVisible: Boolean, passwordToVisible: () -> Unit) {
@@ -18,5 +20,13 @@ fun TrailingIconPassword(isPasswordVisible: Boolean, passwordToVisible: () -> Un
             imageVector = image,
             contentDescription = description
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TrailingIconPasswordPreview() {
+    FamilyFilmAppTheme {
+        TrailingIconPassword(isPasswordVisible = true) {}
     }
 }

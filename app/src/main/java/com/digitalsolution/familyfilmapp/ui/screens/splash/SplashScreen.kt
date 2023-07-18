@@ -18,9 +18,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenBlue
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenOrange
-import com.digitalsolution.familyfilmapp.ui.theme.GradientSplashScreenPurple
+import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_blue
+import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_orange
+import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_purple
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -50,9 +50,9 @@ fun ContentSplashScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        GradientSplashScreenOrange,
-                        GradientSplashScreenPurple,
-                        GradientSplashScreenBlue,
+                        gradient_splash_screen_orange,
+                        gradient_splash_screen_purple,
+                        gradient_splash_screen_blue,
                     )
                 )
             ),

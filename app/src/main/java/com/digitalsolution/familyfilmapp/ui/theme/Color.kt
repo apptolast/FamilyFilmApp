@@ -2,9 +2,9 @@ package com.digitalsolution.familyfilmapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val GradientSplashScreenOrange = Color(239, 127, 26)
-val GradientSplashScreenPurple = Color(120, 40, 140)
-val GradientSplashScreenBlue = Color(0, 47, 187)
+val gradient_splash_screen_orange = Color(239, 127, 26)
+val gradient_splash_screen_purple = Color(120, 40, 140)
+val gradient_splash_screen_blue = Color(0, 47, 187)
 
 //Rndev colors theme
 

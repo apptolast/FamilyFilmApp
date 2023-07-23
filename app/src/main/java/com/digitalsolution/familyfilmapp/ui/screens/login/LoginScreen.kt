@@ -1,7 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginMain
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginsButton
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -59,7 +59,7 @@ fun LoginContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
+//            .background(MaterialTheme.colorScheme.primary)
             .padding(innerPadding)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -71,13 +71,13 @@ fun LoginContent(
             changePasswordState = changePasswordState
         )
         CardLoginsButton(
-            text = stringResource(R.string.sign_in_with_google),
-            backgroundColor = MaterialTheme.colorScheme.background,
+            text = stringResource(R.string.login_text_sign_in_with_google),
+            backgroundColor = MaterialTheme.colorScheme.surface,
             paddingVertical = 13.dp,
             contentImage = {
                 Image(
                     painter = painterResource(R.drawable.google_logo),
-                    contentDescription = stringResource(R.string.google_logo),
+                    contentDescription = stringResource(R.string.login_icon_google),
                     modifier = Modifier
                         .size(30.dp)
                         .padding(end = 6.dp)
@@ -85,11 +85,11 @@ fun LoginContent(
             }
         )
         Text(
-            text = stringResource(R.string.don_t_have_an_account_sign_up),
+            text = stringResource(R.string.login_text_sign_up),
             modifier = Modifier.padding(6.dp),
-            color = MaterialTheme.colorScheme.background
+//            color = MaterialTheme.colorScheme.background
         )
-        Text(text = stringResource(R.string.forgot_your_password), color = Color.Blue)
+        Text(text = stringResource(R.string.login_text_forgot_your_password), color = Color.Blue)
     }
 }
 

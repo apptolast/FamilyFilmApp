@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +40,9 @@ fun CardLoginMain(
         changeEmailState = changeEmailState,
         textPasswordState = textPasswordState,
         changePasswordState = changePasswordState,
-        isPasswordVisible = isPasswordVisible
-    ) { passwordToVisible(!isPasswordVisible) }
+        isPasswordVisible = isPasswordVisible,
+        passwordToVisible = { passwordToVisible(!isPasswordVisible) }
+    )
 }
 
 @Composable
@@ -53,43 +53,44 @@ fun CardLoginMainContent(
     changePasswordState: (String) -> Unit,
     isPasswordVisible: Boolean,
     passwordToVisible: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)) {
+    Card {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_film_family),
-                contentDescription = stringResource(R.string.snail_logo),
-                modifier = Modifier
+                contentDescription = stringResource(R.string.login_snail_logo),
+                modifier = modifier
                     .width(134.dp)
                     .padding(8.dp)
             )
             Text(
-                text = stringResource(R.string.film_family),
+                text = stringResource(R.string.login_text_app_title),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = stringResource(R.string.shared_your_films_with_your_family_and_friends),
+                text = stringResource(R.string.login_text_app_subtitle),
                 style = MaterialTheme.typography.titleMedium
             )
             LoginTextField(
                 textFieldState = textFieldEmailState,
                 changeTextFieldState = changeEmailState,
-                labelText = stringResource(R.string.enter_your_email),
+                labelText = stringResource(R.string.login_text_field_email),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = modifier.padding(top = 8.dp),
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = modifier.height(2.dp))
             LoginTextField(
                 textFieldState = textPasswordState,
                 changeTextFieldState = changePasswordState,
-                labelText = stringResource(R.string.enter_your_password),
+                labelText = stringResource(R.string.login_text_field_password),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.padding(bottom = 10.dp),
+                modifier = modifier.padding(bottom = 10.dp),
                 trailingIcon = {
                     TrailingIconPassword(
                         isPasswordVisible = isPasswordVisible,
@@ -103,7 +104,7 @@ fun CardLoginMainContent(
                 }
             )
             CardLoginsButton(
-                text = stringResource(R.string.login),
+                text = stringResource(R.string.login_text_button),
                 backgroundColor = MaterialTheme.colorScheme.tertiary,
                 paddingVertical = 1.dp,
                 textColor = MaterialTheme.colorScheme.surface

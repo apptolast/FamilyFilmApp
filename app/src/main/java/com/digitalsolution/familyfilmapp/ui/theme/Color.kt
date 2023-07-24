@@ -6,6 +6,7 @@ val gradient_splash_screen_orange = Color(239, 127, 26)
 val gradient_splash_screen_purple = Color(120, 40, 140)
 val gradient_splash_screen_blue = Color(0, 47, 187)
 
+
 val md_theme_light_primary = Color(0xFF0061A2)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFD1E4FF)
@@ -70,4 +71,5 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 
 val seed = Color(0xFF0062A3)
+
 

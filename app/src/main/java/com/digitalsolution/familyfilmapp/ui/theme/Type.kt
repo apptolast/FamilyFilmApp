@@ -1,6 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -22,6 +23,7 @@ val Typography = Typography(
         fontSize = 26.sp,
         fontFamily = FontFamily(Font(R.font.holtwood_one_sc)),
         fontWeight = FontWeight(200),
+        color = Color(0xFFFFFFFF),
         textAlign = TextAlign.Center
     ),
 
@@ -29,6 +31,7 @@ val Typography = Typography(
         fontSize = 18.sp,
         fontFamily = FontFamily(Font(R.font.homenaje)),
         fontWeight = FontWeight(400),
+        color = Color(0xFFFFFFFF),
         textAlign = TextAlign.Center
     )
 )

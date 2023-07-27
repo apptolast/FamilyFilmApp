@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Family Film</string>
 
-<!--    LOGIN-->
+    <!-- LOGIN-->
     <string name="login_snail_logo">Snail Logo</string>
     <string name="login_text_app_title">Film Family</string>
     <string name="login_text_app_subtitle">Shared your films with your family and friends</string>

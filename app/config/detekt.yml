@@ -57,6 +57,9 @@ style:
       - 'Preview'
   OptionalWhenBraces:
     active: false
+  ForbiddenComment:
+    active: true
+    allowedPatterns: '(TODO:)|(FIXME:)'
 
 comments:
   UndocumentedPublicClass:

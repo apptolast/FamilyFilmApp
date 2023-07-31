@@ -86,7 +86,8 @@ fun LoginContent(
             text = stringResource(R.string.login_text_sign_up),
             modifier = Modifier.padding(6.dp)
         )
-//        TODO: Revise when review theme colors
+
+        // TODO: Revise when review theme colors
         Text(text = stringResource(R.string.login_text_forgot_your_password), color = Color.Blue)
     }
 }

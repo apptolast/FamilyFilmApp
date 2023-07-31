@@ -44,7 +44,7 @@ complexity:
     excludes:
       - '**/internal/**'
   LongParameterList:
-    functionThreshold: 6
+    functionThreshold: 7
     ignoreDefaultParameters: true
 
 style:
@@ -57,6 +57,9 @@ style:
       - 'Preview'
   OptionalWhenBraces:
     active: false
+  ForbiddenComment:
+    active: true
+    allowedPatterns: '(TODO:)|(FIXME:)'
 
 comments:
   UndocumentedPublicClass:

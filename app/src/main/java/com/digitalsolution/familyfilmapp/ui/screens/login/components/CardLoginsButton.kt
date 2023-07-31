@@ -24,7 +24,6 @@ fun CardLoginsButton(
     text: String,
     backgroundColor: Color,
     paddingVertical: Dp,
-//    showSnackBar: () -> Job,
     modifier: Modifier = Modifier,
     textColor: Color = Color.Unspecified,
     contentImage: @Composable () -> Unit = {}

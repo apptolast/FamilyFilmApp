@@ -35,7 +35,6 @@ fun LoginScreen() {
     var textEmailState by remember { mutableStateOf("") }
     var textPasswordState by remember { mutableStateOf("") }
     val snackBarHostState = remember { SnackbarHostState() }
-//    val scope = rememberCoroutineScope()
 
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         LoginContent(
@@ -59,7 +58,6 @@ fun LoginContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(MaterialTheme.colorScheme.primary)
             .padding(innerPadding)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,7 +74,7 @@ fun LoginContent(
             paddingVertical = 13.dp,
             contentImage = {
                 Image(
-                    painter = painterResource(R.drawable.google_logo),
+                    painter = painterResource(R.drawable.logo_google),
                     contentDescription = stringResource(R.string.login_icon_google),
                     modifier = Modifier
                         .size(30.dp)
@@ -86,9 +84,9 @@ fun LoginContent(
         )
         Text(
             text = stringResource(R.string.login_text_sign_up),
-            modifier = Modifier.padding(6.dp),
-//            color = MaterialTheme.colorScheme.background
+            modifier = Modifier.padding(6.dp)
         )
+//        TODO: Revise when review theme colors
         Text(text = stringResource(R.string.login_text_forgot_your_password), color = Color.Blue)
     }
 }

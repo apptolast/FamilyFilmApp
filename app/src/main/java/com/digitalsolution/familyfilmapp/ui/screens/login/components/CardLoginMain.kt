@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +49,7 @@ fun CardLoginMain(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardLoginMainContent(
     textFieldEmailState: String,
@@ -55,6 +60,11 @@ fun CardLoginMainContent(
     passwordToVisible: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val textFieldColor = TextFieldDefaults.textFieldColors(
+        textColor = Color.DarkGray, containerColor = Color.White
+    )
+
     Card {
         Column(
             modifier = modifier
@@ -77,31 +87,47 @@ fun CardLoginMainContent(
                 text = stringResource(R.string.login_text_app_subtitle),
                 style = MaterialTheme.typography.titleMedium
             )
-            LoginTextField(
-                textFieldState = textFieldEmailState,
-                changeTextFieldState = changeEmailState,
-                labelText = stringResource(R.string.login_text_field_email),
+            TextField(
+                value = textFieldEmailState,
+                onValueChange = changeEmailState,
+                label = {
+                    Text(
+                        text = stringResource(R.string.login_text_field_email),
+                        color = Color.Gray
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = modifier.padding(top = 8.dp),
+                modifier = modifier
+                    .padding(top = 12.dp)
+                    .padding(top = 8.dp),
+                colors = textFieldColor
             )
             Spacer(modifier = modifier.height(2.dp))
-            LoginTextField(
-                textFieldState = textPasswordState,
-                changeTextFieldState = changePasswordState,
-                labelText = stringResource(R.string.login_text_field_password),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = modifier.padding(bottom = 10.dp),
+            TextField(
+                value = textPasswordState,
+                onValueChange = changePasswordState,
+                modifier = modifier
+                    .padding(top = 12.dp)
+                    .padding(bottom = 10.dp),
                 trailingIcon = {
                     TrailingIconPassword(
                         isPasswordVisible = isPasswordVisible,
                         passwordToVisible = passwordToVisible
                     )
                 },
+                label = {
+                    Text(
+                        text = stringResource(R.string.login_text_field_password),
+                        color = Color.Gray
+                    )
+                },
                 visualTransformation = if (isPasswordVisible) {
                     VisualTransformation.None
                 } else {
                     PasswordVisualTransformation()
-                }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                colors = textFieldColor
             )
             CardLoginsButton(
                 text = stringResource(R.string.login_text_button),

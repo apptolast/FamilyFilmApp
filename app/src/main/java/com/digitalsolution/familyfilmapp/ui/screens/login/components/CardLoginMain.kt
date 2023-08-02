@@ -98,8 +98,7 @@ fun CardLoginMainContent(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = modifier
-                    .padding(top = 12.dp)
-                    .padding(top = 8.dp),
+                    .padding(top = 20.dp),
                 colors = textFieldColor
             )
             Spacer(modifier = modifier.height(2.dp))

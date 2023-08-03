@@ -11,7 +11,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : LoginRepository {
 
-    override fun login(email: String, password: String): Flow<Result<AuthResult>> = callbackFlow {
+    override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> = callbackFlow {
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 trySend(Result.success(it))
@@ -40,6 +40,6 @@ class LoginRepositoryImpl @Inject constructor(
 }
 
 interface LoginRepository {
-    fun login(email: String, password: String): Flow<Result<AuthResult>>
+    fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>>
     fun register(email: String, password: String): Flow<Result<AuthResult>>
 }

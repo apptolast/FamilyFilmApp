@@ -19,8 +19,6 @@ data class LoginUiState(
         ),
         isLoading = false,
         hasError = false,
-        errorMessage = "",
-
-        )
-
+        errorMessage = ""
+    )
 }

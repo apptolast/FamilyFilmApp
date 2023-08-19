@@ -9,6 +9,8 @@ buildscript {
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.47'
         // Add the dependency for the detekt Gradle plugin
         classpath 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.0'
+        //Dependency for google login
+        classpath 'com.google.gms:google-services:4.3.15'
     }
 }
 

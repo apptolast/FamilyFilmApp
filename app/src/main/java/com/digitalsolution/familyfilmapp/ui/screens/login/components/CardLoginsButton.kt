@@ -24,12 +24,13 @@ fun CardLoginsButton(
     text: String,
     backgroundColor: Color,
     paddingVertical: Dp,
+    onCLickGoogle: () -> Unit,
     modifier: Modifier = Modifier,
     textColor: Color = Color.Unspecified,
     contentImage: @Composable () -> Unit = {}
 ) {
     Card(
-        onClick = {},
+        onClick = { onCLickGoogle() },
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = paddingVertical),
@@ -53,6 +54,10 @@ fun CardLoginsButton(
 @Composable
 fun CardLoginsButtonPreview() {
     FamilyFilmAppTheme {
-        CardLoginsButton(text = "Sign in", backgroundColor = Color.White, paddingVertical = 2.dp)
+        CardLoginsButton(
+            text = "Sign in",
+            backgroundColor = Color.White,
+            paddingVertical = 2.dp,
+            onCLickGoogle = {})
     }
 }

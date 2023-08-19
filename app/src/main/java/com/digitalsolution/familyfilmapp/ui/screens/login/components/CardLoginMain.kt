@@ -107,7 +107,8 @@ fun CardLoginMainContent(
                 text = stringResource(R.string.login_text_button),
                 backgroundColor = MaterialTheme.colorScheme.tertiary,
                 paddingVertical = 1.dp,
-                textColor = MaterialTheme.colorScheme.surface
+                textColor = MaterialTheme.colorScheme.surface,
+                onCLickGoogle = {}
             )
         }
     }

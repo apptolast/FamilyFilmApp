@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.repositories
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -37,9 +38,24 @@ class LoginRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
+    override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = callbackFlow {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnSuccessListener {
+                trySend(Result.success(it))
+                close()
+            }
+            .addOnFailureListener {
+                trySend(Result.failure(it))
+                close(it)
+            }
+        awaitClose()
+    }
+
 }
 
 interface LoginRepository {
     fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>>
     fun register(email: String, password: String): Flow<Result<AuthResult>>
+    fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
 }

@@ -39,35 +39,12 @@ import com.google.android.gms.tasks.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
     var textEmailState by remember { mutableStateOf("") }
     var textPasswordState by remember { mutableStateOf("") }
     val snackBarHostState = remember { SnackbarHostState() }
-
-    val loginViewModel: LoginViewModel = hiltViewModel()
-
-    Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
-        LoginContent(
-            innerPadding = innerPadding,
-            textFieldEmailState = textEmailState,
-            textPasswordState = textPasswordState,
-            changeEmailState = { textEmailState = it },
-            changePasswordState = { textPasswordState = it },
-            loginViewModel
-        )
-    }
-}
-
-@Composable
-fun LoginContent(
-    innerPadding: PaddingValues,
-    textFieldEmailState: String,
-    textPasswordState: String,
-    changeEmailState: (String) -> Unit,
-    changePasswordState: (String) -> Unit,
-    loginViewModel: LoginViewModel = hiltViewModel()
-) {
-
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -80,6 +57,28 @@ fun LoginContent(
             }
         }
 
+    Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
+        LoginContent(
+            innerPadding = innerPadding,
+            textFieldEmailState = textEmailState,
+            textPasswordState = textPasswordState,
+            changeEmailState = { textEmailState = it },
+            changePasswordState = { textPasswordState = it },
+        ) {
+            startForResult.launch(loginViewModel.googleSignIn())
+        }
+    }
+}
+
+@Composable
+fun LoginContent(
+    innerPadding: PaddingValues,
+    textFieldEmailState: String,
+    textPasswordState: String,
+    changeEmailState: (String) -> Unit,
+    changePasswordState: (String) -> Unit,
+    onClickGoogleButton: () -> Unit
+) {
 
     Column(
         modifier = Modifier
@@ -108,8 +107,7 @@ fun LoginContent(
                 )
             },
             onCLickGoogle = {
-                val signInIntent = loginViewModel.googleSignIn()
-                startForResult.launch(signInIntent)
+                onClickGoogleButton()
             }
         )
         Text(
@@ -131,7 +129,8 @@ fun LoginScreenPreview() {
             textFieldEmailState = "",
             textPasswordState = "",
             changeEmailState = {},
-            changePasswordState = {}
+            changePasswordState = {},
+            onClickGoogleButton = {}
         )
     }
 }

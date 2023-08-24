@@ -12,8 +12,8 @@ class LoginEmailPassUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<Pair<String, String>, Flow<LoginUiState>>() {
 
-    override suspend fun execute(params: Pair<String, String>): Flow<LoginUiState> = flow {
-        val (email, pass) = params
+    override suspend fun execute(parameters: Pair<String, String>): Flow<LoginUiState> = flow {
+        val (email, pass) = parameters
 
         // Loading
         emit(LoginUiState().copy(isLoading = true))

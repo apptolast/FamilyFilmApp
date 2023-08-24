@@ -5,21 +5,20 @@ import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.Login
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import javax.inject.Inject
 
 class LoginWithGoogleUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<String, Flow<LoginUiState>>() {
 
-    override suspend fun execute(parameters: String): Flow<LoginUiState> = flow {
-        emit(LoginUiState().copy(isLoading = true))
-        repository.loginWithGoogle(parameters).collectLatest { result ->
+    override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
+        send(LoginUiState().copy(isLoading = true))
+        repository.loginWithGoogle(parameters).collect() { result ->
             // Similar al manejo de resultados en LoginEmailPassUseCase
             result.fold(
                 onSuccess = { authResult ->
-                    emit(
+                    send(
                         LoginUiState().copy(
                             login = Login(
                                 email = authResult.user?.email ?: "",
@@ -34,7 +33,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     )
                 },
                 onFailure = {
-                    emit(
+                    send(
                         LoginUiState().copy(
                             login = Login(
                                 email = "error",

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -49,7 +48,24 @@ fun LoginScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
-    val loginUiState by loginViewModel.state.collectAsStateWithLifecycle(lifecycleOwner)
+    val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
+
+    // Observar cambios en loginUiState
+    LaunchedEffect(loginUiState) {
+        when {
+            loginUiState.isLoading -> {
+                snackBarHostState.showSnackbar("Iniciando sesión...")
+            }
+
+            loginUiState.userData.isLogin -> {
+                snackBarHostState.showSnackbar("Inicio de sesión exitoso!")
+            }
+
+            else -> {
+                snackBarHostState.showSnackbar("${loginUiState.userData.isLogin} y Email : ${loginUiState.userData.email}")
+            }
+        }
+    }
 
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -77,23 +93,6 @@ fun LoginScreen(
         )
     }
 
-    LaunchedEffect(key1 = true) {
-        if (loginUiState.hasError) {
-            snackBarHostState.showSnackbar(
-                loginUiState.errorMessage,
-                "Close",
-                true,
-                SnackbarDuration.Long
-            )
-        } else {
-            snackBarHostState.showSnackbar(
-                "Login: ${loginUiState.userData.isLogin}",
-                "Close",
-                true,
-                SnackbarDuration.Short
-            )
-        }
-    }
 }
 
 @Composable
@@ -117,7 +116,7 @@ fun LoginContent(
         )
         CardLoginsButton(
             text = stringResource(R.string.login_text_sign_in_with_google),
-            backgroundColor = MaterialTheme.colorScheme.surface,
+            backgroundColor = MaterialTheme.colorScheme.primary,
             paddingVertical = 13.dp,
             contentImage = {
                 Image(

@@ -63,8 +63,10 @@ class LoginViewModel @Inject constructor(
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
-            result.collectLatest {
-                _state.update { it }
+            result.collectLatest { newLoginUIState ->
+                _state.update {
+                    newLoginUIState
+                }
             }
         }
     }

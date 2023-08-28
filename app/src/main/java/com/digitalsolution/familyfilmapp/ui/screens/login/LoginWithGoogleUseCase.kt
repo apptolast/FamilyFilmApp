@@ -1,8 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
-
 import com.digitalsolution.familyfilmapp.BaseUseCase
-import com.digitalsolution.familyfilmapp.model.local.Login
+import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -14,13 +13,13 @@ class LoginWithGoogleUseCase @Inject constructor(
 
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
         send(LoginUiState().copy(isLoading = true))
-        repository.loginWithGoogle(parameters).collect() { result ->
+        repository.loginWithGoogle(parameters).collect { result ->
             // Similar al manejo de resultados en LoginEmailPassUseCase
             result.fold(
                 onSuccess = { authResult ->
                     send(
                         LoginUiState().copy(
-                            login = Login(
+                            userData = UserData(
                                 email = authResult.user?.email ?: "",
                                 pass = "",
                                 isLogin = true,
@@ -35,8 +34,8 @@ class LoginWithGoogleUseCase @Inject constructor(
                 onFailure = {
                     send(
                         LoginUiState().copy(
-                            login = Login(
-                                email = "error",
+                            userData = UserData(
+                                email = "",
                                 pass = "",
                                 isLogin = false,
                                 isRegistered = false

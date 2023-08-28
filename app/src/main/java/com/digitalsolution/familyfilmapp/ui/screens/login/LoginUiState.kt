@@ -1,17 +1,17 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
 import com.digitalsolution.familyfilmapp.BaseUiState
-import com.digitalsolution.familyfilmapp.model.local.Login
+import com.digitalsolution.familyfilmapp.model.local.UserData
 
 data class LoginUiState(
-    var login: Login,
+    var userData: UserData,
     override val isLoading: Boolean,
     override val hasError: Boolean,
     override val errorMessage: String
 ) : BaseUiState(isLoading, hasError, errorMessage) {
 
     constructor() : this(
-        Login(
+        UserData(
             email = "",
             pass = "",
             isLogin = false,

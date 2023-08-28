@@ -24,13 +24,13 @@ fun CardLoginsButton(
     text: String,
     backgroundColor: Color,
     paddingVertical: Dp,
-    onCLickGoogle: () -> Unit,
+    onCLick: () -> Unit,
     modifier: Modifier = Modifier,
     textColor: Color = Color.Unspecified,
     contentImage: @Composable () -> Unit = {}
 ) {
     Card(
-        onClick = { onCLickGoogle() },
+        onClick = onCLick,
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = paddingVertical),
@@ -58,6 +58,6 @@ fun CardLoginsButtonPreview() {
             text = "Sign in",
             backgroundColor = Color.White,
             paddingVertical = 2.dp,
-            onCLickGoogle = {})
+            onCLick = {})
     }
 }

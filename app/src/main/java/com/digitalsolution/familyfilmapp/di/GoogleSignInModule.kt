@@ -35,5 +35,4 @@ object GoogleSignInModule {
     ): GoogleSignInClient {
         return GoogleSignIn.getClient(context, googleSignInOptions)
     }
-
 }

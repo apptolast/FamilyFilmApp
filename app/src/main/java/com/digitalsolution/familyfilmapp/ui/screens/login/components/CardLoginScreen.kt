@@ -12,8 +12,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,34 +29,34 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun CardLoginMain(
+fun CardLoginScreen(
     textFieldEmailState: String,
-    changeEmailState: (String) -> Unit,
     textPasswordState: String,
-    changePasswordState: (String) -> Unit,
+    onClick: (String, String) -> Unit
 ) {
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     CardLoginMainContent(
         textFieldEmailState = textFieldEmailState,
-        changeEmailState = changeEmailState,
         textPasswordState = textPasswordState,
-        changePasswordState = changePasswordState,
         isPasswordVisible = isPasswordVisible,
-        passwordToVisible = { passwordToVisible(!isPasswordVisible) }
+        passwordToVisible = { passwordToVisible(!isPasswordVisible) },
+        onClick = onClick
     )
 }
 
 @Composable
 fun CardLoginMainContent(
     textFieldEmailState: String,
-    changeEmailState: (String) -> Unit,
     textPasswordState: String,
-    changePasswordState: (String) -> Unit,
     isPasswordVisible: Boolean,
     passwordToVisible: () -> Unit,
+    onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var email by remember { mutableStateOf(textFieldEmailState) }
+    var pass by remember { mutableStateOf(textPasswordState) }
+
     Card {
         Column(
             modifier = modifier
@@ -78,16 +80,16 @@ fun CardLoginMainContent(
                 style = MaterialTheme.typography.titleMedium
             )
             LoginTextField(
-                textFieldState = textFieldEmailState,
-                changeTextFieldState = changeEmailState,
+                textFieldState = email,
+                changeTextFieldState = { email = it },
                 labelText = stringResource(R.string.login_text_field_email),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = modifier.padding(top = 8.dp),
             )
             Spacer(modifier = modifier.height(2.dp))
             LoginTextField(
-                textFieldState = textPasswordState,
-                changeTextFieldState = changePasswordState,
+                textFieldState = pass,
+                changeTextFieldState = { pass = it },
                 labelText = stringResource(R.string.login_text_field_password),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = modifier.padding(bottom = 10.dp),
@@ -108,7 +110,7 @@ fun CardLoginMainContent(
                 backgroundColor = MaterialTheme.colorScheme.tertiary,
                 paddingVertical = 1.dp,
                 textColor = MaterialTheme.colorScheme.surface,
-                onCLickGoogle = {}
+                onCLick = { onClick(email, pass) }
             )
         }
     }
@@ -118,11 +120,10 @@ fun CardLoginMainContent(
 @Composable
 fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
-        CardLoginMain(
+        CardLoginScreen(
             textFieldEmailState = "",
             textPasswordState = "",
-            changeEmailState = {},
-            changePasswordState = {}
+            onClick = { _, _ -> }
         )
     }
 }

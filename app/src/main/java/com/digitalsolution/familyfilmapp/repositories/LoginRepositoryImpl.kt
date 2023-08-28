@@ -58,7 +58,6 @@ class LoginRepositoryImpl @Inject constructor(
                 }
             awaitClose()
         }
-
 }
 
 interface LoginRepository {

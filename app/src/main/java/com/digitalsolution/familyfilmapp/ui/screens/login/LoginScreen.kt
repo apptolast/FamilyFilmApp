@@ -20,11 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,17 +36,13 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
     val snackBarHostState = remember { SnackbarHostState() }
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
-
     val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
 
     // Observar cambios en loginUiState
@@ -73,7 +67,10 @@ fun LoginScreen(
             }
 
             else -> {
-                snackBarHostState.showSnackbar("${loginUiState.userData.isLogin} y Email : ${loginUiState.userData.email}")
+                snackBarHostState.showSnackbar(
+                    "${loginUiState.userData.isLogin} " +
+                            "y Email : ${loginUiState.userData.email}"
+                )
             }
         }
     }

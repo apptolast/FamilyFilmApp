@@ -42,15 +42,16 @@ class LoginViewModel @Inject constructor(
      */
     fun login(email: String, password: String) = viewModelScope.launch {
         loginEmailPassUseCase(email to password)
-            .catch {
+            .catch { newLoginUIState ->
                 _state.update { loginState ->
-                    loginState.copy(hasError = true, errorMessage = it.message ?: "Login Error")
+                    loginState.copy(
+                        hasError = true,
+                        errorMessage = newLoginUIState.message ?: "Login Error"
+                    )
                 }
             }
-            .collectLatest {
-                _state.update {
-                    it
-                }
+            .collectLatest { newLoginUIState ->
+                _state.update { newLoginUIState }
             }
     }
 
@@ -64,9 +65,7 @@ class LoginViewModel @Inject constructor(
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
-                _state.update {
-                    newLoginUIState
-                }
+                _state.update { newLoginUIState }
             }
         }
     }

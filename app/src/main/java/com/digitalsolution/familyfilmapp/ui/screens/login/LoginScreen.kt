@@ -45,12 +45,13 @@ fun LoginScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
 
+
     // Observar cambios en loginUiState
-    LaunchedEffect(loginUiState) {
+    LaunchedEffect(loginUiState, loginViewModel.isUserLogIn()) {
         when {
             loginUiState.isLoading -> {
                 snackBarHostState.showSnackbar(
-                    "Loading... ${loginUiState.userData.isLogin} with account ${loginUiState.userData.email}",
+                    "Loading... ${loginUiState.isLoading} with account ${loginUiState.userData.email}",
                     "Close",
                     true,
                     SnackbarDuration.Long
@@ -65,14 +66,13 @@ fun LoginScreen(
                     SnackbarDuration.Long
                 )
             }
-
-            else -> {
-                snackBarHostState.showSnackbar(
-                    "${loginUiState.userData.isLogin} " +
-                            "y Email : ${loginUiState.userData.email}"
-                )
-            }
         }
+        snackBarHostState.showSnackbar(
+            "Is User Log : ${loginViewModel.isUserLogIn()}",
+            "Close",
+            true,
+            SnackbarDuration.Long
+        )
     }
 
     val startForResult =

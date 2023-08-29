@@ -1,8 +1,9 @@
-package com.digitalsolution.familyfilmapp.ui.screens.login
+package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -27,7 +28,7 @@ class LoginEmailPassUseCase @Inject constructor(
         repository.loginEmailPass(email, pass)
             .catch { exception ->
                 send(
-                    LoginUiState().copy(hasError = true, errorMessage = exception.message ?: "Login Error")
+                    LoginUiState().copy(errorMessage = exception.message ?: "Login Error")
                 )
             }
             .collectLatest { result ->
@@ -42,7 +43,6 @@ class LoginEmailPassUseCase @Inject constructor(
                                     isRegistered = authResult.user != null
                                 ),
                                 isLoading = false,
-                                hasError = false,
                                 errorMessage = ""
                             )
                         )
@@ -57,7 +57,6 @@ class LoginEmailPassUseCase @Inject constructor(
                                     isRegistered = false
                                 ),
                                 isLoading = false,
-                                hasError = true,
                                 errorMessage = it.message ?: "Login Error"
                             )
                         )

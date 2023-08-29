@@ -4,21 +4,30 @@ import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.model.local.UserData
 
 data class LoginUiState(
-    var userData: UserData,
+    val screenState: LoginScreenState,
+    val userData: UserData,
+    val emailErrorMessage: String?,
+    val passErrorMessage: String?,
     override val isLoading: Boolean,
-    override val hasError: Boolean,
-    override val errorMessage: String
-) : BaseUiState(isLoading, hasError, errorMessage) {
+    override val errorMessage: String?,
+) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
+        screenState = LoginScreenState.Login,
         UserData(
             email = "",
             pass = "",
             isLogin = false,
             isRegistered = false
         ),
+        emailErrorMessage = null,
+        passErrorMessage = null,
         isLoading = false,
-        hasError = false,
-        errorMessage = ""
+        errorMessage = null,
     )
+}
+
+sealed class LoginScreenState {
+    object Login : LoginScreenState()
+    object Register : LoginScreenState()
 }

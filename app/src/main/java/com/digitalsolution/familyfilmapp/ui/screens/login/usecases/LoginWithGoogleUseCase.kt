@@ -1,8 +1,9 @@
-package com.digitalsolution.familyfilmapp.ui.screens.login
+package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import javax.inject.Inject
@@ -26,7 +27,6 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 isRegistered = authResult.user != null
                             ),
                             isLoading = false,
-                            hasError = false,
                             errorMessage = ""
                         )
                     )
@@ -41,7 +41,6 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 isRegistered = false
                             ),
                             isLoading = false,
-                            hasError = true,
                             errorMessage = it.message ?: "Login Error"
                         )
                     )

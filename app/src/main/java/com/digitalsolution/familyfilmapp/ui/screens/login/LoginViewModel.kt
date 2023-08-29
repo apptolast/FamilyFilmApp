@@ -3,6 +3,9 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
@@ -22,7 +25,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val googleSignInClient: GoogleSignInClient
+    private val googleSignInClient: GoogleSignInClient,
+    private val loginRepository: LoginRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -45,7 +49,6 @@ class LoginViewModel @Inject constructor(
             .catch { newLoginUIState ->
                 _state.update { loginState ->
                     loginState.copy(
-                        hasError = true,
                         errorMessage = newLoginUIState.message ?: "Login Error"
                     )
                 }
@@ -58,6 +61,8 @@ class LoginViewModel @Inject constructor(
     fun register(email: String, password: String) {
         // TODO
     }
+
+    fun isUserLogIn(): Boolean = loginRepository.getUser() != null
 
     fun getGoogleSignInIntent(): Intent = googleSignInClient.signInIntent
 

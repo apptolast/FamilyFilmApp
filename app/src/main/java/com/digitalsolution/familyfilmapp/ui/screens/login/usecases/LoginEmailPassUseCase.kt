@@ -3,6 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -14,54 +15,91 @@ class LoginEmailPassUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<Pair<String, String>, Flow<LoginUiState>>() {
 
-    override suspend fun execute(parameters: Pair<String, String>): Flow<LoginUiState> = channelFlow {
-        val (email, pass) = parameters
+    override suspend fun execute(parameters: Pair<String, String>): Flow<LoginUiState> =
+        channelFlow {
+            val (email, pass) = parameters
 
-        // TODO: Validate fields: email restriction and empty fields validations
+            // TODO: Validate fields: email restriction and empty fields validations
 
-        // Loading
-        send(LoginUiState().copy(isLoading = true))
-
-        // TODO: Fields validations
-
-        // Do login if fields are valid
-        repository.loginEmailPass(email, pass)
-            .catch { exception ->
-                send(
-                    LoginUiState().copy(errorMessage = exception.message ?: "Login Error")
+            // Loading
+            send(
+                LoginUiState().copy(
+                    screenState = LoginScreenState.Login,
+                    emailErrorMessage = null,
+                    passErrorMessage = null,
+                    isLoading = true,
+                    errorMessage = null
                 )
-            }
-            .collectLatest { result ->
-                result.fold(
-                    onSuccess = { authResult ->
-                        send(
-                            LoginUiState().copy(
-                                userData = UserData(
-                                    email = email,
-                                    pass = pass,
-                                    isLogin = true,
-                                    isRegistered = authResult.user != null
-                                ),
-                                isLoading = false,
-                                errorMessage = ""
-                            )
+            )
+
+            // TODO: Fields validations
+
+            // Do login if fields are valid
+            repository.loginEmailPass(email, pass)
+                .catch { exception ->
+                    send(
+                        LoginUiState().copy(
+                            screenState = LoginScreenState.Login,
+                            emailErrorMessage = exception.message?.let { getErrorMessage(it) },
+                            passErrorMessage = exception.message,
+                            isLoading = false,
+                            errorMessage = exception.message ?: "Login Error"
                         )
-                    },
-                    onFailure = {
-                        send(
-                            LoginUiState().copy(
-                                userData = UserData(
-                                    email = "",
-                                    pass = "",
-                                    isLogin = false,
-                                    isRegistered = false
-                                ),
-                                isLoading = false,
-                                errorMessage = it.message ?: "Login Error"
+                    )
+                }
+                .collectLatest { result ->
+                    result.fold(
+                        onSuccess = { authResult ->
+                            send(
+                                LoginUiState().copy(
+                                    screenState = LoginScreenState.Login,
+                                    userData = UserData(
+                                        email = email,
+                                        pass = pass,
+                                        isLogin = true,
+                                        isRegistered = authResult.user != null
+                                    ),
+                                    emailErrorMessage = null,
+                                    passErrorMessage = null,
+                                    isLoading = false,
+                                    errorMessage = ""
+                                )
                             )
-                        )
-                    }
-                )
+                        },
+                        onFailure = {
+                            send(
+                                LoginUiState().copy(
+                                    screenState = LoginScreenState.Login,
+                                    userData = UserData(
+                                        email = "",
+                                        pass = "",
+                                        isLogin = false,
+                                        isRegistered = false
+                                    ),
+                                    emailErrorMessage = null,
+                                    passErrorMessage = null,
+                                    isLoading = false,
+                                    errorMessage = it.message ?: "Login Error"
+                                )
+                            )
+                        }
+                    )
+                }
+        }
+
+    private fun getErrorMessage(message: String): String? {
+        return when (message) {
+            message.contains("email").toString() -> {
+                ""
             }
+
+            message.contains("password").toString() -> {
+                null
+            }
+
+            else -> {
+                null
+            }
+        }
     }
 }

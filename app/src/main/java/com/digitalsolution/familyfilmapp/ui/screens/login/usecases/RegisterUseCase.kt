@@ -3,6 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,7 +22,15 @@ class RegisterUseCase @Inject constructor(
             // TODO: Validate fields: email restriction and empty fields validations
 
             // Loading
-            send(LoginUiState().copy(isLoading = true))
+            send(
+                LoginUiState().copy(
+                    screenState = LoginScreenState.Register,
+                    emailErrorMessage = null,
+                    passErrorMessage = null,
+                    isLoading = true,
+                    errorMessage = null
+                )
+            )
 
             // TODO: Fields validations
 
@@ -29,7 +38,13 @@ class RegisterUseCase @Inject constructor(
             repository.register(email, pass)
                 .catch { exception ->
                     send(
-                        LoginUiState().copy(errorMessage = exception.message ?: "Login Error")
+                        LoginUiState().copy(
+                            screenState = LoginScreenState.Register,
+                            emailErrorMessage = exception.message,
+                            passErrorMessage = exception.message,
+                            isLoading = false,
+                            errorMessage = exception.message ?: "Login Error"
+                        )
                     )
                 }
                 .collectLatest { result ->
@@ -37,26 +52,32 @@ class RegisterUseCase @Inject constructor(
                         onSuccess = { authResult ->
                             send(
                                 LoginUiState().copy(
+                                    screenState = LoginScreenState.Register,
                                     userData = UserData(
                                         email = email,
                                         pass = pass,
                                         isLogin = true,
                                         isRegistered = authResult.user != null
                                     ),
+                                    emailErrorMessage = null,
+                                    passErrorMessage = null,
                                     isLoading = false,
-                                    errorMessage = ""
+                                    errorMessage = null
                                 )
                             )
                         },
                         onFailure = {
                             send(
                                 LoginUiState().copy(
+                                    screenState = LoginScreenState.Register,
                                     userData = UserData(
                                         email = "",
                                         pass = "",
                                         isLogin = false,
                                         isRegistered = false
                                     ),
+                                    emailErrorMessage = null,
+                                    passErrorMessage = null,
                                     isLoading = false,
                                     errorMessage = it.message ?: "Login Error"
                                 )

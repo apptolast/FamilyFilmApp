@@ -54,7 +54,15 @@ class LoginViewModel @Inject constructor(
                 }
             }
             .collectLatest { newLoginUIState ->
-                _state.update { newLoginUIState }
+                _state.update {
+                    it.copy(
+                        screenState = newLoginUIState.screenState,
+                        userData = newLoginUIState.userData,
+                        emailErrorMessage = newLoginUIState.emailErrorMessage,
+                        passErrorMessage = newLoginUIState.passErrorMessage,
+                        isLoading = newLoginUIState.isLoading
+                    )
+                }
             }
     }
 
@@ -70,7 +78,15 @@ class LoginViewModel @Inject constructor(
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
-                _state.update { newLoginUIState }
+                _state.update {
+                    it.copy(
+                        screenState = newLoginUIState.screenState,
+                        userData = newLoginUIState.userData,
+                        emailErrorMessage = newLoginUIState.emailErrorMessage,
+                        passErrorMessage = newLoginUIState.passErrorMessage,
+                        isLoading = newLoginUIState.isLoading
+                    )
+                }
             }
         }
     }

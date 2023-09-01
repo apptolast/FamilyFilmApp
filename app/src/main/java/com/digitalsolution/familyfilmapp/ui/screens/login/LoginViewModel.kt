@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
@@ -26,7 +27,8 @@ class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val googleSignInClient: GoogleSignInClient,
-    private val loginRepository: LoginRepository
+    private val loginRepository: LoginRepository,
+    private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -66,8 +68,26 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    fun register(email: String, password: String) {
-        // TODO
+    fun register(email: String, password: String) = viewModelScope.launch {
+        registerUseCase(email to password)
+            .catch { newLoginUIState ->
+                _state.update { loginUiState ->
+                    loginUiState.copy(
+                        errorMessage = newLoginUIState.message ?: "Register Error"
+                    )
+                }
+            }
+            .collectLatest { newLoginUiState ->
+                _state.update {
+                    it.copy(
+                        screenState = newLoginUiState.screenState,
+                        userData = newLoginUiState.userData,
+                        emailErrorMessage = newLoginUiState.emailErrorMessage,
+                        passErrorMessage = newLoginUiState.passErrorMessage,
+                        isLoading = newLoginUiState.isLoading
+                    )
+                }
+            }
     }
 
     fun isUserLogIn(): Boolean = loginRepository.getUser() != null

@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
+import android.util.Patterns
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
@@ -32,58 +33,69 @@ class RegisterUseCase @Inject constructor(
                 )
             )
 
-            // TODO: Fields validations
-
-            // Do login if fields are valid
-            repository.register(email, pass)
-                .catch { exception ->
-                    send(
-                        LoginUiState().copy(
-                            screenState = LoginScreenState.Register,
-                            emailErrorMessage = exception.message,
-                            passErrorMessage = exception.message,
-                            isLoading = false,
-                            errorMessage = exception.message ?: "Login Error"
+            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                // Do login if fields are valid
+                repository.register(email, pass)
+                    .catch { exception ->
+                        send(
+                            LoginUiState().copy(
+                                screenState = LoginScreenState.Register,
+                                emailErrorMessage = exception.message,
+                                passErrorMessage = exception.message,
+                                isLoading = false,
+                                errorMessage = exception.message ?: "Login Error"
+                            )
                         )
-                    )
-                }
-                .collectLatest { result ->
-                    result.fold(
-                        onSuccess = { authResult ->
-                            send(
-                                LoginUiState().copy(
-                                    screenState = LoginScreenState.Register,
-                                    userData = UserData(
-                                        email = email,
-                                        pass = pass,
-                                        isLogin = true,
-                                        isRegistered = authResult.user != null
-                                    ),
-                                    emailErrorMessage = null,
-                                    passErrorMessage = null,
-                                    isLoading = false,
-                                    errorMessage = null
+                    }
+                    .collectLatest { result ->
+                        result.fold(
+                            onSuccess = { authResult ->
+                                send(
+                                    LoginUiState().copy(
+                                        screenState = LoginScreenState.Register,
+                                        userData = UserData(
+                                            email = email,
+                                            pass = pass,
+                                            isLogin = true,
+                                            isRegistered = authResult.user != null
+                                        ),
+                                        emailErrorMessage = null,
+                                        passErrorMessage = null,
+                                        isLoading = false,
+                                        errorMessage = null
+                                    )
                                 )
-                            )
-                        },
-                        onFailure = {
-                            send(
-                                LoginUiState().copy(
-                                    screenState = LoginScreenState.Register,
-                                    userData = UserData(
-                                        email = "",
-                                        pass = "",
-                                        isLogin = false,
-                                        isRegistered = false
-                                    ),
-                                    emailErrorMessage = null,
-                                    passErrorMessage = null,
-                                    isLoading = false,
-                                    errorMessage = it.message ?: "Login Error"
+                            },
+                            onFailure = {
+                                send(
+                                    LoginUiState().copy(
+                                        screenState = LoginScreenState.Register,
+                                        userData = UserData(
+                                            email = "",
+                                            pass = "",
+                                            isLogin = false,
+                                            isRegistered = false
+                                        ),
+                                        emailErrorMessage = null,
+                                        passErrorMessage = null,
+                                        isLoading = false,
+                                        errorMessage = it.message ?: "Login Error"
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
+                    }
+            } else {
+                // Loading
+                send(
+                    LoginUiState().copy(
+                        screenState = LoginScreenState.Register,
+                        emailErrorMessage = null,
+                        passErrorMessage = null,
+                        isLoading = true,
+                        errorMessage = null
                     )
-                }
+                )
+            }
         }
 }

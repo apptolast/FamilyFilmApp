@@ -33,7 +33,9 @@ class RegisterUseCase @Inject constructor(
                 )
             )
 
-            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (Patterns.EMAIL_ADDRESS.matcher(email)
+                    .matches() && pass.validatePasswordLoginField()
+            ) {
                 // Do login if fields are valid
                 repository.register(email, pass)
                     .catch { exception ->

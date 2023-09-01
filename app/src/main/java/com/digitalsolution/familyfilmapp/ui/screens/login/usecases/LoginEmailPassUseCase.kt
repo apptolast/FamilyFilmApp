@@ -32,7 +32,9 @@ class LoginEmailPassUseCase @Inject constructor(
                 )
             )
 
-            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (Patterns.EMAIL_ADDRESS.matcher(email)
+                    .matches() && pass.validatePasswordLoginField()
+            ) {
                 repository.loginEmailPass(email, pass)
                     .catch { exception ->
                         send(

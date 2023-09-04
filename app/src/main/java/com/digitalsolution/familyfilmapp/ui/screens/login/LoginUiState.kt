@@ -27,7 +27,7 @@ data class LoginUiState(
     )
 }
 
-sealed class LoginScreenState {
-    object Login : LoginScreenState()
-    object Register : LoginScreenState()
+sealed class LoginScreenState(val message: String) {
+    object Login : LoginScreenState("Login")
+    object Register : LoginScreenState("Sign In")
 }

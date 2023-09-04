@@ -66,9 +66,24 @@ fun LoginScreen(
                     SnackbarDuration.Long
                 )
             }
+
+            loginUiState.errorMessage?.isNotBlank() == true -> {
+                snackBarHostState.showSnackbar(
+                    "Message : ${loginUiState.errorMessage}",
+                    "Close",
+                    true,
+                    SnackbarDuration.Long
+                )
+            }
         }
         snackBarHostState.showSnackbar(
             "Is User Log : ${loginViewModel.isUserLogIn()}",
+            "Close",
+            true,
+            SnackbarDuration.Long
+        )
+        snackBarHostState.showSnackbar(
+            "Is Loading : ${loginUiState.isLoading}",
             "Close",
             true,
             SnackbarDuration.Long
@@ -91,11 +106,6 @@ fun LoginScreen(
         LoginContent(
             loginUiState = loginUiState,
             onClickLogin = loginViewModel::login,
-            //onClickLogin = { email, pass ->
-            //    coroutineScope.launch {
-            //        snackBarHostState.showSnackbar("User: $email\nPass: $pass", "Close", true, SnackbarDuration.Short)
-            //    }
-            //},
             onClickGoogleButton = { startForResult.launch(loginViewModel.getGoogleSignInIntent()) },
             modifier = Modifier.padding(innerPadding),
         )
@@ -118,8 +128,7 @@ fun LoginContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CardLoginScreen(
-            textFieldEmailState = loginUiState.userData.email,
-            textPasswordState = loginUiState.userData.pass,
+            loginUiState,
             onClick = onClickLogin
         )
         CardLoginsButton(
@@ -135,7 +144,8 @@ fun LoginContent(
                         .padding(end = 6.dp)
                 )
             },
-            onCLick = onClickGoogleButton
+            onCLick = onClickGoogleButton,
+            textColor = MaterialTheme.colorScheme.surface
 
         )
         Text(

@@ -5,6 +5,7 @@ import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -18,18 +19,16 @@ class LoginWithGoogleUseCase @Inject constructor(
         send(
             LoginUiState().copy(
                 screenState = LoginScreenState.Login,
-                emailErrorMessage = null,
-                passErrorMessage = null,
-                isLoading = true,
-                errorMessage = null
+                isLoading = true
             )
         )
+
+        delay(500)
+
         repository.loginWithGoogle(parameters)
             .catch { exception ->
                 LoginUiState().copy(
                     screenState = LoginScreenState.Login,
-                    emailErrorMessage = exception.message,
-                    passErrorMessage = exception.message,
                     isLoading = false,
                     errorMessage = exception.message
                 )
@@ -47,10 +46,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                                     isLogin = true,
                                     isRegistered = authResult.user != null
                                 ),
-                                emailErrorMessage = null,
-                                passErrorMessage = null,
-                                isLoading = false,
-                                errorMessage = ""
+                                isLoading = false
                             )
                         )
                     },
@@ -58,14 +54,6 @@ class LoginWithGoogleUseCase @Inject constructor(
                         send(
                             LoginUiState().copy(
                                 screenState = LoginScreenState.Login,
-                                userData = UserData(
-                                    email = "",
-                                    pass = "",
-                                    isLogin = false,
-                                    isRegistered = false
-                                ),
-                                emailErrorMessage = it.message,
-                                passErrorMessage = it.message,
                                 isLoading = false,
                                 errorMessage = it.message ?: "Login Error"
                             )
@@ -73,5 +61,11 @@ class LoginWithGoogleUseCase @Inject constructor(
                     }
                 )
             }
+        send(
+            LoginUiState().copy(
+                screenState = LoginScreenState.Login,
+                isLoading = false
+            )
+        )
     }
 }

@@ -57,13 +57,7 @@ class LoginViewModel @Inject constructor(
             }
             .collectLatest { newLoginUIState ->
                 _state.update {
-                    it.copy(
-                        screenState = newLoginUIState.screenState,
-                        userData = newLoginUIState.userData,
-                        emailErrorMessage = newLoginUIState.emailErrorMessage,
-                        passErrorMessage = newLoginUIState.passErrorMessage,
-                        isLoading = newLoginUIState.isLoading
-                    )
+                    newLoginUIState
                 }
             }
     }
@@ -79,13 +73,7 @@ class LoginViewModel @Inject constructor(
             }
             .collectLatest { newLoginUiState ->
                 _state.update {
-                    it.copy(
-                        screenState = newLoginUiState.screenState,
-                        userData = newLoginUiState.userData,
-                        emailErrorMessage = newLoginUiState.emailErrorMessage,
-                        passErrorMessage = newLoginUiState.passErrorMessage,
-                        isLoading = newLoginUiState.isLoading
-                    )
+                    newLoginUiState
                 }
             }
     }
@@ -99,13 +87,7 @@ class LoginViewModel @Inject constructor(
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
                 _state.update {
-                    it.copy(
-                        screenState = newLoginUIState.screenState,
-                        userData = newLoginUIState.userData,
-                        emailErrorMessage = newLoginUIState.emailErrorMessage,
-                        passErrorMessage = newLoginUIState.passErrorMessage,
-                        isLoading = newLoginUIState.isLoading
-                    )
+                    newLoginUIState
                 }
             }
         }

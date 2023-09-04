@@ -26,19 +26,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun CardLoginScreen(
-    textFieldEmailState: String,
-    textPasswordState: String,
+    loginUiState: LoginUiState,
     onClick: (String, String) -> Unit
 ) {
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     CardLoginMainContent(
-        textFieldEmailState = textFieldEmailState,
-        textPasswordState = textPasswordState,
+        loginUiState,
         isPasswordVisible = isPasswordVisible,
         passwordToVisible = { passwordToVisible(!isPasswordVisible) },
         onClick = onClick
@@ -47,15 +46,14 @@ fun CardLoginScreen(
 
 @Composable
 fun CardLoginMainContent(
-    textFieldEmailState: String,
-    textPasswordState: String,
+    loginUiState: LoginUiState,
     isPasswordVisible: Boolean,
     passwordToVisible: () -> Unit,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var email by remember { mutableStateOf(textFieldEmailState) }
-    var pass by remember { mutableStateOf(textPasswordState) }
+    var email by remember { mutableStateOf(loginUiState.userData.email) }
+    var pass by remember { mutableStateOf(loginUiState.userData.pass) }
 
     Card {
         Column(
@@ -81,6 +79,7 @@ fun CardLoginMainContent(
             )
             LoginTextField(
                 textFieldState = email,
+                loginUiState = loginUiState,
                 changeTextFieldState = { email = it },
                 labelText = stringResource(R.string.login_text_field_email),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -89,6 +88,7 @@ fun CardLoginMainContent(
             Spacer(modifier = modifier.height(2.dp))
             LoginTextField(
                 textFieldState = pass,
+                loginUiState = loginUiState,
                 changeTextFieldState = { pass = it },
                 labelText = stringResource(R.string.login_text_field_password),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -121,8 +121,7 @@ fun CardLoginMainContent(
 fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         CardLoginScreen(
-            textFieldEmailState = "",
-            textPasswordState = "",
+            loginUiState = LoginUiState(),
             onClick = { _, _ -> }
         )
     }

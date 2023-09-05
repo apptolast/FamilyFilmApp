@@ -69,7 +69,7 @@ fun LoginScreen(
 
             loginUiState.errorMessage?.isNotBlank() == true -> {
                 snackBarHostState.showSnackbar(
-                    "Message : ${loginUiState.errorMessage}",
+                    "Firebase Message : ${loginUiState.errorMessage}",
                     "Close",
                     true,
                     SnackbarDuration.Long

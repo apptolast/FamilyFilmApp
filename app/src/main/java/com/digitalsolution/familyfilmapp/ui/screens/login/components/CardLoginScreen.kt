@@ -97,8 +97,13 @@ fun CardLoginMainContent(
                 isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        Icon(imageVector = Icons.Filled.Error, contentDescription = "ErrorEmail")
-                        loginUiState.emailErrorMessage?.let { Text(text = it) }
+                        loginUiState.emailErrorMessage?.let {
+                            Icon(
+                                imageVector = Icons.Filled.Error,
+                                contentDescription = "ErrorEmail"
+                            )
+                            Text(text = it)
+                        }
                     }
                 }
             )
@@ -124,8 +129,13 @@ fun CardLoginMainContent(
                 isError = loginUiState.passErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        Icon(imageVector = Icons.Filled.Error, contentDescription = "ErrorEmail")
-                        loginUiState.passErrorMessage?.let { Text(text = it) }
+                        loginUiState.passErrorMessage?.let {
+                            Icon(
+                                imageVector = Icons.Filled.Error,
+                                contentDescription = "ErrorEmail"
+                            )
+                            Text(text = it)
+                        }
                     }
                 }
             )

@@ -75,19 +75,16 @@ fun LoginScreen(
                     SnackbarDuration.Long
                 )
             }
+
+            loginUiState.emailErrorMessage?.isNotBlank() == true -> {
+                snackBarHostState.showSnackbar(
+                    "Message : ${loginUiState.passErrorMessage}",
+                    "Close",
+                    true,
+                    SnackbarDuration.Long
+                )
+            }
         }
-        snackBarHostState.showSnackbar(
-            "Is User Log : ${loginViewModel.isUserLogIn()}",
-            "Close",
-            true,
-            SnackbarDuration.Long
-        )
-        snackBarHostState.showSnackbar(
-            "Is Loading : ${loginUiState.isLoading}",
-            "Close",
-            true,
-            SnackbarDuration.Long
-        )
     }
 
     val startForResult =

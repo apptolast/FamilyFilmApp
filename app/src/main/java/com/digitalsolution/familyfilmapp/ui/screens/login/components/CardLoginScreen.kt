@@ -1,15 +1,23 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +52,7 @@ fun CardLoginScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardLoginMainContent(
     loginUiState: LoginUiState,
@@ -77,22 +86,27 @@ fun CardLoginMainContent(
                 text = stringResource(R.string.login_text_app_subtitle),
                 style = MaterialTheme.typography.titleMedium
             )
-            LoginTextField(
-                textFieldState = email,
-                loginUiState = loginUiState,
-                changeTextFieldState = { email = it },
-                labelText = stringResource(R.string.login_text_field_email),
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                modifier = modifier.padding(top = 12.dp),
+                trailingIcon = {},
+                label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = modifier.padding(top = 8.dp),
+                shape = RoundedCornerShape(25.dp),
+                isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
+                supportingText = {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                        Icon(imageVector = Icons.Filled.Error, contentDescription = "ErrorEmail")
+                        loginUiState.emailErrorMessage?.let { Text(text = it) }
+                    }
+                }
             )
             Spacer(modifier = modifier.height(2.dp))
-            LoginTextField(
-                textFieldState = pass,
-                loginUiState = loginUiState,
-                changeTextFieldState = { pass = it },
-                labelText = stringResource(R.string.login_text_field_password),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = modifier.padding(bottom = 10.dp),
+            OutlinedTextField(
+                value = pass,
+                onValueChange = { pass = it },
+                modifier = modifier.padding(top = 12.dp),
                 trailingIcon = {
                     TrailingIconPassword(
                         isPasswordVisible = isPasswordVisible,
@@ -103,6 +117,16 @@ fun CardLoginMainContent(
                     VisualTransformation.None
                 } else {
                     PasswordVisualTransformation()
+                },
+                label = { Text(text = stringResource(R.string.login_text_field_password)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                shape = RoundedCornerShape(25.dp),
+                isError = loginUiState.passErrorMessage?.isNotBlank() == true,
+                supportingText = {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                        Icon(imageVector = Icons.Filled.Error, contentDescription = "ErrorEmail")
+                        loginUiState.passErrorMessage?.let { Text(text = it) }
+                    }
                 }
             )
             CardLoginsButton(

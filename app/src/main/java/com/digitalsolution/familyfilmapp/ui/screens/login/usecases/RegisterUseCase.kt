@@ -7,7 +7,6 @@ import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -31,8 +30,6 @@ class RegisterUseCase @Inject constructor(
                     isLoading = true
                 )
             )
-
-            delay(1000)
 
             when {
 
@@ -119,18 +116,7 @@ class RegisterUseCase @Inject constructor(
                                 }
                             )
                         }
-
                 }
             }
-
-            // Loading
-            send(
-                LoginUiState().copy(
-                    screenState = LoginScreenState.Register,
-                    isLoading = false
-                )
-            )
-
-
         }
 }

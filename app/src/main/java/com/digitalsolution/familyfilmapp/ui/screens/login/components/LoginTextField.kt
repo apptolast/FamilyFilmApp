@@ -12,12 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun LoginTextField(
     textFieldState: String,
+    loginUiState: LoginUiState,
     changeTextFieldState: (String) -> Unit,
     labelText: String,
     keyboardOptions: KeyboardOptions,
@@ -45,6 +47,7 @@ fun LoginTextFieldPreview() {
     FamilyFilmAppTheme {
         LoginTextField(
             textFieldState = "",
+            loginUiState = LoginUiState(),
             changeTextFieldState = {},
             labelText = "",
             keyboardOptions = KeyboardOptions.Default

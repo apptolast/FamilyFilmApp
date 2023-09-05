@@ -1,6 +1,10 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
+import java.util.regex.Pattern
 
-fun String.validatePasswordLoginField(): Boolean {
-    return ((this.isNotEmpty()) || (this.contains("^(?=.*[0-9])(?=.*[\\W_]).+\$")) || (this.length >= 6))
-}
+private const val PASSWORD_VALIDATION_REGEX =
+    "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}\$"
+
+
+fun String.isPasswordValid(): Boolean =
+    (Pattern.compile(PASSWORD_VALIDATION_REGEX).matcher(this).matches())

@@ -48,7 +48,7 @@ class RegisterUseCase @Inject constructor(
                 }
 
                 !Patterns.EMAIL_ADDRESS.matcher(email)
-                    .matches() && !pass.validatePasswordLoginField() -> {
+                    .matches() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Register,
@@ -70,7 +70,7 @@ class RegisterUseCase @Inject constructor(
 
                 }
 
-                !pass.validatePasswordLoginField() -> {
+                !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Register,

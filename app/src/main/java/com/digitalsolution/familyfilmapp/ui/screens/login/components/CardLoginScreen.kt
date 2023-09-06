@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -43,12 +44,8 @@ fun CardLoginScreen(
     loginUiState: LoginUiState,
     onClick: (String, String) -> Unit
 ) {
-    val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
-
     CardLoginMainContent(
-        loginUiState,
-        isPasswordVisible = isPasswordVisible,
-        passwordToVisible = { passwordToVisible(!isPasswordVisible) },
+        loginUiState = loginUiState,
         onClick = onClick
     )
 }
@@ -57,13 +54,12 @@ fun CardLoginScreen(
 @Composable
 fun CardLoginMainContent(
     loginUiState: LoginUiState,
-    isPasswordVisible: Boolean,
-    passwordToVisible: () -> Unit,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var email by remember { mutableStateOf(loginUiState.userData.email) }
     var pass by remember { mutableStateOf(loginUiState.userData.pass) }
+    val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     Card {
         Column(
@@ -97,15 +93,7 @@ fun CardLoginMainContent(
                 shape = RoundedCornerShape(20.dp),
                 isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
                 supportingText = {
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        loginUiState.emailErrorMessage?.let {
-                            Icon(
-                                imageVector = Icons.Filled.Error,
-                                contentDescription = "ErrorEmail"
-                            )
-                            Text(text = it)
-                        }
-                    }
+                    SupportingErrorText(loginUiState.emailErrorMessage)
                 }
             )
             Spacer(modifier = modifier.height(2.dp))
@@ -116,39 +104,50 @@ fun CardLoginMainContent(
                 trailingIcon = {
                     TrailingIconPassword(
                         isPasswordVisible = isPasswordVisible,
-                        passwordToVisible = passwordToVisible
+                        passwordToVisible = { passwordToVisible(!isPasswordVisible) }
                     )
                 },
-                visualTransformation = if (isPasswordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
+                visualTransformation = when (isPasswordVisible) {
+                    false -> VisualTransformation.None
+                    true -> PasswordVisualTransformation()
                 },
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 shape = RoundedCornerShape(20.dp),
                 isError = loginUiState.passErrorMessage?.isNotBlank() == true,
                 supportingText = {
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        loginUiState.passErrorMessage?.let {
-                            Icon(
-                                imageVector = Icons.Filled.Error,
-                                contentDescription = "ErrorEmail"
-                            )
-                            Text(text = it)
-                        }
-                    }
+                    SupportingErrorText(loginUiState.passErrorMessage)
                 }
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = { onClick(email, pass) },
                 modifier = modifier.fillMaxWidth()
             ) {
-                Text(text = stringResource(R.string.login_text_button))
+                Text(
+                    text = if (loginUiState.screenState == LoginScreenState.Login())
+                        stringResource(R.string.login_text_button)
+                    else
+                        stringResource(R.string.register_text_button),
+                    modifier = modifier.padding(8.dp)
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
+    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+        errorMessage?.let {
+            Icon(
+                imageVector = Icons.Filled.Error,
+                contentDescription = "Error",
+                modifier = modifier.padding(4.dp)
+            )
+            Text(text = it)
         }
     }
 }

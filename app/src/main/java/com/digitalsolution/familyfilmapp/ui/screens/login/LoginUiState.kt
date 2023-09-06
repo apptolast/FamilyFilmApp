@@ -14,7 +14,7 @@ data class LoginUiState(
 
     constructor() : this(
         screenState = LoginScreenState.Login(),
-        UserData(
+        userData = UserData(
             email = "",
             pass = "",
             isLogin = false,

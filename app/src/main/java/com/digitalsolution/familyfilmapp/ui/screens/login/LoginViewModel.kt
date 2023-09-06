@@ -37,6 +37,15 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
+    fun changeScreenState(){
+        _state.update {
+            when (state.value.screenState) {
+                is LoginScreenState.Login -> it.copy(screenState = LoginScreenState.Register())
+                is LoginScreenState.Register -> it.copy(screenState = LoginScreenState.Login())
+            }
+        }
+    }
+
     fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
         when (state.value.screenState) {
             is LoginScreenState.Login -> loginEmailPassUseCase(email to password)

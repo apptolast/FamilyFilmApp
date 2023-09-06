@@ -70,3 +70,17 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 val seed = Color(0xFF0062A3)
 
+//Extended Color
+
+//TODO: Review this, no me convence esto del tema pixa (Verlo con el equipo)
+
+val sign_up_text = Color(0xFF239DDD)
+val light_sign_up_text = Color(0xFF006492)
+val light_on_sign_up_text = Color(0xFFFFFFFF)
+val light_sign_up_text_Container = Color(0xFFC9E6FF)
+val light_on_sign_up_text_Container = Color(0xFF001E2F)
+val dark_sign_up_text = Color(0xFF8ACEFF)
+val dark_on_sign_up_text = Color(0xFF00344E)
+val dark_sign_up_text_Container = Color(0xFF004B6F)
+val dark_on_sign_up_text_Container = Color(0xFFC9E6FF)
+

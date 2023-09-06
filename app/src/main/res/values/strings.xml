@@ -8,9 +8,11 @@
     <string name="login_text_field_email">Enter your email</string>
     <string name="login_text_field_password">Enter your password</string>
     <string name="login_text_button">Login</string>
+    <string name="register_text_button">Register</string>
     <string name="login_text_sign_in_with_google">Sign in with Google</string>
     <string name="login_icon_google">Google Logo</string>
-    <string name="login_text_sign_up">Don\'t have an account? Sign up</string>
+    <string name="login_text_no_account">Don\'t have an account?</string>
+    <string name="login_text_sign_up">Sign up</string>
     <string name="login_text_forgot_your_password">Forgot your password?</string>
     <string name="gcp_id"></string>
 </resources>

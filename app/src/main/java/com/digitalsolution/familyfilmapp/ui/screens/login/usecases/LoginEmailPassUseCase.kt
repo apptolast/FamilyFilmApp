@@ -80,9 +80,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                             screenState = LoginScreenState.Login(),
                                             userData = UserData(
                                                 email = email,
-                                                pass = pass,
-                                                isLogin = true,
-                                                isRegistered = true
+                                                pass = pass
                                             ),
                                             isLoading = false
                                         )

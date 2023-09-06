@@ -33,7 +33,6 @@ class LoginWithGoogleUseCase @Inject constructor(
                 )
             }
             .collect { result ->
-                // Similar al manejo de resultados en LoginEmailPassUseCase
                 result.fold(
                     onSuccess = { authResult ->
                         send(
@@ -41,9 +40,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 screenState = LoginScreenState.Login(),
                                 userData = UserData(
                                     email = authResult.user?.email ?: "",
-                                    pass = "",
-                                    isLogin = true,
-                                    isRegistered = authResult.user != null
+                                    pass = ""
                                 ),
                                 isLoading = false
                             )

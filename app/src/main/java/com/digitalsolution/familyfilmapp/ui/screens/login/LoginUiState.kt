@@ -1,6 +1,8 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
+import androidx.annotation.StringRes
 import com.digitalsolution.familyfilmapp.BaseUiState
+import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.UserData
 
 data class LoginUiState(
@@ -27,7 +29,7 @@ data class LoginUiState(
     )
 }
 
-sealed class LoginScreenState {
-    data class Login(val value: String = "Sign in") : LoginScreenState()
-    data class Register(val value: String = "Sign Up") : LoginScreenState()
+sealed class LoginScreenState(@StringRes val buttonText: Int) {
+    data class Login(@StringRes val value: Int = R.string.login_text_button) : LoginScreenState(value)
+    data class Register(@StringRes val value: Int = R.string.register_text_button) : LoginScreenState(value)
 }

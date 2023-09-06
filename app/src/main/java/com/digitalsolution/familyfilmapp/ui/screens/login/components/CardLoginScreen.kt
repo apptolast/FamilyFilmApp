@@ -35,7 +35,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -83,6 +82,9 @@ fun CardLoginMainContent(
                 text = stringResource(R.string.login_text_app_subtitle),
                 style = MaterialTheme.typography.titleMedium
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -96,7 +98,9 @@ fun CardLoginMainContent(
                     SupportingErrorText(loginUiState.emailErrorMessage)
                 }
             )
-            Spacer(modifier = modifier.height(2.dp))
+
+            Spacer(modifier = modifier.height(8.dp))
+
             OutlinedTextField(
                 value = pass,
                 onValueChange = { pass = it },
@@ -127,10 +131,7 @@ fun CardLoginMainContent(
                 modifier = modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (loginUiState.screenState == LoginScreenState.Login())
-                        stringResource(R.string.login_text_button)
-                    else
-                        stringResource(R.string.register_text_button),
+                    text = stringResource(id = loginUiState.screenState.buttonText),
                     modifier = modifier.padding(8.dp)
                 )
             }

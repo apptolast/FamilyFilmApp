@@ -2,10 +2,10 @@ package com.digitalsolution.familyfilmapp.repositories
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,29 +15,33 @@ class LoginRepositoryImpl @Inject constructor(
 ) : LoginRepository {
 
     override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> =
-        callbackFlow {
+        channelFlow {
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
-                    trySend(Result.success(it))
-                    close()
+                    launch {
+                        send(Result.success(it))
+                    }
                 }
                 .addOnFailureListener {
-                    trySend(Result.failure(it))
-                    close(it)
+                    launch {
+                        send(Result.failure(it))
+                    }
                 }
             awaitClose()
         }
 
     override fun register(email: String, password: String): Flow<Result<AuthResult>> =
-        callbackFlow {
+        channelFlow {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
-                    trySend(Result.success(it))
-                    close()
+                    launch {
+                        send(Result.success(it))
+                    }
                 }
                 .addOnFailureListener {
-                    trySend(Result.failure(it))
-                    close(it)
+                    launch {
+                        send(Result.failure(it))
+                    }
                 }
             awaitClose()
         }
@@ -59,10 +63,12 @@ class LoginRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
+    override fun getUser() = firebaseAuth.currentUser
 }
 
 interface LoginRepository {
     fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>>
     fun register(email: String, password: String): Flow<Result<AuthResult>>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
+    fun getUser(): FirebaseUser?
 }

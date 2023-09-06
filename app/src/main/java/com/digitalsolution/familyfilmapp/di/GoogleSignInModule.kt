@@ -18,22 +18,19 @@ object GoogleSignInModule {
 
     @Singleton
     @Provides
-    fun provideGoogleSignOptions(): GoogleSignInOptions {
-        return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+    fun provideGoogleSignOptions(): GoogleSignInOptions =
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestIdToken(BuildConfig.WEB_ID_CLIENT)
             .requestId()
             .requestProfile()
             .build()
-    }
 
     @Singleton
     @Provides
     fun provideGoogleSignInClient(
         @ApplicationContext context: Context,
         googleSignInOptions: GoogleSignInOptions
-    ): GoogleSignInClient {
-        return GoogleSignIn.getClient(context, googleSignInOptions)
-    }
-
+    ): GoogleSignInClient =
+        GoogleSignIn.getClient(context, googleSignInOptions)
 }

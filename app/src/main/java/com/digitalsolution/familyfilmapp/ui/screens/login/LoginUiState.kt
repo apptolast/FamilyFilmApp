@@ -18,9 +18,7 @@ data class LoginUiState(
         screenState = LoginScreenState.Login(),
         userData = UserData(
             email = "",
-            pass = "",
-            isLogin = false,
-            isRegistered = false
+            pass = ""
         ),
         emailErrorMessage = null,
         passErrorMessage = null,
@@ -29,7 +27,20 @@ data class LoginUiState(
     )
 }
 
-sealed class LoginScreenState(@StringRes val buttonText: Int) {
-    data class Login(@StringRes val value: Int = R.string.login_text_button) : LoginScreenState(value)
-    data class Register(@StringRes val value: Int = R.string.register_text_button) : LoginScreenState(value)
+sealed class LoginScreenState(
+    @StringRes val buttonText: Int,
+    @StringRes val accountText: Int,
+    @StringRes val signText: Int,
+) {
+    data class Login(
+        @StringRes val value: Int = R.string.login_text_button,
+        @StringRes val value2: Int = R.string.login_text_no_account,
+        @StringRes val value3: Int = R.string.login_text_sign_up,
+    ) : LoginScreenState(value, value2, value3)
+
+    data class Register(
+        @StringRes val value: Int = R.string.register_text_button,
+        @StringRes val value2: Int = R.string.login_text_yes_account,
+        @StringRes val value3: Int = R.string.login_text_sign_in,
+    ) : LoginScreenState(value, value2, value3)
 }

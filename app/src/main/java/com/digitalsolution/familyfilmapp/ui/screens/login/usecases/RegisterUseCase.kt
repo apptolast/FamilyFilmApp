@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
-import android.util.Patterns
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.LoginAndRegisterExceptions
 import com.digitalsolution.familyfilmapp.model.local.UserData
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(
@@ -33,8 +33,7 @@ class RegisterUseCase @Inject constructor(
 
             when {
 
-                !Patterns.EMAIL_ADDRESS.matcher(email)
-                    .matches() && !pass.isPasswordValid() -> {
+                !email.isEmailValid() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Register(),
@@ -45,7 +44,7 @@ class RegisterUseCase @Inject constructor(
                     )
                 }
 
-                !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Register(),
@@ -70,6 +69,8 @@ class RegisterUseCase @Inject constructor(
                 else -> {
                     repository.register(email, pass)
                         .catch { exception ->
+                            Timber.tag("UseCase").d("catch: register")
+
                             send(
                                 LoginUiState().copy(
                                     screenState = LoginScreenState.Register(),
@@ -80,21 +81,23 @@ class RegisterUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { AuthResult ->
+                                onSuccess = { _ ->
+                                    Timber.tag("UseCase").d("onSuccess: register")
+
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Register(),
                                             userData = UserData(
                                                 email = email,
-                                                pass = pass,
-                                                isLogin = true,
-                                                isRegistered = false
+                                                pass = pass
                                             ),
                                             isLoading = false
                                         )
                                     )
                                 },
                                 onFailure = { exception ->
+                                    Timber.tag("UseCase").d("onFailure: register")
+
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Register(),

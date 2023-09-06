@@ -55,7 +55,7 @@ fun LoginScreen(
     if (loginViewModel.isUserLogIn()) {
         LaunchedEffect(true) {
             snackBarHostState.showSnackbar(
-                "Login... ${loginUiState.userData.isLogin} with account ${loginUiState.userData.email}",
+                "Login... ${loginViewModel.isUserLogIn()} with account ${loginUiState.userData.email}",
                 "Close",
                 true,
                 SnackbarDuration.Long
@@ -73,7 +73,6 @@ fun LoginScreen(
             )
         }
     }
-
 
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -136,13 +135,13 @@ fun LoginContent(
                 .clickable { onClickScreenState() }
         ) {
             Text(
-                text = stringResource(R.string.login_text_no_account),
+                text = stringResource(loginUiState.screenState.accountText),
                 modifier = Modifier.padding(end = 4.dp)
             )
 
 //            TODO: Create Typography for this text.
             Text(
-                text = stringResource(R.string.login_text_sign_up),
+                text = stringResource(loginUiState.screenState.signText),
                 color = MaterialTheme.colorScheme.scrim,
                 fontWeight = FontWeight.Bold
             )
@@ -153,7 +152,7 @@ fun LoginContent(
 
         Button(
             onClick = onClickGoogleButton,
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(vertical = 10.dp)
         ) {
             Row(
                 modifier = modifier.fillMaxWidth(),
@@ -168,7 +167,6 @@ fun LoginContent(
                         .padding(end = 6.dp)
                 )
                 Text(stringResource(R.string.login_text_sign_in_with_google))
-
             }
         }
     }

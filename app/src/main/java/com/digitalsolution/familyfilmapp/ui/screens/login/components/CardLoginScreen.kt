@@ -1,7 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,7 +63,7 @@ fun CardLoginMainContent(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(26.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -83,23 +82,22 @@ fun CardLoginMainContent(
                 style = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 modifier = modifier.fillMaxWidth(),
-                trailingIcon = {},
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(25.dp),
                 isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     SupportingErrorText(loginUiState.emailErrorMessage)
                 }
             )
 
-            Spacer(modifier = modifier.height(8.dp))
+            Spacer(modifier = modifier.height(4.dp))
 
             OutlinedTextField(
                 value = pass,
@@ -112,12 +110,12 @@ fun CardLoginMainContent(
                     )
                 },
                 visualTransformation = when (isPasswordVisible) {
-                    false -> VisualTransformation.None
-                    true -> PasswordVisualTransformation()
+                    false -> PasswordVisualTransformation()
+                    true -> VisualTransformation.None
                 },
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(25.dp),
                 isError = loginUiState.passErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     SupportingErrorText(loginUiState.passErrorMessage)
@@ -132,7 +130,7 @@ fun CardLoginMainContent(
             ) {
                 Text(
                     text = stringResource(id = loginUiState.screenState.buttonText),
-                    modifier = modifier.padding(8.dp)
+                    modifier = modifier.padding(4.dp)
                 )
             }
         }
@@ -141,7 +139,7 @@ fun CardLoginMainContent(
 
 @Composable
 private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(modifier = modifier.fillMaxWidth()) {
         errorMessage?.let {
             Icon(
                 imageVector = Icons.Filled.Error,

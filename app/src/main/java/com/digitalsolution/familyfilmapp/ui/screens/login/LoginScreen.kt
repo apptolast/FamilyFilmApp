@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -47,19 +48,16 @@ import com.google.android.gms.tasks.Task
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
 
-    if (loginViewModel.isUserLogIn()) {
-        LaunchedEffect(true) {
-            snackBarHostState.showSnackbar(
-                "Login... ${loginViewModel.isUserLogIn()} with account ${loginUiState.userData.email}",
-                "Close",
-                true,
-                SnackbarDuration.Long
-            )
+    LaunchedEffect(loginUiState) {
+//            TODO: Navigate next screen
+        if (loginUiState.isLogged) {
+
         }
     }
 
@@ -73,6 +71,7 @@ fun LoginScreen(
             )
         }
     }
+
 
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->

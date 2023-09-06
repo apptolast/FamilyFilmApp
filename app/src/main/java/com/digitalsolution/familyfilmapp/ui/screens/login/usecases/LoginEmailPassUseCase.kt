@@ -74,7 +74,7 @@ class LoginEmailPassUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { _ ->
+                                onSuccess = { authResult ->
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Login(),
@@ -82,6 +82,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                                 email = email,
                                                 pass = pass
                                             ),
+                                            isLogged = authResult.user != null,
                                             isLoading = false
                                         )
                                     )

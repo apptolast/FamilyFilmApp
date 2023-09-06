@@ -42,6 +42,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                                     email = authResult.user?.email ?: "",
                                     pass = ""
                                 ),
+                                isLogged = authResult.user != null,
                                 isLoading = false
                             )
                         )

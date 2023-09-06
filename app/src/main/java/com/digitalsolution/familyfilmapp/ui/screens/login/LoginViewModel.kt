@@ -37,7 +37,15 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
-    fun changeScreenState(){
+    init {
+        _state.update { loginState ->
+            loginState.copy(
+                isLogged = loginRepository.getUser() != null
+            )
+        }
+    }
+
+    fun changeScreenState() {
         _state.update {
             when (state.value.screenState) {
                 is LoginScreenState.Login -> it.copy(screenState = LoginScreenState.Register())
@@ -64,8 +72,6 @@ class LoginViewModel @Inject constructor(
                 }
             }
     }
-
-    fun isUserLogIn(): Boolean = loginRepository.getUser() != null
 
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount

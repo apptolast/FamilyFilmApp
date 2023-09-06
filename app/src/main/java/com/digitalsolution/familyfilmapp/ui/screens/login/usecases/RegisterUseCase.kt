@@ -81,7 +81,7 @@ class RegisterUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { _ ->
+                                onSuccess = { authResult ->
                                     Timber.tag("UseCase").d("onSuccess: register")
 
                                     send(
@@ -91,6 +91,7 @@ class RegisterUseCase @Inject constructor(
                                                 email = email,
                                                 pass = pass
                                             ),
+                                            isLogged = authResult.user != null,
                                             isLoading = false
                                         )
                                     )

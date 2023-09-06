@@ -10,6 +10,7 @@ data class LoginUiState(
     val userData: UserData,
     val emailErrorMessage: String?,
     val passErrorMessage: String?,
+    val isLogged: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: String?,
 ) : BaseUiState(isLoading, errorMessage) {
@@ -22,6 +23,7 @@ data class LoginUiState(
         ),
         emailErrorMessage = null,
         passErrorMessage = null,
+        isLogged = false,
         isLoading = false,
         errorMessage = null,
     )
@@ -30,17 +32,17 @@ data class LoginUiState(
 sealed class LoginScreenState(
     @StringRes val buttonText: Int,
     @StringRes val accountText: Int,
-    @StringRes val signText: Int,
+    @StringRes val signText: Int
 ) {
     data class Login(
-        @StringRes val value: Int = R.string.login_text_button,
-        @StringRes val value2: Int = R.string.login_text_no_account,
-        @StringRes val value3: Int = R.string.login_text_sign_up,
-    ) : LoginScreenState(value, value2, value3)
+        @StringRes val button: Int = R.string.login_text_button,
+        @StringRes val account: Int = R.string.login_text_no_account,
+        @StringRes val sign: Int = R.string.login_text_sign_up
+    ) : LoginScreenState(button, account, sign)
 
     data class Register(
-        @StringRes val value: Int = R.string.register_text_button,
-        @StringRes val value2: Int = R.string.login_text_yes_account,
-        @StringRes val value3: Int = R.string.login_text_sign_in,
-    ) : LoginScreenState(value, value2, value3)
+        @StringRes val button: Int = R.string.register_text_button,
+        @StringRes val account: Int = R.string.login_text_yes_account,
+        @StringRes val sign: Int = R.string.login_text_sign_in
+    ) : LoginScreenState(button, account, sign)
 }

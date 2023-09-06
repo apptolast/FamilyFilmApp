@@ -37,8 +37,11 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
-    fun login(email: String, password: String) = viewModelScope.launch {
-        loginEmailPassUseCase(email to password)
+    fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
+        when (state.value.screenState) {
+            is LoginScreenState.Login -> loginEmailPassUseCase(email to password)
+            is LoginScreenState.Register -> registerUseCase(email to password)
+        }
             .catch { newLoginUIState ->
                 _state.update { loginState ->
                     loginState.copy(
@@ -49,22 +52,6 @@ class LoginViewModel @Inject constructor(
             .collectLatest { newLoginUIState ->
                 _state.update {
                     newLoginUIState
-                }
-            }
-    }
-
-    fun register(email: String, password: String) = viewModelScope.launch {
-        registerUseCase(email to password)
-            .catch { newLoginUIState ->
-                _state.update { loginUiState ->
-                    loginUiState.copy(
-                        errorMessage = newLoginUIState.message ?: "Register Error"
-                    )
-                }
-            }
-            .collectLatest { newLoginUiState ->
-                _state.update {
-                    newLoginUiState
                 }
             }
     }

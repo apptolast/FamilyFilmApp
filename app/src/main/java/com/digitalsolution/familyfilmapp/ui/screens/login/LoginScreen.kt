@@ -91,7 +91,7 @@ fun LoginScreen(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             LoginContent(
                 loginUiState = loginUiState,
-                onClickLogin = loginViewModel::login,
+                onClickLogin = loginViewModel::loginOrRegister,
                 onClickGoogleButton = { startForResult.launch(loginViewModel.googleSignInClient.signInIntent) },
                 modifier = Modifier.padding(innerPadding),
             )

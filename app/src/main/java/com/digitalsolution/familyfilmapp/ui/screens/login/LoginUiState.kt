@@ -13,7 +13,7 @@ data class LoginUiState(
 ) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
-        screenState = LoginScreenState.Login,
+        screenState = LoginScreenState.Login(),
         UserData(
             email = "",
             pass = "",
@@ -27,7 +27,7 @@ data class LoginUiState(
     )
 }
 
-sealed class LoginScreenState(val message: String) {
-    object Login : LoginScreenState("Login")
-    object Register : LoginScreenState("Sign In")
+sealed class LoginScreenState {
+    data class Login(val value: String = "Sign in") : LoginScreenState()
+    data class Register(val value: String = "Sign Up") : LoginScreenState()
 }

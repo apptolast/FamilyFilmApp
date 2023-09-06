@@ -26,29 +26,18 @@ class RegisterUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginScreenState.Register,
+                    screenState = LoginScreenState.Register(),
                     isLoading = true
                 )
             )
 
             when {
 
-                email.isBlank() && pass.isBlank() -> {
-                    send(
-                        LoginUiState().copy(
-                            screenState = LoginScreenState.Register,
-                            emailErrorMessage = LoginAndRegisterExceptions.EmailBlank.message,
-                            passErrorMessage = LoginAndRegisterExceptions.PassBlank.message,
-                            isLoading = false
-                        )
-                    )
-                }
-
                 !Patterns.EMAIL_ADDRESS.matcher(email)
                     .matches() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register,
+                            screenState = LoginScreenState.Register(),
                             emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
                             passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
                             isLoading = false
@@ -59,7 +48,7 @@ class RegisterUseCase @Inject constructor(
                 !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register,
+                            screenState = LoginScreenState.Register(),
                             emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
                             isLoading = false
                         )
@@ -70,7 +59,7 @@ class RegisterUseCase @Inject constructor(
                 !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register,
+                            screenState = LoginScreenState.Register(),
                             passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
                             isLoading = false
                         )
@@ -83,7 +72,7 @@ class RegisterUseCase @Inject constructor(
                         .catch { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginScreenState.Register,
+                                    screenState = LoginScreenState.Register(),
                                     isLoading = false,
                                     errorMessage = exception.message,
                                 )
@@ -94,7 +83,7 @@ class RegisterUseCase @Inject constructor(
                                 onSuccess = { AuthResult ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Register,
+                                            screenState = LoginScreenState.Register(),
                                             userData = UserData(
                                                 email = email,
                                                 pass = pass,
@@ -108,7 +97,7 @@ class RegisterUseCase @Inject constructor(
                                 onFailure = { exception ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Register,
+                                            screenState = LoginScreenState.Register(),
                                             isLoading = false,
                                             errorMessage = exception.message
                                         )

@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
-import android.util.Patterns
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.LoginAndRegisterExceptions
 import com.digitalsolution.familyfilmapp.model.local.UserData
@@ -24,29 +23,17 @@ class LoginEmailPassUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginScreenState.Login,
+                    screenState = LoginScreenState.Login(),
                     isLoading = true,
                 )
             )
 
             when {
 
-                email.isBlank() && pass.isBlank() -> {
+                !email.isEmailValid() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Login,
-                            emailErrorMessage = LoginAndRegisterExceptions.EmailBlank.message,
-                            passErrorMessage = LoginAndRegisterExceptions.PassBlank.message,
-                            isLoading = false
-                        )
-                    )
-                }
-
-                !Patterns.EMAIL_ADDRESS.matcher(email)
-                    .matches() && !pass.isPasswordValid() -> {
-                    send(
-                        LoginUiState().copy(
-                            screenState = LoginScreenState.Login,
+                            screenState = LoginScreenState.Login(),
                             emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
                             passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
                             isLoading = false
@@ -54,10 +41,10 @@ class LoginEmailPassUseCase @Inject constructor(
                     )
                 }
 
-                !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Login,
+                            screenState = LoginScreenState.Login(),
                             emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
                             isLoading = false
                         )
@@ -67,7 +54,7 @@ class LoginEmailPassUseCase @Inject constructor(
                 !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Login,
+                            screenState = LoginScreenState.Login(),
                             passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
                             isLoading = false
                         )
@@ -79,7 +66,7 @@ class LoginEmailPassUseCase @Inject constructor(
                         .catch { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginScreenState.Login,
+                                    screenState = LoginScreenState.Login(),
                                     isLoading = false,
                                     errorMessage = exception.message,
                                 )
@@ -87,10 +74,10 @@ class LoginEmailPassUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { AuthResult ->
+                                onSuccess = { _ ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Login,
+                                            screenState = LoginScreenState.Login(),
                                             userData = UserData(
                                                 email = email,
                                                 pass = pass,
@@ -104,7 +91,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                 onFailure = { exception ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Login,
+                                            screenState = LoginScreenState.Login(),
                                             isLoading = false,
                                             errorMessage = exception.message
                                         )

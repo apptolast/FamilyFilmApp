@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
-import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
@@ -26,9 +25,9 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val googleSignInClient: GoogleSignInClient,
     private val loginRepository: LoginRepository,
-    private val registerUseCase: RegisterUseCase
+    private val registerUseCase: RegisterUseCase,
+    val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -38,14 +37,6 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
-    /**
-     * FIXME: No sé por qué me esta dando fallos y excepciones el Login diciendome que no hay recapcha
-     *  o que el email esta mal formateado, etc etc, pero o consigo que muestre el error en el LaunchEffect
-     *  cada vez que actualizo el loginState. El depurador parece que para en los catch y parece que tiene
-     *  el mensaje de error correcto, pero luego no lo pinta en el snackbar.
-     *
-     *  OS LO DEJO DE TAREA A VER SI AVERIGUAIS QUE ESTÁ PASANDO.
-     */
     fun login(email: String, password: String) = viewModelScope.launch {
         loginEmailPassUseCase(email to password)
             .catch { newLoginUIState ->
@@ -80,8 +71,6 @@ class LoginViewModel @Inject constructor(
 
     fun isUserLogIn(): Boolean = loginRepository.getUser() != null
 
-    fun getGoogleSignInIntent(): Intent = googleSignInClient.signInIntent
-
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
@@ -92,5 +81,4 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
 }

@@ -5,12 +5,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -22,7 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +38,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
-import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginsButton
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -45,20 +51,10 @@ fun LoginScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
 
-
-    // Observar cambios en loginUiState
     LaunchedEffect(loginUiState, loginViewModel.isUserLogIn()) {
         when {
-            loginUiState.isLoading -> {
-                snackBarHostState.showSnackbar(
-                    "Loading... ${loginUiState.isLoading} with account ${loginUiState.userData.email}",
-                    "Close",
-                    true,
-                    SnackbarDuration.Long
-                )
-            }
-
             loginUiState.userData.isLogin -> {
+                // TODO: Show progres bar
                 snackBarHostState.showSnackbar(
                     "Login... ${loginUiState.userData.isLogin} with account ${loginUiState.userData.email}",
                     "Close",
@@ -76,14 +72,6 @@ fun LoginScreen(
                 )
             }
 
-            loginUiState.emailErrorMessage?.isNotBlank() == true -> {
-                snackBarHostState.showSnackbar(
-                    "Message : ${loginUiState.passErrorMessage}",
-                    "Close",
-                    true,
-                    SnackbarDuration.Long
-                )
-            }
         }
     }
 
@@ -100,14 +88,15 @@ fun LoginScreen(
         }
 
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
-        LoginContent(
-            loginUiState = loginUiState,
-            onClickLogin = loginViewModel::login,
-            onClickGoogleButton = { startForResult.launch(loginViewModel.getGoogleSignInIntent()) },
-            modifier = Modifier.padding(innerPadding),
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            LoginContent(
+                loginUiState = loginUiState,
+                onClickLogin = loginViewModel::login,
+                onClickGoogleButton = { startForResult.launch(loginViewModel.googleSignInClient.signInIntent) },
+                modifier = Modifier.padding(innerPadding),
+            )
+        }
     }
-
 }
 
 @Composable
@@ -121,18 +110,28 @@ fun LoginContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .alpha(
+                when (loginUiState.isLoading) {
+                    true -> 0.4f
+                    false -> 1f
+                }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CardLoginScreen(
             loginUiState,
             onClick = onClickLogin
         )
-        CardLoginsButton(
-            text = stringResource(R.string.login_text_sign_in_with_google),
-            backgroundColor = MaterialTheme.colorScheme.primary,
-            paddingVertical = 13.dp,
-            contentImage = {
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onClickGoogleButton) {
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
                     painter = painterResource(R.drawable.logo_google),
                     contentDescription = stringResource(R.string.login_icon_google),
@@ -140,19 +139,22 @@ fun LoginContent(
                         .size(30.dp)
                         .padding(end = 6.dp)
                 )
-            },
-            onCLick = onClickGoogleButton,
-            textColor = MaterialTheme.colorScheme.surface
+                Text(stringResource(R.string.login_text_sign_in_with_google))
 
-        )
+            }
+        }
         Text(
             text = stringResource(R.string.login_text_sign_up),
             modifier = Modifier.padding(6.dp)
         )
 
-        // TODO: Revise when review theme colors
-        Text(text = stringResource(R.string.login_text_forgot_your_password), color = Color.Blue)
+        // TODO: Review when review theme colors
+        Text(text = stringResource(R.string.login_text_forgot_your_password))
     }
+
+    if (loginUiState.isLoading)
+        CircularProgressIndicator()
+
 }
 
 @Preview(showBackground = true)

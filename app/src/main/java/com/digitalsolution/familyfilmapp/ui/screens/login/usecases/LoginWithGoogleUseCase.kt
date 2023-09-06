@@ -17,17 +17,19 @@ class LoginWithGoogleUseCase @Inject constructor(
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
         send(
             LoginUiState().copy(
-                screenState = LoginScreenState.Login,
+                screenState = LoginScreenState.Login(),
                 isLoading = true
             )
         )
 
         repository.loginWithGoogle(parameters)
             .catch { exception ->
-                LoginUiState().copy(
-                    screenState = LoginScreenState.Login,
-                    isLoading = false,
-                    errorMessage = exception.message
+                send(
+                    LoginUiState().copy(
+                        screenState = LoginScreenState.Login(),
+                        isLoading = false,
+                        errorMessage = exception.message
+                    )
                 )
             }
             .collect { result ->
@@ -36,7 +38,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onSuccess = { authResult ->
                         send(
                             LoginUiState().copy(
-                                screenState = LoginScreenState.Login,
+                                screenState = LoginScreenState.Login(),
                                 userData = UserData(
                                     email = authResult.user?.email ?: "",
                                     pass = "",
@@ -50,7 +52,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onFailure = {
                         send(
                             LoginUiState().copy(
-                                screenState = LoginScreenState.Login,
+                                screenState = LoginScreenState.Login(),
                                 isLoading = false,
                                 errorMessage = it.message ?: "Login Error"
                             )

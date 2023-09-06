@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -68,7 +69,7 @@ fun CardLoginMainContent(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(26.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -76,7 +77,7 @@ fun CardLoginMainContent(
                 contentDescription = stringResource(R.string.login_snail_logo),
                 modifier = modifier
                     .width(134.dp)
-                    .padding(8.dp)
+                    .padding(8.dp),
             )
             Text(
                 text = stringResource(R.string.login_text_app_title),
@@ -89,11 +90,11 @@ fun CardLoginMainContent(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                modifier = modifier.padding(top = 12.dp),
+                modifier = modifier.fillMaxWidth(),
                 trailingIcon = {},
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(25.dp),
+                shape = RoundedCornerShape(20.dp),
                 isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
@@ -111,7 +112,7 @@ fun CardLoginMainContent(
             OutlinedTextField(
                 value = pass,
                 onValueChange = { pass = it },
-                modifier = modifier.padding(top = 12.dp),
+                modifier = modifier.fillMaxWidth(),
                 trailingIcon = {
                     TrailingIconPassword(
                         isPasswordVisible = isPasswordVisible,
@@ -125,7 +126,7 @@ fun CardLoginMainContent(
                 },
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                shape = RoundedCornerShape(25.dp),
+                shape = RoundedCornerShape(20.dp),
                 isError = loginUiState.passErrorMessage?.isNotBlank() == true,
                 supportingText = {
                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
@@ -139,13 +140,15 @@ fun CardLoginMainContent(
                     }
                 }
             )
-            CardLoginsButton(
-                text = stringResource(R.string.login_text_button),
-                backgroundColor = MaterialTheme.colorScheme.tertiary,
-                paddingVertical = 1.dp,
-                textColor = MaterialTheme.colorScheme.surface,
-                onCLick = { onClick(email, pass) }
-            )
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Button(
+                onClick = { onClick(email, pass) },
+                modifier = modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.login_text_button))
+            }
         }
     }
 }

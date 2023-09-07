@@ -86,14 +86,14 @@ fun CardLoginMainContent(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { email = it.trim() },
                 modifier = modifier.fillMaxWidth(),
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
-                isError = loginUiState.emailErrorMessage?.isNotBlank() == true,
+                isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
                 supportingText = {
-                    SupportingErrorText(loginUiState.emailErrorMessage)
+                    SupportingErrorText(loginUiState.emailErrorMessage?.error)
                 }
             )
 
@@ -101,7 +101,7 @@ fun CardLoginMainContent(
 
             OutlinedTextField(
                 value = pass,
-                onValueChange = { pass = it },
+                onValueChange = { pass = it.trim() },
                 modifier = modifier.fillMaxWidth(),
                 trailingIcon = {
                     TrailingIconPassword(
@@ -116,9 +116,9 @@ fun CardLoginMainContent(
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 shape = RoundedCornerShape(25.dp),
-                isError = loginUiState.passErrorMessage?.isNotBlank() == true,
+                isError = !loginUiState.passErrorMessage?.error.isNullOrBlank(),
                 supportingText = {
-                    SupportingErrorText(loginUiState.passErrorMessage)
+                    SupportingErrorText(loginUiState.passErrorMessage?.error)
                 }
             )
 
@@ -139,7 +139,7 @@ fun CardLoginMainContent(
 
 @Composable
 private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth()) {
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         errorMessage?.let {
             Icon(
                 imageVector = Icons.Filled.Error,

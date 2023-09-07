@@ -1,6 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
 import com.digitalsolution.familyfilmapp.BaseUseCase
+import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
@@ -28,7 +29,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     LoginUiState().copy(
                         screenState = LoginScreenState.Login(),
                         isLoading = false,
-                        errorMessage = exception.message
+                        errorMessage = CustomException.GenericException(exception.message ?: "Google Login Error"),
                     )
                 )
             }
@@ -47,12 +48,14 @@ class LoginWithGoogleUseCase @Inject constructor(
                             )
                         )
                     },
-                    onFailure = {
+                    onFailure = { exception ->
                         send(
                             LoginUiState().copy(
                                 screenState = LoginScreenState.Login(),
                                 isLoading = false,
-                                errorMessage = it.message ?: "Login Error"
+                                errorMessage = CustomException.GenericException(
+                                    exception.message ?: "Google Login Failure"
+                                )
                             )
                         )
                     }

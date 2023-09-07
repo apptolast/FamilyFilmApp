@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
@@ -59,10 +60,10 @@ class LoginViewModel @Inject constructor(
             is LoginScreenState.Login -> loginEmailPassUseCase(email to password)
             is LoginScreenState.Register -> registerUseCase(email to password)
         }
-            .catch { newLoginUIState ->
+            .catch { error ->
                 _state.update { loginState ->
                     loginState.copy(
-                        errorMessage = newLoginUIState.message ?: "Login Error"
+                        errorMessage = GenericException(error.message ?: "Login Error")
                     )
                 }
             }

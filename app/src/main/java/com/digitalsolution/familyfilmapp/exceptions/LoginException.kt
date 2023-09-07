@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.exceptions
 
-sealed class LoginException(private val message: String) : CustomException(message) {
+sealed class LoginException(message: String) : CustomException(message) {
 
     data class EmailInvalidFormat(val value: String = "Email format not valid") : LoginException(value)
 

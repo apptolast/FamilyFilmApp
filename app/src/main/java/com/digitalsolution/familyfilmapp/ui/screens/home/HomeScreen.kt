@@ -35,7 +35,13 @@ fun HomeScreen(
             modifier = Modifier.padding(paddingValues),
             logout = {
                 viewModel.logout()
-                navController.navigate(Routes.SplashScreen.routes)
+                if (viewModel.logout()) {
+                    navController.navigate(Routes.SplashScreen.routes) {
+                        popUpTo(Routes.Home.routes) {
+                            inclusive = true
+                        }
+                    }
+                }
             }
         )
     }

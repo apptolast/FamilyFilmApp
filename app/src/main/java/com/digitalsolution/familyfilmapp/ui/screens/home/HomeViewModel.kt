@@ -10,7 +10,8 @@ class HomeViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
-    fun logout() {
+    fun logout(): Boolean {
         firebaseAuth.signOut()
+        return firebaseAuth.currentUser == null
     }
 }

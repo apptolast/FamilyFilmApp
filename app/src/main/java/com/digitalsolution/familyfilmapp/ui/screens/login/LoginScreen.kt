@@ -57,7 +57,11 @@ fun LoginScreen(
 
     LaunchedEffect(loginUiState) {
         if (loginUiState.isLogged) {
-            navController.navigate(Routes.Home.routes)
+            navController.navigate(Routes.Home.routes) {
+                popUpTo(Routes.Login.routes) {
+                    inclusive = true
+                }
+            }
         }
     }
 

@@ -6,7 +6,6 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.digitalsolution.familyfilmapp.navigation.Routes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -14,7 +13,7 @@ fun AnimationSplashContent(
     scaleAnimation: Animatable<Float, AnimationVector1D>,
     durationMillisAnimation: Int,
     delayScreen: Long,
-    navigate: (String) -> Unit
+    navigate: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         scaleAnimation.animateTo(
@@ -26,9 +25,7 @@ fun AnimationSplashContent(
                 }
             )
         )
-
         delay(timeMillis = delayScreen)
-
-        navigate(Routes.Login.routes)
+        navigate()
     }
 }

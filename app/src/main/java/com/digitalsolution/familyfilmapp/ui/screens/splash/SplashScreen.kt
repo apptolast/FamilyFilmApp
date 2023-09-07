@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_blue
 import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_orange
 import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_purple
@@ -25,11 +26,18 @@ import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_purple
 @Composable
 fun SplashScreen(navController: NavController) {
 
-    val scaleAnimation: Animatable<Float, AnimationVector1D> = remember { Animatable(initialValue = 0f) }
+    val scaleAnimation: Animatable<Float, AnimationVector1D> =
+        remember { Animatable(initialValue = 0f) }
 
     AnimationSplashContent(
         scaleAnimation = scaleAnimation,
-        navigate = navController::navigate,
+        navigate = {
+            navController.navigate(Routes.Login.routes) {
+                popUpTo(Routes.Home.routes) {
+                    inclusive = true
+                }
+            }
+        },
         durationMillisAnimation = 1000,
         delayScreen = 150L
     )

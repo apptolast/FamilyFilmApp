@@ -3,16 +3,17 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.annotation.StringRes
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.UserData
 
 data class LoginUiState(
     val screenState: LoginScreenState,
     val userData: UserData,
-    val emailErrorMessage: String?,
-    val passErrorMessage: String?,
+    val emailErrorMessage: CustomException?,
+    val passErrorMessage: CustomException?,
     val isLogged: Boolean,
     override val isLoading: Boolean,
-    override val errorMessage: String?,
+    override val errorMessage: CustomException?,
 ) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(

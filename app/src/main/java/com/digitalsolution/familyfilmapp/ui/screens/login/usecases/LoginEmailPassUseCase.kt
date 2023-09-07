@@ -1,7 +1,9 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
 import com.digitalsolution.familyfilmapp.BaseUseCase
-import com.digitalsolution.familyfilmapp.exceptions.LoginAndRegisterExceptions
+import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
+import com.digitalsolution.familyfilmapp.exceptions.LoginException.EmailInvalidFormat
+import com.digitalsolution.familyfilmapp.exceptions.LoginException.PasswordInvalidFormat
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
@@ -34,8 +36,8 @@ class LoginEmailPassUseCase @Inject constructor(
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Login(),
-                            emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
-                            passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
+                            emailErrorMessage = EmailInvalidFormat(),
+                            passErrorMessage = PasswordInvalidFormat(),
                             isLoading = false
                         )
                     )
@@ -45,7 +47,7 @@ class LoginEmailPassUseCase @Inject constructor(
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Login(),
-                            emailErrorMessage = LoginAndRegisterExceptions.EmailInvalidFormat.message,
+                            emailErrorMessage = EmailInvalidFormat(),
                             isLoading = false
                         )
                     )
@@ -55,7 +57,7 @@ class LoginEmailPassUseCase @Inject constructor(
                     send(
                         LoginUiState().copy(
                             screenState = LoginScreenState.Login(),
-                            passErrorMessage = LoginAndRegisterExceptions.PasswordInavalidFormat.message,
+                            passErrorMessage = PasswordInvalidFormat(),
                             isLoading = false
                         )
                     )
@@ -68,7 +70,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                 LoginUiState().copy(
                                     screenState = LoginScreenState.Login(),
                                     isLoading = false,
-                                    errorMessage = exception.message,
+                                    errorMessage = GenericException(exception.message ?: "Login Error"),
                                 )
                             )
                         }
@@ -92,7 +94,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Login(),
                                             isLoading = false,
-                                            errorMessage = exception.message
+                                            errorMessage = GenericException(exception.message ?: "Login Failure")
                                         )
                                     )
                                 },

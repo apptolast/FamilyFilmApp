@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -48,30 +49,28 @@ import com.google.android.gms.tasks.Task
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val loginUiState by loginViewModel.state.collectAsStateWithLifecycle()
+    val loginUiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginUiState) {
-//            TODO: Navigate next screen
         if (loginUiState.isLogged) {
-
+            navController.navigate(Routes.Home.routes)
         }
     }
 
-    if (loginUiState.errorMessage?.isNotBlank() == true) {
+    if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
         LaunchedEffect(loginUiState.errorMessage) {
             snackBarHostState.showSnackbar(
-                "Firebase Message : ${loginUiState.errorMessage}",
+                "Firebase Message : ${loginUiState.errorMessage!!.error}",
                 "Close",
                 true,
                 SnackbarDuration.Long
             )
         }
     }
-
 
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -80,7 +79,7 @@ fun LoginScreen(
                 if (intent != null) {
                     val task: Task<GoogleSignInAccount> =
                         GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    loginViewModel.handleGoogleSignInResult(task)
+                    viewModel.handleGoogleSignInResult(task)
                 }
             }
         }
@@ -94,9 +93,9 @@ fun LoginScreen(
         ) {
             LoginContent(
                 loginUiState = loginUiState,
-                onClickLogin = loginViewModel::loginOrRegister,
-                onClickScreenState = loginViewModel::changeScreenState,
-                onClickGoogleButton = { startForResult.launch(loginViewModel.googleSignInClient.signInIntent) }
+                onClickLogin = viewModel::loginOrRegister,
+                onClickScreenState = viewModel::changeScreenState,
+                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
             )
         }
     }
@@ -138,7 +137,7 @@ fun LoginContent(
                 modifier = Modifier.padding(end = 4.dp)
             )
 
-//            TODO: Create Typography for this text.
+            // TODO: Create Typography for this text.
             Text(
                 text = stringResource(loginUiState.screenState.signText),
                 color = MaterialTheme.colorScheme.scrim,

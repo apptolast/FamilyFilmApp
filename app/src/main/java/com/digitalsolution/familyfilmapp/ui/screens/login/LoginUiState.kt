@@ -47,3 +47,4 @@ sealed class LoginScreenState(
         @StringRes val sign: Int = R.string.login_text_sign_in
     ) : LoginScreenState(button, account, sign)
 }
+

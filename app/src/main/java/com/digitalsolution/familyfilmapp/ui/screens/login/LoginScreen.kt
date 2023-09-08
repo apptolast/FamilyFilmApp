@@ -170,8 +170,10 @@ fun LoginContent(
         }
     }
 
-    if (loginUiState.isLoading)
+    if (loginUiState.isLoading) {
         CircularProgressIndicator()
+    }
+
 
 }
 

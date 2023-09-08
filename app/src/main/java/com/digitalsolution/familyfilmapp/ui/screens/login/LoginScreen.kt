@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.popUpToNavigate
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -57,11 +58,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginUiState) {
         if (loginUiState.isLogged) {
-            navController.navigate(Routes.Home.routes) {
-                popUpTo(Routes.Login.routes) {
-                    inclusive = true
-                }
-            }
+            navController.popUpToNavigate(Routes.Home.routes, Routes.Login.routes)
         }
     }
 

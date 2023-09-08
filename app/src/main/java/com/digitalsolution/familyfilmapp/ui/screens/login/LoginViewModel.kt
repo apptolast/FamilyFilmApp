@@ -38,13 +38,13 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
-    init {
-        _state.update { loginState ->
-            loginState.copy(
-                isLogged = loginRepository.getUser() != null
-            )
-        }
-    }
+//    init {
+//        _state.update { loginState ->
+//            loginState.copy(
+//                isLogged = loginRepository.getUser() != null
+//            )
+//        }
+//    }
 
     fun changeScreenState() {
         _state.update {
@@ -82,6 +82,12 @@ class LoginViewModel @Inject constructor(
                     newLoginUIState
                 }
             }
+        }
+    }
+
+    fun updateLoginState() {
+        _state.update {
+            it.copy(isLogged = loginRepository.getUser() != null)
         }
     }
 }

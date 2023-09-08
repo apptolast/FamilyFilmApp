@@ -40,7 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
-import com.digitalsolution.familyfilmapp.popUpToNavigate
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -58,7 +57,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginUiState) {
         if (loginUiState.isLogged) {
-            navController.popUpToNavigate(Routes.Home.routes, Routes.Login.routes)
+            navController.navigate(Routes.Home.routes)
         }
     }
 
@@ -92,12 +91,15 @@ fun LoginScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            LoginContent(
-                loginUiState = loginUiState,
-                onClickLogin = viewModel::loginOrRegister,
-                onClickScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
-            )
+
+            if (!loginUiState.isLogged) {
+                LoginContent(
+                    loginUiState = loginUiState,
+                    onClickLogin = viewModel::loginOrRegister,
+                    onClickScreenState = viewModel::changeScreenState,
+                    onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
+                )
+            }
         }
     }
 }
@@ -173,7 +175,6 @@ fun LoginContent(
     if (loginUiState.isLoading) {
         CircularProgressIndicator()
     }
-
 
 }
 

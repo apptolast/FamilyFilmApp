@@ -34,7 +34,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val activity = (LocalContext.current as? Activity)
+    val activity = LocalContext.current as? Activity
     BackHandler(true) {
         activity?.finish()
     }

@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.navOptions
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
@@ -59,7 +58,7 @@ fun LoginScreen(
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged && isLogged != false) {
-            navController.navigate(Routes.Home.routes, navOptions = navOptions { launchSingleTop })
+            navController.navigate(Routes.Home.routes)
         }
     }
 

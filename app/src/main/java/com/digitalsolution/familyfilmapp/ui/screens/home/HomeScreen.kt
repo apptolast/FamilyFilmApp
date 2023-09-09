@@ -71,6 +71,10 @@ fun HomeContent(
 
 @Composable
 private fun ColumnFilm(modifier: Modifier = Modifier) {
+    val textLoginOne = "Login1 Screen"
+    val textLoginTwo = "Login2 Screen"
+    val textLognThree = "Login3 Screen"
+
     LazyColumn(
         modifier = modifier
             .background(Color.Blue)
@@ -78,35 +82,35 @@ private fun ColumnFilm(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            Text(text = "Login1 Screen", color = Color.Red)
+            Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login2 Screen", color = Color.Red)
+            Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login3 Screen", color = Color.Red)
+            Text(text = textLognThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login1 Screen", color = Color.Red)
+            Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login2 Screen", color = Color.Red)
+            Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login3 Screen", color = Color.Red)
+            Text(text = textLognThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login1 Screen", color = Color.Red)
+            Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login2 Screen", color = Color.Red)
+            Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login3 Screen", color = Color.Red)
+            Text(text = textLognThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login1 Screen", color = Color.Red)
+            Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login2 Screen", color = Color.Red)
+            Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login3 Screen", color = Color.Red)
+            Text(text = textLognThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login1 Screen", color = Color.Red)
+            Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login2 Screen", color = Color.Red)
+            Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = "Login3 Screen", color = Color.Red)
+            Text(text = textLognThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
         }
     }

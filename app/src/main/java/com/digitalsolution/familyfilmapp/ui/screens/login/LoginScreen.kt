@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.navOptions
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
@@ -50,14 +51,15 @@ import com.google.android.gms.tasks.Task
 @Composable
 fun LoginScreen(
     navController: NavController,
+    isLogged: Boolean? = null,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.isLogged) {
-            navController.navigate(Routes.Home.routes)
+    LaunchedEffect(key1 = loginUiState) {
+        if (loginUiState.isLogged && isLogged != false) {
+            navController.navigate(Routes.Home.routes, navOptions = navOptions { launchSingleTop })
         }
     }
 
@@ -92,14 +94,12 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
 
-            if (!loginUiState.isLogged) {
-                LoginContent(
-                    loginUiState = loginUiState,
-                    onClickLogin = viewModel::loginOrRegister,
-                    onClickScreenState = viewModel::changeScreenState,
-                    onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
-                )
-            }
+            LoginContent(
+                loginUiState = loginUiState,
+                onClickLogin = viewModel::loginOrRegister,
+                onClickScreenState = viewModel::changeScreenState,
+                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
+            )
         }
     }
 }

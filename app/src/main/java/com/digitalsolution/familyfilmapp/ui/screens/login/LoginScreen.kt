@@ -91,7 +91,6 @@ fun LoginScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-
             LoginContent(
                 loginUiState = loginUiState,
                 onClickLogin = viewModel::loginOrRegister,

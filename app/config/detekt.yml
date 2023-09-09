@@ -46,6 +46,8 @@ complexity:
   LongParameterList:
     functionThreshold: 7
     ignoreDefaultParameters: true
+  LongMethod:
+    threshold: 120
 
 style:
   MagicNumber:

@@ -21,8 +21,13 @@ fun AppNavigation() {
             SplashScreen(navController = navController)
         }
 
-        composable(route = Routes.Login.routes) {
-            LoginScreen(navController = navController)
+        composable(route = Routes.Login.routes) { backStackEntry ->
+
+            val isLogged = backStackEntry.savedStateHandle.getLiveData<Boolean>("logged").value
+
+            LoginScreen(navController = navController, isLogged)
+
+            backStackEntry.savedStateHandle.remove<Boolean>("logged")
         }
 
         composable(route = Routes.Home.routes) {

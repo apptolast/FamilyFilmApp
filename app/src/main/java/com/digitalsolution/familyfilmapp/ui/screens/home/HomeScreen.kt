@@ -1,5 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.screens.home
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +33,12 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+
+    val activity = (LocalContext.current as? Activity)
+    BackHandler(true) {
+        activity?.finish()
+    }
+
     Scaffold(
         topBar = {
             TopBar()
@@ -63,8 +72,8 @@ fun HomeContent(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ColumnFilm(modifier.weight(1f))
-            ColumnFilm(modifier.weight(1f))
+            ColumnFilm(Modifier.weight(1f))
+            ColumnFilm(Modifier.weight(1f))
         }
     }
 }
@@ -73,7 +82,7 @@ fun HomeContent(
 private fun ColumnFilm(modifier: Modifier = Modifier) {
     val textLoginOne = "Login1 Screen"
     val textLoginTwo = "Login2 Screen"
-    val textLognThree = "Login3 Screen"
+    val textLoginThree = "Login3 Screen"
 
     LazyColumn(
         modifier = modifier
@@ -86,37 +95,19 @@ private fun ColumnFilm(modifier: Modifier = Modifier) {
             Spacer(modifier.height(12.dp))
             Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = textLognThree, color = Color.Red)
+            Text(text = textLoginThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
             Text(text = textLoginOne, color = Color.Red)
             Spacer(modifier.height(12.dp))
             Text(text = textLoginTwo, color = Color.Red)
             Spacer(modifier.height(12.dp))
-            Text(text = textLognThree, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginOne, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginTwo, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLognThree, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginOne, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginTwo, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLognThree, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginOne, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLoginTwo, color = Color.Red)
-            Spacer(modifier.height(12.dp))
-            Text(text = textLognThree, color = Color.Red)
+            Text(text = textLoginThree, color = Color.Red)
             Spacer(modifier.height(12.dp))
         }
     }
 }
 
-@Preview
+@Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     FamilyFilmAppTheme {

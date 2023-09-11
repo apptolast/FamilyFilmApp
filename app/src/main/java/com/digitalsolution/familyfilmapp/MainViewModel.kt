@@ -21,10 +21,4 @@ class MainViewModel @Inject constructor(): ViewModel() {
             _isLoading.value = false
         }
     }
-
-    fun hideSplashScreen(){
-//        Log.d("SPLASH", "hideSplashScreen1: ${_isLoading.value}")
-//        _isLoading.value = false
-//        Log.d("SPLASH", "hideSplashScreen2: ${_isLoading.value}")
-    }
 }

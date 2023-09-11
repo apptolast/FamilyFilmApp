@@ -3,7 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
-import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckIUserLogUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val loginRepository: LoginRepository,
+    private val checkIUserLogUseCase: CheckIUserLogUseCase,
     private val registerUseCase: RegisterUseCase,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
@@ -39,26 +39,34 @@ class LoginViewModel @Inject constructor(
     )
 
     init {
-        _state.update { loginState ->
-            loginState.copy(
-                isLogged = loginRepository.getUser() != null
-            )
+        viewModelScope.launch {
+            checkIUserLogUseCase(Unit).collectLatest { newLoginUiState ->
+                _state.update {
+                    newLoginUiState
+                }
+            }
         }
     }
 
-    fun changeScreenState() {
+    fun changeScreenState() = viewModelScope.launch {
         _state.update {
-            when (state.value.screenState) {
+            when (it.screenState) {
                 is LoginScreenState.Login -> it.copy(screenState = LoginScreenState.Register())
                 is LoginScreenState.Register -> it.copy(screenState = LoginScreenState.Login())
             }
         }
     }
 
+
     fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
-        when (state.value.screenState) {
-            is LoginScreenState.Login -> loginEmailPassUseCase(email to password)
-            is LoginScreenState.Register -> registerUseCase(email to password)
+        when (_state.value.screenState) {
+            is LoginScreenState.Login -> {
+                loginEmailPassUseCase(email to password)
+            }
+
+            is LoginScreenState.Register -> {
+                registerUseCase(email to password)
+            }
         }
             .catch { error ->
                 _state.update { loginState ->
@@ -85,9 +93,12 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun updateLoginState() {
-        _state.update {
-            it.copy(isLogged = loginRepository.getUser() != null)
+    fun homeLogOut() = viewModelScope.launch {
+        checkIUserLogUseCase(Unit).collectLatest { newLoginUiState ->
+            _state.update {
+                newLoginUiState
+            }
         }
     }
+
 }

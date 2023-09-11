@@ -71,6 +71,7 @@ class RegisterUseCase @Inject constructor(
                             send(
                                 LoginUiState().copy(
                                     screenState = LoginScreenState.Register(),
+                                    isLogged = false,
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
                                         exception.message ?: "Register Error"
@@ -88,7 +89,7 @@ class RegisterUseCase @Inject constructor(
                                                 email = email,
                                                 pass = pass
                                             ),
-                                            isLogged = authResult.user != null,
+                                            isLogged = true,
                                             isLoading = false
                                         )
                                     )
@@ -97,6 +98,7 @@ class RegisterUseCase @Inject constructor(
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Register(),
+                                            isLogged = false,
                                             isLoading = false,
                                             errorMessage = CustomException.GenericException(
                                                 exception.message ?: "Register Failure"

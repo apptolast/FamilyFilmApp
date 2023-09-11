@@ -2,7 +2,6 @@ package com.digitalsolution.familyfilmapp.repositories
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -63,12 +62,28 @@ class LoginRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
-    override fun getUser() = firebaseAuth.currentUser
+    override fun getUser(): Flow<Result<Boolean>> = channelFlow {
+        firebaseAuth.addAuthStateListener {
+            if (it.currentUser != null) {
+                launch {
+                    send(
+                        Result.success(true)
+                    )
+                }
+            } else {
+                launch {
+                    send(
+                        Result.success(false)
+                    )
+                }
+            }
+        }
+    }
 }
 
 interface LoginRepository {
     fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>>
     fun register(email: String, password: String): Flow<Result<AuthResult>>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
-    fun getUser(): FirebaseUser?
+    fun getUser(): Flow<Result<Boolean>>
 }

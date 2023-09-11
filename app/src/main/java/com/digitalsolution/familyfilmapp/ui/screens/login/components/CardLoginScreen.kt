@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,8 +56,9 @@ fun CardLoginMainContent(
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var email by remember { mutableStateOf(loginUiState.userData.email) }
-    var pass by remember { mutableStateOf(loginUiState.userData.pass) }
+
+    var email by rememberSaveable { mutableStateOf(loginUiState.userData.email) }
+    var pass by rememberSaveable { mutableStateOf(loginUiState.userData.pass) }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     Card {

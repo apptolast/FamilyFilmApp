@@ -22,7 +22,7 @@ fun TopBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -31,7 +31,6 @@ fun TopBar(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text(text = "Mi Lista", fontSize = 20.sp)
         }
         Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings icon")

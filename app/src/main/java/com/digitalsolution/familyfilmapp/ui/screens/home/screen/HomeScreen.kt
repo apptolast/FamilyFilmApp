@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,7 +85,7 @@ fun HomeContent(
 
     var isShowedMaxItem by rememberSaveable { mutableStateOf(false) }
     val animateAlphaUi by animateFloatAsState(
-        targetValue = if (isShowedMaxItem) 0.7f else 1f,
+        targetValue = if (isShowedMaxItem) 0.6f else 1f,
         label = ""
     )
 
@@ -132,11 +133,11 @@ fun HomeContent(
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().clickable { isShowedMaxItem = false },
             contentAlignment = Alignment.Center
         ) {
             HomeItem(
-                showMaxItem = { isShowedMaxItem = false },
+                text = "Mi gato",
                 modifier = Modifier.scale(1.7f)
             )
         }
@@ -160,24 +161,35 @@ private fun ColumnFilm(title: String, showMaxItem: () -> Unit, modifier: Modifie
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
-                HomeItem(showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
             }
         }
     }

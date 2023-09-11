@@ -16,13 +16,13 @@ import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeItem(showMaxItem: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Unit = {}) {
     Card(
         modifier = modifier
             .padding(15.dp)
             .clickable { showMaxItem() },
         shape = RoundedCornerShape(5.dp),
-        elevation = CardDefaults.cardElevation(3.dp)
+        elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Column {
 //            FIXME: This is for test
@@ -31,7 +31,7 @@ fun HomeItem(showMaxItem: () -> Unit, modifier: Modifier = Modifier) {
                 contentDescription = null,
                 contentScale = ContentScale.Fit
             )
-            Text(text = "Mi gato", modifier = Modifier.padding(10.dp).padding(bottom = 4.dp))
+            Text(text = text, modifier = Modifier.padding(10.dp).padding(bottom = 4.dp))
 
         }
     }
@@ -41,6 +41,6 @@ fun HomeItem(showMaxItem: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun HomeScreenPreview() {
     FamilyFilmAppTheme {
-        HomeItem({})
+        HomeItem("")
     }
 }

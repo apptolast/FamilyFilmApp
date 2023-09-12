@@ -69,8 +69,11 @@ class LoginEmailPassUseCase @Inject constructor(
                             send(
                                 LoginUiState().copy(
                                     screenState = LoginScreenState.Login(),
+                                    isLogged = false,
                                     isLoading = false,
-                                    errorMessage = GenericException(exception.message ?: "Login Error"),
+                                    errorMessage = GenericException(
+                                        exception.message ?: "Login Error"
+                                    ),
                                 )
                             )
                         }
@@ -84,7 +87,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                                 email = email,
                                                 pass = pass
                                             ),
-                                            isLogged = authResult.user != null,
+                                            isLogged = true,
                                             isLoading = false
                                         )
                                     )
@@ -93,8 +96,11 @@ class LoginEmailPassUseCase @Inject constructor(
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginScreenState.Login(),
+                                            isLogged = false,
                                             isLoading = false,
-                                            errorMessage = GenericException(exception.message ?: "Login Failure")
+                                            errorMessage = GenericException(
+                                                exception.message ?: "Login Failure"
+                                            )
                                         )
                                     )
                                 },

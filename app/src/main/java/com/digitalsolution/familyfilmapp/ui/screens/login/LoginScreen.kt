@@ -50,14 +50,13 @@ import com.google.android.gms.tasks.Task
 @Composable
 fun LoginScreen(
     navController: NavController,
-    isLogged: Boolean? = null,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = loginUiState) {
-        if (loginUiState.isLogged && isLogged != false) {
+        if (loginUiState.isLogged) {
             navController.navigate(Routes.Home.routes)
         }
     }

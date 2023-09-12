@@ -29,7 +29,10 @@ class LoginWithGoogleUseCase @Inject constructor(
                     LoginUiState().copy(
                         screenState = LoginScreenState.Login(),
                         isLoading = false,
-                        errorMessage = CustomException.GenericException(exception.message ?: "Google Login Error"),
+                        isLogged = false,
+                        errorMessage = CustomException.GenericException(
+                            exception.message ?: "Google Login Error"
+                        ),
                     )
                 )
             }
@@ -43,7 +46,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                                     email = authResult.user?.email ?: "",
                                     pass = ""
                                 ),
-                                isLogged = authResult.user != null,
+                                isLogged = true,
                                 isLoading = false
                             )
                         )
@@ -52,6 +55,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                         send(
                             LoginUiState().copy(
                                 screenState = LoginScreenState.Login(),
+                                isLogged = false,
                                 isLoading = false,
                                 errorMessage = CustomException.GenericException(
                                     exception.message ?: "Google Login Failure"

@@ -49,7 +49,6 @@ private val LightColors = lightColorScheme(
     scrim = md_theme_light_scrim,
 )
 
-
 private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
@@ -80,6 +79,87 @@ private val DarkColors = darkColorScheme(
     surfaceTint = md_theme_dark_surfaceTint,
     outlineVariant = md_theme_dark_outlineVariant,
     scrim = md_theme_dark_scrim,
+)
+
+
+private val LightColorsComplementary = lightColorScheme(
+    primary = md_theme_light_primary_complementary,
+    onPrimary = md_theme_light_onPrimary_complementary,
+    primaryContainer = md_theme_light_primaryContainer_complementary,
+    onPrimaryContainer = md_theme_light_onPrimaryContainer_complementary,
+    secondary = md_theme_light_secondary_complementary,
+    onSecondary = md_theme_light_onSecondary_complementary,
+    secondaryContainer = md_theme_light_secondaryContainer_complementary,
+    onSecondaryContainer = md_theme_light_onSecondaryContainer_complementary,
+    tertiary = md_theme_light_tertiary_complementary,
+    onTertiary = md_theme_light_onTertiary_complementary,
+    tertiaryContainer = md_theme_light_tertiaryContainer_complementary,
+    onTertiaryContainer = md_theme_light_onTertiaryContainer_complementary,
+    error = md_theme_light_error_complementary,
+    errorContainer = md_theme_light_errorContainer_complementary,
+    onError = md_theme_light_onError_complementary,
+    onErrorContainer = md_theme_light_onErrorContainer_complementary,
+    background = md_theme_light_background_complementary,
+    onBackground = md_theme_light_onBackground_complementary,
+    surface = md_theme_light_surface_complementary,
+    onSurface = md_theme_light_onSurface_complementary,
+    surfaceVariant = md_theme_light_surfaceVariant_complementary,
+    onSurfaceVariant = md_theme_light_onSurfaceVariant_complementary,
+    outline = md_theme_light_outline_complementary,
+    inverseOnSurface = md_theme_light_inverseOnSurface_complementary,
+    inverseSurface = md_theme_light_inverseSurface_complementary,
+    inversePrimary = md_theme_light_inversePrimary_complementary,
+    surfaceTint = md_theme_light_surfaceTint_complementary,
+    outlineVariant = md_theme_light_outlineVariant_complementary,
+    scrim = md_theme_light_scrim_complementary,
+)
+
+
+private val DarkColorsComplementary = darkColorScheme(
+    primary = md_theme_dark_primary_complementary,
+    onPrimary = md_theme_dark_onPrimary_complementary,
+    primaryContainer = md_theme_dark_primaryContainer_complementary,
+    onPrimaryContainer = md_theme_dark_onPrimaryContainer_complementary,
+    secondary = md_theme_dark_secondary_complementary,
+    onSecondary = md_theme_dark_onSecondary_complementary,
+    secondaryContainer = md_theme_dark_secondaryContainer_complementary,
+    onSecondaryContainer = md_theme_dark_onSecondaryContainer_complementary,
+    tertiary = md_theme_dark_tertiary_complementary,
+    onTertiary = md_theme_dark_onTertiary_complementary,
+    tertiaryContainer = md_theme_dark_tertiaryContainer_complementary,
+    onTertiaryContainer = md_theme_dark_onTertiaryContainer_complementary,
+    error = md_theme_dark_error_complementary,
+    errorContainer = md_theme_dark_errorContainer_complementary,
+    onError = md_theme_dark_onError_complementary,
+    onErrorContainer = md_theme_dark_onErrorContainer_complementary,
+    background = md_theme_dark_background_complementary,
+    onBackground = md_theme_dark_onBackground_complementary,
+    surface = md_theme_dark_surface_complementary,
+    onSurface = md_theme_dark_onSurface_complementary,
+    surfaceVariant = md_theme_dark_surfaceVariant_complementary,
+    onSurfaceVariant = md_theme_dark_onSurfaceVariant_complementary,
+    outline = md_theme_dark_outline_complementary,
+    inverseOnSurface = md_theme_dark_inverseOnSurface_complementary,
+    inverseSurface = md_theme_dark_inverseSurface_complementary,
+    inversePrimary = md_theme_dark_inversePrimary_complementary,
+    surfaceTint = md_theme_dark_surfaceTint_complementary,
+    outlineVariant = md_theme_dark_outlineVariant_complementary,
+    scrim = md_theme_dark_scrim_complementary,
+)
+
+private val LightColorsLoginButton = lightColorScheme(
+    primary = light_LoginButton,
+    onPrimary = light_onLoginButton,
+    primaryContainer = light_LoginButtonContainer,
+    onPrimaryContainer = light_onLoginButtonContainer
+)
+
+
+private val DarkColorsLoginButton = darkColorScheme(
+    primary = dark_LoginButton,
+    onPrimary = dark_onLoginButton,
+    primaryContainer = dark_LoginButtonContainer,
+    onPrimaryContainer = dark_onLoginButtonContainer
 )
 
 
@@ -123,3 +203,45 @@ fun FamilyFilmAppTheme(
         content = content
     )
 }
+
+@Composable
+fun FamilyFilmAppLoginButtonTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
+        }
+
+        darkTheme -> {
+            DarkColorsLoginButton
+        }
+
+        else -> {
+            LightColorsLoginButton
+        }
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+        }
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
+

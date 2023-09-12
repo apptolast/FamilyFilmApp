@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.theme
 
+
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,7 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
+
+private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -44,10 +46,11 @@ private val LightColorScheme = lightColorScheme(
     inversePrimary = md_theme_light_inversePrimary,
     surfaceTint = md_theme_light_surfaceTint,
     outlineVariant = md_theme_light_outlineVariant,
-    scrim = light_sign_up_text,
+    scrim = md_theme_light_scrim,
 )
 
-private val DarkColorScheme = darkColorScheme(
+
+private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -76,8 +79,9 @@ private val DarkColorScheme = darkColorScheme(
     inversePrimary = md_theme_dark_inversePrimary,
     surfaceTint = md_theme_dark_surfaceTint,
     outlineVariant = md_theme_dark_outlineVariant,
-    scrim = dark_sign_up_text,
+    scrim = md_theme_dark_scrim,
 )
+
 
 @Composable
 fun FamilyFilmAppTheme(
@@ -97,11 +101,11 @@ fun FamilyFilmAppTheme(
         }
 
         darkTheme -> {
-            DarkColorScheme
+            DarkColors
         }
 
         else -> {
-            LightColorScheme
+            LightColors
         }
     }
     val view = LocalView.current

@@ -21,8 +21,12 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen().setKeepOnScreenCondition { viewModel.isLoading.value }
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.test
+        }
+
         setContent {
             FamilyFilmAppTheme(dynamicColor = false) {
                 // A surface container using the 'background' color from the theme

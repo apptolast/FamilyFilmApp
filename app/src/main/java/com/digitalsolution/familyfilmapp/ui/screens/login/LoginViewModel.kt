@@ -57,7 +57,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
         when (_state.value.screenState) {
             is LoginScreenState.Login -> {
@@ -100,5 +99,4 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.home.screen.components
+package com.digitalsolution.familyfilmapp.ui.screens.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -31,7 +31,9 @@ fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Uni
                 contentDescription = null,
                 contentScale = ContentScale.Fit
             )
-            Text(text = text, modifier = Modifier.padding(10.dp).padding(bottom = 4.dp))
+            Text(text = text, modifier = Modifier
+                .padding(10.dp)
+                .padding(bottom = 4.dp))
 
         }
     }
@@ -39,7 +41,7 @@ fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Uni
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun HomeItemPreview() {
     FamilyFilmAppTheme {
         HomeItem("")
     }

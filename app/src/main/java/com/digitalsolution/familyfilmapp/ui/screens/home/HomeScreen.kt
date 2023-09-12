@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.home.screen
+package com.digitalsolution.familyfilmapp.ui.screens.home
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,10 +40,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
-import com.digitalsolution.familyfilmapp.ui.screens.home.HomeViewModel
-import com.digitalsolution.familyfilmapp.ui.screens.home.screen.components.HomeItem
+import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,8 +55,16 @@ fun HomeScreen(
 
     val activity = LocalContext.current as? Activity
 
+    val loginState by viewModel.state.collectAsStateWithLifecycle()
+
     BackHandler(true) {
         activity?.finish()
+    }
+
+    LaunchedEffect(key1 = loginState) {
+        if (!loginState) {
+            navController.navigateUp()
+        }
     }
 
     Scaffold(
@@ -65,14 +74,7 @@ fun HomeScreen(
     ) { paddingValues ->
         HomeContent(
             modifier = Modifier.padding(paddingValues),
-            logout = {
-                viewModel.logout()
-                navController.previousBackStackEntry?.savedStateHandle?.set(
-                    "logged",
-                    false
-                )
-                navController.navigateUp()
-            }
+            logout = viewModel::logout
         )
     }
 }
@@ -133,7 +135,9 @@ fun HomeContent(
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().clickable { isShowedMaxItem = false },
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { isShowedMaxItem = false },
             contentAlignment = Alignment.Center
         ) {
             HomeItem(
@@ -161,35 +165,36 @@ private fun ColumnFilm(title: String, showMaxItem: () -> Unit, modifier: Modifie
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
-                HomeItem(text = "Do click here", showMaxItem = showMaxItem)
+                val text = "Do click here"
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
+                HomeItem(text = text, showMaxItem = showMaxItem)
             }
         }
     }

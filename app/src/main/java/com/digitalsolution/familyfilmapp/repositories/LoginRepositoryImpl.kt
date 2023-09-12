@@ -78,6 +78,7 @@ class LoginRepositoryImpl @Inject constructor(
                 }
             }
         }
+        awaitClose()
     }
 }
 

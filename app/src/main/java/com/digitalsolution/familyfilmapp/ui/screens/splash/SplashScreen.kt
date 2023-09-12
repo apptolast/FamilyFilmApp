@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,9 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
-import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_blue
-import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_orange
-import com.digitalsolution.familyfilmapp.ui.theme.gradient_splash_screen_purple
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -58,9 +56,9 @@ fun ContentSplashScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        gradient_splash_screen_orange,
-                        gradient_splash_screen_purple,
-                        gradient_splash_screen_blue,
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.tertiary,
                     )
                 )
             ),

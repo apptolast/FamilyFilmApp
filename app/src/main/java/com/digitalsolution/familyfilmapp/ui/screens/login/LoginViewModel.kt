@@ -3,7 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
-import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckIUserLogUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val checkIUserLogUseCase: CheckIUserLogUseCase,
+    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val registerUseCase: RegisterUseCase,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
@@ -40,7 +40,7 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            checkIUserLogUseCase(Unit).collectLatest { newLoginUiState ->
+            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
                 _state.update {
                     newLoginUiState
                 }
@@ -93,7 +93,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun homeLogOut() = viewModelScope.launch {
-        checkIUserLogUseCase(Unit).collectLatest { newLoginUiState ->
+        checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
             _state.update {
                 newLoginUiState
             }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
-class CheckIUserLogUseCase @Inject constructor(
+class CheckUserLoggedInUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<Unit, Flow<LoginUiState>>() {
     override suspend fun execute(parameters: Unit): Flow<LoginUiState> = channelFlow {

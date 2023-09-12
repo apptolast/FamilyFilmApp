@@ -2,7 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckIUserLogUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val checkIUserLogUseCase: CheckIUserLogUseCase
+    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(true)
@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            checkIUserLogUseCase(Unit).collectLatest { loginState ->
+            checkUserLoggedInUseCase(Unit).collectLatest { loginState ->
                 _state.update {
                     loginState.isLogged
                 }

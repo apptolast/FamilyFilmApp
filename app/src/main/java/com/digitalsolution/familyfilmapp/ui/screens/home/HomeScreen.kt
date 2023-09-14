@@ -18,9 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AspectRatio
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,18 +81,19 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val items = listOf(Icons.Default.AspectRatio, Icons.Default.Clear, Icons.Default.Call)
+    val items = listOf(DrawerItems.Groups)
     val selectedItem = remember { mutableStateOf(items[0]) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+                Text(text = "Hola")
                 items.forEach { item ->
                     NavigationDrawerItem(
-                        icon = { Icon(item, contentDescription = null) },
-                        label = { Text(item.name) },
-                        selected = item == selectedItem.value,
+                        icon = { Icon(item.icon, contentDescription = null) },
+                        label = { Text(item.title) },
+                        selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem.value = item
@@ -103,6 +101,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth(0.75f)
                             .padding(NavigationDrawerItemDefaults.ItemPadding)
+                            .padding(top = 34.dp)
                     )
                 }
             }

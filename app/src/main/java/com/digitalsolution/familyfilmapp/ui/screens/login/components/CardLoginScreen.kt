@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -126,14 +127,16 @@ fun CardLoginMainContent(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Button(
-                onClick = { onClick(email, pass) },
-                modifier = modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(id = loginUiState.screenState.buttonText),
-                    modifier = modifier.padding(4.dp)
-                )
+            FamilyFilmAppLoginButtonTheme(dynamicColor = false) {
+                Button(
+                    onClick = { onClick(email, pass) },
+                    modifier = modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = loginUiState.screenState.buttonText),
+                        modifier = modifier.padding(4.dp)
+                    )
+                }
             }
         }
     }

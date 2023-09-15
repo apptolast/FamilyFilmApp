@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.theme
 
+
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,7 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
+
+private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -44,10 +46,10 @@ private val LightColorScheme = lightColorScheme(
     inversePrimary = md_theme_light_inversePrimary,
     surfaceTint = md_theme_light_surfaceTint,
     outlineVariant = md_theme_light_outlineVariant,
-    scrim = light_sign_up_text,
+    scrim = md_theme_light_scrim,
 )
 
-private val DarkColorScheme = darkColorScheme(
+private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -76,8 +78,24 @@ private val DarkColorScheme = darkColorScheme(
     inversePrimary = md_theme_dark_inversePrimary,
     surfaceTint = md_theme_dark_surfaceTint,
     outlineVariant = md_theme_dark_outlineVariant,
-    scrim = dark_sign_up_text,
+    scrim = md_theme_dark_scrim,
 )
+
+private val LightColorsLoginButton = lightColorScheme(
+    primary = light_LoginButton,
+    onPrimary = light_onLoginButton,
+    primaryContainer = light_LoginButtonContainer,
+    onPrimaryContainer = light_onLoginButtonContainer
+)
+
+
+private val DarkColorsLoginButton = darkColorScheme(
+    primary = dark_LoginButton,
+    onPrimary = dark_onLoginButton,
+    primaryContainer = dark_LoginButtonContainer,
+    onPrimaryContainer = dark_onLoginButtonContainer
+)
+
 
 @Composable
 fun FamilyFilmAppTheme(
@@ -97,11 +115,11 @@ fun FamilyFilmAppTheme(
         }
 
         darkTheme -> {
-            DarkColorScheme
+            DarkColors
         }
 
         else -> {
-            LightColorScheme
+            LightColors
         }
     }
     val view = LocalView.current
@@ -119,3 +137,45 @@ fun FamilyFilmAppTheme(
         content = content
     )
 }
+
+@Composable
+fun FamilyFilmAppLoginButtonTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
+        }
+
+        darkTheme -> {
+            DarkColorsLoginButton
+        }
+
+        else -> {
+            LightColorsLoginButton
+        }
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+        }
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
+

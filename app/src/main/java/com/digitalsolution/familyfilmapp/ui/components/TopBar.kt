@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import kotlinx.coroutines.Job
 
 @Composable
-fun TopBar(openDrawer: () -> Job, modifier: Modifier = Modifier) {
+fun TopBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -31,7 +29,7 @@ fun TopBar(openDrawer: () -> Job, modifier: Modifier = Modifier) {
         Icon(
             imageVector = Icons.Filled.Menu,
             contentDescription = "Menu icon",
-            modifier = Modifier.clickable { openDrawer() })
+        )
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically

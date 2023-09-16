@@ -30,7 +30,7 @@ fun SplashScreen(navController: NavController) {
     AnimationSplashContent(
         scaleAnimation = scaleAnimation,
         navigate = {
-            navController.navigate(Routes.Login.routes) {
+            navController.navigate(Routes.Home.routes) {
                 popUpTo(Routes.Home.routes) {
                     inclusive = true
                 }

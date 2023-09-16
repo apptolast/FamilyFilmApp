@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.home
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -18,11 +17,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,25 +39,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlin.system.exitProcess
 
 val list = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-
-    val activity = LocalContext.current as? Activity
-
     val loginState by viewModel.state.collectAsStateWithLifecycle()
 
     BackHandler(true) {
-        activity?.finish()
+        exitProcess(0)
     }
 
     LaunchedEffect(key1 = loginState) {
@@ -68,16 +61,8 @@ fun HomeScreen(
             navController.navigateUp()
         }
     }
-    Scaffold(
-        topBar = {
-            TopBar()
-        }
-    ) { paddingValues ->
-        HomeContent(
-            modifier = Modifier.padding(paddingValues),
-            logout = viewModel::logout
-        )
-    }
+
+    HomeContent(logout = viewModel::logout)
 }
 
 @Composable

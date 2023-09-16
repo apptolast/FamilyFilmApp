@@ -26,7 +26,10 @@ fun TopBar(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu icon")
+        Icon(
+            imageVector = Icons.Filled.Menu,
+            contentDescription = "Menu icon",
+        )
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -41,6 +44,6 @@ fun TopBar(modifier: Modifier = Modifier) {
 @Composable
 fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TopBar()
+//        TopBar(openDrawer = { /*TODO*/ })
     }
 }

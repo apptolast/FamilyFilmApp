@@ -16,7 +16,12 @@ import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Unit = {}) {
+fun HomeItem(
+    text: String,
+    number: Int,
+    modifier: Modifier = Modifier,
+    showMaxItem: () -> Unit = {}
+) {
     Card(
         modifier = modifier
             .padding(15.dp)
@@ -27,13 +32,15 @@ fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Uni
         Column {
 //            FIXME: This is for test
             AsyncImage(
-                model = "https://loremflickr.com/400/400/cat?lock=1",
+                model = "https://loremflickr.com/400/400/cat?lock=$number",
                 contentDescription = null,
                 contentScale = ContentScale.Fit
             )
-            Text(text = text, modifier = Modifier
-                .padding(10.dp)
-                .padding(bottom = 4.dp))
+            Text(
+                text = text, modifier = Modifier
+                    .padding(10.dp)
+                    .padding(bottom = 4.dp)
+            )
 
         }
     }
@@ -43,6 +50,6 @@ fun HomeItem(text: String, modifier: Modifier = Modifier, showMaxItem: () -> Uni
 @Composable
 fun HomeItemPreview() {
     FamilyFilmAppTheme {
-        HomeItem("")
+        HomeItem(text = "", number = 0)
     }
 }

@@ -12,10 +12,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,10 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -45,6 +45,8 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
+
+val list = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,10 +68,9 @@ fun HomeScreen(
             navController.navigateUp()
         }
     }
-
     Scaffold(
         topBar = {
-            TopAppBar(title = { TopBar() })
+            TopBar()
         }
     ) { paddingValues ->
         HomeContent(
@@ -96,17 +97,13 @@ fun HomeContent(
             .fillMaxSize()
             .alpha(animateAlphaUi)
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ColumnFilm(
+        Column(modifier = Modifier.fillMaxSize()) {
+            RowFilm(
                 title = "Por ver",
                 showMaxItem = { isShowedMaxItem = true },
                 modifier = Modifier.weight(1f)
             )
-            ColumnFilm(
+            RowFilm(
                 title = "Vistas",
                 showMaxItem = { isShowedMaxItem = true },
                 modifier = Modifier.weight(1f)
@@ -140,61 +137,31 @@ fun HomeContent(
                 .clickable { isShowedMaxItem = false },
             contentAlignment = Alignment.Center
         ) {
+            val random by rememberSaveable { mutableIntStateOf(list.random()) }
             HomeItem(
                 text = "Mi gato",
-                modifier = Modifier.scale(1.7f)
+                number = random,
+                modifier = Modifier.scale(1.7f),
             )
         }
     }
 }
 
 @Composable
-private fun ColumnFilm(title: String, showMaxItem: () -> Unit, modifier: Modifier = Modifier) {
+private fun RowFilm(title: String, showMaxItem: () -> Unit, modifier: Modifier = Modifier) {
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.padding(10.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
-            modifier = Modifier.padding(15.dp),
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            modifier = Modifier.padding(start = 25.dp),
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
         )
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                val text = "Do click here"
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
-                HomeItem(text = text, showMaxItem = showMaxItem)
+        LazyRow {
+            items(list) { number ->
+                HomeItem(text = "Do click here", number = number, showMaxItem = showMaxItem)
             }
         }
     }

@@ -44,6 +44,6 @@ fun TopBar(modifier: Modifier = Modifier) {
 @Composable
 fun TopBarPreview() {
     FamilyFilmAppTheme {
-//        TopBar(openDrawer = { /*TODO*/ })
+        TopBar()
     }
 }

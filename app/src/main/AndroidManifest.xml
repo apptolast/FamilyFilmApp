@@ -15,8 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FamilyFilmApp"
         tools:targetApi="34">
+
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.FamilyFilmApp">
             <intent-filter>
@@ -24,12 +25,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FamilyFilmApp">
         </activity>
     </application>
 

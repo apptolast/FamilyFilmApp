@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,11 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.digitalsolution.familyfilmapp.ui.components.BottomBar
+import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
-val list = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+private const val LIST_SIZE = 12
 
 @Composable
 fun HomeScreen(
@@ -62,7 +66,15 @@ fun HomeScreen(
         }
     }
 
-    HomeContent(logout = viewModel::logout)
+    Scaffold(
+        topBar = { TopBar() },
+        bottomBar = { BottomBar(navController = navController) }
+    ) { paddingValues ->
+        HomeContent(
+            logout = viewModel::logout,
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
 }
 
 @Composable
@@ -122,9 +134,9 @@ fun HomeContent(
                 .clickable { isShowedMaxItem = false },
             contentAlignment = Alignment.Center
         ) {
-            val random by rememberSaveable { mutableIntStateOf(list.random()) }
+            val random by rememberSaveable { mutableIntStateOf(Random.nextInt(LIST_SIZE + 1)) }
             HomeItem(
-                text = "Mi gato",
+                text = "Mi cat",
                 number = random,
                 modifier = Modifier.scale(1.7f),
             )
@@ -145,7 +157,7 @@ private fun RowFilm(title: String, showMaxItem: () -> Unit, modifier: Modifier =
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
         )
         LazyRow {
-            items(list) { number ->
+            items((0..LIST_SIZE).toList()) { number ->
                 HomeItem(text = "Do click here", number = number, showMaxItem = showMaxItem)
             }
         }

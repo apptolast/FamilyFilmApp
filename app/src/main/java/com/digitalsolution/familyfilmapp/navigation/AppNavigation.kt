@@ -1,34 +1,38 @@
 package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.ui.screens.filter.FilterScreen
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
+import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 import com.digitalsolution.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation() {
+    val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Home.routes
+        startDestination = Routes.Login.routes
     ) {
+        composable(route = Routes.Login.routes) {
+            LoginScreen(navController = navController)
+        }
         composable(route = Routes.Home.routes) {
             HomeScreen(navController = navController)
         }
         composable(route = Routes.Recommend.routes) {
-            RecommendScreen()
+            RecommendScreen(navController = navController)
         }
         composable(route = Routes.Filter.routes) {
-            FilterScreen()
+            FilterScreen(navController = navController)
         }
         composable(route = Routes.Profile.routes) {
-            ProfileScreen()
+            ProfileScreen(navController = navController)
         }
     }
 }
@@ -36,5 +40,5 @@ fun AppNavigation(navController: NavHostController) {
 @Preview
 @Composable
 fun AppNavigationPreview() {
-    AppNavigation(navController = NavHostController(LocalContext.current))
+    AppNavigation()
 }

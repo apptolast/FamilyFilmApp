@@ -1,7 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
 import android.app.Activity
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,8 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.digitalsolution.familyfilmapp.MainActivity
+import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -47,14 +46,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), ) {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel(),
+) {
+
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
-    val activity = LocalContext.current as? Activity
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
-            activity?.startActivity(Intent(activity, MainActivity::class.java))
+            navController.navigate(Routes.Home.routes)
         }
     }
 

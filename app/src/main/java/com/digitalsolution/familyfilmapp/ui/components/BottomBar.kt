@@ -45,6 +45,7 @@ fun BottomBar(navController: NavController) {
                 label = {
                     Text(text = screen.routes)
                 },
+                alwaysShowLabel = false,
             )
         }
     }

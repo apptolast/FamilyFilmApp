@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,8 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.digitalsolution.familyfilmapp.ui.components.BottomBar
-import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.random.Random
@@ -66,15 +63,7 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        topBar = { TopBar() },
-        bottomBar = { BottomBar(navController = navController) }
-    ) { paddingValues ->
-        HomeContent(
-            logout = viewModel::logout,
-            modifier = Modifier.padding(paddingValues)
-        )
-    }
+    HomeContent(logout = viewModel::logout)
 }
 
 @Composable

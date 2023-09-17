@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FamilyFilmApp"
         tools:targetApi="34">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -7,7 +7,7 @@ naming:
   FunctionNaming:
     ignoreAnnotated: [ 'Composable' ]
   TopLevelPropertyNaming:
-    constantPattern: '[A-Z][A-Za-z0-9]*'
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
   ClassNaming:
     excludes: &testFolders
       - '**/test/**'
@@ -62,6 +62,8 @@ style:
   ForbiddenComment:
     active: true
     allowedPatterns: '(TODO:)|(FIXME:)'
+  UnusedParameter:
+    active: false
 
 comments:
   UndocumentedPublicClass:

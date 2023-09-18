@@ -11,7 +11,7 @@ class FakeRepositoryImpl @Inject constructor() : FakeRepository {
         for (i in 0 until size) {
             films.add(
                 FilmSearchData(
-                    img = "https://loremflickr.com/400/400/cat?lock=$i", // Esto es un drawable de muestra. Cambia a tu imagen de muestra.
+                    img = "https://loremflickr.com/400/400/cat?lock=$i",
                     title = "Película $i"
                 )
             )
@@ -27,3 +27,4 @@ class FakeRepositoryImpl @Inject constructor() : FakeRepository {
 interface FakeRepository {
     fun generateFakeFilmData(size: Int): List<FilmSearchData>
 }
+

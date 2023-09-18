@@ -11,7 +11,5 @@ class SearchScreenViewModel @Inject constructor(
     private val fakeRepository: FakeRepository
 ) : ViewModel() {
 
-    fun getListFilmFake(): List<FilmSearchData> {
-        return fakeRepository.generateFakeFilmData(20)
-    }
+    fun getListFilmFake(): List<FilmSearchData> = fakeRepository.generateFakeFilmData(20)
 }

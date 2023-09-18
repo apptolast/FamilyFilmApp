@@ -43,9 +43,11 @@ fun SearchContent(
     var searchText by rememberSaveable { mutableStateOf("") }
 
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 5.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 5.dp)
+    ) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = searchText,
@@ -55,11 +57,9 @@ fun SearchContent(
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             }
         )
-        Column(modifier = Modifier.fillMaxSize()) {
-            LazyColumn {
-                items(viewModel.getListFilmFake().toList()) { item ->
-                    FilmItem(film = item)
-                }
+        LazyColumn {
+            items(viewModel.getListFilmFake().toList()) { item ->
+                FilmItem(film = item)
             }
         }
     }

@@ -24,7 +24,6 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.ui.screens.search.components.FilmItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
-
 @Composable
 fun SearchScreen(
     navController: NavController,
@@ -42,11 +41,11 @@ fun SearchContent(
 
     var searchText by rememberSaveable { mutableStateOf("") }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 5.dp)
+            .padding(12.dp)
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -57,6 +56,7 @@ fun SearchContent(
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             }
         )
+
         LazyColumn {
             items(viewModel.getListFilmFake().toList()) { item ->
                 FilmItem(film = item)

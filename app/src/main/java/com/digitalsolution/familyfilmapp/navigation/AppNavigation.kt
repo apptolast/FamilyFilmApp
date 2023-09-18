@@ -1,5 +1,8 @@
 package com.digitalsolution.familyfilmapp.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -38,12 +41,20 @@ fun AppNavigation() {
 
     Scaffold(
         topBar = {
-            if (isBottomBarVisible) {
+            AnimatedVisibility(
+                visible = isBottomBarVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
                 TopBar()
             }
         },
         bottomBar = {
-            if (isBottomBarVisible) {
+            AnimatedVisibility(
+                visible = isBottomBarVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
                 BottomBar(navController = navController)
             }
         },

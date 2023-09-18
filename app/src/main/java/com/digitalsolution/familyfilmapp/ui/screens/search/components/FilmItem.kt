@@ -21,7 +21,7 @@ fun FilmItem(
 ) {
 
     Row(
-        modifier = Modifier.padding(10.dp),
+        modifier = Modifier.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(

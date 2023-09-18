@@ -1,5 +1,7 @@
 package com.digitalsolution.familyfilmapp.di
 
+import com.digitalsolution.familyfilmapp.repositories.FakeRepository
+import com.digitalsolution.familyfilmapp.repositories.FakeRepositoryImpl
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.repositories.LoginRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
@@ -18,4 +20,8 @@ object ApplicationModule {
     fun provideLoginRepository(firebaseAuth: FirebaseAuth): LoginRepository =
         LoginRepositoryImpl(firebaseAuth)
 
+
+    @Singleton
+    @Provides
+    fun provideFakeRepository(): FakeRepository = FakeRepositoryImpl()
 }

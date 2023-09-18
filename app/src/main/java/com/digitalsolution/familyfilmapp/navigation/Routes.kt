@@ -39,4 +39,9 @@ sealed class Routes(val routes: String, val icon: ImageVector?) {
         icon = null
     )
 
+    object Search : Routes(
+        "Search",
+        null
+    )
+
 }

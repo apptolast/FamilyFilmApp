@@ -34,4 +34,9 @@ sealed class Routes(val routes: String, val icon: ImageVector?) {
         icon = Icons.Outlined.Person
     )
 
+    object Details : Routes(
+        "Details",
+        icon = null
+    )
+
 }

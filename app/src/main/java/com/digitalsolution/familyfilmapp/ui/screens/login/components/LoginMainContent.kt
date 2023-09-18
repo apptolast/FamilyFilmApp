@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -40,19 +39,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun CardLoginScreen(
-    loginUiState: LoginUiState,
-    onClick: (String, String) -> Unit
-) {
-    CardLoginMainContent(
-        loginUiState = loginUiState,
-        onClick = onClick
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CardLoginMainContent(
+fun LoginMainContent(
     loginUiState: LoginUiState,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
@@ -107,7 +94,7 @@ fun CardLoginMainContent(
                 onValueChange = { pass = it.trim() },
                 modifier = modifier.fillMaxWidth(),
                 trailingIcon = {
-                    TrailingIconPassword(
+                    LoginPasswordIcon(
                         isPasswordVisible = isPasswordVisible,
                         passwordToVisible = { passwordToVisible(!isPasswordVisible) }
                     )
@@ -160,7 +147,7 @@ private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modi
 @Composable
 fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
-        CardLoginScreen(
+        LoginMainContent(
             loginUiState = LoginUiState(),
             onClick = { _, _ -> }
         )

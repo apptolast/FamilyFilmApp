@@ -16,5 +16,10 @@
     <string name="login_text_sign_up">Sign up</string>
     <string name="login_text_sign_in">Sign in</string>
     <string name="login_text_forgot_your_password">Forgot your password?</string>
-    <string name="gcp_id"></string>
+
+    <!-- HOME-->
+    <string name="home_text_my_list">My List</string>
+    <string name="home_text_seen">Seen</string>
+
+
 </resources>

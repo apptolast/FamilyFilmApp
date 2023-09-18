@@ -41,9 +41,6 @@ fun AppNavigation() {
             if (isBottomBarVisible) {
                 TopBar()
             }
-            if (isTopBarVisible) {
-                TopBar()
-            }
         },
         bottomBar = {
             if (isBottomBarVisible) {

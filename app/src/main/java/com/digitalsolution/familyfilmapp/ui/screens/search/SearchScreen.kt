@@ -6,18 +6,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,18 +48,14 @@ fun SearchContent(
             .fillMaxSize()
             .padding(top = 5.dp)
     ) {
-        TextField(
+        OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = searchText,
             onValueChange = { searchText = it },
-            shape = RectangleShape,
+            shape = RoundedCornerShape(12.dp),
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             }
-        )
-        Text(
-            text = "Catologo Completo",
-            modifier = Modifier.padding(start = 12.dp)
         )
         LazyColumn {
             items(viewModel.getListFilmFake().toList()) { item ->

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +57,10 @@ fun SearchContent(
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             }
+        )
+        Text(
+            text = "Catologo Completo",
+            modifier = Modifier.padding(start = 12.dp)
         )
         LazyColumn {
             items(viewModel.getListFilmFake().toList()) { item ->

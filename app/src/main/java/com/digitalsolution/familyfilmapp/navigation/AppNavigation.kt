@@ -26,6 +26,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 import com.digitalsolution.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
+import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
 fun AppNavigation() {
@@ -33,10 +34,14 @@ fun AppNavigation() {
     val navController = rememberNavController()
     var isBottomBarVisible by rememberSaveable { mutableStateOf(false) }
     var searchBottomVisible by rememberSaveable { mutableStateOf(false) }
+    var isTopBarVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             if (isBottomBarVisible) {
+                TopBar()
+            }
+            if (isTopBarVisible) {
                 TopBar()
             }
         },
@@ -48,7 +53,7 @@ fun AppNavigation() {
         floatingActionButton = {
             if (searchBottomVisible) {
                 FloatingActionButton(
-                    onClick = {}
+                    onClick = { navController.navigate(Routes.Search.routes) }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -83,6 +88,9 @@ fun AppNavigation() {
             composable(route = Routes.Details.routes) {
                 DetailsScreen(navController = navController)
             }
+            composable(route = Routes.Search.routes) {
+                SearchScreen(navController = navController)
+            }
         }
     }
 
@@ -97,6 +105,7 @@ fun AppNavigation() {
             }
         }
         searchBottomVisible = destination.route == Routes.Home.routes
+        isTopBarVisible = destination.route == Routes.Search.routes
     }
 }
 

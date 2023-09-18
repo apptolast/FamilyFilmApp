@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
+import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.filter.FilterScreen
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
@@ -22,6 +23,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 
 @Composable
 fun AppNavigation() {
+
     val navController = rememberNavController()
     var isBottomBarVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -56,6 +58,9 @@ fun AppNavigation() {
             }
             composable(route = Routes.Profile.routes) {
                 ProfileScreen(navController = navController)
+            }
+            composable(route = Routes.Details.routes) {
+                DetailsScreen(navController = navController)
             }
         }
     }

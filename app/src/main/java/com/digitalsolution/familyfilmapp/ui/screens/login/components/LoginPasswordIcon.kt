@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TrailingIconPassword(isPasswordVisible: Boolean, passwordToVisible: () -> Unit) {
+fun LoginPasswordIcon(isPasswordVisible: Boolean, passwordToVisible: () -> Unit) {
     val image =
         if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
     val description = if (isPasswordVisible) "Hide password" else "Show password"
@@ -27,6 +27,6 @@ fun TrailingIconPassword(isPasswordVisible: Boolean, passwordToVisible: () -> Un
 @Composable
 fun TrailingIconPasswordPreview() {
     FamilyFilmAppTheme {
-        TrailingIconPassword(isPasswordVisible = true) {}
+        LoginPasswordIcon(isPasswordVisible = true) {}
     }
 }

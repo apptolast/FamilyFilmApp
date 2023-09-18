@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
-import com.digitalsolution.familyfilmapp.ui.screens.login.components.CardLoginScreen
+import com.digitalsolution.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -121,7 +121,7 @@ fun LoginContent(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CardLoginScreen(
+        LoginMainContent(
             loginUiState = loginUiState,
             onClick = onClickLogin
         )
@@ -171,7 +171,6 @@ fun LoginContent(
     if (loginUiState.isLoading) {
         CircularProgressIndicator()
     }
-
 }
 
 @Preview(showBackground = true)

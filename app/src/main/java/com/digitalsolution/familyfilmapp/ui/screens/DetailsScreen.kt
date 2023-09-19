@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -48,8 +50,9 @@ fun DetailsScreen(navController: NavController) {
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
                 .height(200.dp - (scrollState.value.dp / localDensity))
-                .alpha(1f - (scrollState.value / localDensity) / 200f),
+                .alpha(1f - (scrollState.value / localDensity) / 170f),
             contentScale = ContentScale.Crop
         )
         Column(

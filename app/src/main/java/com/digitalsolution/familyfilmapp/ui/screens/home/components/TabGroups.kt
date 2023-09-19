@@ -49,8 +49,11 @@ fun TabGroups(viewModel: HomeViewModel) {
                         text = groupData.name,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        style = if (stateRow == index) MaterialTheme.typography.titleSmall
-                        else MaterialTheme.typography.titleMedium
+                        style = if (stateRow == index) {
+                            MaterialTheme.typography.titleSmall
+                        } else {
+                            MaterialTheme.typography.titleMedium
+                        }
                     )
                 }
             )

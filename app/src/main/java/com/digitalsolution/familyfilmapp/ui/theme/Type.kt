@@ -32,5 +32,13 @@ val Typography = Typography(
         fontFamily = FontFamily(Font(R.font.homenaje)),
         fontWeight = FontWeight(400),
         textAlign = TextAlign.Center
+    ),
+
+    titleSmall = TextStyle(
+        fontSize = 18.sp,
+        fontFamily = FontFamily(Font(R.font.open_sans_regular)),
+        fontWeight = FontWeight(400),
+        textAlign = TextAlign.Center
     )
+
 )

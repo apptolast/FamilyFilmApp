@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,12 @@ fun SearchContent(
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+            },
+            label = {
+                Text(text = "Search film or series for add to the group are you join")
+            },
+            placeholder = {
+                Text(text = "Search film or series for add to the group are you join")
             }
         )
 

@@ -1,9 +1,10 @@
 package com.digitalsolution.familyfilmapp.repositories
 
 import com.digitalsolution.familyfilmapp.model.local.FilmSearchData
+import com.digitalsolution.familyfilmapp.model.local.GroupData
 import javax.inject.Inject
 
-class FakeRepositoryImpl @Inject constructor() : FakeRepository {
+class FakeRepositoryImpl @Inject constructor() : FilmRepository {
 
     override fun generateFakeFilmData(size: Int): List<FilmSearchData> {
         val films = mutableListOf<FilmSearchData>()
@@ -20,11 +21,26 @@ class FakeRepositoryImpl @Inject constructor() : FakeRepository {
         return films
     }
 
+    override fun generateGroups(size: Int): List<GroupData> {
+        val groups = mutableListOf<GroupData>()
+
+        for (i in 0 until size) {
+            groups.add(
+                GroupData(
+                    name = "Grupo $i"
+                )
+            )
+        }
+
+        return groups
+    }
+
 
 }
 
 
-interface FakeRepository {
+interface FilmRepository {
     fun generateFakeFilmData(size: Int): List<FilmSearchData>
+    fun generateGroups(size: Int): List<GroupData>
 }
 

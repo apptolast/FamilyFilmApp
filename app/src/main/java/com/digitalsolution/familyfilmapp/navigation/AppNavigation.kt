@@ -2,6 +2,8 @@ package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -59,7 +61,11 @@ fun AppNavigation() {
             }
         },
         floatingActionButton = {
-            if (searchBottomVisible) {
+            AnimatedVisibility(
+                visible = isBottomBarVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 FloatingActionButton(
                     onClick = { navController.navigate(Routes.Search.routes) }
                 ) {

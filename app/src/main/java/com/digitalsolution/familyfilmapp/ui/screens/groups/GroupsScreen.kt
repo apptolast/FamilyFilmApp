@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.filter
+package com.digitalsolution.familyfilmapp.ui.screens.groups
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,12 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 
 @Composable
-fun FilterScreen(navController: NavController) {
+fun GroupsScreen(navController: NavController) {
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "FilterScreen")
+        Text(text = "GroupsScreen")
     }
 }

@@ -17,7 +17,7 @@ fun BottomBar(navController: NavController) {
     val screens = listOf(
         Routes.Home,
         Routes.Recommend,
-        Routes.Filter,
+        Routes.Groups,
         Routes.Profile,
     )
 

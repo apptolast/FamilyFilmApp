@@ -1,7 +1,7 @@
 package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Recommend
@@ -24,9 +24,9 @@ sealed class Routes(val routes: String, val icon: ImageVector?) {
         icon = Icons.Outlined.Recommend
     )
 
-    object Filter : Routes(
-        "Filter",
-        icon = Icons.Outlined.FilterAlt
+    object Groups : Routes(
+        "Groups",
+        icon = Icons.Outlined.Groups
     )
 
     object Profile : Routes(

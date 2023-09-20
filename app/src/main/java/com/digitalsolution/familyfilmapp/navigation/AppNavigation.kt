@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
-import com.digitalsolution.familyfilmapp.ui.screens.filter.FilterScreen
+import com.digitalsolution.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 import com.digitalsolution.familyfilmapp.ui.screens.profile.ProfileScreen
@@ -93,8 +93,8 @@ fun AppNavigation() {
             composable(route = Routes.Recommend.routes) {
                 RecommendScreen(navController = navController)
             }
-            composable(route = Routes.Filter.routes) {
-                FilterScreen(navController = navController)
+            composable(route = Routes.Groups.routes) {
+                GroupsScreen(navController = navController)
             }
             composable(route = Routes.Profile.routes) {
                 ProfileScreen(navController = navController)
@@ -110,7 +110,7 @@ fun AppNavigation() {
 
     navController.addOnDestinationChangedListener { _, destination, _ ->
         isBottomBarVisible = when (destination.route) {
-            Routes.Home.routes, Routes.Recommend.routes, Routes.Filter.routes, Routes.Profile.routes -> {
+            Routes.Home.routes, Routes.Recommend.routes, Routes.Groups.routes, Routes.Profile.routes -> {
                 true
             }
 

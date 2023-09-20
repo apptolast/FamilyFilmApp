@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.FilmRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +17,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val filmRepository: FilmRepository
 ) : ViewModel() {
@@ -38,10 +36,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun logout() {
-        firebaseAuth.signOut()
     }
 
     fun getGroupsList() = filmRepository.generateGroups(12)

@@ -13,12 +13,10 @@ class MainViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
-    var test = true
 
     init {
         viewModelScope.launch {
             delay(800)
-            test = false
         }
     }
 

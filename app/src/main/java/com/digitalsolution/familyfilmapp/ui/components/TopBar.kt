@@ -41,6 +41,6 @@ fun TopBar(modifier: Modifier = Modifier, onClickLogOut: () -> Unit) {
 @Composable
 fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TopBar(onClickLogOut = {})
+        TopBar {}
     }
 }

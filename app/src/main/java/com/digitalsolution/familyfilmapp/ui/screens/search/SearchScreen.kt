@@ -1,8 +1,10 @@
 package com.digitalsolution.familyfilmapp.ui.screens.search
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -65,6 +67,8 @@ fun SearchContent(
             },
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
         LazyColumn {
             items(viewModel.getListFilmFake().toList()) { item ->
                 FilmItem(film = item)
@@ -77,7 +81,6 @@ fun SearchContent(
     }
 }
 
-
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun SearchScreenPreview() {
@@ -85,7 +88,3 @@ fun SearchScreenPreview() {
         //SearchContent()
     }
 }
-
-
-
-

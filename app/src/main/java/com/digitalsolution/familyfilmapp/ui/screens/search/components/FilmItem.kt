@@ -11,10 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.model.local.FilmSearchData
+import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
 fun FilmItem(
@@ -40,7 +40,7 @@ fun FilmItem(
             modifier = Modifier
                 .padding(10.dp)
                 .padding(bottom = 4.dp),
-            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.titleSmall.bold()
         )
     }
 }

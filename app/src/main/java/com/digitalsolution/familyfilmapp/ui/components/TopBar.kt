@@ -1,11 +1,12 @@
 package com.digitalsolution.familyfilmapp.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TopBar(modifier: Modifier = Modifier) {
+fun TopBar(modifier: Modifier = Modifier, onClickLogOut: () -> Unit) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -26,7 +27,13 @@ fun TopBar(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = "FilmFamily", style = MaterialTheme.typography.headlineMedium)
-        Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings icon")
+        Icon(
+            imageVector = Icons.Filled.Logout,
+            contentDescription = "Settings icon",
+            modifier = Modifier.clickable {
+                onClickLogOut()
+            }
+        )
     }
 }
 
@@ -34,6 +41,6 @@ fun TopBar(modifier: Modifier = Modifier) {
 @Composable
 fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TopBar()
+        TopBar(onClickLogOut = {})
     }
 }

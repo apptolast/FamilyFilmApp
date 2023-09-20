@@ -40,10 +40,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
-        firebaseAuth.signOut()
-    }
-
     fun getGroupsList() = filmRepository.generateGroups(12)
 
 

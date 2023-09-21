@@ -25,7 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -109,6 +112,8 @@ fun LoginContent(
     modifier: Modifier = Modifier,
 ) {
 
+    val openDialog = rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -139,13 +144,19 @@ fun LoginContent(
             // TODO: Create Typography for this text.
             Text(
                 text = stringResource(loginUiState.screenState.signText),
-                color = MaterialTheme.colorScheme.scrim,
+                color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.Bold
             )
         }
 
         // TODO: Review when review theme colors
-        Text(text = stringResource(R.string.login_text_forgot_your_password))
+        Text(
+            modifier = Modifier.clickable {
+                openDialog.value = !openDialog.value
+            },
+            text = stringResource(R.string.login_text_forgot_your_password),
+            color = MaterialTheme.colorScheme.outline
+        )
 
         Button(
             onClick = onClickGoogleButton,
@@ -171,6 +182,17 @@ fun LoginContent(
     if (loginUiState.isLoading) {
         CircularProgressIndicator()
     }
+
+    if (openDialog.value) {
+        AlertRecoverPassDialog(
+            openDialog = openDialog,
+            onCLickSend = {
+
+            },
+            loginUiState = loginUiState
+        )
+    }
+
 }
 
 @Preview(showBackground = true)

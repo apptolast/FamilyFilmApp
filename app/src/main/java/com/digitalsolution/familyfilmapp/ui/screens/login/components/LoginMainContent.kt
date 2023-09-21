@@ -130,7 +130,7 @@ fun LoginMainContent(
 }
 
 @Composable
-private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
+fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         errorMessage?.let {
             Icon(

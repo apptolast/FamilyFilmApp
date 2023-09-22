@@ -6,11 +6,11 @@ import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericExcep
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,10 +26,10 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
-    private val firebaseAuth: FirebaseAuth,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val registerUseCase: RegisterUseCase,
+    private val recoverPassUseCase: RecoverPassUseCase,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -83,8 +83,18 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    fun recoverPassword(email: String) {
-        firebaseAuth.sendPasswordResetEmail(email)
+    fun recoverPassword(email: String) = viewModelScope.launch {
+        recoverPassUseCase(email).catch { error ->
+            _state.update {
+                LoginUiState().copy(
+                    errorMessage = GenericException(error.message ?: "Recover Pass Error")
+                )
+            }
+        }.collectLatest { newLoginUIState ->
+            _state.update {
+                newLoginUIState
+            }
+        }
     }
 
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {

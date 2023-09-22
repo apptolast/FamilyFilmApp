@@ -12,6 +12,7 @@ data class LoginUiState(
     val emailErrorMessage: CustomException?,
     val passErrorMessage: CustomException?,
     val isLogged: Boolean,
+    val isSendEmailRecovered: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState(isLoading, errorMessage) {
@@ -25,10 +26,16 @@ data class LoginUiState(
         emailErrorMessage = null,
         passErrorMessage = null,
         isLogged = false,
+        isSendEmailRecovered = false,
         isLoading = false,
         errorMessage = null,
     )
 }
+
+data class RecoverPassUIState(
+    val emailErrorMessage: CustomException?,
+    val isSendEmailRecovered: Boolean
+)
 
 sealed class LoginScreenState(
     @StringRes val buttonText: Int,

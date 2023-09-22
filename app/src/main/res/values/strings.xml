@@ -16,7 +16,7 @@
     <string name="login_text_sign_up">Sign up</string>
     <string name="login_text_sign_in">Sign in</string>
     <string name="login_text_forgot_your_password">Forgot your password?</string>
-    <string name="login_text_recover_password">Introduce the email for recover your password</string>
+    <string name="login_text_recover_password">Introduce the email</string>
     <string name="login_text_send_recover_password">Send</string>
     <string name="login_text_recover_password_cancel">Cancel</string>
 

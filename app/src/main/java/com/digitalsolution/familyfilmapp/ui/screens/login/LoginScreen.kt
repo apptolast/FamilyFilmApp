@@ -96,6 +96,7 @@ fun LoginScreen(
             LoginContent(
                 loginUiState = loginUiState,
                 onClickLogin = viewModel::loginOrRegister,
+                onCLickRecoverPassword = viewModel::recoverPassword,
                 onClickScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
             )
@@ -107,6 +108,7 @@ fun LoginScreen(
 fun LoginContent(
     loginUiState: LoginUiState,
     onClickLogin: (String, String) -> Unit,
+    onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
     modifier: Modifier = Modifier,
@@ -186,9 +188,7 @@ fun LoginContent(
     if (openDialog.value) {
         AlertRecoverPassDialog(
             openDialog = openDialog,
-            onCLickSend = {
-
-            },
+            onCLickSend = onCLickRecoverPassword,
             loginUiState = loginUiState
         )
     }
@@ -202,6 +202,7 @@ fun LoginScreenPreview() {
         LoginContent(
             loginUiState = LoginUiState(),
             onClickLogin = { _, _ -> },
+            onCLickRecoverPassword = {},
             onClickGoogleButton = {},
             onClickScreenState = {},
             modifier = Modifier

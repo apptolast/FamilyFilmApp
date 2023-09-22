@@ -10,6 +10,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCa
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginEmailPassUseCase: LoginEmailPassUseCase,
+    private val firebaseAuth: FirebaseAuth,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val registerUseCase: RegisterUseCase,
@@ -79,6 +81,10 @@ class LoginViewModel @Inject constructor(
                     newLoginUIState
                 }
             }
+    }
+
+    fun recoverPassword(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email)
     }
 
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {

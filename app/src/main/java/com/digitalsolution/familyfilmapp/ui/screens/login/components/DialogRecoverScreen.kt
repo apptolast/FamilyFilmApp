@@ -3,10 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 
@@ -27,7 +25,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
 @Composable
 fun AlertRecoverPassDialog(
     openDialog: MutableState<Boolean>,
-    onCLickSend: () -> Unit,
+    onCLickSend: (String) -> Unit,
     loginUiState: LoginUiState,
     modifier: Modifier = Modifier
 ) {
@@ -38,9 +36,6 @@ fun AlertRecoverPassDialog(
         AlertDialog(
             onDismissRequest = {
                 openDialog.value = !openDialog.value
-            },
-            icon = {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = null)
             },
             title = {
                 Text(text = stringResource(id = R.string.login_text_recover_password))
@@ -61,17 +56,23 @@ fun AlertRecoverPassDialog(
             },
             confirmButton = {
                 TextButton(onClick = {
+                    onCLickSend(email)
                     openDialog.value = !openDialog.value
-                    onCLickSend()
                 }) {
-                    Text(text = stringResource(R.string.login_text_send_recover_password))
+                    Text(
+                        text = stringResource(R.string.login_text_send_recover_password),
+                        fontSize = 20.sp
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     openDialog.value = !openDialog.value
                 }) {
-                    Text(text = stringResource(R.string.login_text_recover_password_cancel))
+                    Text(
+                        text = stringResource(R.string.login_text_recover_password_cancel),
+                        fontSize = 20.sp
+                    )
                 }
             }
         )

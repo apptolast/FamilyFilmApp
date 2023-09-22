@@ -17,46 +17,43 @@ class RecoverPassUseCase @Inject constructor(
     override suspend fun execute(parameters: String): kotlinx.coroutines.flow.Flow<RecoverPassUIState> =
         channelFlow {
 
-            when {
-                !parameters.isEmailValid() -> {
+
+            if (!parameters.isEmailValid()) {
+                send(
+                    RecoverPassUIState().copy(
+                        emailErrorMessage = LoginException.EmailInvalidFormat()
+                    )
+                )
+            } else {
+
+                loginRepository.sendEmailRecoverPassword(parameters).catch { exception ->
                     send(
                         RecoverPassUIState().copy(
-                            emailErrorMessage = LoginException.EmailInvalidFormat()
-                        )
-                    )
-                }
-
-                else -> {
-
-                    loginRepository.sendEmailRecoverPassword(parameters).catch { exception ->
-                        send(
-                            RecoverPassUIState().copy(
-                                emailErrorMessage = CustomException.GenericException(
-                                    exception.message ?: "Recover Pass Email Error"
-                                )
+                            emailErrorMessage = CustomException.GenericException(
+                                exception.message ?: "Recover Pass Email Error"
                             )
                         )
-                    }.collectLatest { result ->
-                        result.fold(
-                            onSuccess = {
-                                send(
-                                    RecoverPassUIState().copy(
-                                        isSendEmailRecovered = it
+                    )
+                }.collectLatest { result ->
+                    result.fold(
+                        onSuccess = {
+                            send(
+                                RecoverPassUIState().copy(
+                                    isSendEmailRecovered = it
+                                )
+                            )
+                        },
+                        onFailure = {
+                            send(
+                                RecoverPassUIState().copy(
+                                    errorMessage = CustomException.GenericException(
+                                        it.message ?: "Recover Pass Email Error"
                                     )
                                 )
-                            },
-                            onFailure = {
-                                send(
-                                    RecoverPassUIState().copy(
-                                        errorMessage = CustomException.GenericException(
-                                            it.message ?: "Recover Pass Email Error"
-                                        )
-                                    )
-                                )
-                            }
-                        )
+                            )
+                        }
+                    )
 
-                    }
                 }
             }
         }

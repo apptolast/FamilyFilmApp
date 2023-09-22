@@ -4,10 +4,12 @@ import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.exceptions.LoginException.EmailInvalidFormat
 import com.digitalsolution.familyfilmapp.exceptions.LoginException.PasswordInvalidFormat
+import com.digitalsolution.familyfilmapp.extensions.isEmailValid
+import com.digitalsolution.familyfilmapp.extensions.isPasswordValid
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -25,7 +27,7 @@ class RegisterUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginScreenState.Register(),
+                    screenState = LoginRegisterState.Register(),
                     isLoading = true
                 )
             )
@@ -35,7 +37,7 @@ class RegisterUseCase @Inject constructor(
                 !email.isEmailValid() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register(),
+                            screenState = LoginRegisterState.Register(),
                             emailErrorMessage = EmailInvalidFormat(),
                             passErrorMessage = PasswordInvalidFormat(),
                             isLoading = false
@@ -46,7 +48,7 @@ class RegisterUseCase @Inject constructor(
                 !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register(),
+                            screenState = LoginRegisterState.Register(),
                             emailErrorMessage = EmailInvalidFormat(),
                             isLoading = false
                         )
@@ -57,7 +59,7 @@ class RegisterUseCase @Inject constructor(
                 !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginScreenState.Register(),
+                            screenState = LoginRegisterState.Register(),
                             passErrorMessage = PasswordInvalidFormat(),
                             isLoading = false
                         )
@@ -70,7 +72,7 @@ class RegisterUseCase @Inject constructor(
                         .catch { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginScreenState.Register(),
+                                    screenState = LoginRegisterState.Register(),
                                     isLogged = false,
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
@@ -84,7 +86,7 @@ class RegisterUseCase @Inject constructor(
                                 onSuccess = { authResult ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Register(),
+                                            screenState = LoginRegisterState.Register(),
                                             userData = UserData(
                                                 email = email,
                                                 pass = pass
@@ -97,7 +99,7 @@ class RegisterUseCase @Inject constructor(
                                 onFailure = { exception ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginScreenState.Register(),
+                                            screenState = LoginRegisterState.Register(),
                                             isLogged = false,
                                             isLoading = false,
                                             errorMessage = CustomException.GenericException(

@@ -3,6 +3,9 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
@@ -40,11 +43,11 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
-    private val _recoverPasswordState = MutableStateFlow(RecoverPassUIState())
+    private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
     val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = RecoverPassUIState()
+        initialValue = RecoverPassUiState()
     )
 
     init {
@@ -60,19 +63,19 @@ class LoginViewModel @Inject constructor(
     fun changeScreenState() = viewModelScope.launch {
         _state.update {
             when (it.screenState) {
-                is LoginScreenState.Login -> it.copy(screenState = LoginScreenState.Register())
-                is LoginScreenState.Register -> it.copy(screenState = LoginScreenState.Login())
+                is LoginRegisterState.Login -> it.copy(screenState = LoginRegisterState.Register())
+                is LoginRegisterState.Register -> it.copy(screenState = LoginRegisterState.Login())
             }
         }
     }
 
     fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
         when (_state.value.screenState) {
-            is LoginScreenState.Login -> {
+            is LoginRegisterState.Login -> {
                 loginEmailPassUseCase(email to password)
             }
 
-            is LoginScreenState.Register -> {
+            is LoginRegisterState.Register -> {
                 registerUseCase(email to password)
             }
         }

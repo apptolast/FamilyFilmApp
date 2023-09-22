@@ -43,6 +43,8 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.LoginMainContent
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -109,7 +111,7 @@ fun LoginScreen(
 @Composable
 fun LoginContent(
     loginUiState: LoginUiState,
-    recoverPassUIState: RecoverPassUIState,
+    recoverPassUIState: RecoverPassUiState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
@@ -154,7 +156,6 @@ fun LoginContent(
             )
         }
 
-        // TODO: Review when review theme colors
         Text(
             modifier = Modifier.clickable {
                 openDialog.value = !openDialog.value
@@ -204,7 +205,7 @@ fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
             loginUiState = LoginUiState(),
-            recoverPassUIState = RecoverPassUIState(),
+            recoverPassUIState = RecoverPassUiState(),
             onClickLogin = { _, _ -> },
             onCLickRecoverPassword = {},
             onClickGoogleButton = {},

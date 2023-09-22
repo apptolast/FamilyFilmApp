@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
+package com.digitalsolution.familyfilmapp.extensions
 
 import android.util.Patterns
 import java.util.regex.Pattern

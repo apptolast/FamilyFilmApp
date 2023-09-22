@@ -19,14 +19,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.screens.login.RecoverPassUIState
-
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 
 @Composable
 fun AlertRecoverPassDialog(
     openDialog: MutableState<Boolean>,
     onCLickSend: (String) -> Unit,
-    recoverPassUIState: RecoverPassUIState,
+    recoverPassUIState: RecoverPassUiState,
     modifier: Modifier = Modifier
 ) {
 

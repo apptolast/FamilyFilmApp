@@ -19,14 +19,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.RecoverPassUIState
 
 
 @Composable
 fun AlertRecoverPassDialog(
     openDialog: MutableState<Boolean>,
     onCLickSend: (String) -> Unit,
-    loginUiState: LoginUiState,
+    recoverPassUIState: RecoverPassUIState,
     modifier: Modifier = Modifier
 ) {
 
@@ -48,16 +48,18 @@ fun AlertRecoverPassDialog(
                     label = { Text(text = stringResource(R.string.login_text_field_email)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     shape = RoundedCornerShape(25.dp),
-                    isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
+                    isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
                     supportingText = {
-                        SupportingErrorText(loginUiState.emailErrorMessage?.error)
+                        SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
                     }
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     onCLickSend(email)
-                    openDialog.value = !openDialog.value
+                    if (recoverPassUIState.isSendEmailRecovered) {
+                        openDialog.value = !openDialog.value
+                    }
                 }) {
                     Text(
                         text = stringResource(R.string.login_text_send_recover_password),

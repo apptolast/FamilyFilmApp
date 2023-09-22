@@ -40,6 +40,13 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
+    private val _recoverPasswordState = MutableStateFlow(RecoverPassUIState())
+    val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = RecoverPassUIState()
+    )
+
     init {
         viewModelScope.launch {
             checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
@@ -85,13 +92,13 @@ class LoginViewModel @Inject constructor(
 
     fun recoverPassword(email: String) = viewModelScope.launch {
         recoverPassUseCase(email).catch { error ->
-            _state.update {
-                LoginUiState().copy(
+            _recoverPasswordState.update {
+                it.copy(
                     errorMessage = GenericException(error.message ?: "Recover Pass Error")
                 )
             }
         }.collectLatest { newLoginUIState ->
-            _state.update {
+            _recoverPasswordState.update {
                 newLoginUIState
             }
         }
@@ -108,11 +115,4 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun homeLogOut() = viewModelScope.launch {
-        checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
-            _state.update {
-                newLoginUiState
-            }
-        }
-    }
 }

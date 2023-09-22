@@ -34,8 +34,15 @@ data class LoginUiState(
 
 data class RecoverPassUIState(
     val emailErrorMessage: CustomException?,
-    val isSendEmailRecovered: Boolean
-)
+    val isSendEmailRecovered: Boolean,
+    val errorMessage: CustomException?,
+) {
+    constructor() : this(
+        emailErrorMessage = null,
+        isSendEmailRecovered = false,
+        errorMessage = null
+    )
+}
 
 sealed class LoginScreenState(
     @StringRes val buttonText: Int,

@@ -4,8 +4,7 @@ import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.RecoverPassUIState
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -13,27 +12,16 @@ import javax.inject.Inject
 
 class RecoverPassUseCase @Inject constructor(
     private val loginRepository: LoginRepository
-) : BaseUseCase<String, kotlinx.coroutines.flow.Flow<LoginUiState>>() {
+) : BaseUseCase<String, kotlinx.coroutines.flow.Flow<RecoverPassUIState>>() {
 
-    override suspend fun execute(parameters: String): kotlinx.coroutines.flow.Flow<LoginUiState> =
+    override suspend fun execute(parameters: String): kotlinx.coroutines.flow.Flow<RecoverPassUIState> =
         channelFlow {
-
-
-            // Loading
-            send(
-                LoginUiState().copy(
-                    screenState = LoginScreenState.Login(),
-                    isLoading = true,
-                )
-            )
 
             when {
                 !parameters.isEmailValid() -> {
                     send(
-                        LoginUiState().copy(
-                            screenState = LoginScreenState.Login(),
-                            emailErrorMessage = LoginException.EmailInvalidFormat(),
-                            isLoading = false
+                        RecoverPassUIState().copy(
+                            emailErrorMessage = LoginException.EmailInvalidFormat()
                         )
                     )
                 }
@@ -42,10 +30,9 @@ class RecoverPassUseCase @Inject constructor(
 
                     loginRepository.sendEmailRecoverPassword(parameters).catch { exception ->
                         send(
-                            LoginUiState().copy(
-                                screenState = LoginScreenState.Login(),
-                                errorMessage = CustomException.GenericException(
-                                    exception.message ?: "Send Email Error"
+                            RecoverPassUIState().copy(
+                                emailErrorMessage = CustomException.GenericException(
+                                    exception.message ?: "Recover Pass Email Error"
                                 )
                             )
                         )
@@ -53,17 +40,16 @@ class RecoverPassUseCase @Inject constructor(
                         result.fold(
                             onSuccess = {
                                 send(
-                                    LoginUiState().copy(
+                                    RecoverPassUIState().copy(
                                         isSendEmailRecovered = it
                                     )
                                 )
                             },
                             onFailure = {
                                 send(
-                                    LoginUiState().copy(
-                                        isSendEmailRecovered = false,
+                                    RecoverPassUIState().copy(
                                         errorMessage = CustomException.GenericException(
-                                            it.message ?: "Send Email Recover"
+                                            it.message ?: "Recover Pass Email Error"
                                         )
                                     )
                                 )

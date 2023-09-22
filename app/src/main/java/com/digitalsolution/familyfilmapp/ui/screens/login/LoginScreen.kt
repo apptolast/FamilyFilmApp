@@ -56,6 +56,7 @@ fun LoginScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
+    val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
@@ -95,6 +96,7 @@ fun LoginScreen(
         ) {
             LoginContent(
                 loginUiState = loginUiState,
+                recoverPassUIState = recoverPassUIState,
                 onClickLogin = viewModel::loginOrRegister,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onClickScreenState = viewModel::changeScreenState,
@@ -107,6 +109,7 @@ fun LoginScreen(
 @Composable
 fun LoginContent(
     loginUiState: LoginUiState,
+    recoverPassUIState: RecoverPassUIState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
@@ -189,7 +192,7 @@ fun LoginContent(
         AlertRecoverPassDialog(
             openDialog = openDialog,
             onCLickSend = onCLickRecoverPassword,
-            loginUiState = loginUiState
+            recoverPassUIState = recoverPassUIState
         )
     }
 
@@ -201,6 +204,7 @@ fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
             loginUiState = LoginUiState(),
+            recoverPassUIState = RecoverPassUIState(),
             onClickLogin = { _, _ -> },
             onCLickRecoverPassword = {},
             onClickGoogleButton = {},

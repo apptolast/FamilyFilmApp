@@ -27,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -102,7 +101,8 @@ fun LoginScreen(
                 onClickLogin = viewModel::loginOrRegister,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onClickScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
+                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) },
+                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState
             )
         }
     }
@@ -116,10 +116,9 @@ fun LoginContent(
     onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
+    onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    val openDialog = rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -158,7 +157,13 @@ fun LoginContent(
 
         Text(
             modifier = Modifier.clickable {
-                openDialog.value = !openDialog.value
+                onRecoveryPassUpdate(
+                    recoverPassUIState.copy(
+                        isDialogVisible = mutableStateOf(true),
+                        emailErrorMessage = null,
+                        errorMessage = null
+                    )
+                )
             },
             text = stringResource(R.string.login_text_forgot_your_password),
             color = MaterialTheme.colorScheme.outline
@@ -189,9 +194,8 @@ fun LoginContent(
         CircularProgressIndicator()
     }
 
-    if (openDialog.value) {
+    if (recoverPassUIState.isDialogVisible.value) {
         AlertRecoverPassDialog(
-            openDialog = openDialog,
             onCLickSend = onCLickRecoverPassword,
             recoverPassUIState = recoverPassUIState
         )
@@ -210,9 +214,8 @@ fun LoginScreenPreview() {
             onCLickRecoverPassword = {},
             onClickGoogleButton = {},
             onClickScreenState = {},
-            modifier = Modifier
+            modifier = Modifier,
+            onRecoveryPassUpdate = {}
         )
     }
 }
-
-

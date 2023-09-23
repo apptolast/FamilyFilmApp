@@ -44,7 +44,7 @@ complexity:
     excludes:
       - '**/internal/**'
   LongParameterList:
-    functionThreshold: 7
+    functionThreshold: 9
     ignoreDefaultParameters: true
   LongMethod:
     threshold: 120

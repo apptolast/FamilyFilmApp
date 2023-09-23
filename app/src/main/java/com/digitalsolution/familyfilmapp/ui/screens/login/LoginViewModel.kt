@@ -107,6 +107,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun updateRecoveryPasswordState(newRecoverPassUiState: RecoverPassUiState) {
+        _recoverPasswordState.update { newRecoverPassUiState }
+    }
+
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->

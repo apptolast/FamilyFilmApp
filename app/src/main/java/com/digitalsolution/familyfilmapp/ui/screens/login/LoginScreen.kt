@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +40,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.LoginMainContent
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -53,6 +57,7 @@ fun LoginScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
+    val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
@@ -92,9 +97,12 @@ fun LoginScreen(
         ) {
             LoginContent(
                 loginUiState = loginUiState,
+                recoverPassUIState = recoverPassUIState,
                 onClickLogin = viewModel::loginOrRegister,
+                onCLickRecoverPassword = viewModel::recoverPassword,
                 onClickScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) }
+                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) },
+                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState
             )
         }
     }
@@ -103,9 +111,12 @@ fun LoginScreen(
 @Composable
 fun LoginContent(
     loginUiState: LoginUiState,
+    recoverPassUIState: RecoverPassUiState,
     onClickLogin: (String, String) -> Unit,
+    onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
+    onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -139,13 +150,24 @@ fun LoginContent(
             // TODO: Create Typography for this text.
             Text(
                 text = stringResource(loginUiState.screenState.signText),
-                color = MaterialTheme.colorScheme.scrim,
+                color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        // TODO: Review when review theme colors
-        Text(text = stringResource(R.string.login_text_forgot_your_password))
+        Text(
+            modifier = Modifier.clickable {
+                onRecoveryPassUpdate(
+                    recoverPassUIState.copy(
+                        isDialogVisible = mutableStateOf(true),
+                        emailErrorMessage = null,
+                        errorMessage = null
+                    )
+                )
+            },
+            text = stringResource(R.string.login_text_forgot_your_password),
+            color = MaterialTheme.colorScheme.outline
+        )
 
         Button(
             onClick = onClickGoogleButton,
@@ -171,6 +193,14 @@ fun LoginContent(
     if (loginUiState.isLoading) {
         CircularProgressIndicator()
     }
+
+    if (recoverPassUIState.isDialogVisible.value) {
+        AlertRecoverPassDialog(
+            onCLickSend = onCLickRecoverPassword,
+            recoverPassUIState = recoverPassUIState
+        )
+    }
+
 }
 
 @Preview(showBackground = true)
@@ -179,12 +209,13 @@ fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
             loginUiState = LoginUiState(),
+            recoverPassUIState = RecoverPassUiState(),
             onClickLogin = { _, _ -> },
+            onCLickRecoverPassword = {},
             onClickGoogleButton = {},
             onClickScreenState = {},
-            modifier = Modifier
+            modifier = Modifier,
+            onRecoveryPassUpdate = {}
         )
     }
 }
-
-

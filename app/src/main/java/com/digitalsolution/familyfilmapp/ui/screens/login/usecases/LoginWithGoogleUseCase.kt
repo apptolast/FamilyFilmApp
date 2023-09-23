@@ -4,8 +4,8 @@ import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreenState
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -18,7 +18,7 @@ class LoginWithGoogleUseCase @Inject constructor(
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
         send(
             LoginUiState().copy(
-                screenState = LoginScreenState.Login(),
+                screenState = LoginRegisterState.Login(),
                 isLoading = true
             )
         )
@@ -27,7 +27,7 @@ class LoginWithGoogleUseCase @Inject constructor(
             .catch { exception ->
                 send(
                     LoginUiState().copy(
-                        screenState = LoginScreenState.Login(),
+                        screenState = LoginRegisterState.Login(),
                         isLoading = false,
                         isLogged = false,
                         errorMessage = CustomException.GenericException(
@@ -41,7 +41,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onSuccess = { authResult ->
                         send(
                             LoginUiState().copy(
-                                screenState = LoginScreenState.Login(),
+                                screenState = LoginRegisterState.Login(),
                                 userData = UserData(
                                     email = authResult.user?.email ?: "",
                                     pass = ""
@@ -54,7 +54,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onFailure = { exception ->
                         send(
                             LoginUiState().copy(
-                                screenState = LoginScreenState.Login(),
+                                screenState = LoginRegisterState.Login(),
                                 isLogged = false,
                                 isLoading = false,
                                 errorMessage = CustomException.GenericException(

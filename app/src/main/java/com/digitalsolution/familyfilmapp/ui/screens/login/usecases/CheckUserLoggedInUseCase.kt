@@ -3,7 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow

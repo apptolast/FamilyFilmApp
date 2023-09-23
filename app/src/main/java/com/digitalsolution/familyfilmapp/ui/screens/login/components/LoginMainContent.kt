@@ -34,7 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.ui.screens.login.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -130,7 +130,7 @@ fun LoginMainContent(
 }
 
 @Composable
-private fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
+fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         errorMessage?.let {
             Icon(

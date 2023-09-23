@@ -80,6 +80,25 @@ class LoginRepositoryImpl @Inject constructor(
         }
         awaitClose()
     }
+
+    override fun recoverPassword(email: String): Flow<Result<Boolean>> = channelFlow {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener {
+                launch {
+                    send(
+                        Result.success(it.isSuccessful)
+                    )
+                }
+            }
+            .addOnFailureListener {
+                launch {
+                    send(
+                        Result.failure(it)
+                    )
+                }
+            }
+        awaitClose()
+    }
 }
 
 interface LoginRepository {
@@ -87,4 +106,5 @@ interface LoginRepository {
     fun register(email: String, password: String): Flow<Result<AuthResult>>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun getUser(): Flow<Result<Boolean>>
+    fun recoverPassword(email: String): Flow<Result<Boolean>>
 }

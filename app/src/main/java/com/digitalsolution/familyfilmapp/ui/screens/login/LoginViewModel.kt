@@ -3,9 +3,13 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -28,6 +32,7 @@ class LoginViewModel @Inject constructor(
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val registerUseCase: RegisterUseCase,
+    private val recoverPassUseCase: RecoverPassUseCase,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -36,6 +41,13 @@ class LoginViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = LoginUiState()
+    )
+
+    private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
+    val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = RecoverPassUiState()
     )
 
     init {
@@ -51,19 +63,19 @@ class LoginViewModel @Inject constructor(
     fun changeScreenState() = viewModelScope.launch {
         _state.update {
             when (it.screenState) {
-                is LoginScreenState.Login -> it.copy(screenState = LoginScreenState.Register())
-                is LoginScreenState.Register -> it.copy(screenState = LoginScreenState.Login())
+                is LoginRegisterState.Login -> it.copy(screenState = LoginRegisterState.Register())
+                is LoginRegisterState.Register -> it.copy(screenState = LoginRegisterState.Login())
             }
         }
     }
 
     fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
         when (_state.value.screenState) {
-            is LoginScreenState.Login -> {
+            is LoginRegisterState.Login -> {
                 loginEmailPassUseCase(email to password)
             }
 
-            is LoginScreenState.Register -> {
+            is LoginRegisterState.Register -> {
                 registerUseCase(email to password)
             }
         }
@@ -81,6 +93,24 @@ class LoginViewModel @Inject constructor(
             }
     }
 
+    fun recoverPassword(email: String) = viewModelScope.launch {
+        recoverPassUseCase(email).catch { error ->
+            _recoverPasswordState.update {
+                it.copy(
+                    errorMessage = GenericException(error.message ?: "Recover Pass Error")
+                )
+            }
+        }.collectLatest { newLoginUIState ->
+            _recoverPasswordState.update {
+                newLoginUIState
+            }
+        }
+    }
+
+    fun updateRecoveryPasswordState(newRecoverPassUiState: RecoverPassUiState) {
+        _recoverPasswordState.update { newRecoverPassUiState }
+    }
+
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
@@ -92,11 +122,4 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun homeLogOut() = viewModelScope.launch {
-        checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
-            _state.update {
-                newLoginUiState
-            }
-        }
-    }
 }

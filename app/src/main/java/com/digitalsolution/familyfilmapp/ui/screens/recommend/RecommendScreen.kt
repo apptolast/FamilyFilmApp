@@ -12,12 +12,16 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.digitalsolution.familyfilmapp.ui.screens.home.components.CustomCard
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun RecommendScreen(navController: NavController) {
@@ -67,23 +71,26 @@ fun RecommendScreen(navController: NavController) {
                 .padding(bottom = 4.dp)
         )
 
-        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(listSize.toList()) { number ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                CustomCard(
+                    // TODO: Add the clickable property to the modifier
                     modifier = Modifier.padding(5.dp)
                 ) {
-                    AsyncImage(
-                        model = "https://loremflickr.com/400/400/cat?lock=$number",
-                        contentDescription = null,
-//                    modifier = Modifier.size(170.dp)
-                    )
-                    Text(
-                        text = "Film ${number + 1}",
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .padding(bottom = 4.dp)
-                    )
+                    Column {
+
+                        AsyncImage(
+                            model = "https://loremflickr.com/600/600/cat?lock=$number",
+                            contentDescription = null,
+                        )
+                        Text(
+                            text = "Film ${number + 1}",
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .padding(bottom = 4.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
@@ -91,3 +98,11 @@ fun RecommendScreen(navController: NavController) {
 }
 
 private val listSize = 0..24
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun RecommendScreenPreview() {
+    FamilyFilmAppTheme {
+        RecommendScreen(navController = rememberNavController())
+    }
+}

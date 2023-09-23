@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,19 +17,26 @@ import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
+fun CustomCard(
+    modifier: Modifier = Modifier,
+    block: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier.padding(horizontal = 17.dp),
+        shape = RoundedCornerShape(4.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
+        content = block
+    )
+}
+
+@Composable
 fun HomeItem(
     text: String,
     number: Int,
     navigateToDetailsScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .padding(horizontal = 17.dp)
-            .clickable { navigateToDetailsScreen() },
-        shape = RoundedCornerShape(4.dp),
-        elevation = CardDefaults.cardElevation(5.dp)
-    ) {
+    CustomCard(modifier = modifier.clickable { navigateToDetailsScreen() }) {
         Column {
 //            FIXME: This is for test
             AsyncImage(

@@ -1,19 +1,31 @@
 package com.digitalsolution.familyfilmapp.repositories
 
-import com.digitalsolution.familyfilmapp.model.local.FilmSearchData
 import com.digitalsolution.familyfilmapp.model.local.GroupData
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import javax.inject.Inject
 
 class FakeRepositoryImpl @Inject constructor() : FilmRepository {
+    override fun generateFakeCategoryData(): List<String> = listOf(
+        "Terror",
+        "Comedia",
+        "Romántico",
+        "Ciencia Ficción",
+        "Fantasía",
+        "Acción",
+        "Drama",
+        "Anime",
+        "Aventura",
+        "Musical"
+    )
 
-    override fun generateFakeFilmData(size: Int): List<FilmSearchData> {
-        val films = mutableListOf<FilmSearchData>()
+    override fun generateFakeFilmData(size: Int): List<Movie> {
+        val films = mutableListOf<Movie>()
 
         for (i in 0 until size) {
             films.add(
-                FilmSearchData(
-                    img = "https://loremflickr.com/400/400/cat?lock=$i",
-                    title = "Película $i"
+                Movie(
+                    title = "Película $i",
+                    image = "https://loremflickr.com/400/400/cat?lock=$i",
                 )
             )
         }
@@ -34,13 +46,12 @@ class FakeRepositoryImpl @Inject constructor() : FilmRepository {
 
         return groups
     }
-
-
 }
 
 
 interface FilmRepository {
-    fun generateFakeFilmData(size: Int): List<FilmSearchData>
+    fun generateFakeCategoryData(): List<String>
+    fun generateFakeFilmData(size: Int): List<Movie>
     fun generateGroups(size: Int): List<GroupData>
 }
 

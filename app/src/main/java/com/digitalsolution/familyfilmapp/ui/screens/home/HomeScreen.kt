@@ -71,13 +71,13 @@ fun HomeContent(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabGroups(viewModel = viewModel)
-        RowFilm(
+        RowMovie(
             title = stringResource(R.string.home_text_my_list),
             icon = Icons.Default.ListAlt,
             navigateToDetailsScreen = navigateToDetailsScreen,
             modifier = Modifier.weight(1f)
         )
-        RowFilm(
+        RowMovie(
             title = stringResource(R.string.home_text_seen),
             icon = Icons.Default.Visibility,
             navigateToDetailsScreen = navigateToDetailsScreen,
@@ -87,7 +87,7 @@ fun HomeContent(
 }
 
 @Composable
-private fun RowFilm(
+private fun RowMovie(
     title: String,
     icon: ImageVector,
     navigateToDetailsScreen: () -> Unit,

@@ -13,12 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.model.local.FilmSearchData
+import com.digitalsolution.familyfilmapp.model.local.FilmData
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
 fun FilmItem(
-    film: FilmSearchData,
+    film: FilmData,
     modifier: Modifier = Modifier,
 ) {
 

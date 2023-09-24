@@ -27,22 +27,24 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.digitalsolution.familyfilmapp.model.local.FilmData
 import com.digitalsolution.familyfilmapp.ui.screens.search.components.FilmItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchScreenViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
-    SearchContent(viewModel)
+
+    val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
+    SearchContent(recommendUiState.films)
 }
 
 @Composable
-fun SearchContent(
-    viewModel: SearchScreenViewModel
-) {
+fun SearchContent(getList: List<FilmData>) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
@@ -70,7 +72,7 @@ fun SearchContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn {
-            items(viewModel.getListFilmFake().toList()) { item ->
+            items(getList) { item ->
                 FilmItem(film = item)
             }
         }

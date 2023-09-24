@@ -18,11 +18,11 @@ class RecommendViewModel @Inject constructor(
     private val fakeRepository: FilmRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(FilmUiState())
-    val state: StateFlow<FilmUiState> = _state.asStateFlow().stateIn(
+    private val _state = MutableStateFlow(MovieUiState())
+    val state: StateFlow<MovieUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = FilmUiState()
+        initialValue = MovieUiState()
     )
 
     init {
@@ -34,12 +34,5 @@ class RecommendViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun setOnToSee(){
-
-    }
-    fun setOnSeen(){
-
     }
 }

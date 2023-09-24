@@ -24,12 +24,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.digitalsolution.familyfilmapp.model.local.FilmData
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.ui.screens.search.components.FilmItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -44,7 +45,7 @@ fun SearchScreen(
 }
 
 @Composable
-fun SearchContent(getList: List<FilmData>) {
+fun SearchContent(getList: List<Movie>) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
@@ -87,6 +88,6 @@ fun SearchContent(getList: List<FilmData>) {
 @Composable
 fun SearchScreenPreview() {
     FamilyFilmAppTheme {
-        //SearchContent()
+        SearchScreen(NavController(LocalContext.current))
     }
 }

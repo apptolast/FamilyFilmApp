@@ -40,9 +40,9 @@ fun RecommendScreen(
 }
 
 @Composable
-private fun RecommendContent(listFilmFake: FilmUiState) {
+private fun RecommendContent(movieState: MovieUiState) {
 
-    val categories = listFilmFake.categories
+    val categories = movieState.categories
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyRow {
@@ -74,7 +74,7 @@ private fun RecommendContent(listFilmFake: FilmUiState) {
                 .padding(bottom = 4.dp)
         )
         LazyColumn {
-            items(listFilmFake.films) { film ->
+            items(movieState.films) { film ->
                 CustomCard(
                     // TODO: Add the clickable property to the modifier
                     modifier = Modifier.padding(5.dp).padding(vertical = 12.dp)
@@ -84,7 +84,7 @@ private fun RecommendContent(listFilmFake: FilmUiState) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         AsyncImage(
-                            model = film.img,
+                            model = film.image,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxWidth().height(200.dp),

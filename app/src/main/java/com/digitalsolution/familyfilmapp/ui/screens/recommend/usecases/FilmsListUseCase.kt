@@ -1,4 +1,4 @@
-//package com.digitalsolution.familyfilmapp.ui.screens.recommend.usecases
+package com.digitalsolution.familyfilmapp.ui.screens.recommend.usecases
 //
 //import com.digitalsolution.familyfilmapp.BaseUseCase
 //import com.digitalsolution.familyfilmapp.exceptions.CustomException

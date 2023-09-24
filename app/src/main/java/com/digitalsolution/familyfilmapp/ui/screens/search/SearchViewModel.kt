@@ -3,7 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.FilmRepository
-import com.digitalsolution.familyfilmapp.ui.screens.recommend.FilmUiState
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.MovieUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,25 +19,18 @@ class SearchViewModel @Inject constructor(
     private val fakeRepository: FilmRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(FilmUiState())
-    val state: StateFlow<FilmUiState> = _state.asStateFlow().stateIn(
+    private val _state = MutableStateFlow(MovieUiState())
+    val state: StateFlow<MovieUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = FilmUiState()
+        initialValue = MovieUiState()
     )
 
     init {
         viewModelScope.launch {
-            _state.update { st ->
-                st.copy(films = fakeRepository.generateFakeFilmData(20))
+            _state.update {
+                it.copy(films = fakeRepository.generateFakeFilmData(20))
             }
         }
-    }
-
-    fun setOnToSee(){
-
-    }
-    fun setOnSeen(){
-
     }
 }

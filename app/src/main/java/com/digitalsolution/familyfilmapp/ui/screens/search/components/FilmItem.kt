@@ -13,12 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.model.local.FilmData
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
 fun FilmItem(
-    film: FilmData,
+    film: Movie,
     modifier: Modifier = Modifier,
 ) {
 
@@ -27,7 +27,7 @@ fun FilmItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
-            model = film.img,
+            model = film.image,
             contentDescription = null,
             modifier = Modifier
                 .size(width = 180.dp, height = 118.dp)

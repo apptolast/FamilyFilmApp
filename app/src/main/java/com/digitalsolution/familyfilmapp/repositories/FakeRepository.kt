@@ -3,6 +3,8 @@ package com.digitalsolution.familyfilmapp.repositories
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.MemeberData
 import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.model.local.GroupData
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import javax.inject.Inject
 
 class FakeRepositoryImpl @Inject constructor() : FilmRepository {
@@ -71,4 +73,3 @@ interface FilmRepository {
     suspend fun getGroups(): ArrayList<Group>
     fun generateMembersForGroups(size: Int): List<MemeberData>
 }
-

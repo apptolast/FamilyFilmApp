@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
 import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
-import com.digitalsolution.familyfilmapp.repositories.LocalRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
@@ -29,6 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +41,6 @@ class LoginViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val backendRepository: BackendRepository,
     private val firebaseAuth: FirebaseAuth,
-    private val localRepository: LocalRepository,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -85,18 +84,16 @@ class LoginViewModel @Inject constructor(
             is LoginRegisterState.Register -> {
                 registerUseCase(email to password)
             }
+        }.catch { error ->
+            _state.update { loginState ->
+                loginState.copy(
+                    errorMessage = GenericException(error.message ?: "Login Error")
+                )
+            }
+        }.collectLatest { newLoginUIState ->
+            // User Login into our backend before update the UI state
+            backendLogin(newLoginUIState)
         }
-            .catch { error ->
-                _state.update { loginState ->
-                    loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Login Error")
-                    )
-                }
-            }
-            .collectLatest { newLoginUIState ->
-                // User Login into our backend before update the UI state
-                backendLogin(newLoginUIState)
-            }
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
@@ -137,21 +134,47 @@ class LoginViewModel @Inject constructor(
         newLoginUIState: LoginUiState
     ) {
         if (newLoginUIState.isLogged) {
-            backendRepository.login(
-                firebaseAuth.currentUser!!.email!!,
-                firebaseAuth.currentUser!!.uid
-            ).fold(
+            when (_state.value.screenState) {
+                is LoginRegisterState.Login -> {
+                    backendRepository.login(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    )
+                }
+
+                is LoginRegisterState.Register -> {
+                    backendRepository.register(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    )
+                }
+            }.fold(
                 onSuccess = {
                     // Update the UI state and navigate to Home
                     _state.update { newLoginUIState }
                 },
-                onFailure = { exception ->
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = LoginException.BackendLogin()
-                        )
-                    }
+                onFailure = { _ ->
+
+                    // This is for the edge case in which the user is logged in in firebase
+                    // but the user is not register in our backend due to an error.
+                    // In this case we will try to register the user again in our backend.
+                    backendRepository.register(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    ).fold(
+                        onSuccess = {
+                            Timber.w("User edge case that needs to be register again")
+                            _state.update { newLoginUIState }
+                        },
+                        onFailure = {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = LoginException.BackendLogin()
+                                )
+                            }
+                        }
+                    )
                 }
             )
         } else {

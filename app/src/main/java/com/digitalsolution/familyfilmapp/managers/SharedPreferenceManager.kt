@@ -13,7 +13,7 @@ class SharedPreferencesManager @Inject constructor(private val prefs: SharedPref
     fun getToken(): String? =
         prefs.getString(KEY_TOKEN, null)
 
-    fun setToken(value: String) =
+    fun setToken(value: String?) =
         prefs.edit().putString(KEY_TOKEN, value).apply()
 
     companion object {

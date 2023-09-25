@@ -1,6 +1,7 @@
 package com.digitalsolution.familyfilmapp.network
 
 object ApiRoutes {
-    const val USER_LOGIN = "user/login"
-    const val MOVIES = "movies"
+    const val AUTH_REGISTER = "auth/register"
+    const val AUTH_LOGIN = "auth/login"
+    const val MOVIES = "api/movies"
 }

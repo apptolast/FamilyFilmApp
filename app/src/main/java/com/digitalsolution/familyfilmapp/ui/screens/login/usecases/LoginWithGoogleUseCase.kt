@@ -41,7 +41,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onSuccess = { authResult ->
                         send(
                             LoginUiState().copy(
-                                screenState = LoginRegisterState.Login(),
+                                screenState = LoginRegisterState.Register(),
                                 userData = UserData(
                                     email = authResult.user?.email ?: "",
                                     pass = ""

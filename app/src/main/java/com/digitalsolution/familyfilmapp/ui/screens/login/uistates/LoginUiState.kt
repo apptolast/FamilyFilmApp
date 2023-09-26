@@ -13,7 +13,7 @@ data class LoginUiState(
     val isSendEmailRecovered: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
-) : BaseUiState(isLoading, errorMessage) {
+) : BaseUiState {
 
     constructor() : this(
         screenState = LoginRegisterState.Login(),
@@ -26,6 +26,6 @@ data class LoginUiState(
         isLogged = false,
         isSendEmailRecovered = false,
         isLoading = false,
-        errorMessage = null,
+        errorMessage = null
     )
 }

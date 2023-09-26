@@ -125,8 +125,7 @@ class LoginViewModel @Inject constructor(
     }
 
     /**
-     * Method to login the user into our backend after the firebase login in order to retrieve the token
-     * to authenticate the requests in our backend
+     * Method to login the user into our backend after the firebase login in order to retrieve the token to authenticate the requests in our backend
      *
      * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
      */

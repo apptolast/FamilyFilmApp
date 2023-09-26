@@ -3,5 +3,5 @@ package com.digitalsolution.familyfilmapp.network
 object ApiRoutes {
     const val AUTH_REGISTER = "auth/register"
     const val AUTH_LOGIN = "auth/login"
-    const val MOVIES = "api/movies"
+    const val MOVIES = "movies"
 }

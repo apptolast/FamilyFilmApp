@@ -1,6 +1,8 @@
 package com.digitalsolution.familyfilmapp.repositories
 
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
+import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.network.BackendApi
@@ -41,13 +43,26 @@ class BackendRepositoryImpl @Inject constructor(
         }
     }
 
-//    override suspend fun getMovies(): Result<List<Movie>> = kotlin.runCatching {
-//        backendApi.getMovies().toDomain()
-//    }
+    override suspend fun getMovies(): Result<List<Movie>> = kotlin.runCatching {
+        backendApi.getMovies().let { movieResponse ->
+            movieResponse.data?.map { movieItem ->
+                movieItem.toDomain()
+            } ?: emptyList()
+        }
+    }
+
+    override suspend fun getGroups(): Result<List<String>> {
+        // TODO: Backend not implemented
+        return Result.success(FAKE_GROUP_LIST)
+    }
 }
+
+// FIXME: Delete when not needed
+private val FAKE_GROUP_LIST = listOf("Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "Group 6")
 
 interface BackendRepository {
     suspend fun register(user: String, firebaseId: String): Result<Unit>
     suspend fun login(user: String, firebaseId: String): Result<Unit>
-//    suspend fun getMovies(): Result<List<Movie>>
+    suspend fun getMovies(): Result<List<Movie>>
+    suspend fun getGroups(): Result<List<String>>
 }

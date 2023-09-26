@@ -11,7 +11,7 @@ data class RecoverPassUiState(
     val recoveryPassResponse: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
-) : BaseUiState(isLoading, errorMessage) {
+) : BaseUiState {
 
     constructor() : this(
         isDialogVisible = mutableStateOf(false),

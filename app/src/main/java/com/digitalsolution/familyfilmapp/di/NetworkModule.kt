@@ -22,7 +22,7 @@ class NetworkModule {
 
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
-        "debug" -> "https://family-film-app-back.onrender.com"
+        "debug" -> "https://ffa-develop-back.onrender.com/api/"
         "staging" -> TODO()
         "release" -> TODO()
         else -> ""

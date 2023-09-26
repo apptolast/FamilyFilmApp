@@ -7,7 +7,6 @@ import com.digitalsolution.familyfilmapp.exceptions.LoginException.PasswordInval
 import com.digitalsolution.familyfilmapp.extensions.isEmailValid
 import com.digitalsolution.familyfilmapp.extensions.isPasswordValid
 import com.digitalsolution.familyfilmapp.model.local.UserData
-import com.digitalsolution.familyfilmapp.repositories.LocalRepository
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
@@ -19,7 +18,6 @@ import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(
     private val repository: LoginRepository,
-    private val localRepository: LocalRepository
 ) : BaseUseCase<Pair<String, String>, Flow<LoginUiState>>() {
 
     override suspend fun execute(parameters: Pair<String, String>): Flow<LoginUiState> =

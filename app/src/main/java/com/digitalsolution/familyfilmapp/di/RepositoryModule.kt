@@ -4,8 +4,6 @@ import com.digitalsolution.familyfilmapp.managers.SharedPreferencesManager
 import com.digitalsolution.familyfilmapp.network.BackendApi
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.repositories.BackendRepositoryImpl
-import com.digitalsolution.familyfilmapp.repositories.FakeRepositoryImpl
-import com.digitalsolution.familyfilmapp.repositories.FilmRepository
 import com.digitalsolution.familyfilmapp.repositories.LocalRepository
 import com.digitalsolution.familyfilmapp.repositories.LocalRepositoryImpl
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
@@ -28,19 +26,11 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideFakeRepository(): FilmRepository =
-        FakeRepositoryImpl()
-
-    @Singleton
-    @Provides
     fun provideLocalRepository(prefs: SharedPreferencesManager): LocalRepository =
         LocalRepositoryImpl(prefs)
 
     @Singleton
     @Provides
-    fun provideBackendRepository(
-        backendApi: BackendApi,
-        localRepository: LocalRepository
-    ): BackendRepository =
+    fun provideBackendRepository(backendApi: BackendApi, localRepository: LocalRepository): BackendRepository =
         BackendRepositoryImpl(backendApi, localRepository)
 }

@@ -1,5 +1,4 @@
 @file:Suppress("IMPLICIT_CAST_TO_ANY")
-
 package com.digitalsolution.familyfilmapp.ui.screens.home.components
 
 import androidx.compose.foundation.layout.padding
@@ -28,6 +27,7 @@ fun TabGroups(
 
     val groups by viewmodel.groups.observeAsState()
 
+    // Define colores y estilos específicos
     val selectedTabColor = MaterialTheme.colorScheme.primary
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -47,7 +47,7 @@ fun TabGroups(
                 unselectedContentColor = unselectedTabColor,
                 text = {
                     Text(
-                        text = groupData.name,
+                        text = groupName,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         style = if (stateRow == index) {

@@ -3,7 +3,7 @@ package com.digitalsolution.familyfilmapp.network
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.model.remote.response.LoginResponse
-import com.digitalsolution.familyfilmapp.model.remote.response.MovieWrapper
+import com.digitalsolution.familyfilmapp.model.remote.response.MovieResponse
 import com.digitalsolution.familyfilmapp.model.remote.response.RegisterResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -22,6 +22,6 @@ interface BackendApi {
     ): LoginResponse
 
     @GET(ApiRoutes.MOVIES)
-    suspend fun getMovies(): List<MovieWrapper>
+    suspend fun getMovies(): MovieResponse
 
 }

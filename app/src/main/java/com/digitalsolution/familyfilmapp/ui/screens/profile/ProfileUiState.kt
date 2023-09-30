@@ -1,23 +1,18 @@
-package com.digitalsolution.familyfilmapp.ui.screens.recommend
+package com.digitalsolution.familyfilmapp.ui.screens.profile
 
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
-import com.digitalsolution.familyfilmapp.model.local.Movie
-import com.digitalsolution.familyfilmapp.model.local.User
+import com.digitalsolution.familyfilmapp.model.local.UserData
 
-data class MovieUiState(
-    val user: User,
-    val movies: List<Movie>,
-    val categories: List<String>,
+data class ProfileUiState(
+    val userData: UserData,
     val isLogged: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
-) : BaseUiState {
+) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
         userData = UserData(email = "", pass = "", name = "", photo = ""),
-        films = emptyList(),
-        categories = emptyList(),
         isLogged = false,
         isLoading = false,
         errorMessage = null,

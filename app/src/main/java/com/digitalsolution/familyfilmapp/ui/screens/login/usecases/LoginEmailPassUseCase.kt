@@ -6,15 +6,15 @@ import com.digitalsolution.familyfilmapp.exceptions.LoginException.EmailInvalidF
 import com.digitalsolution.familyfilmapp.exceptions.LoginException.PasswordInvalidFormat
 import com.digitalsolution.familyfilmapp.extensions.isEmailValid
 import com.digitalsolution.familyfilmapp.extensions.isPasswordValid
-import com.digitalsolution.familyfilmapp.model.local.User
+import com.digitalsolution.familyfilmapp.model.local.UserData
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 class LoginEmailPassUseCase @Inject constructor(
     private val repository: LoginRepository,
@@ -29,18 +29,19 @@ class LoginEmailPassUseCase @Inject constructor(
                 LoginUiState().copy(
                     screenState = LoginRegisterState.Login(),
                     isLoading = true,
-                ),
+                )
             )
 
             when {
+
                 !email.isEmailValid() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Login(),
                             emailErrorMessage = EmailInvalidFormat(),
                             passErrorMessage = PasswordInvalidFormat(),
-                            isLoading = false,
-                        ),
+                            isLoading = false
+                        )
                     )
                 }
 
@@ -49,8 +50,8 @@ class LoginEmailPassUseCase @Inject constructor(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Login(),
                             emailErrorMessage = EmailInvalidFormat(),
-                            isLoading = false,
-                        ),
+                            isLoading = false
+                        )
                     )
                 }
 
@@ -59,8 +60,8 @@ class LoginEmailPassUseCase @Inject constructor(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Login(),
                             passErrorMessage = PasswordInvalidFormat(),
-                            isLoading = false,
-                        ),
+                            isLoading = false
+                        )
                     )
                 }
 
@@ -73,9 +74,9 @@ class LoginEmailPassUseCase @Inject constructor(
                                     isLogged = false,
                                     isLoading = false,
                                     errorMessage = GenericException(
-                                        exception.message ?: "Login Error",
+                                        exception.message ?: "Login Error"
                                     ),
-                                ),
+                                )
                             )
                         }
                         .collectLatest { result ->
@@ -84,13 +85,15 @@ class LoginEmailPassUseCase @Inject constructor(
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginRegisterState.Login(),
-                                            user = User(
+                                            userData = UserData(
                                                 email = email,
                                                 pass = pass,
+                                                name = authResult.user?.displayName ?: "",
+                                                photo = authResult.user?.photoUrl.toString()
                                             ),
                                             isLogged = true,
-                                            isLoading = false,
-                                        ),
+                                            isLoading = false
+                                        )
                                     )
                                 },
                                 onFailure = { exception ->
@@ -100,9 +103,9 @@ class LoginEmailPassUseCase @Inject constructor(
                                             isLogged = false,
                                             isLoading = false,
                                             errorMessage = GenericException(
-                                                exception.message ?: "Login Failure",
-                                            ),
-                                        ),
+                                                exception.message ?: "Login Failure"
+                                            )
+                                        )
                                     )
                                 },
                             )

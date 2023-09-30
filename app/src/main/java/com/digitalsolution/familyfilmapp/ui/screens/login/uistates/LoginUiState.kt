@@ -20,6 +20,8 @@ data class LoginUiState(
         user = User(
             email = "",
             pass = "",
+            name = "",
+            photo = "",
         ),
         emailErrorMessage = null,
         passErrorMessage = null,

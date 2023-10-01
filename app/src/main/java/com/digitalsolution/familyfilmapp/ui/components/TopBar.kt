@@ -27,10 +27,10 @@ fun TopBar(
     groups: List<GroupData>
 ) {
     val customTopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        containerColor = MaterialTheme.colorScheme.outlineVariant
     )
     if (title.contentEquals("Groups", true)) {
-        Column(modifier = Modifier.background(MaterialTheme.colorScheme.tertiaryContainer)) {
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
             TopAppBar(
                 title = { Text(text = title, style = MaterialTheme.typography.headlineMedium) },
                 actions = {

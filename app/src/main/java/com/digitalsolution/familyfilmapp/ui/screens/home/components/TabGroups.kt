@@ -28,7 +28,7 @@ fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>) {
 
     ScrollableTabRow(
         selectedTabIndex = stateRow,
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+        containerColor = MaterialTheme.colorScheme.outlineVariant,
         edgePadding = 0.dp,
         divider = {}
     ) {

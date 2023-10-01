@@ -19,11 +19,11 @@ class GroupViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _state = MutableStateFlow(GroupUiState())
-    val state: StateFlow<GroupUiState> = _state.asStateFlow().stateIn(
+    private val _state = MutableStateFlow(GroupUIState())
+    val state: StateFlow<GroupUIState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = GroupUiState()
+        initialValue = GroupUIState()
     )
 
 

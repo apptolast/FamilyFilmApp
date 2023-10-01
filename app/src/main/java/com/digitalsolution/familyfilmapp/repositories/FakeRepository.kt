@@ -39,6 +39,7 @@ class FakeRepositoryImpl @Inject constructor() : FilmRepository {
         for (i in 0 until size) {
             groups.add(
                 GroupData(
+                    image = "https://loremflickr.com/400/400/cat?lock=$i",
                     name = "Grupo $i"
                 )
             )

@@ -44,6 +44,7 @@ fun AppNavigation(
     var isBottomBarVisible by rememberSaveable { mutableStateOf(false) }
     var searchBottomVisible by rememberSaveable { mutableStateOf(false) }
     var isTopBarVisible by rememberSaveable { mutableStateOf(false) }
+    var titleScreens by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -55,7 +56,9 @@ fun AppNavigation(
                 TopBar(
                     onClickLogOut = {
                         mainViewModel.logOut()
-                    }
+                    },
+                    title = titleScreens,
+                    groups = mainViewModel.getGroupsList()
                 )
             }
         },
@@ -125,6 +128,14 @@ fun AppNavigation(
             else -> {
                 false
             }
+        }
+        titleScreens = when (destination.route) {
+            Routes.Home.routes -> "Home"
+            Routes.Recommend.routes -> "Recommendations"
+            Routes.Groups.routes -> "Groups"
+            Routes.Profile.routes -> "Profile"
+            Routes.Search.routes -> "Search"
+            else -> "Unknown"
         }
         searchBottomVisible = destination.route == Routes.Home.routes
         isTopBarVisible = destination.route == Routes.Search.routes

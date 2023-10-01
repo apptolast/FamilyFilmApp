@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.repositories.FilmRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -10,7 +11,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val filmRepository: FilmRepository
 ) : ViewModel() {
 
 
@@ -21,4 +23,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun logOut() = firebaseAuth.signOut()
+
+    fun getGroupsList() = filmRepository.generateGroups(12)
 }

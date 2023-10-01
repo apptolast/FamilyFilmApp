@@ -1,8 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -13,15 +11,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.digitalsolution.familyfilmapp.model.local.GroupData
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeViewModel
 
 @Composable
-fun TabGroups(viewModel: HomeViewModel) {
+fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
-    val titles = viewModel.getGroupsList()
+    val titles = viewModel?.getGroupsList() ?: groups
 
     // Define colores y estilos específicos
     val selectedTabColor = MaterialTheme.colorScheme.primary
@@ -29,11 +27,8 @@ fun TabGroups(viewModel: HomeViewModel) {
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
     ScrollableTabRow(
-        modifier = Modifier.background(
-            color = Color.Transparent,
-            shape = RoundedCornerShape(10.dp)
-        ),
         selectedTabIndex = stateRow,
+        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         edgePadding = 0.dp,
         divider = {}
     ) {

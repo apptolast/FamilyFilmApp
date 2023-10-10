@@ -44,7 +44,7 @@ fun TopBar(
                 },
                 colors = customTopAppBarColors
             )
-            TabGroups(groups = groups, viewModel = null)
+            TabGroups(groups = groups, viewModel = null, groupScreen = true)
         }
     } else {
         TopAppBar(

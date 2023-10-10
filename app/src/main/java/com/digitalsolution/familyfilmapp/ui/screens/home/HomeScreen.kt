@@ -70,7 +70,7 @@ fun HomeContent(
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TabGroups(viewModel = viewModel, groups = viewModel.getGroupsList())
+        TabGroups(viewModel = viewModel, groups = viewModel.getGroupsList(), groupScreen = false)
         RowMovie(
             title = stringResource(R.string.home_text_my_list),
             icon = Icons.Default.ListAlt,

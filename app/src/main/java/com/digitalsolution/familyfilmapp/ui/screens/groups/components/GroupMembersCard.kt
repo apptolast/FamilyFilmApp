@@ -1,9 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,13 +28,12 @@ import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.model.local.MemeberData
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun GroupMembersCard(
     groupTitle: String,
     members: List<MemeberData>,
-    onRemoveMemberClick: (MemeberData) -> Unit,
-    onSwipeDelete: (MemeberData) -> Unit,
+    onRemoveMemberClick: (MemeberData) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -61,8 +56,24 @@ fun GroupMembersCard(
                 style = MaterialTheme.typography.titleLarge.bold(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(3.dp)
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedButton(onClick = { onAddMemberClick() }) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+                    Text(text = stringResource(id = R.string.groups_text_add_member))
+                }
+                OutlinedButton(onClick = { onDeleteGroupClick() }) {
+                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                    Text(text = stringResource(id = R.string.groups_text_delete_group))
+                }
+            }
             LazyColumn {
                 items(members.toMutableList()) { item ->
                     val state = rememberDismissState(

@@ -56,7 +56,7 @@ fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>, groupScreen: B
                 selected = stateRow == index,
                 onClick = {
                     if (groupData.name.equals("Add Groups", true)) {
-                        // TODO: Navegar a la pantalla de agregar grupo o mostrar el diálogo de agregar grupo
+                        // TODO: Navegar a la pantalla
                     } else {
                         stateRow = index
                     }

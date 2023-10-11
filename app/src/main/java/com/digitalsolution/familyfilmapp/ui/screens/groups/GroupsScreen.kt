@@ -23,13 +23,18 @@ fun GroupsScreen(
     val groupUiState by viewModel.state.collectAsStateWithLifecycle()
     GroupContent(
         sharedViewModel.getMembers(),
-        onClickRemoveMember = {}
+        onClickRemoveMember = {},
+        onCLickSwipeCard = {}
     )
 }
 
 
 @Composable
-fun GroupContent(members: List<MemeberData>, onClickRemoveMember: (MemeberData) -> Unit) {
+fun GroupContent(
+    members: List<MemeberData>,
+    onClickRemoveMember: (MemeberData) -> Unit,
+    onCLickSwipeCard: (MemeberData) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -38,7 +43,8 @@ fun GroupContent(members: List<MemeberData>, onClickRemoveMember: (MemeberData) 
         GroupMembersCard(
             groupTitle = "Group 0",
             members = members,
-            onRemoveMemberClick = onClickRemoveMember
+            onRemoveMemberClick = onClickRemoveMember,
+            onSwipeDelete = onCLickSwipeCard
         )
     }
 }

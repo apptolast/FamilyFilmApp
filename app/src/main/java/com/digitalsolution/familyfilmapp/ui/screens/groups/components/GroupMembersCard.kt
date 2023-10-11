@@ -13,16 +13,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.model.local.MemeberData
 import com.digitalsolution.familyfilmapp.ui.theme.bold
+import me.saket.swipe.SwipeAction
 
 
 @Composable
 fun GroupMembersCard(
     groupTitle: String,
     members: List<MemeberData>,
-    onRemoveMemberClick: (MemeberData) -> Unit
+    onRemoveMemberClick: (MemeberData) -> Unit,
+    onSwipeDelete: (MemeberData) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -48,8 +51,17 @@ fun GroupMembersCard(
                     .padding(16.dp)
             )
             LazyColumn {
-                items(members.toList()) { member ->
-                    MemberCard(member = member, onRemoveMemberClick = onRemoveMemberClick)
+                items(members.toMutableList()) {
+                    val delete = SwipeAction(
+                        onSwipe = {
+                            onSwipeDelete(it)
+                        },
+                        icon = {
+
+                        },
+                        background = Color.Red.copy(alpha = 0.5f),
+                        isUndo = true
+                    )
                 }
             }
         }

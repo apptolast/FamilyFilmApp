@@ -36,7 +36,7 @@ fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) 
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(6.dp),
         shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.scrim

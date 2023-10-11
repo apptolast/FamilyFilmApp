@@ -36,13 +36,13 @@ fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) 
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(6.dp),
+            .padding(8.dp),
         shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.scrim
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+            defaultElevation = 3.dp
         )
     ) {
         Row(

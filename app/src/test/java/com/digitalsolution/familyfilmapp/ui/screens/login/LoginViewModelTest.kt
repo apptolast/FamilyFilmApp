@@ -10,13 +10,11 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPas
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
-import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -26,6 +24,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
+import org.mockito.kotlin.given
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
@@ -36,10 +35,6 @@ class LoginViewModelTest {
     // Set the main coroutines dispatcher for unit testing.
     @get:Rule
     internal var coroutineRule = MainDispatcherRule()
-
-    // Executes each task synchronously using Architecture Components.
-//    @get:Rule
-//    internal var instantExecutorRule = InstantTaskExecutorRule()
 
     @Mock
     private lateinit var loginEmailPassUseCase: LoginEmailPassUseCase
@@ -79,84 +74,130 @@ class LoginViewModelTest {
         val password = "pass"
 
         whenever(loginEmailPassUseCase(any())).thenReturn(
-            flow {
-                LoginUiState().copy(
-                    screenState = LoginRegisterState.Login(),
-                    userData = UserData(
-                        email = email,
-                        pass = password
-                    ),
-                    isLogged = true,
-                    isLoading = false
+            channelFlow {
+                send(
+                    LoginUiState().copy(
+                        screenState = LoginRegisterState.Login(),
+                        userData = UserData(
+                            email = email,
+                            pass = password
+                        ),
+                        isLogged = true,
+                        isLoading = false
+                    )
                 )
             }
         )
 
+        // Assert
+        val job = launch {
+            viewModel.state.test {
+                awaitItem().let {
+                    assertThat(email).isEqualTo(it.userData.email)
+                    assertThat(password).isEqualTo(it.userData.pass)
+                }
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
         // Act
         viewModel.loginOrRegister(email, password)
 
+        job.join()
+        job.cancel()
+
+    }
+
+    @Test
+    fun `LoginViewModel - Register User Pass provider - Success`() = runTest {
+        // Arrange
+        val email = "email"
+        val password = "pass"
+        viewModel.changeScreenState()
+
+        whenever(registerUseCase(any())).thenReturn(
+            channelFlow {
+                send(
+                    LoginUiState().copy(
+                        screenState = LoginRegisterState.Register(),
+                        userData = UserData(
+                            email = email,
+                            pass = password
+                        ),
+                        isLogged = true,
+                        isLoading = false
+                    )
+                )
+            }
+        )
+
         // Assert
-        viewModel.state.test {
-
-            awaitItem().let {
-                assertThat(awaitItem().userData.email).isEqualTo("")
-                assertThat(awaitItem().userData.pass).isEqualTo("")
-
+        val job = launch {
+            viewModel.state.test {
+                awaitItem().let {
+                    assertThat(email).isEqualTo(it.userData.email)
+                    assertThat(password).isEqualTo(it.userData.pass)
+                }
+                cancelAndConsumeRemainingEvents()
             }
-            awaitItem().let {
-                assertThat(awaitItem().userData.email).isEqualTo(email)
-                assertThat(awaitItem().userData.pass).isEqualTo(password)
-
-            }
-
-            awaitComplete()
-
         }
 
-//        viewModel.state.getValueBlockedOrNull(coroutineRule.testDispatcherProvider)?.let { state ->
-//            assertThat(state.userData.email).isEqualTo("")
-//            assertThat(state.userData.pass).isEqualTo("")
-//        }
+        // Act
+        viewModel.loginOrRegister(email, password)
+
+        job.join()
+        job.cancel()
     }
 
     @Test
-    fun `LoginViewModel - Sign In User Pass provider - Exception`() {
+    fun `LoginViewModel - Login User Pass - Receive catch exception`() = runTest {
         // Arrange
+        val email = "email"
+        val password = "pass"
+        val errorMessage = "Error"
 
-        // Act
+//        whenever(loginEmailPassUseCase(any())).thenThrow(Throwable(errorMessage))
 
-        // Assert
-    }
-
-    @Test
-    fun `LoginViewModel - Sign Up with Google provider - Success`() {
-        // Arrange
-
-        // Act
-//        viewModel.handleGoogleSignInResult()
-
-        // Assert
-
-    }
-
-    @Test
-    fun `LoginViewModel - Sign Up with Google provider - Exception`() {
-        // Arrange
-
-        // Act
-
-        // Assert
-    }
-
-}
-
-fun <T> SharedFlow<T>.getValueBlockedOrNull(dispatcher: DispatcherProvider): T? {
-    var value: T?
-    runBlocking(dispatcher.io()) {
-        value = when (this@getValueBlockedOrNull.replayCache.isEmpty()) {
-            true -> null
-            else -> this@getValueBlockedOrNull.firstOrNull()
+        given(loginEmailPassUseCase(any())).willAnswer {
+            Throwable(errorMessage)
         }
+
+        // Assert
+        val job = launch {
+            viewModel.state.test {
+                assertThat(awaitItem().errorMessage?.error).isEqualTo(errorMessage)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+        // Act
+        viewModel.loginOrRegister(email, password)
+
+        job.join()
+        job.cancel()
     }
-    return value
+
+    @Test
+    fun `LoginViewModel - change screen state between Login and Register`() = runTest {
+        // Arrange
+
+        // Assert
+        val job = launch {
+            viewModel.state.test {
+                assertThat(awaitItem().screenState).isEqualTo(LoginRegisterState.Register())
+                assertThat(awaitItem().screenState).isEqualTo(LoginRegisterState.Login())
+
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+        // Act
+        viewModel.changeScreenState()
+        delay(100)
+        viewModel.changeScreenState()
+
+        job.join()
+        job.cancel()
+    }
+
 }

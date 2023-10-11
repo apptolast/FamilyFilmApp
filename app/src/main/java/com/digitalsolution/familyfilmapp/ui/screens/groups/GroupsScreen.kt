@@ -21,8 +21,10 @@ fun GroupsScreen(
     sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val groupUiState by viewModel.state.collectAsStateWithLifecycle()
+    val list = sharedViewModel.getMembers()
+
     GroupContent(
-        sharedViewModel.getMembers(),
+        list,
         onClickRemoveMember = {},
         onCLickSwipeCard = {}
     )

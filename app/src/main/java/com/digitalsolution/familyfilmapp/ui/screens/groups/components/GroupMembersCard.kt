@@ -1,9 +1,12 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.model.local.MemeberData
 import com.digitalsolution.familyfilmapp.ui.theme.bold
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,51 +68,56 @@ fun GroupMembersCard(
                     val state = rememberDismissState(
                         confirmValueChange = {
                             if (it == DismissValue.DismissedToStart) {
-                                members.toMutableList().remove(item)
+                                onSwipeDelete(item)
                             }
                             true
                         }
                     )
-                    SwipeToDismiss(
-                        state = state,
-                        background = {
-                            val color = when (state.dismissDirection) {
-                                DismissDirection.StartToEnd -> Color.Transparent
-                                DismissDirection.EndToStart -> Color.Red.copy(alpha = 0.3f)
-                                null -> Color.Transparent
-                            }
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = color
-                                ),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 3.dp
-                                )
-                            ) {
-                                Box(
+                    AnimatedVisibility(
+                        visible = state.currentValue != DismissValue.DismissedToEnd,
+                        exit = fadeOut(animationSpec = tween(durationMillis = 300)),
+                    ) {
+                        SwipeToDismiss(
+                            state = state,
+                            background = {
+                                val color = when (state.dismissDirection) {
+                                    DismissDirection.StartToEnd -> Color.Transparent
+                                    DismissDirection.EndToStart -> Color(0xFFFF1744)
+                                    null -> Color.Transparent
+                                }
+                                Card(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .background(color)
-                                        .padding(start = 12.dp, end = 12.dp),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "",
-                                        tint = Color.White,
+                                        .padding(8.dp),
+                                    shape = MaterialTheme.shapes.small,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = color
+                                    ),
+                                    elevation = CardDefaults.cardElevation(
+                                        defaultElevation = 3.dp
                                     )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(color)
+                                            .padding(12.dp, 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = ""
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                        dismissContent = {
-                            MemberCard(member = item, onRemoveMemberClick = onRemoveMemberClick)
-                        },
-                        directions = setOf(DismissDirection.EndToStart)
-                    )
+                            },
+                            dismissContent = {
+                                MemberCard(member = item, onRemoveMemberClick = onRemoveMemberClick)
+                            },
+                            directions = setOf(DismissDirection.EndToStart)
+                        )
+                    }
                 }
             }
         }

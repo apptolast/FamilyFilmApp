@@ -4,11 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.SharedViewModel
 import com.digitalsolution.familyfilmapp.model.local.MemeberData
@@ -25,9 +23,7 @@ fun GroupsScreen(
     GroupContent(
         list,
         onClickRemoveMember = {},
-        onCLickSwipeCard = {}
-        sharedViewModel.getMembers(),
-        onClickRemoveMember = {},
+        onCLickSwipeCard = {},
         onAddMemberClick = {},
         onDeleteGroupClick = {}
     )
@@ -37,13 +33,9 @@ fun GroupsScreen(
 fun GroupContent(
     members: List<MemeberData>,
     onClickRemoveMember: (MemeberData) -> Unit,
-    onCLickSwipeCard: (MemeberData) -> Unit
-) {
-fun GroupContent(
-    members: List<MemeberData>,
-    onClickRemoveMember: (MemeberData) -> Unit,
     onAddMemberClick: () -> Unit,
-    onDeleteGroupClick: () -> Unit
+    onDeleteGroupClick: () -> Unit,
+    onCLickSwipeCard: (MemeberData) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -54,10 +46,9 @@ fun GroupContent(
             groupTitle = "Group 0",
             members = members,
             onRemoveMemberClick = onClickRemoveMember,
-            onSwipeDelete = onCLickSwipeCard
-            onRemoveMemberClick = onClickRemoveMember,
-            onAddMemberClick = {},
-            onDeleteGroupClick = {}
+            onSwipeDelete = onCLickSwipeCard,
+            onAddMemberClick = onAddMemberClick,
+            onDeleteGroupClick = onDeleteGroupClick,
         )
     }
 }

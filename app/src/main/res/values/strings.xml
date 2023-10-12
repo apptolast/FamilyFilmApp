@@ -27,5 +27,6 @@
 
     <!--Groups-->
     <string name="groups_text_add">Add Group</string>
+    <string name="groups_screen_add_groups">Add Groups</string>
 
 </resources>

@@ -1,5 +1,6 @@
-package com.digitalsolution.familyfilmapp
+package com.digitalsolution.familyfilmapp.navigation
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.FilmRepository
@@ -10,11 +11,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class NavigationViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val filmRepository: FilmRepository
 ) : ViewModel() {
 
+    private val _navigationUIState = MutableLiveData(NavigationUIState())
+    val navigationUIState: MutableLiveData<NavigationUIState> = _navigationUIState
 
     init {
         viewModelScope.launch {
@@ -22,7 +25,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun updateUIState(newNavigationUIState: NavigationUIState) {
+        _navigationUIState.value = newNavigationUIState
+    }
+
+
     fun logOut() = firebaseAuth.signOut()
 
     fun getGroupsList() = filmRepository.generateGroups(12)
+
 }

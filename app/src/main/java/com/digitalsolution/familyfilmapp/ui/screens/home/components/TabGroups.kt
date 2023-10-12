@@ -27,20 +27,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.GroupData
-import com.digitalsolution.familyfilmapp.ui.screens.home.HomeViewModel
 
 @Composable
-fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>, groupScreen: Boolean) {
+fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
-    val titles = if (!groupScreen) {
-        viewModel?.getGroupsList() ?: groups
-    } else {
-        groups.toMutableList().apply {
-            this.add(GroupData(image = "", name = "Add Groups"))
-        }
+    if (groupScreen) {
+        groups.toMutableList().add(
+            GroupData(
+                image = "",
+                name = stringResource(R.string.groups_screen_add_groups)
+            )
+        )
     }
 
-    // Define colores y estilos específicos
     val selectedTabColor = MaterialTheme.colorScheme.primary
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -51,11 +50,11 @@ fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>, groupScreen: B
         edgePadding = 0.dp,
         divider = {}
     ) {
-        titles.forEachIndexed { index, groupData ->
+        groups.forEachIndexed { index, groupData ->
             Tab(
                 selected = stateRow == index,
                 onClick = {
-                    if (groupData.name.equals("Add Groups", true)) {
+                    if (groupScreen) {
                         // TODO: Navegar a la pantalla
                     } else {
                         stateRow = index
@@ -65,10 +64,10 @@ fun TabGroups(viewModel: HomeViewModel?, groups: List<GroupData>, groupScreen: B
                 selectedContentColor = selectedTabColor,
                 unselectedContentColor = unselectedTabColor,
                 text = {
-                    if (groupData.name.equals("Add Groups", true)) {
+                    if (groupScreen) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)  // Ajusta este valor según lo necesites
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Surface(
                                 modifier = Modifier

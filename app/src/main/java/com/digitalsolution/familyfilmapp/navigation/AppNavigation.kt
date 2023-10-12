@@ -14,9 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.digitalsolution.familyfilmapp.MainViewModel
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
@@ -37,34 +34,34 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
 fun AppNavigation(
-    mainViewModel: MainViewModel = hiltViewModel()
+    viewModel: NavigationViewModel = hiltViewModel()
 ) {
 
     val navController = rememberNavController()
-    var isBottomBarVisible by rememberSaveable { mutableStateOf(false) }
-    var searchBottomVisible by rememberSaveable { mutableStateOf(false) }
-    var isTopBarVisible by rememberSaveable { mutableStateOf(false) }
-    var titleScreens by rememberSaveable { mutableStateOf("") }
+
+    val navigationUIState by viewModel.navigationUIState.observeAsState()
 
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                visible = isBottomBarVisible,
+                visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                TopBar(
-                    onClickLogOut = {
-                        mainViewModel.logOut()
-                    },
-                    title = titleScreens,
-                    groups = mainViewModel.getGroupsList()
-                )
+                navigationUIState?.titleScreens?.let {
+                    TopBar(
+                        onClickLogOut = {
+                            viewModel.logOut()
+                        },
+                        title = it.value,
+                        groups = viewModel.getGroupsList()
+                    )
+                }
             }
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = isBottomBarVisible,
+                visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
@@ -73,7 +70,7 @@ fun AppNavigation(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = isBottomBarVisible,
+                visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
@@ -120,8 +117,11 @@ fun AppNavigation(
     }
 
     navController.addOnDestinationChangedListener { _, destination, _ ->
-        isBottomBarVisible = when (destination.route) {
-            Routes.Home.routes, Routes.Recommend.routes, Routes.Groups.routes, Routes.Profile.routes -> {
+        val isBottomBarVisible = when (destination.route) {
+            Routes.Home.routes,
+            Routes.Recommend.routes,
+            Routes.Groups.routes,
+            Routes.Profile.routes -> {
                 true
             }
 
@@ -129,7 +129,7 @@ fun AppNavigation(
                 false
             }
         }
-        titleScreens = when (destination.route) {
+        val titleScreens = when (destination.route) {
             Routes.Home.routes -> "Home"
             Routes.Recommend.routes -> "Recommendations"
             Routes.Groups.routes -> "Groups"
@@ -137,8 +137,16 @@ fun AppNavigation(
             Routes.Search.routes -> "Search"
             else -> "Unknown"
         }
-        searchBottomVisible = destination.route == Routes.Home.routes
-        isTopBarVisible = destination.route == Routes.Search.routes
+        val searchBottomVisible = destination.route == Routes.Home.routes
+        val isTopBarVisible = destination.route == Routes.Search.routes
+        NavigationUIState(
+            isBottomBarVisible,
+            searchBottomVisible,
+            isTopBarVisible,
+            titleScreens,
+        ).let {
+            viewModel.updateUIState(it)
+        }
     }
 }
 

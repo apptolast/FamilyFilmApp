@@ -70,6 +70,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.8.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha02"
+    implementation "androidx.compose.runtime:runtime-livedata:1.5.3"
 
     // Splash
     implementation "androidx.core:core-splashscreen:1.0.1"

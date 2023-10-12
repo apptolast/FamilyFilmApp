@@ -29,9 +29,8 @@ class NavigationViewModel @Inject constructor(
         _navigationUIState.value = newNavigationUIState
     }
 
-
     fun logOut() = firebaseAuth.signOut()
 
-    fun getGroupsList() = filmRepository.generateGroups(12)
+    fun getGroupsList() = filmRepository.generateGroups(5)
 
 }

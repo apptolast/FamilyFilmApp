@@ -31,13 +31,13 @@ import com.digitalsolution.familyfilmapp.model.local.GroupData
 @Composable
 fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
-    if (groupScreen) {
-        groups.toMutableList().add(
-            GroupData(
-                image = "",
-                name = stringResource(R.string.groups_screen_add_groups)
-            )
-        )
+
+    val titles = if (!groupScreen) {
+        groups
+    } else {
+        groups.toMutableList().apply {
+            this.add(GroupData(image = "", name = "Add Groups"))
+        }
     }
 
     val selectedTabColor = MaterialTheme.colorScheme.primary
@@ -50,7 +50,7 @@ fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
         edgePadding = 0.dp,
         divider = {}
     ) {
-        groups.forEachIndexed { index, groupData ->
+        titles.forEachIndexed { index, groupData ->
             Tab(
                 selected = stateRow == index,
                 onClick = {

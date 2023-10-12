@@ -28,6 +28,4 @@ data class NavigationUIState(
         isTopBarVisible = mutableStateOf(isTopBarVisible),
         titleScreens = mutableStateOf(titleScreens),
     )
-
-
 }

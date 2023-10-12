@@ -16,6 +16,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -25,19 +26,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.model.local.GroupData
+import com.digitalsolution.familyfilmapp.model.local.Group
 
 @Composable
-fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
+fun TabGroups(
+    addGroupFlag: Boolean = false,
+    viewmodel: TabGroupsViewModel = hiltViewModel(),
+) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
 
-    val titles = if (!groupScreen) {
-        groups
+    val groups by viewmodel.groups.observeAsState()
+
+    val groupNames: ArrayList<Group>? = if (addGroupFlag) {
+        // FIXME: @Pablo fix this shit!
+        // If the element is not being added yet, add the add group at the end
+        if (groups?.find { it.name == stringResource(id = R.string.groups_text_add) } == null)
+            groups?.apply { add(Group(image = "", name = "Add Groups")) }
+        else
+            groups
     } else {
-        groups.toMutableList().apply {
-            this.add(GroupData(image = "", name = "Add Groups"))
-        }
+        groups
     }
 
     val selectedTabColor = MaterialTheme.colorScheme.primary
@@ -50,11 +60,11 @@ fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
         edgePadding = 0.dp,
         divider = {}
     ) {
-        titles.forEachIndexed { index, groupData ->
+        groupNames?.forEachIndexed { index, groupData ->
             Tab(
                 selected = stateRow == index,
                 onClick = {
-                    if (groupScreen) {
+                    if (addGroupFlag) {
                         // TODO: Navegar a la pantalla
                     } else {
                         stateRow = index
@@ -64,27 +74,24 @@ fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
                 selectedContentColor = selectedTabColor,
                 unselectedContentColor = unselectedTabColor,
                 text = {
-                    if (groupScreen) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .padding(5.dp),
+                            shape = CircleShape,
                         ) {
-                            Surface(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .padding(5.dp),
-                                shape = CircleShape,
-                            ) {
+                            if (addGroupFlag && index == groupNames.size - 1) {
                                 Icon(
                                     imageVector = Icons.Filled.Add,
                                     contentDescription = "Add"
                                 )
                             }
-                            Text(
-                                text = stringResource(id = R.string.groups_text_add)
-                            )
                         }
-                    } else {
                         Text(
                             text = groupData.name,
                             maxLines = 2,
@@ -96,6 +103,7 @@ fun TabGroups(groups: List<GroupData>, groupScreen: Boolean) {
                             }
                         )
                     }
+
                 }
             )
         }

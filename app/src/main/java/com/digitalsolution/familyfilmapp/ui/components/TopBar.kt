@@ -13,20 +13,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.digitalsolution.familyfilmapp.model.local.GroupData
+import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.TabGroups
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    modifier: Modifier = Modifier,
-    onClickLogOut: () -> Unit,
     title: String,
-    groups: List<GroupData>
+    onClickLogOut: () -> Unit,
 ) {
-
     val customTopAppBarColors = TopAppBarDefaults.topAppBarColors(
         containerColor = MaterialTheme.colorScheme.outlineVariant
     )
@@ -47,24 +45,9 @@ fun TopBar(
             colors = customTopAppBarColors
         )
 
-
-        if (title.contentEquals("Groups", true)) {
-            TabGroups(groups = groups, groupScreen = true)
-        }
-//
-//
-//    if (title.contentEquals("Groups", true)) {
-//        Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
-//            TopAppBarWrapper(title = title) {
-//                onClickLogOut()
-//            }
-//            TabGroups(groups = groups, groupScreen = true)
-//        }
-//    } else {
-//        TopAppBarWrapper(title = title) {
-//            onClickLogOut()
-//        }
-//    }
+        // Tabs are different on Groups navigation item because it has to add a new element at the end
+        val addGroupFlag = (title == stringResource(R.string.screen_title_groups))
+        TabGroups(addGroupFlag)
     }
 }
 
@@ -75,7 +58,6 @@ fun TopBarPreview() {
         TopBar(
             onClickLogOut = {},
             title = "",
-            groups = emptyList()
         )
     }
 }

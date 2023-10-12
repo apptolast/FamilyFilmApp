@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.model.local
 
-data class GroupData(
+data class Group(
     val image: String,
     val name: String
 ) {

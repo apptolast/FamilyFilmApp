@@ -58,14 +58,12 @@ fun HomeScreen(
 
     HomeContent(
         navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
-        viewModel = viewModel
     )
 }
 
 @Composable
 fun HomeContent(
     navigateToDetailsScreen: () -> Unit,
-    viewModel: HomeViewModel
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {

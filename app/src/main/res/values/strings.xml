@@ -20,6 +20,13 @@
     <string name="login_text_send_recover_password">Send</string>
     <string name="login_text_recover_password_cancel">Cancel</string>
 
+    <!-- SCREEN TITLES N-->
+    <string name="screen_title_home">Home</string>
+    <string name="screen_title_recommendations">Recommendations</string>
+    <string name="screen_title_groups">Groups</string>
+    <string name="screen_title_profile">Profile</string>
+    <string name="screen_title_search">Search</string>
+
     <!-- HOME-->
     <string name="home_text_my_list">My List</string>
     <string name="home_text_seen">Seen</string>
@@ -27,6 +34,5 @@
 
     <!--Groups-->
     <string name="groups_text_add">Add Group</string>
-    <string name="groups_screen_add_groups">Add Groups</string>
 
 </resources>

@@ -16,12 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
@@ -48,15 +50,15 @@ fun AppNavigation(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                navigationUIState?.titleScreens?.let {
-                    TopBar(
-                        onClickLogOut = {
-                            viewModel.logOut()
-                        },
-                        title = it.value,
-                        groups = viewModel.getGroupsList()
-                    )
-                }
+                TopBar(
+                    onClickLogOut = {
+                        viewModel.logOut()
+                    },
+                    title = if (navigationUIState?.titleScreens?.value != null)
+                        stringResource(id = navigationUIState!!.titleScreens.value!!)
+                    else
+                        ""
+                )
             }
         },
         bottomBar = {
@@ -130,12 +132,12 @@ fun AppNavigation(
             }
         }
         val titleScreens = when (destination.route) {
-            Routes.Home.routes -> "Home"
-            Routes.Recommend.routes -> "Recommendations"
-            Routes.Groups.routes -> "Groups"
-            Routes.Profile.routes -> "Profile"
-            Routes.Search.routes -> "Search"
-            else -> "Unknown"
+            Routes.Home.routes -> R.string.screen_title_home
+            Routes.Recommend.routes -> R.string.screen_title_recommendations
+            Routes.Groups.routes -> R.string.screen_title_groups
+            Routes.Profile.routes -> R.string.screen_title_profile
+            Routes.Search.routes -> R.string.screen_title_search
+            else -> null
         }
         val searchBottomVisible = destination.route == Routes.Home.routes
         val isTopBarVisible = destination.route == Routes.Search.routes

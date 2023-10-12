@@ -31,7 +31,7 @@ class GroupViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { st ->
                 st.copy(
-                    groups = filmRepository.generateGroups(12)
+                    groups = filmRepository.getGroups()
                 )
             }
         }

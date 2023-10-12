@@ -37,8 +37,4 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    fun getGroupsList() = filmRepository.generateGroups(5)
-
-
 }

@@ -12,6 +12,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUs
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
@@ -19,12 +20,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.*
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.given
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
@@ -86,6 +85,7 @@ class LoginViewModelTest {
                         isLoading = false
                     )
                 )
+                awaitClose()
             }
         )
 
@@ -128,6 +128,7 @@ class LoginViewModelTest {
                         isLoading = false
                     )
                 )
+                awaitClose()
             }
         )
 
@@ -156,11 +157,11 @@ class LoginViewModelTest {
         val password = "pass"
         val errorMessage = "Error"
 
-//        whenever(loginEmailPassUseCase(any())).thenThrow(Throwable(errorMessage))
-
-        given(loginEmailPassUseCase(any())).willAnswer {
-            Throwable(errorMessage)
-        }
+        whenever(loginEmailPassUseCase(any())).thenReturn(
+            channelFlow {
+                throw Exception(errorMessage)
+            }
+        )
 
         // Assert
         val job = launch {
@@ -199,5 +200,4 @@ class LoginViewModelTest {
         job.join()
         job.cancel()
     }
-
 }

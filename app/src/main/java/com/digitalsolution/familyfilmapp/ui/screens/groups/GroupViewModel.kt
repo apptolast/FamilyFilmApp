@@ -18,14 +18,12 @@ class GroupViewModel @Inject constructor(
     private val filmRepository: FilmRepository
 ) : ViewModel() {
 
-
     private val _state = MutableStateFlow(GroupUIState())
     val state: StateFlow<GroupUIState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = GroupUIState()
     )
-
 
     init {
         viewModelScope.launch {
@@ -36,6 +34,4 @@ class GroupViewModel @Inject constructor(
             }
         }
     }
-
-
 }

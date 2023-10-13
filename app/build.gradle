@@ -4,7 +4,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-//    id 'kotlin-kapt'
+    //id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
     id 'io.gitlab.arturbosch.detekt'
@@ -74,6 +74,9 @@ dependencies {
     // Splash
     implementation "androidx.core:core-splashscreen:1.0.1"
 
+    //Swipe
+    implementation "me.saket.swipe:swipe:1.1.1"
+
     // Navigation
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation "androidx.navigation:navigation-compose:2.7.4"
@@ -91,9 +94,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:2.48"
-    ksp "com.google.dagger:hilt-android-compiler:2.48"
-    kspTest "com.google.dagger:hilt-android-compiler:2.48"
+    implementation "com.google.dagger:hilt-android:2.48.1"
+    ksp "com.google.dagger:hilt-android-compiler:2.48.1"
+    kspTest "com.google.dagger:hilt-android-compiler:2.48.1"
 
     // Firebase
     implementation(platform('com.google.firebase:firebase-bom:32.2.3'))

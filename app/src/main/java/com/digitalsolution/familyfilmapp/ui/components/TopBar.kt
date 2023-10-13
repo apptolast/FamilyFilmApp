@@ -45,9 +45,7 @@ fun TopBar(
             colors = customTopAppBarColors
         )
 
-        // Tabs are different on Groups navigation item because it has to add a new element at the end
-        val addGroupFlag = (title == stringResource(R.string.screen_title_groups))
-        TabGroups(addGroupFlag)
+        TabGroups()
     }
 }
 

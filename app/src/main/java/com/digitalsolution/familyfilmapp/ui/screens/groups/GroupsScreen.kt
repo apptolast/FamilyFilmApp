@@ -23,7 +23,9 @@ fun GroupsScreen(
     GroupContent(
         list,
         onClickRemoveMember = {},
-        onCLickSwipeCard = {}
+        onCLickSwipeCard = {},
+        onAddMemberClick = {},
+        onDeleteGroupClick = {}
     )
 }
 
@@ -31,6 +33,8 @@ fun GroupsScreen(
 fun GroupContent(
     members: List<MemeberData>,
     onClickRemoveMember: (MemeberData) -> Unit,
+    onAddMemberClick: () -> Unit,
+    onDeleteGroupClick: () -> Unit,
     onCLickSwipeCard: (MemeberData) -> Unit
 ) {
     Column(
@@ -42,7 +46,9 @@ fun GroupContent(
             groupTitle = "Group 0",
             members = members,
             onRemoveMemberClick = onClickRemoveMember,
-            onSwipeDelete = onCLickSwipeCard
+            onSwipeDelete = onCLickSwipeCard,
+            onAddMemberClick = onAddMemberClick,
+            onDeleteGroupClick = onDeleteGroupClick,
         )
     }
 }

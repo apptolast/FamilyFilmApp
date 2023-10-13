@@ -7,11 +7,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,7 +39,8 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
 fun AppNavigation(
-    viewModel: NavigationViewModel = hiltViewModel()
+    viewModel: NavigationViewModel = hiltViewModel(),
+    onAddGroup: () -> Unit
 ) {
 
     val navController = rememberNavController()
@@ -76,14 +80,43 @@ fun AppNavigation(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                FloatingActionButton(
-                    onClick = { navController.navigate(Routes.Search.routes) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        modifier = Modifier.padding(10.dp)
-                    )
+                when (navigationUIState!!.titleScreens.value) {
+                    R.string.screen_title_home -> {
+                        FloatingActionButton(
+                            onClick = { navController.navigate(Routes.Search.routes) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
+                    R.string.screen_title_search -> {
+                        FloatingActionButton(
+                            onClick = { navController.navigate(Routes.Search.routes) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
+                    R.string.screen_title_groups -> {
+                        ExtendedFloatingActionButton(
+                            text = { Text(text = stringResource(id = R.string.groups_text_add)) },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = ""
+                                )
+                            },
+                            onClick = { onAddGroup() }
+                        )
+                    }
                 }
             }
         },
@@ -155,5 +188,7 @@ fun AppNavigation(
 @Preview
 @Composable
 fun AppNavigationPreview() {
-    AppNavigation()
+    AppNavigation {
+
+    }
 }

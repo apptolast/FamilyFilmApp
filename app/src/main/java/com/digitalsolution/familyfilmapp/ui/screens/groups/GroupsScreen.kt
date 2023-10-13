@@ -27,7 +27,6 @@ fun GroupsScreen(
     )
 }
 
-
 @Composable
 fun GroupContent(
     members: List<MemeberData>,

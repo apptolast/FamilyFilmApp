@@ -2,13 +2,20 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>BracesOnIfStatements:AppNavigation.kt$else</ID>
+    <ID>BracesOnIfStatements:AppNavigation.kt$if</ID>
     <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Login User Pass - Receive catch exception`()</ID>
     <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Register User Pass provider - Success`()</ID>
     <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Sign In User Pass provider - Success`()</ID>
     <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - change screen state between Login and Register`()</ID>
     <ID>FunctionMinLength:DispatcherProvider.kt$DispatcherProvider$fun io(): CoroutineDispatcher</ID>
+    <ID>LongMethod:AppNavigation.kt$@Composable fun AppNavigation( viewModel: NavigationViewModel = hiltViewModel(), onAddGroup: () -&gt; Unit )</ID>
     <ID>LongParameterList:LoginViewModel.kt$LoginViewModel$( private val loginEmailPassUseCase: LoginEmailPassUseCase, private val loginWithGoogleUseCase: LoginWithGoogleUseCase, private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase, private val registerUseCase: RegisterUseCase, private val recoverPassUseCase: RecoverPassUseCase, private val dispatcherProvider: DispatcherProvider, val googleSignInClient: GoogleSignInClient, )</ID>
+    <ID>NewLineAtEndOfFile:TopAppBarWrapper.kt$com.digitalsolution.familyfilmapp.ui.components.TopAppBarWrapper.kt</ID>
     <ID>TooGenericExceptionThrown:LoginViewModelTest.kt$LoginViewModelTest$throw Exception(errorMessage)</ID>
+    <ID>UnusedImports:TopBar.kt$import androidx.compose.ui.res.stringResource</ID>
+    <ID>UnusedImports:TopBar.kt$import com.digitalsolution.familyfilmapp.R</ID>
+    <ID>UnusedPrivateProperty:HomeViewModel.kt$HomeViewModel$private val filmRepository: FilmRepository</ID>
     <ID>UnusedPrivateProperty:LoginViewModel.kt$LoginViewModel$private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase</ID>
   </CurrentIssues>
 </SmellBaseline>

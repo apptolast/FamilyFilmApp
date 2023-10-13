@@ -32,7 +32,6 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
-import com.digitalsolution.familyfilmapp.ui.screens.home.components.TabGroups
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
@@ -59,18 +58,16 @@ fun HomeScreen(
 
     HomeContent(
         navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
-        viewModel = viewModel
     )
 }
 
 @Composable
 fun HomeContent(
     navigateToDetailsScreen: () -> Unit,
-    viewModel: HomeViewModel
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TabGroups(viewModel = viewModel)
+//        TabGroups(groups = viewModel.getGroupsList(), groupScreen = false)
         RowMovie(
             title = stringResource(R.string.home_text_my_list),
             icon = Icons.Default.ListAlt,

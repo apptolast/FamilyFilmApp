@@ -1,43 +1,44 @@
+@file:Suppress("IMPLICIT_CAST_TO_ANY")
+
 package com.digitalsolution.familyfilmapp.ui.screens.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.digitalsolution.familyfilmapp.ui.screens.home.HomeViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TabGroups(viewModel: HomeViewModel) {
+fun TabGroups(
+    viewmodel: TabGroupsViewModel = hiltViewModel(),
+) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
-    val titles = viewModel.getGroupsList()
 
-    // Define colores y estilos específicos
+    val groups by viewmodel.groups.observeAsState()
+
     val selectedTabColor = MaterialTheme.colorScheme.primary
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
     ScrollableTabRow(
-        modifier = Modifier.background(
-            color = Color.Transparent,
-            shape = RoundedCornerShape(10.dp)
-        ),
         selectedTabIndex = stateRow,
+        containerColor = MaterialTheme.colorScheme.outlineVariant,
         edgePadding = 0.dp,
         divider = {}
     ) {
-        titles.forEachIndexed { index, groupData ->
+        groups?.forEachIndexed { index, groupData ->
             Tab(
                 selected = stateRow == index,
                 onClick = { stateRow = index },
@@ -58,5 +59,13 @@ fun TabGroups(viewModel: HomeViewModel) {
                 }
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun TabGroupsPreview() {
+    FamilyFilmAppTheme {
+        TabGroups(viewmodel = hiltViewModel())
     }
 }

@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.repositories
 
-import com.digitalsolution.familyfilmapp.model.local.GroupData
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import javax.inject.Inject
 
@@ -33,25 +33,25 @@ class FakeRepositoryImpl @Inject constructor() : FilmRepository {
         return films
     }
 
-    override fun generateGroups(size: Int): List<GroupData> {
-        val groups = mutableListOf<GroupData>()
+    override suspend fun getGroups(): ArrayList<Group> {
+        val numElements = 5
 
-        for (i in 0 until size) {
-            groups.add(
-                GroupData(
-                    name = "Grupo $i"
+        return arrayListOf<Group>().apply {
+            for (i in 0 until numElements) {
+                add(
+                    Group(
+                        image = "https://loremflickr.com/400/400/cat?lock=$i",
+                        name = "Grupo $i"
+                    )
                 )
-            )
+            }
         }
-
-        return groups
     }
 }
-
 
 interface FilmRepository {
     fun generateFakeCategoryData(): List<String>
     fun generateFakeFilmData(size: Int): List<Movie>
-    fun generateGroups(size: Int): List<GroupData>
+    suspend fun getGroups(): ArrayList<Group>
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +46,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.components.LoginMainCo
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.digitalsolution.familyfilmapp.utils.Constants
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
@@ -191,7 +193,7 @@ fun LoginContent(
     }
 
     if (loginUiState.isLoading) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(modifier = Modifier.testTag(Constants.CIRCULAR_PROGRESS_INDICATOR))
     }
 
     if (recoverPassUIState.isDialogVisible.value) {

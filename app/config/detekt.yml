@@ -18,9 +18,9 @@ naming:
 build:
   maxIssues: 0
   weights:
-    complexity: 2
-    LongParameterList: 1
-    comments: 1
+    complexity: 9
+    LongParameterList: 9
+    comments: 8
 
 console-reports:
   active: true
@@ -37,6 +37,10 @@ empty-blocks:
   EmptyCatchBlock:
     active: true
     severity: info
+  EmptyFunctionBlock:
+    active: false
+    ignoreOverridden: false
+
 
 complexity:
   TooManyFunctions:
@@ -48,6 +52,12 @@ complexity:
     ignoreDefaultParameters: true
   LongMethod:
     threshold: 120
+  CognitiveComplexMethod:
+    active: true
+    threshold: 20
+  StringLiteralDuplication:
+    active: true
+    threshold: 9
 
 style:
   MagicNumber:

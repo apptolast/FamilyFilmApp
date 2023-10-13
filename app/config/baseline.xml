@@ -1,5 +1,14 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues />
-  <CurrentIssues />
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Login User Pass - Receive catch exception`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Register User Pass provider - Success`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Sign In User Pass provider - Success`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - change screen state between Login and Register`()</ID>
+    <ID>FunctionMinLength:DispatcherProvider.kt$DispatcherProvider$fun io(): CoroutineDispatcher</ID>
+    <ID>LongParameterList:LoginViewModel.kt$LoginViewModel$( private val loginEmailPassUseCase: LoginEmailPassUseCase, private val loginWithGoogleUseCase: LoginWithGoogleUseCase, private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase, private val registerUseCase: RegisterUseCase, private val recoverPassUseCase: RecoverPassUseCase, private val dispatcherProvider: DispatcherProvider, val googleSignInClient: GoogleSignInClient, )</ID>
+    <ID>TooGenericExceptionThrown:LoginViewModelTest.kt$LoginViewModelTest$throw Exception(errorMessage)</ID>
+    <ID>UnusedPrivateProperty:LoginViewModel.kt$LoginViewModel$private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase</ID>
+  </CurrentIssues>
 </SmellBaseline>

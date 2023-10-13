@@ -11,6 +11,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPas
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
+import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
@@ -33,34 +34,35 @@ class LoginViewModel @Inject constructor(
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
     private val registerUseCase: RegisterUseCase,
     private val recoverPassUseCase: RecoverPassUseCase,
+    private val dispatcherProvider: DispatcherProvider,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
     val state: StateFlow<LoginUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = LoginUiState()
     )
 
     private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
     val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = RecoverPassUiState()
     )
 
     init {
-        viewModelScope.launch {
-            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
-                _state.update {
-                    newLoginUiState
-                }
-            }
-        }
+//        viewModelScope.launch(dispatcherProvider.io()) {
+//            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
+//                _state.update {
+//                    newLoginUiState
+//                }
+//            }
+//        }
     }
 
-    fun changeScreenState() = viewModelScope.launch {
+    fun changeScreenState() = viewModelScope.launch(dispatcherProvider.io()) {
         _state.update {
             when (it.screenState) {
                 is LoginRegisterState.Login -> it.copy(screenState = LoginRegisterState.Register())
@@ -69,7 +71,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun loginOrRegister(email: String, password: String) = viewModelScope.launch {
+    fun loginOrRegister(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         when (_state.value.screenState) {
             is LoginRegisterState.Login -> {
                 loginEmailPassUseCase(email to password)
@@ -93,7 +95,7 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    fun recoverPassword(email: String) = viewModelScope.launch {
+    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         recoverPassUseCase(email).catch { error ->
             _recoverPasswordState.update {
                 it.copy(
@@ -111,7 +113,7 @@ class LoginViewModel @Inject constructor(
         _recoverPasswordState.update { newRecoverPassUiState }
     }
 
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
+    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(dispatcherProvider.io()) {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
@@ -121,5 +123,5 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
 }
+

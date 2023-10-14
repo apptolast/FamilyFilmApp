@@ -40,9 +40,9 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
 
-    val movies by viewModel.movies.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    SearchContent(movies)
+    SearchContent(uiState.movies)
 }
 
 @Composable

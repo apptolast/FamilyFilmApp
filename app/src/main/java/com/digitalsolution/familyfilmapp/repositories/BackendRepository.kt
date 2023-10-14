@@ -35,7 +35,7 @@ class BackendRepositoryImpl @Inject constructor(
         val body = LoginBody(user, firebaseId)
         // Login the user to our backend
         backendApi.login(body).let { response ->
-            if (response.status == StatusResponse.SUCCESS.value) {
+            if (!response.token.isNullOrBlank()) {
                 // Store the user token to authenticate the future requests to our backend
                 localRepository.setToken(response.token)
             } else {
@@ -50,7 +50,9 @@ class BackendRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getGroups(): Result<List<GroupInfo>> = kotlin.runCatching {
-        backendApi.getGroups().data?.map { it.toDomain() } ?: emptyList()
+        backendApi.getGroups().data?.map {
+            it.toDomain()
+        } ?: emptyList()
     }
 }
 

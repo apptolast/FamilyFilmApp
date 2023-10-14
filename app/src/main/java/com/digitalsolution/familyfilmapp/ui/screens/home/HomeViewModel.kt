@@ -24,8 +24,8 @@ class HomeViewModel @Inject constructor(
     private val repository: BackendRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(true)
-    val state: StateFlow<Boolean> = _state.asStateFlow().stateIn(
+    private val _isUserLoggedIn = MutableStateFlow(true)
+    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = true
@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
             onSuccess = { groups ->
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        groups = groups
+                        groups = groups.map { it.name }
                     )
                 }
             },
@@ -87,9 +87,9 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private suspend fun HomeViewModel.checkUserLoggedIn() {
+    private suspend fun checkUserLoggedIn() {
         checkUserLoggedInUseCase(Unit).collectLatest { loginState ->
-            _state.update {
+            _isUserLoggedIn.update {
                 loginState.isLogged
             }
         }

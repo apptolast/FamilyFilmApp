@@ -31,7 +31,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { oldState ->
                 oldState.copy(
-                    films = repository.getMovies().getOrElse {
+                    movies = repository.getMovies().getOrElse {
                         Timber.e(it)
                         emptyList()
                     }

@@ -7,16 +7,16 @@ import com.digitalsolution.familyfilmapp.model.local.User
 
 data class MovieUiState(
     val user: User,
-    val films: List<Movie>,
+    val movies: List<Movie>,
     val categories: List<String>,
     val isLogged: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
-) : BaseUiState(isLoading, errorMessage) {
+) : BaseUiState {
 
     constructor() : this(
         user = User(email = "", pass = ""),
-        films = emptyList(),
+        movies = emptyList(),
         categories = emptyList(),
         isLogged = false,
         isLoading = false,

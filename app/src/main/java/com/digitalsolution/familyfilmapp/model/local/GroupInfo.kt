@@ -9,7 +9,7 @@ data class GroupInfo(
     constructor() : this(
         id = -1,
         name = "",
-        watchList = emptyList(),
-        viewList = emptyList(),
+        watchList = emptyList<Movie>(),
+        viewList = emptyList<Movie>(),
     )
 }

@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +31,6 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
-import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
@@ -42,7 +40,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val loginState by viewModel.state.collectAsStateWithLifecycle()
+    val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
     BackHandler(true) {
@@ -123,6 +121,14 @@ private fun RowMovie(
 @Composable
 fun HomeScreenPreview() {
     FamilyFilmAppTheme {
-        HomeScreen(navController = NavController(LocalContext.current))
+        HomeContent(
+            HomeUiState(
+                seen = listOf(Movie(image = "", "Movie title")),
+                forSeen = listOf(Movie(image = "", "Movie title")),
+                groups = listOf("Group 1", "Group 2"),
+                isLoading = true,
+                errorMessage = null
+            )
+        ) {}
     }
 }

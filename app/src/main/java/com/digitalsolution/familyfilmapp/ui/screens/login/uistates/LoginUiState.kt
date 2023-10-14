@@ -2,11 +2,11 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.uistates
 
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
-import com.digitalsolution.familyfilmapp.model.local.UserData
+import com.digitalsolution.familyfilmapp.model.local.User
 
 data class LoginUiState(
     val screenState: LoginRegisterState,
-    val userData: UserData,
+    val user: User,
     val emailErrorMessage: CustomException?,
     val passErrorMessage: CustomException?,
     val isLogged: Boolean,
@@ -17,7 +17,7 @@ data class LoginUiState(
 
     constructor() : this(
         screenState = LoginRegisterState.Login(),
-        userData = UserData(
+        user = User(
             email = "",
             pass = ""
         ),

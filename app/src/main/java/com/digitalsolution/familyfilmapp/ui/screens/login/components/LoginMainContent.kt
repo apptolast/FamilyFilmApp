@@ -45,8 +45,8 @@ fun LoginMainContent(
     modifier: Modifier = Modifier
 ) {
 
-    var email by rememberSaveable { mutableStateOf(loginUiState.userData.email) }
-    var pass by rememberSaveable { mutableStateOf(loginUiState.userData.pass) }
+    var email by rememberSaveable { mutableStateOf(loginUiState.user.email) }
+    var pass by rememberSaveable { mutableStateOf(loginUiState.user.pass) }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     Card {

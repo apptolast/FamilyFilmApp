@@ -2,7 +2,8 @@ package com.digitalsolution.familyfilmapp.ui.screens.groups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.digitalsolution.familyfilmapp.repositories.FilmRepository
+import com.digitalsolution.familyfilmapp.repositories.BackendRepository
+import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,11 +12,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
-    private val filmRepository: FilmRepository
+    private val repository: BackendRepository,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GroupUIState())
@@ -26,10 +29,13 @@ class GroupViewModel @Inject constructor(
     )
 
     init {
-        viewModelScope.launch {
-            _state.update { st ->
-                st.copy(
-                    groups = filmRepository.getGroups()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            _state.update { state ->
+                state.copy(
+                    groupsInfo = repository.getGroups().getOrElse {
+                        Timber.e(it)
+                        emptyList()
+                    }
                 )
             }
         }

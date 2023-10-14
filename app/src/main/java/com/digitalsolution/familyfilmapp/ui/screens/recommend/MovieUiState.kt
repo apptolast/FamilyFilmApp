@@ -3,10 +3,10 @@ package com.digitalsolution.familyfilmapp.ui.screens.recommend
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.Movie
-import com.digitalsolution.familyfilmapp.model.local.UserData
+import com.digitalsolution.familyfilmapp.model.local.User
 
 data class MovieUiState(
-    val userData: UserData,
+    val user: User,
     val films: List<Movie>,
     val categories: List<String>,
     val isLogged: Boolean,
@@ -15,7 +15,7 @@ data class MovieUiState(
 ) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
-        userData = UserData(email = "", pass = ""),
+        user = User(email = "", pass = ""),
         films = emptyList(),
         categories = emptyList(),
         isLogged = false,

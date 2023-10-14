@@ -2,7 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 
 import app.cash.turbine.test
 import com.digitalsolution.familyfilmapp.MainDispatcherRule
-import com.digitalsolution.familyfilmapp.model.local.UserData
+import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
@@ -77,7 +77,7 @@ class LoginViewModelTest {
                 send(
                     LoginUiState().copy(
                         screenState = LoginRegisterState.Login(),
-                        userData = UserData(
+                        user = User(
                             email = email,
                             pass = password
                         ),
@@ -93,8 +93,8 @@ class LoginViewModelTest {
         val job = launch {
             viewModel.state.test {
                 awaitItem().let {
-                    assertThat(email).isEqualTo(it.userData.email)
-                    assertThat(password).isEqualTo(it.userData.pass)
+                    assertThat(email).isEqualTo(it.user.email)
+                    assertThat(password).isEqualTo(it.user.pass)
                 }
                 cancelAndConsumeRemainingEvents()
             }
@@ -120,7 +120,7 @@ class LoginViewModelTest {
                 send(
                     LoginUiState().copy(
                         screenState = LoginRegisterState.Register(),
-                        userData = UserData(
+                        user = User(
                             email = email,
                             pass = password
                         ),
@@ -136,8 +136,8 @@ class LoginViewModelTest {
         val job = launch {
             viewModel.state.test {
                 awaitItem().let {
-                    assertThat(email).isEqualTo(it.userData.email)
-                    assertThat(password).isEqualTo(it.userData.pass)
+                    assertThat(email).isEqualTo(it.user.email)
+                    assertThat(password).isEqualTo(it.user.pass)
                 }
                 cancelAndConsumeRemainingEvents()
             }

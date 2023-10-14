@@ -1,11 +1,11 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups
 
-import com.digitalsolution.familyfilmapp.model.local.Group
+import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 
 data class GroupUIState(
-    val groups: List<Group>
+    val groupsInfo: List<GroupInfo>
 ) {
     constructor() : this(
-        groups = emptyList()
+        groupsInfo = emptyList()
     )
 }

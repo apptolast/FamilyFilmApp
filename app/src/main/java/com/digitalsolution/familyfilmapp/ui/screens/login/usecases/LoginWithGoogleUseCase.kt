@@ -2,7 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
-import com.digitalsolution.familyfilmapp.model.local.UserData
+import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
@@ -42,7 +42,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                         send(
                             LoginUiState().copy(
                                 screenState = LoginRegisterState.Register(),
-                                userData = UserData(
+                                user = User(
                                     email = authResult.user?.email ?: "",
                                     pass = ""
                                 ),

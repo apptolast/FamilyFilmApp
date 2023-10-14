@@ -35,7 +35,7 @@ class BackendRepositoryImpl @Inject constructor(
         val body = LoginBody(user, firebaseId)
         // Login the user to our backend
         backendApi.login(body).let { response ->
-            if (!response.token.isNullOrBlank()) {
+            if (response.status == StatusResponse.SUCCESS.value) {
                 // Store the user token to authenticate the future requests to our backend
                 localRepository.setToken(response.token)
             } else {

@@ -15,9 +15,9 @@ class BackendRepositoryImpl @Inject constructor(
     private val localRepository: LocalRepository,
 ) : BackendRepository {
 
-    override suspend fun register(user: String, firbaseId: String): Result<Unit> = kotlin.runCatching {
+    override suspend fun register(user: String, firebaseId: String): Result<Unit> = kotlin.runCatching {
         // Create the body object
-        val body = RegisterBody(user, firbaseId)
+        val body = RegisterBody(user, firebaseId)
         // Login the user to our backend
         backendApi.register(body).let { response ->
             if (response.status == StatusResponse.SUCCESS.value) {

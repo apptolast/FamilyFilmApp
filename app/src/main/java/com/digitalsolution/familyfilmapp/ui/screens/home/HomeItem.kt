@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import kotlin.random.Random
 
 @Composable
 fun CustomCard(
@@ -46,8 +45,7 @@ fun HomeItem(
         Column {
 //            FIXME: This is for test
             AsyncImage(
-                model = "https://loremflickr.com/400/400/cat?lock=${Random.nextInt(20 + 1)}",
-//                model = movie.image,
+                model = movie.image,
                 contentDescription = null,
                 modifier = Modifier.fillMaxHeight(0.75f),
                 contentScale = ContentScale.Crop
@@ -74,7 +72,7 @@ fun HomeItem(
 fun HomeItemPreview() {
     FamilyFilmAppTheme {
         HomeItem(movie = Movie(
-            title = "Title Title Title Title Title Title Title Title ",
+            title = "Title Title Title Title",
             image = "https://loremflickr.com/400/400/cat?lock=1"
         ), navigateToDetailsScreen = {})
     }

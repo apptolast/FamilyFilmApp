@@ -2,22 +2,33 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>BracesOnIfStatements:HomeScreen.kt$if</ID>
+    <ID>BracesOnIfStatements:AppNavigation.kt$else</ID>
+    <ID>BracesOnIfStatements:AppNavigation.kt$if</ID>
     <ID>CommentOverPrivateFunction:LoginViewModel.kt$LoginViewModel$private suspend fun backendLogin( newLoginUIState: LoginUiState )</ID>
     <ID>EndOfSentenceFormat:LoginViewModel.kt$LoginViewModel$* Method to login the user into our backend after the firebase login in order to retrieve the token to authenticate the requests in our backend * * @param newLoginUIState Valid `LoginUIState` retrieved from firebase</ID>
-    <ID>ExpressionBodySyntax:BackendRepository.kt$BackendRepositoryImpl$return Result.success(FAKE_GROUP_LIST)</ID>
     <ID>FunctionMaxLength:LocalStoreModule.kt$LocalStoreModule$@Provides @Singleton fun provideSharedPreferencesManager(prefs: SharedPreferences)</ID>
-    <ID>LongParameterList:LoginViewModel.kt$LoginViewModel$( private val loginEmailPassUseCase: LoginEmailPassUseCase, private val loginWithGoogleUseCase: LoginWithGoogleUseCase, private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase, private val registerUseCase: RegisterUseCase, private val recoverPassUseCase: RecoverPassUseCase, private val backendRepository: BackendRepository, private val firebaseAuth: FirebaseAuth, val googleSignInClient: GoogleSignInClient, )</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Login User Pass - Receive catch exception`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Register User Pass provider - Success`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - Sign In User Pass provider - Success`()</ID>
+    <ID>FunctionMaxLength:LoginViewModelTest.kt$LoginViewModelTest$@Test fun `LoginViewModel - change screen state between Login and Register`()</ID>
+    <ID>FunctionMinLength:DefaultDispatcherProvider.kt$DispatcherProvider$fun io(): CoroutineDispatcher</ID>
+    <ID>LongMethod:AppNavigation.kt$@Composable fun AppNavigation( viewModel: NavigationViewModel = hiltViewModel(), onAddGroup: () -&gt; Unit )</ID>
+    <ID>LongParameterList:LoginViewModel.kt$LoginViewModel$( private val loginEmailPassUseCase: LoginEmailPassUseCase, private val loginWithGoogleUseCase: LoginWithGoogleUseCase, private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase, private val registerUseCase: RegisterUseCase, private val recoverPassUseCase: RecoverPassUseCase, private val dispatcherProvider: DispatcherProvider, private val backendRepository: BackendRepository, private val firebaseAuth: FirebaseAuth, val googleSignInClient: GoogleSignInClient, )</ID>
     <ID>MatchingDeclarationName:SealedClasses.kt$StatusResponse</ID>
     <ID>MatchingDeclarationName:SharedPreferenceManager.kt$SharedPreferencesManager</ID>
     <ID>MaxLineLength:LoginViewModel.kt$LoginViewModel$*</ID>
+    <ID>NewLineAtEndOfFile:GenresRemote.kt$com.digitalsolution.familyfilmapp.model.remote.response.GenresRemote.kt</ID>
+    <ID>NewLineAtEndOfFile:MovieInfoRemote.kt$com.digitalsolution.familyfilmapp.model.remote.response.MovieInfoRemote.kt</ID>
     <ID>NewLineAtEndOfFile:MovieItem.kt$com.digitalsolution.familyfilmapp.ui.screens.search.components.MovieItem.kt</ID>
-    <ID>NewLineAtEndOfFile:RegisterResponse.kt$com.digitalsolution.familyfilmapp.model.remote.response.RegisterResponse.kt</ID>
+    <ID>NewLineAtEndOfFile:MovieRemote.kt$com.digitalsolution.familyfilmapp.model.remote.response.MovieRemote.kt</ID>
     <ID>NewLineAtEndOfFile:SharedPreferenceManager.kt$com.digitalsolution.familyfilmapp.managers.SharedPreferenceManager.kt</ID>
+    <ID>NewLineAtEndOfFile:TopAppBarWrapper.kt$com.digitalsolution.familyfilmapp.ui.components.TopAppBarWrapper.kt</ID>
+    <ID>NoTabs:MovieRemote.kt$MovieRemote$ </ID>
     <ID>NotImplementedDeclaration:NetworkModule.kt$NetworkModule$TODO()</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:BackendRepository.kt$BackendRepositoryImpl$Throwable()</ID>
     <ID>TooGenericExceptionThrown:BackendRepository.kt$BackendRepositoryImpl$throw Throwable()</ID>
+    <ID>TooGenericExceptionThrown:LoginViewModelTest.kt$LoginViewModelTest$throw Exception(errorMessage)</ID>
     <ID>UnusedPrivateProperty:LoginEmailPassUseCase.kt$LoginEmailPassUseCase$private val localRepository: LocalRepository</ID>
-    <ID>UseDataClass:Movie.kt$Genre</ID>
+    <ID>UnusedPrivateProperty:TabGroupsViewModel.kt$TabGroupsViewModel.Companion$private val testGroups = listOf( GroupInfo( 1, "Group Test", watchList = emptyList(), viewList = emptyList() ) )</ID>
   </CurrentIssues>
 </SmellBaseline>

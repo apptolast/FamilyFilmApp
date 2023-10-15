@@ -23,7 +23,6 @@ import com.digitalsolution.familyfilmapp.navigation.Routes
 
 @Composable
 fun SplashScreen(navController: NavController) {
-
     val scaleAnimation: Animatable<Float, AnimationVector1D> =
         remember { Animatable(initialValue = 0f) }
 
@@ -37,18 +36,18 @@ fun SplashScreen(navController: NavController) {
             }
         },
         durationMillisAnimation = 1000,
-        delayScreen = 150L
+        delayScreen = 150L,
     )
 
     ContentSplashScreen(
-        scaleAnimation = scaleAnimation
+        scaleAnimation = scaleAnimation,
     )
 }
 
 @Composable
 fun ContentSplashScreen(
     scaleAnimation: Animatable<Float, AnimationVector1D>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -59,10 +58,10 @@ fun ContentSplashScreen(
                         MaterialTheme.colorScheme.primary,
                         MaterialTheme.colorScheme.secondary,
                         MaterialTheme.colorScheme.tertiary,
-                    )
-                )
+                    ),
+                ),
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(

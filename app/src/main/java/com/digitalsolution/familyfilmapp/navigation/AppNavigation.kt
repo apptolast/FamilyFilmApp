@@ -40,9 +40,8 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 @Composable
 fun AppNavigation(
     viewModel: NavigationViewModel = hiltViewModel(),
-    onAddGroup: () -> Unit
+    onAddGroup: () -> Unit,
 ) {
-
     val navController = rememberNavController()
 
     val navigationUIState by viewModel.navigationUIState.observeAsState()
@@ -52,16 +51,17 @@ fun AppNavigation(
             AnimatedVisibility(
                 visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = expandVertically(),
-                exit = shrinkVertically()
+                exit = shrinkVertically(),
             ) {
                 TopBar(
                     onClickLogOut = {
                         viewModel.logOut()
                     },
-                    title = if (navigationUIState?.titleScreens?.value != null)
+                    title = if (navigationUIState?.titleScreens?.value != null) {
                         stringResource(id = navigationUIState!!.titleScreens.value!!)
-                    else
+                    } else {
                         ""
+                    },
                 )
             }
         },
@@ -69,7 +69,7 @@ fun AppNavigation(
             AnimatedVisibility(
                 visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = expandVertically(),
-                exit = shrinkVertically()
+                exit = shrinkVertically(),
             ) {
                 BottomBar(navController = navController)
             }
@@ -78,29 +78,29 @@ fun AppNavigation(
             AnimatedVisibility(
                 visible = navigationUIState!!.isBottomBarVisible.value,
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
                 when (navigationUIState!!.titleScreens.value) {
                     R.string.screen_title_home -> {
                         FloatingActionButton(
-                            onClick = { navController.navigate(Routes.Search.routes) }
+                            onClick = { navController.navigate(Routes.Search.routes) },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
-                                modifier = Modifier.padding(10.dp)
+                                modifier = Modifier.padding(10.dp),
                             )
                         }
                     }
 
                     R.string.screen_title_search -> {
                         FloatingActionButton(
-                            onClick = { navController.navigate(Routes.Search.routes) }
+                            onClick = { navController.navigate(Routes.Search.routes) },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
-                                modifier = Modifier.padding(10.dp)
+                                modifier = Modifier.padding(10.dp),
                             )
                         }
                     }
@@ -111,21 +111,21 @@ fun AppNavigation(
                             icon = {
                                 Icon(
                                     imageVector = Icons.Filled.Add,
-                                    contentDescription = ""
+                                    contentDescription = "",
                                 )
                             },
-                            onClick = { onAddGroup() }
+                            onClick = { onAddGroup() },
                         )
                     }
                 }
             }
         },
-        floatingActionButtonPosition = FabPosition.End
+        floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         NavHost(
             navController = navController,
             modifier = Modifier.padding(paddingValues),
-            startDestination = Routes.Login.routes
+            startDestination = Routes.Login.routes,
         ) {
             composable(route = Routes.Login.routes) {
                 LoginScreen(navController = navController)
@@ -156,7 +156,8 @@ fun AppNavigation(
             Routes.Home.routes,
             Routes.Recommend.routes,
             Routes.Groups.routes,
-            Routes.Profile.routes -> {
+            Routes.Profile.routes,
+            -> {
                 true
             }
 
@@ -189,6 +190,5 @@ fun AppNavigation(
 @Composable
 fun AppNavigationPreview() {
     AppNavigation {
-
     }
 }

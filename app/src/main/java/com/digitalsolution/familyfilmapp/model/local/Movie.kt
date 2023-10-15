@@ -12,7 +12,7 @@ data class Movie(
     val voteAverage: Float,
     val voteCount: Int,
     val releaseDate: Date,
-    val language: String
+    val language: String,
 ) {
     constructor(image: String, title: String) : this(
         title = title,
@@ -31,6 +31,5 @@ data class Movie(
 
 data class Genre(
     val movieId: Int,
-    val genreId: Int
+    val genreId: Int,
 )
-

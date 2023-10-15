@@ -5,7 +5,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SharedPreferencesManager @Inject constructor(private val prefs: SharedPreferences) {
+class SharedPreferenceManager @Inject constructor(
+    private val prefs: SharedPreferences,
+) {
 
     // -----------------------
     // TOKEN

@@ -10,11 +10,11 @@ import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(
     private val repository: LoginRepository,
@@ -28,20 +28,19 @@ class RegisterUseCase @Inject constructor(
             send(
                 LoginUiState().copy(
                     screenState = LoginRegisterState.Register(),
-                    isLoading = true
-                )
+                    isLoading = true,
+                ),
             )
 
             when {
-
                 !email.isEmailValid() && !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Register(),
                             emailErrorMessage = EmailInvalidFormat(),
                             passErrorMessage = PasswordInvalidFormat(),
-                            isLoading = false
-                        )
+                            isLoading = false,
+                        ),
                     )
                 }
 
@@ -50,10 +49,9 @@ class RegisterUseCase @Inject constructor(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Register(),
                             emailErrorMessage = EmailInvalidFormat(),
-                            isLoading = false
-                        )
+                            isLoading = false,
+                        ),
                     )
-
                 }
 
                 !pass.isPasswordValid() -> {
@@ -61,10 +59,9 @@ class RegisterUseCase @Inject constructor(
                         LoginUiState().copy(
                             screenState = LoginRegisterState.Register(),
                             passErrorMessage = PasswordInvalidFormat(),
-                            isLoading = false
-                        )
+                            isLoading = false,
+                        ),
                     )
-
                 }
 
                 else -> {
@@ -76,9 +73,9 @@ class RegisterUseCase @Inject constructor(
                                     isLogged = false,
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
-                                        exception.message ?: "Register Error"
+                                        exception.message ?: "Register Error",
                                     ),
-                                )
+                                ),
                             )
                         }
                         .collectLatest { result ->
@@ -89,11 +86,11 @@ class RegisterUseCase @Inject constructor(
                                             screenState = LoginRegisterState.Register(),
                                             user = User(
                                                 email = email,
-                                                pass = pass
+                                                pass = pass,
                                             ),
                                             isLogged = true,
-                                            isLoading = false
-                                        )
+                                            isLoading = false,
+                                        ),
                                     )
                                 },
                                 onFailure = { exception ->
@@ -103,11 +100,11 @@ class RegisterUseCase @Inject constructor(
                                             isLogged = false,
                                             isLoading = false,
                                             errorMessage = CustomException.GenericException(
-                                                exception.message ?: "Register Failure"
-                                            )
-                                        )
+                                                exception.message ?: "Register Failure",
+                                            ),
+                                        ),
                                     )
-                                }
+                                },
                             )
                         }
                 }

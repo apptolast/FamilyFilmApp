@@ -1,12 +1,12 @@
 package com.digitalsolution.familyfilmapp.network.interceptors
 
 import com.digitalsolution.familyfilmapp.repositories.LocalRepository
+import javax.inject.Inject
 import okhttp3.Interceptor
 import okhttp3.Response
-import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {

@@ -36,6 +36,7 @@ class LoginViewModelTest {
     internal var coroutineRule = MainDispatcherRule()
 
     @Mock
+
     private lateinit var loginEmailPassUseCase: LoginEmailPassUseCase
 
     @Mock
@@ -79,14 +80,14 @@ class LoginViewModelTest {
                         screenState = LoginRegisterState.Login(),
                         user = User(
                             email = email,
-                            pass = password
+                            pass = password,
                         ),
                         isLogged = true,
-                        isLoading = false
-                    )
+                        isLoading = false,
+                    ),
                 )
                 awaitClose()
-            }
+            },
         )
 
         // Assert
@@ -105,7 +106,6 @@ class LoginViewModelTest {
 
         job.join()
         job.cancel()
-
     }
 
     @Test
@@ -122,14 +122,14 @@ class LoginViewModelTest {
                         screenState = LoginRegisterState.Register(),
                         user = User(
                             email = email,
-                            pass = password
+                            pass = password,
                         ),
                         isLogged = true,
-                        isLoading = false
-                    )
+                        isLoading = false,
+                    ),
                 )
                 awaitClose()
-            }
+            },
         )
 
         // Assert
@@ -160,7 +160,7 @@ class LoginViewModelTest {
         whenever(loginEmailPassUseCase(any())).thenReturn(
             channelFlow {
                 throw Exception(errorMessage)
-            }
+            },
         )
 
         // Assert

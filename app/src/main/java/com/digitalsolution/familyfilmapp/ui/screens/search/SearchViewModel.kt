@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.MovieUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -24,7 +24,7 @@ class SearchViewModel @Inject constructor(
     val state: StateFlow<MovieUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = MovieUiState()
+        initialValue = MovieUiState(),
     )
 
     init {
@@ -34,7 +34,7 @@ class SearchViewModel @Inject constructor(
                     movies = repository.getMovies().getOrElse {
                         Timber.e(it)
                         emptyList()
-                    }
+                    },
                 )
             }
         }

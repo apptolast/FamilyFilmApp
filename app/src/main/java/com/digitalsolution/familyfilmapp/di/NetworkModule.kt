@@ -9,12 +9,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,16 +36,18 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory = GsonConverterFactory.create(gson)
+    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory =
+        GsonConverterFactory.create(gson)
 
     @Provides
     @Singleton
-    fun provideScalarsConverterFactory(): ScalarsConverterFactory = ScalarsConverterFactory.create()
+    fun provideScalarsConverterFactory(): ScalarsConverterFactory =
+        ScalarsConverterFactory.create()
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        authInterceptor: AuthInterceptor
+        authInterceptor: AuthInterceptor,
     ): OkHttpClient =
         OkHttpClient.Builder().apply {
             addInterceptor(authInterceptor)
@@ -53,7 +55,7 @@ class NetworkModule {
                 addInterceptor(
                     HttpLoggingInterceptor().apply {
                         setLevel(HttpLoggingInterceptor.Level.BODY)
-                    }
+                    },
                 )
             }
         }.build()
@@ -64,7 +66,7 @@ class NetworkModule {
         baseUrl: String,
         gsonConverterFactory: GsonConverterFactory,
         scalarsConverterFactory: ScalarsConverterFactory,
-        client: OkHttpClient
+        client: OkHttpClient,
     ): Retrofit =
         Retrofit.Builder()
             .baseUrl(baseUrl)

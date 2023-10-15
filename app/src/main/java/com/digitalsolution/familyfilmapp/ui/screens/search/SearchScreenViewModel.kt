@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
@@ -24,7 +24,7 @@ class SearchScreenViewModel @Inject constructor(
     val movies: StateFlow<List<Movie>> = _movies.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = emptyList()
+        initialValue = emptyList(),
     )
 
     init {
@@ -36,7 +36,7 @@ class SearchScreenViewModel @Inject constructor(
                 onFailure = {
                     // TODO
                     Timber.e(it)
-                }
+                },
             )
         }
     }

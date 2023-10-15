@@ -35,7 +35,7 @@ fun TabGroups(
             selectedTabIndex = stateRow,
             containerColor = MaterialTheme.colorScheme.outlineVariant,
             edgePadding = 0.dp,
-            divider = {}
+            divider = {},
         ) {
             groups?.forEachIndexed { index, groupInfo ->
                 Tab(
@@ -53,9 +53,9 @@ fun TabGroups(
                                 MaterialTheme.typography.titleSmall
                             } else {
                                 MaterialTheme.typography.titleMedium
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         }

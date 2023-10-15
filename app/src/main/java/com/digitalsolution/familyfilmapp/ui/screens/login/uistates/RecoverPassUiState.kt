@@ -18,6 +18,6 @@ data class RecoverPassUiState(
         emailErrorMessage = null,
         recoveryPassResponse = false,
         isLoading = false,
-        errorMessage = null
+        errorMessage = null,
     )
 }

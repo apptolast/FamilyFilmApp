@@ -83,14 +83,14 @@ private val LightColorsLoginButton = lightColorScheme(
     primary = light_LoginButton,
     onPrimary = light_onLoginButton,
     primaryContainer = light_LoginButtonContainer,
-    onPrimaryContainer = light_onLoginButtonContainer
+    onPrimaryContainer = light_onLoginButtonContainer,
 )
 
 private val DarkColorsLoginButton = darkColorScheme(
     primary = dark_LoginButton,
     onPrimary = dark_onLoginButton,
     primaryContainer = dark_LoginButtonContainer,
-    onPrimaryContainer = dark_onLoginButtonContainer
+    onPrimaryContainer = dark_onLoginButtonContainer,
 )
 
 @Composable
@@ -98,7 +98,7 @@ fun FamilyFilmAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -130,7 +130,7 @@ fun FamilyFilmAppTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }
 
@@ -139,7 +139,7 @@ fun FamilyFilmAppLoginButtonTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -171,7 +171,6 @@ fun FamilyFilmAppLoginButtonTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }
-

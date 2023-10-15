@@ -6,10 +6,10 @@ import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
-import javax.inject.Inject
 
 class LoginWithGoogleUseCase @Inject constructor(
     private val repository: LoginRepository,
@@ -19,8 +19,8 @@ class LoginWithGoogleUseCase @Inject constructor(
         send(
             LoginUiState().copy(
                 screenState = LoginRegisterState.Login(),
-                isLoading = true
-            )
+                isLoading = true,
+            ),
         )
 
         repository.loginWithGoogle(parameters)
@@ -31,9 +31,9 @@ class LoginWithGoogleUseCase @Inject constructor(
                         isLoading = false,
                         isLogged = false,
                         errorMessage = CustomException.GenericException(
-                            exception.message ?: "Google Login Error"
+                            exception.message ?: "Google Login Error",
                         ),
-                    )
+                    ),
                 )
             }
             .collect { result ->
@@ -44,11 +44,11 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 screenState = LoginRegisterState.Register(),
                                 user = User(
                                     email = authResult.user?.email ?: "",
-                                    pass = ""
+                                    pass = "",
                                 ),
                                 isLogged = true,
-                                isLoading = false
-                            )
+                                isLoading = false,
+                            ),
                         )
                     },
                     onFailure = { exception ->
@@ -58,11 +58,11 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 isLogged = false,
                                 isLoading = false,
                                 errorMessage = CustomException.GenericException(
-                                    exception.message ?: "Google Login Failure"
-                                )
-                            )
+                                    exception.message ?: "Google Login Failure",
+                                ),
+                            ),
                         )
-                    }
+                    },
                 )
             }
     }

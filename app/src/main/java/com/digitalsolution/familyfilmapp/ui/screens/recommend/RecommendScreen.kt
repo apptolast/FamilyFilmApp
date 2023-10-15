@@ -32,36 +32,34 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun RecommendScreen(
     navController: NavController,
-    viewModel: RecommendViewModel = hiltViewModel()
+    viewModel: RecommendViewModel = hiltViewModel(),
 ) {
-
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
     RecommendContent(recommendUiState)
 }
 
 @Composable
 private fun RecommendContent(movieState: MovieUiState) {
-
     val categories = movieState.categories
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyRow {
             items(categories.take(5)) { item ->
-                val isSelected by remember { mutableStateOf(false)}
+                val isSelected by remember { mutableStateOf(false) }
                 AssistChip(
                     onClick = { isSelected != isSelected },
                     label = { Text(text = item) },
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 4.dp),
                 )
             }
         }
         LazyRow {
             items(categories.takeLast(5)) { item ->
-                val isSelected by remember { mutableStateOf(false)}
+                val isSelected by remember { mutableStateOf(false) }
                 AssistChip(
                     onClick = { isSelected != isSelected },
                     label = { Text(text = item) },
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 4.dp),
                 )
             }
         }
@@ -71,17 +69,17 @@ private fun RecommendContent(movieState: MovieUiState) {
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
             modifier = Modifier
                 .padding(10.dp)
-                .padding(bottom = 4.dp)
+                .padding(bottom = 4.dp),
         )
         LazyColumn {
             items(movieState.movies) { film ->
                 CustomCard(
                     // TODO: Add the clickable property to the modifier
-                    modifier = Modifier.padding(5.dp).padding(vertical = 12.dp)
+                    modifier = Modifier.padding(5.dp).padding(vertical = 12.dp),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         AsyncImage(
                             model = film.image,
@@ -91,7 +89,9 @@ private fun RecommendContent(movieState: MovieUiState) {
                         )
                         Text(
                             text = film.title,
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                            ),
                             modifier = Modifier
                                 .padding(15.dp)
                                 .padding(bottom = 4.dp),

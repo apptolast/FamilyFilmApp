@@ -6,6 +6,7 @@ import com.digitalsolution.familyfilmapp.exceptions.HomeException
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,26 +17,25 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
-    private val repository: BackendRepository
+    private val repository: BackendRepository,
 ) : ViewModel() {
 
     private val _isUserLoggedIn = MutableStateFlow(true)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = true
+        initialValue = true,
     )
 
     private val _homeUiState = MutableStateFlow(HomeUiState())
     val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = HomeUiState()
+        initialValue = HomeUiState(),
     )
 
     init {
@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
             awaitAll(
                 async { checkUserLoggedIn() },
                 async { getGroups() },
-                async { getMovies() }
+                async { getMovies() },
             )
         }
     }
@@ -54,17 +54,17 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.update { oldState ->
                     oldState.copy(
                         seen = movies,
-                        forSeen = movies
+                        forSeen = movies,
                     )
                 }
             },
             onFailure = {
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        errorMessage = HomeException.MovieException()
+                        errorMessage = HomeException.MovieException(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -73,17 +73,17 @@ class HomeViewModel @Inject constructor(
             onSuccess = { groups ->
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        groups = groups.map { it.name }
+                        groups = groups.map { it.name },
                     )
                 }
             },
             onFailure = {
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        errorMessage = HomeException.GroupsException()
+                        errorMessage = HomeException.GroupsException(),
                     )
                 }
-            }
+            },
         )
     }
 

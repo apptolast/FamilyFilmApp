@@ -25,13 +25,13 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun CustomCard(
     modifier: Modifier = Modifier,
-    block: @Composable ColumnScope.() -> Unit
+    block: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         modifier = modifier.padding(horizontal = 17.dp),
         shape = RoundedCornerShape(4.dp),
         elevation = CardDefaults.cardElevation(5.dp),
-        content = block
+        content = block,
     )
 }
 
@@ -39,7 +39,7 @@ fun CustomCard(
 fun HomeItem(
     movie: Movie,
     navigateToDetailsScreen: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CustomCard(modifier = modifier.clickable { navigateToDetailsScreen() }) {
         Column {
@@ -48,7 +48,7 @@ fun HomeItem(
                 model = movie.image,
                 contentDescription = null,
                 modifier = Modifier.fillMaxHeight(0.75f),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
             Text(
                 text = movie.title,
@@ -57,7 +57,7 @@ fun HomeItem(
                     .padding(vertical = 4.dp, horizontal = 8.dp),
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
-                minLines = 2
+                minLines = 2,
             )
         }
     }
@@ -71,9 +71,12 @@ fun HomeItem(
 @Composable
 fun HomeItemPreview() {
     FamilyFilmAppTheme {
-        HomeItem(movie = Movie(
-            title = "Title Title Title Title",
-            image = "https://loremflickr.com/400/400/cat?lock=1"
-        ), navigateToDetailsScreen = {})
+        HomeItem(
+            movie = Movie(
+                title = "Title Title Title Title",
+                image = "https://loremflickr.com/400/400/cat?lock=1",
+            ),
+            navigateToDetailsScreen = {},
+        )
     }
 }

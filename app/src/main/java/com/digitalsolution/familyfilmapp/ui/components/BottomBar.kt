@@ -13,7 +13,6 @@ import com.digitalsolution.familyfilmapp.navigation.Routes
 
 @Composable
 fun BottomBar(navController: NavController) {
-
     val screens = listOf(
         Routes.Home,
         Routes.Recommend,
@@ -25,7 +24,6 @@ fun BottomBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar {
-
         screens.forEach { screen ->
 
             NavigationBarItem(

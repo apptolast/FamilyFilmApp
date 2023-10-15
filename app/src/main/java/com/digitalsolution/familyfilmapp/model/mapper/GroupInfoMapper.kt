@@ -15,6 +15,6 @@ object GroupInfoMapper {
         } ?: emptyList(),
         viewList = viewList?.map {
             it.movieRemote?.toDomain() ?: Movie()
-        } ?: emptyList()
+        } ?: emptyList(),
     )
 }

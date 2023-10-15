@@ -13,7 +13,7 @@ fun AnimationSplashContent(
     scaleAnimation: Animatable<Float, AnimationVector1D>,
     durationMillisAnimation: Int,
     delayScreen: Long,
-    navigate: () -> Unit
+    navigate: () -> Unit,
 ) {
     LaunchedEffect(key1 = true) {
         scaleAnimation.animateTo(
@@ -22,8 +22,8 @@ fun AnimationSplashContent(
                 durationMillis = durationMillisAnimation,
                 easing = {
                     OvershootInterpolator(3F).getInterpolation(it)
-                }
-            )
+                },
+            ),
         )
         delay(timeMillis = delayScreen)
         navigate()

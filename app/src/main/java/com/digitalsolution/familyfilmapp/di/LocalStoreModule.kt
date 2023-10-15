@@ -2,8 +2,8 @@ package com.digitalsolution.familyfilmapp.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.digitalsolution.familyfilmapp.managers.SharedPreferencesManager
-import com.digitalsolution.familyfilmapp.managers.SharedPreferencesManager.Companion.SHARED_PREFERENCES_FILE_NAME
+import com.digitalsolution.familyfilmapp.managers.SharedPreferenceManager
+import com.digitalsolution.familyfilmapp.managers.SharedPreferenceManager.Companion.SHARED_PREFERENCES_FILE_NAME
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,5 +22,5 @@ class LocalStoreModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferencesManager(prefs: SharedPreferences) = SharedPreferencesManager(prefs)
+    fun provideSharedPreferencesManager(prefs: SharedPreferences) = SharedPreferenceManager(prefs)
 }

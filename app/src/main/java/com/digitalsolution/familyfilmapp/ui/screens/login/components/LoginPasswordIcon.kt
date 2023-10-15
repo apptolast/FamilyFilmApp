@@ -18,7 +18,7 @@ fun LoginPasswordIcon(isPasswordVisible: Boolean, passwordToVisible: () -> Unit)
     IconButton(onClick = passwordToVisible) {
         Icon(
             imageVector = image,
-            contentDescription = description
+            contentDescription = description,
         )
     }
 }

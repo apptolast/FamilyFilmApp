@@ -8,5 +8,5 @@ data class GenresRemote(
     val movieId: Int? = null,
 
     @SerializedName("genre_id")
-    val genreId: Int? = null
+    val genreId: Int? = null,
 )

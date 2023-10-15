@@ -9,7 +9,7 @@ data class HomeUiState(
     val forSeen: List<Movie>,
     val groups: List<String>,
     override val isLoading: Boolean,
-    override val errorMessage: CustomException?
+    override val errorMessage: CustomException?,
 ) : BaseUiState {
 
     constructor() : this(

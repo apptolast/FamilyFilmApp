@@ -13,12 +13,12 @@ interface BackendApi {
 
     @POST(ApiRoutes.AUTH_REGISTER)
     suspend fun register(
-        @Body registerBody: RegisterBody
+        @Body registerBody: RegisterBody,
     ): ResponseWrapper<Any>
 
     @POST(ApiRoutes.AUTH_LOGIN)
     suspend fun login(
-        @Body loginBody: LoginBody
+        @Body loginBody: LoginBody,
     ): ResponseWrapper<Any>
 
     @GET(ApiRoutes.MOVIES)
@@ -26,5 +26,4 @@ interface BackendApi {
 
     @GET(ApiRoutes.GROUPS)
     suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
-
 }

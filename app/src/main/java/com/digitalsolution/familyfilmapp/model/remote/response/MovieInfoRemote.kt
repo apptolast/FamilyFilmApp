@@ -11,6 +11,6 @@ data class MovieInfoRemote(
     val movieId: Int? = null,
 
     @SerializedName("movie")
-    val movieRemote: MovieRemote? = null
+    val movieRemote: MovieRemote? = null,
 
 )

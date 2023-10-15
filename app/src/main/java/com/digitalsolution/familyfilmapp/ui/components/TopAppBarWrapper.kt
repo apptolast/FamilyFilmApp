@@ -18,7 +18,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun TopAppBarWrapper(title: String, onClickLogOut: () -> Unit) {
     val customTopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.outlineVariant
+        containerColor = MaterialTheme.colorScheme.outlineVariant,
     )
     TopAppBar(
         title = { Text(text = title, style = MaterialTheme.typography.headlineMedium) },
@@ -28,10 +28,10 @@ fun TopAppBarWrapper(title: String, onClickLogOut: () -> Unit) {
                 contentDescription = "Settings icon",
                 modifier = Modifier.clickable {
                     onClickLogOut()
-                }
+                },
             )
         },
-        colors = customTopAppBarColors
+        colors = customTopAppBarColors,
     )
 }
 

@@ -23,10 +23,9 @@ fun MovieItem(
     movie: Movie,
     modifier: Modifier = Modifier,
 ) {
-
     Row(
         modifier = Modifier.padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = movie.image,
@@ -36,13 +35,13 @@ fun MovieItem(
                 .clip(shape = RoundedCornerShape(10.dp)),
             contentScale = ContentScale.Crop,
 
-            )
+        )
         Text(
             text = movie.title,
             modifier = Modifier
                 .padding(10.dp)
                 .padding(bottom = 4.dp),
-            style = MaterialTheme.typography.titleSmall.bold()
+            style = MaterialTheme.typography.titleSmall.bold(),
         )
     }
 }

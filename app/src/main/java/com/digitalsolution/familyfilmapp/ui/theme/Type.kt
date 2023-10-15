@@ -17,29 +17,29 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
     ),
 
     titleLarge = TextStyle(
         fontSize = 26.sp,
         fontFamily = FontFamily(Font(R.font.holtwood_one_sc)),
         fontWeight = FontWeight(200),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     ),
 
     titleMedium = TextStyle(
         fontSize = 18.sp,
         fontFamily = FontFamily(Font(R.font.homenaje)),
         fontWeight = FontWeight(400),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     ),
 
     titleSmall = TextStyle(
         fontSize = 18.sp,
         fontFamily = FontFamily(Font(R.font.open_sans_regular)),
         fontWeight = FontWeight(400),
-        textAlign = TextAlign.Center
-    )
+        textAlign = TextAlign.Center,
+    ),
 
 )
 

@@ -32,7 +32,6 @@ fun AlertRecoverPassDialog(
     modifier: Modifier = Modifier,
     onCLickSend: (String) -> Unit,
 ) {
-
     var email by rememberSaveable { mutableStateOf("") }
 
     if (recoverPassUIState.isDialogVisible.value) {
@@ -45,7 +44,6 @@ fun AlertRecoverPassDialog(
             },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it.trim() },
@@ -56,7 +54,7 @@ fun AlertRecoverPassDialog(
                         isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
                         supportingText = {
                             SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
-                        }
+                        },
                     )
 
                     if (recoverPassUIState.isLoading) {
@@ -67,23 +65,23 @@ fun AlertRecoverPassDialog(
             confirmButton = {
                 TextButton(onClick = {
                     onCLickSend(email)
-                }) {
+                },) {
                     Text(
                         text = stringResource(R.string.login_text_send_recover_password),
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
-                }) {
+                },) {
                     Text(
                         text = stringResource(R.string.login_text_recover_password_cancel),
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     )
                 }
-            }
+            },
         )
     }
 }
@@ -95,8 +93,8 @@ fun AlertRecoverPassDialogPreview() {
         AlertRecoverPassDialog(
             recoverPassUIState = RecoverPassUiState().copy(
                 isDialogVisible = remember { mutableStateOf(true) },
-                isLoading = true
-            )
+                isLoading = true,
+            ),
         ) {}
     }
 }

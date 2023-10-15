@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.model.local
 
-data class UserData(
+data class User(
     val email: String,
     val pass: String
 )

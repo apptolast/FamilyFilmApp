@@ -6,7 +6,7 @@ import com.digitalsolution.familyfilmapp.exceptions.LoginException.EmailInvalidF
 import com.digitalsolution.familyfilmapp.exceptions.LoginException.PasswordInvalidFormat
 import com.digitalsolution.familyfilmapp.extensions.isEmailValid
 import com.digitalsolution.familyfilmapp.extensions.isPasswordValid
-import com.digitalsolution.familyfilmapp.model.local.UserData
+import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
@@ -83,11 +83,11 @@ class RegisterUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { authResult ->
+                                onSuccess = { _ ->
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginRegisterState.Register(),
-                                            userData = UserData(
+                                            user = User(
                                                 email = email,
                                                 pass = pass
                                             ),

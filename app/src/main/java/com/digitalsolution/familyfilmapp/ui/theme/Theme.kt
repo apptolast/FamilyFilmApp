@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.theme
 
-
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,7 +14,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -88,14 +86,12 @@ private val LightColorsLoginButton = lightColorScheme(
     onPrimaryContainer = light_onLoginButtonContainer
 )
 
-
 private val DarkColorsLoginButton = darkColorScheme(
     primary = dark_LoginButton,
     onPrimary = dark_onLoginButton,
     primaryContainer = dark_LoginButtonContainer,
     onPrimaryContainer = dark_onLoginButtonContainer
 )
-
 
 @Composable
 fun FamilyFilmAppTheme(

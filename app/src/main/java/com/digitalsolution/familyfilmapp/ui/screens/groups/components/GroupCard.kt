@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,9 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material3.Card
@@ -22,17 +19,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.model.local.MemeberData
+import com.digitalsolution.familyfilmapp.model.local.GroupInfo
+import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
-
 @Composable
-fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) {
+fun GroupCard(groupInfo: GroupInfo, onRemoveMemberClick: (GroupInfo) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -51,17 +47,18 @@ fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) 
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = member.image,
-                contentDescription = "Member image",
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer
-                    ),
-                contentScale = ContentScale.Crop
-            )
+            // TODO: Does groups really have an image?
+//            AsyncImage(
+//                model = groupInfo.,
+//                contentDescription = "Member image",
+//                modifier = Modifier
+//                    .size(56.dp)
+//                    .clip(CircleShape)
+//                    .background(
+//                        MaterialTheme.colorScheme.primaryContainer
+//                    ),
+//                contentScale = ContentScale.Crop
+//            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier
@@ -70,12 +67,12 @@ fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) 
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = member.name,
+                    text = groupInfo.name,
                     style = MaterialTheme.typography.titleSmall.bold(),
                     color = Color.White
                 )
             }
-            IconButton(onClick = { onRemoveMemberClick(member) }) {
+            IconButton(onClick = { onRemoveMemberClick(groupInfo) }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Delete Member",
@@ -83,5 +80,23 @@ fun MemberCard(member: MemeberData, onRemoveMemberClick: (MemeberData) -> Unit) 
                 )
             }
         }
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun GroupCardPreview() {
+    FamilyFilmAppTheme {
+        GroupCard(
+            groupInfo = GroupInfo(
+                1,
+                "Group Test",
+                arrayListOf(Movie()),
+                arrayListOf(
+                    Movie()
+                )
+            ),
+            onRemoveMemberClick = { _ -> }
+        )
     }
 }

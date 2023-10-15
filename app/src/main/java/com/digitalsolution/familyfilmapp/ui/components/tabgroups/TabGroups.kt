@@ -1,6 +1,4 @@
-@file:Suppress("IMPLICIT_CAST_TO_ANY")
-
-package com.digitalsolution.familyfilmapp.ui.screens.home.components
+package com.digitalsolution.familyfilmapp.ui.components.tabgroups
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -32,32 +30,34 @@ fun TabGroups(
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
-    ScrollableTabRow(
-        selectedTabIndex = stateRow,
-        containerColor = MaterialTheme.colorScheme.outlineVariant,
-        edgePadding = 0.dp,
-        divider = {}
-    ) {
-        groups?.forEachIndexed { index, groupData ->
-            Tab(
-                selected = stateRow == index,
-                onClick = { stateRow = index },
-                modifier = tabPadding,
-                selectedContentColor = selectedTabColor,
-                unselectedContentColor = unselectedTabColor,
-                text = {
-                    Text(
-                        text = groupData.name,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        style = if (stateRow == index) {
-                            MaterialTheme.typography.titleSmall
-                        } else {
-                            MaterialTheme.typography.titleMedium
-                        }
-                    )
-                }
-            )
+    if (!groups.isNullOrEmpty()) {
+        ScrollableTabRow(
+            selectedTabIndex = stateRow,
+            containerColor = MaterialTheme.colorScheme.outlineVariant,
+            edgePadding = 0.dp,
+            divider = {}
+        ) {
+            groups?.forEachIndexed { index, groupInfo ->
+                Tab(
+                    selected = stateRow == index,
+                    onClick = { stateRow = index },
+                    modifier = tabPadding,
+                    selectedContentColor = selectedTabColor,
+                    unselectedContentColor = unselectedTabColor,
+                    text = {
+                        Text(
+                            text = groupInfo.name,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            style = if (stateRow == index) {
+                                MaterialTheme.typography.titleSmall
+                            } else {
+                                MaterialTheme.typography.titleMedium
+                            }
+                        )
+                    }
+                )
+            }
         }
     }
 }

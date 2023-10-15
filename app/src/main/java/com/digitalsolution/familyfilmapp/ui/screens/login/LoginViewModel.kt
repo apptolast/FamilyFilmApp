@@ -3,6 +3,8 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
+import com.digitalsolution.familyfilmapp.exceptions.LoginException
+import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
@@ -15,6 +17,7 @@ import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,6 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +39,8 @@ class LoginViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val recoverPassUseCase: RecoverPassUseCase,
     private val dispatcherProvider: DispatcherProvider,
+    private val backendRepository: BackendRepository,
+    private val firebaseAuth: FirebaseAuth,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -53,13 +59,11 @@ class LoginViewModel @Inject constructor(
     )
 
     init {
-//        viewModelScope.launch(dispatcherProvider.io()) {
-//            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
-//                _state.update {
-//                    newLoginUiState
-//                }
-//            }
-//        }
+        viewModelScope.launch(dispatcherProvider.io()) {
+            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
+                backendLogin(newLoginUiState)
+            }
+        }
     }
 
     fun changeScreenState() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -80,19 +84,16 @@ class LoginViewModel @Inject constructor(
             is LoginRegisterState.Register -> {
                 registerUseCase(email to password)
             }
+        }.catch { error ->
+            _state.update { loginState ->
+                loginState.copy(
+                    errorMessage = GenericException(error.message ?: "Login Error")
+                )
+            }
+        }.collectLatest { newLoginUIState ->
+            // User Login into our backend before update the UI state
+            backendLogin(newLoginUIState)
         }
-            .catch { error ->
-                _state.update { loginState ->
-                    loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Login Error")
-                    )
-                }
-            }
-            .collectLatest { newLoginUIState ->
-                _state.update {
-                    newLoginUIState
-                }
-            }
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
@@ -117,10 +118,66 @@ class LoginViewModel @Inject constructor(
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
-                _state.update {
-                    newLoginUIState
-                }
+                // User Login into our backend before update the UI state
+                backendLogin(newLoginUIState)
             }
+        }
+    }
+
+    /**
+     * Method to login the user into our backend after the firebase login in order to retrieve the token to authenticate the requests in our backend
+     *
+     * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
+     */
+    private suspend fun backendLogin(
+        newLoginUIState: LoginUiState
+    ) {
+        if (newLoginUIState.isLogged) {
+            when (_state.value.screenState) {
+                is LoginRegisterState.Login -> {
+                    backendRepository.login(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    )
+                }
+
+                is LoginRegisterState.Register -> {
+                    backendRepository.register(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    )
+                }
+            }.fold(
+                onSuccess = {
+                    // Update the UI state and navigate to Home
+                    _state.update { newLoginUIState }
+                },
+                onFailure = { _ ->
+
+                    // This is for the edge case in which the user is logged in in firebase
+                    // but the user is not register in our backend due to an error.
+                    // In this case we will try to register the user again in our backend.
+                    backendRepository.register(
+                        firebaseAuth.currentUser!!.email!!,
+                        firebaseAuth.currentUser!!.uid
+                    ).fold(
+                        onSuccess = {
+                            Timber.w("User edge case that needs to be register again")
+                            _state.update { newLoginUIState }
+                        },
+                        onFailure = {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = LoginException.BackendLogin()
+                                )
+                            }
+                        }
+                    )
+                }
+            )
+        } else {
+            _state.update { newLoginUIState }
         }
     }
 }

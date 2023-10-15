@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,13 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
-import com.digitalsolution.familyfilmapp.ui.screens.home.components.HomeItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
-
-//FIXME: This is for UI test
-private val listSize = 0..12
 
 @Composable
 fun HomeScreen(
@@ -44,7 +40,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val loginState by viewModel.state.collectAsStateWithLifecycle()
+    val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
+    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
     BackHandler(true) {
         exitProcess(0)
@@ -57,26 +54,29 @@ fun HomeScreen(
     }
 
     HomeContent(
+        homeUiState = homeUiState,
         navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
     )
 }
 
 @Composable
 fun HomeContent(
+    homeUiState: HomeUiState,
     navigateToDetailsScreen: () -> Unit,
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {
-//        TabGroups(groups = viewModel.getGroupsList(), groupScreen = false)
         RowMovie(
             title = stringResource(R.string.home_text_my_list),
             icon = Icons.Default.ListAlt,
+            movies = homeUiState.seen,
             navigateToDetailsScreen = navigateToDetailsScreen,
             modifier = Modifier.weight(1f)
         )
         RowMovie(
             title = stringResource(R.string.home_text_seen),
             icon = Icons.Default.Visibility,
+            movies = homeUiState.forSeen,
             navigateToDetailsScreen = navigateToDetailsScreen,
             modifier = Modifier.weight(1f)
         )
@@ -87,6 +87,7 @@ fun HomeContent(
 private fun RowMovie(
     title: String,
     icon: ImageVector,
+    movies: List<Movie>,
     navigateToDetailsScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -106,10 +107,9 @@ private fun RowMovie(
             )
         }
         LazyRow {
-            items(listSize.toList()) { number ->
+            items(movies) { movie ->
                 HomeItem(
-                    text = "Do click here",
-                    number = number,
+                    movie = movie,
                     navigateToDetailsScreen = navigateToDetailsScreen,
                 )
             }
@@ -121,6 +121,14 @@ private fun RowMovie(
 @Composable
 fun HomeScreenPreview() {
     FamilyFilmAppTheme {
-        HomeScreen(navController = NavController(LocalContext.current))
+        HomeContent(
+            HomeUiState(
+                seen = listOf(Movie(image = "", "Movie title")),
+                forSeen = listOf(Movie(image = "", "Movie title")),
+                groups = listOf("Group 1", "Group 2"),
+                isLoading = true,
+                errorMessage = null
+            )
+        ) {}
     }
 }

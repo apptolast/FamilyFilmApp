@@ -26,7 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.ui.screens.home.components.CustomCard
+import com.digitalsolution.familyfilmapp.ui.screens.home.CustomCard
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -74,7 +74,7 @@ private fun RecommendContent(movieState: MovieUiState) {
                 .padding(bottom = 4.dp)
         )
         LazyColumn {
-            items(movieState.films) { film ->
+            items(movieState.movies) { film ->
                 CustomCard(
                     // TODO: Add the clickable property to the modifier
                     modifier = Modifier.padding(5.dp).padding(vertical = 12.dp)

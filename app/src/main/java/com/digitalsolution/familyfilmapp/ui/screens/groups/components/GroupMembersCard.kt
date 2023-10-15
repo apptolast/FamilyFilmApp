@@ -33,17 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.model.local.MemeberData
+import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.ui.theme.bold
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupMembersCard(
     groupTitle: String,
-    members: List<MemeberData>,
-    onRemoveMemberClick: (MemeberData) -> Unit,
-    onSwipeDelete: (MemeberData) -> Unit,
+    members: List<GroupInfo>,
+    onRemoveMemberClick: (GroupInfo) -> Unit,
+    onSwipeDelete: (GroupInfo) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit
 ) {
@@ -136,7 +135,7 @@ fun GroupMembersCard(
                                 }
                             },
                             dismissContent = {
-                                MemberCard(member = item, onRemoveMemberClick = onRemoveMemberClick)
+                                GroupCard(groupInfo = item, onRemoveMemberClick = onRemoveMemberClick)
                             },
                             directions = setOf(DismissDirection.EndToStart)
                         )

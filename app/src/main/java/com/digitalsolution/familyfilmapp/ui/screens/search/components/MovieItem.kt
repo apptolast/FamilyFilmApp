@@ -11,14 +11,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun FilmItem(
-    film: Movie,
+fun MovieItem(
+    movie: Movie,
     modifier: Modifier = Modifier,
 ) {
 
@@ -27,7 +29,7 @@ fun FilmItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
-            model = film.image,
+            model = movie.image,
             contentDescription = null,
             modifier = Modifier
                 .size(width = 180.dp, height = 118.dp)
@@ -36,11 +38,19 @@ fun FilmItem(
 
             )
         Text(
-            text = film.title,
+            text = movie.title,
             modifier = Modifier
                 .padding(10.dp)
                 .padding(bottom = 4.dp),
             style = MaterialTheme.typography.titleSmall.bold()
         )
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun MovieItemPreview() {
+    FamilyFilmAppTheme {
+        MovieItem(Movie())
     }
 }

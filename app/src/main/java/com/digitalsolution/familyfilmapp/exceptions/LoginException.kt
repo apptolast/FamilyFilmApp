@@ -10,4 +10,6 @@ sealed class LoginException(message: String) : CustomException(message) {
             and more than 8 characters
         """.trimIndent()
     ) : LoginException(value)
+
+    data class BackendLogin(val value: String = "Backend login failed") : LoginException(value)
 }

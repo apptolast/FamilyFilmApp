@@ -12,7 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
-import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupMembersCard
+import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -45,7 +45,7 @@ fun GroupContent(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        GroupMembersCard(
+        GroupCard(
             groupTitle = "Group 0",
             members = uiState.groupsInfo,
             onRemoveMemberClick = onClickRemoveMember,

@@ -46,7 +46,7 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         GroupCard(
-            groupTitle = "Group 0",
+            groupTitle = "Worker Dudes",
             members = uiState.groupsInfo,
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,

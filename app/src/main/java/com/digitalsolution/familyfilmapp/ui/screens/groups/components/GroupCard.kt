@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -73,23 +74,27 @@ fun GroupCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.SpaceBetween,  // Cambiado a SpaceBetween
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Text(
                     text = groupTitle,
                     style = MaterialTheme.typography.titleLarge.bold(),
                     modifier = Modifier
+                        .weight(1f)  // Asigna un peso al texto
                         .padding(3.dp)
                 )
                 OutlinedIconToggleButton(
+                    modifier = Modifier
+                        .weight(1f)  // Asigna un peso al botón
+                        .padding(end = 8.dp),  // Añade un padding al final (derecha) del botón
                     checked = checkedEditGropName,
                     onCheckedChange = { checkedEditGropName = it },
-                    enabled = true
+                    enabled = true,
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(

@@ -53,7 +53,7 @@ fun GroupCard(
     onDeleteGroupClick: () -> Unit
 ) {
 
-    var checkedEditGropName by rememberSaveable { mutableStateOf(false) }
+    var checkedEditGropName by rememberSaveable { mutableStateOf(true) }
 
     Card(
         modifier = Modifier
@@ -81,12 +81,13 @@ fun GroupCard(
                     text = groupTitle,
                     style = MaterialTheme.typography.titleLarge.bold(),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(3.dp)
                 )
                 OutlinedIconToggleButton(
                     checked = checkedEditGropName,
-                    onCheckedChange = { checkedEditGropName = it }) {
+                    onCheckedChange = { checkedEditGropName = it },
+                    enabled = true
+                ) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically

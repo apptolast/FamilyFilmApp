@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ModeEditOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DismissDirection
@@ -23,10 +24,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +52,9 @@ fun GroupMembersCard(
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit
 ) {
+
+    var checkedEditGropName by rememberSaveable { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,13 +71,34 @@ fun GroupMembersCard(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = groupTitle,
-                style = MaterialTheme.typography.titleLarge.bold(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(3.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = groupTitle,
+                    style = MaterialTheme.typography.titleLarge.bold(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(3.dp)
+                )
+                OutlinedIconToggleButton(
+                    checked = checkedEditGropName,
+                    onCheckedChange = { checkedEditGropName = it }) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ModeEditOutline,
+                            contentDescription = "Edit"
+                        )
+                        Text(text = "Edit Group Name")
+                    }
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -135,7 +165,10 @@ fun GroupMembersCard(
                                 }
                             },
                             dismissContent = {
-                                GroupCard(groupInfo = item, onRemoveMemberClick = onRemoveMemberClick)
+                                GroupCard(
+                                    groupInfo = item,
+                                    onRemoveMemberClick = onRemoveMemberClick
+                                )
                             },
                             directions = setOf(DismissDirection.EndToStart)
                         )

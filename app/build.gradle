@@ -76,7 +76,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.1"
 
     //Swipe
-    implementation "me.saket.swipe:swipe:1.1.1"
+    implementation "me.saket.swipe:swipe:1.2.0"
 
     // Navigation
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'

@@ -23,32 +23,32 @@ fun GroupsScreen(
     viewModel: GroupViewModel = hiltViewModel(),
 ) {
 
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
 
-    val groupUIState by viewModel.groupUIState.observeAsState()
+    val groupUiState by viewModel.groupUIState.observeAsState()
 
-    groupUIState?.let {
+    groupUiState?.let {
         GroupContent(
-            uiState,
-            it,
-            uiState.groupsInfo,
+            groupBackendState,
+            groupUiState = it,
             onClickRemoveMember = {},
             onCLickSwipeCard = {},
             onAddMemberClick = {},
-            onDeleteGroupClick = {}
+            onDeleteGroupClick = {},
+            onChangeGroupName = {}
         )
     }
 }
 
 @Composable
 fun GroupContent(
-    uiState: GroupBackendState,
+    groupBackendState: GroupBackendState,
     groupUiState: GroupUiState,
-    members: List<GroupInfo>,
     onClickRemoveMember: (GroupInfo) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
-    onCLickSwipeCard: (GroupInfo) -> Unit
+    onCLickSwipeCard: (GroupInfo) -> Unit,
+    onChangeGroupName: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -58,11 +58,12 @@ fun GroupContent(
         GroupCard(
             groupTitle = "Worker Dudes",
             groupUiState = groupUiState,
-            members = members,
+            members = groupBackendState.groupsInfo,
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
             onDeleteGroupClick = onDeleteGroupClick,
+            onChangeGroupName = onChangeGroupName
         )
     }
 }
@@ -72,10 +73,14 @@ fun GroupContent(
 fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            uiState = GroupBackendState(),
+            groupBackendState = GroupBackendState(),
+            groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},
-            onDeleteGroupClick = {}
-        ) { _ -> }
+            onDeleteGroupClick = {},
+            onCLickSwipeCard = { _ -> },
+            onChangeGroupName = {}
+        )
     }
 }
+

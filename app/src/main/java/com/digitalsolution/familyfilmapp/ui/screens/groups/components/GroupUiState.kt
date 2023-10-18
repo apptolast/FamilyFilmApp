@@ -4,8 +4,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
 data class GroupUiState(
-    val checkedEditGroupName: MutableState<Boolean>,
-    val groupTitleChange: MutableState<String>
+    var checkedEditGroupName: MutableState<Boolean>,
+    var groupTitleChange: MutableState<String>
 ) {
     constructor() : this(
         checkedEditGroupName = mutableStateOf(false),

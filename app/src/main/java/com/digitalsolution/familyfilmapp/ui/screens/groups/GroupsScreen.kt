@@ -14,7 +14,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
-import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupUiState
+import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
+import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable

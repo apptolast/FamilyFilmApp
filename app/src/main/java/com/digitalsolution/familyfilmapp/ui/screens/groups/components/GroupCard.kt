@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
+import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,23 +112,17 @@ fun GroupCard(
                 }
                 OutlinedIconToggleButton(
                     modifier = Modifier
-                        .weight(1f)  // Asigna un peso al botón
+                        .wrapContentWidth() // Asigna un peso al botón
                         .padding(end = 8.dp),  // Añade un padding al final (derecha) del botón
                     checked = groupUiState.checkedEditGroupName.value,
                     onCheckedChange = { groupUiState.checkedEditGroupName.value = it },
                     enabled = true,
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ModeEditOutline,
-                            contentDescription = "Edit"
-                        )
-                        Text(text = "Edit Group Name")
-                    }
+                    Icon(
+                        imageVector = Icons.Filled.ModeEditOutline,
+                        contentDescription = "Edit"
+                    )
                 }
             }
             Row(

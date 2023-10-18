@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.groups.components
+package com.digitalsolution.familyfilmapp.ui.screens.groups.states
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

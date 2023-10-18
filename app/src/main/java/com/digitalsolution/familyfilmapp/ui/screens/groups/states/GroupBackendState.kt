@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.groups
+package com.digitalsolution.familyfilmapp.ui.screens.groups.states
 
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -26,35 +25,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconToggleButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
     groupTitle: String,
-    members: List<GroupInfo>,
-    onRemoveMemberClick: (GroupInfo) -> Unit,
-    onSwipeDelete: (GroupInfo) -> Unit,
-    onAddMemberClick: () -> Unit,
-    onDeleteGroupClick: () -> Unit
+    groupUiState: GroupUiState(),
+members: List<GroupInfo>,
+onRemoveMemberClick: (GroupInfo) -> Unit,
+onSwipeDelete: (GroupInfo) -> Unit,
+onAddMemberClick: () -> Unit,
+onDeleteGroupClick: () -> Unit
 ) {
-
-    var checkedEditGropName by rememberSaveable { mutableStateOf(true) }
 
     Card(
         modifier = Modifier
@@ -77,13 +71,20 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceBetween,  // Cambiado a SpaceBetween
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = groupTitle,
-                    style = MaterialTheme.typography.titleLarge.bold(),
-                    modifier = Modifier
-                        .weight(1f)  // Asigna un peso al texto
-                        .padding(3.dp)
-                )
+                if (!checkedEditGropName) {
+                    Text(
+                        text = groupTitle,
+                        style = MaterialTheme.typography.titleLarge.bold(),
+                        modifier = Modifier
+                            .weight(1f)  // Asigna un peso al texto
+                            .padding(3.dp)
+                    )
+                } else {
+                    OutlinedTextField(
+                        value =,
+                        onValueChange =
+                    )
+                }
                 OutlinedIconToggleButton(
                     modifier = Modifier
                         .weight(1f)  // Asigna un peso al botón

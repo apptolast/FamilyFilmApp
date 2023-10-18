@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -13,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
+import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -23,18 +25,26 @@ fun GroupsScreen(
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    GroupContent(
-        uiState,
-        onClickRemoveMember = {},
-        onCLickSwipeCard = {},
-        onAddMemberClick = {},
-        onDeleteGroupClick = {}
-    )
+    val groupUIState by viewModel.groupUIState.observeAsState()
+
+    groupUIState?.let {
+        GroupContent(
+            uiState,
+            it,
+            uiState.groupsInfo,
+            onClickRemoveMember = {},
+            onCLickSwipeCard = {},
+            onAddMemberClick = {},
+            onDeleteGroupClick = {}
+        )
+    }
 }
 
 @Composable
 fun GroupContent(
-    uiState: GroupUIState,
+    uiState: GroupBackendState,
+    groupUiState: GroupUiState,
+    members: List<GroupInfo>,
     onClickRemoveMember: (GroupInfo) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
@@ -47,7 +57,8 @@ fun GroupContent(
     ) {
         GroupCard(
             groupTitle = "Worker Dudes",
-            members = uiState.groupsInfo,
+            groupUiState = groupUiState,
+            members = members,
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
@@ -61,7 +72,7 @@ fun GroupContent(
 fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            uiState = GroupUIState(),
+            uiState = GroupBackendState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},
             onDeleteGroupClick = {}

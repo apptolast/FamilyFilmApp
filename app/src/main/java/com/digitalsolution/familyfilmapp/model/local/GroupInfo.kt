@@ -12,4 +12,6 @@ data class GroupInfo(
         watchList = emptyList<Movie>(),
         viewList = emptyList<Movie>(),
     )
+
+
 }

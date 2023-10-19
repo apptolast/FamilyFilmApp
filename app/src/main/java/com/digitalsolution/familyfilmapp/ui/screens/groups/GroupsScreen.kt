@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,7 +13,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
-import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupMembersCard
+import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
+import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
+import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -21,37 +24,47 @@ fun GroupsScreen(
     viewModel: GroupViewModel = hiltViewModel(),
 ) {
 
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
 
-    GroupContent(
-        uiState,
-        onClickRemoveMember = {},
-        onCLickSwipeCard = {},
-        onAddMemberClick = {},
-        onDeleteGroupClick = {}
-    )
+    val groupUiState by viewModel.groupUIState.observeAsState()
+
+    groupUiState?.let {
+        GroupContent(
+            groupBackendState,
+            groupUiState = it,
+            onClickRemoveMember = {},
+            onCLickSwipeCard = {},
+            onAddMemberClick = {},
+            onDeleteGroupClick = {},
+            onChangeGroupName = {}
+        )
+    }
 }
 
 @Composable
 fun GroupContent(
-    uiState: GroupUIState,
+    groupBackendState: GroupBackendState,
+    groupUiState: GroupUiState,
     onClickRemoveMember: (GroupInfo) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
-    onCLickSwipeCard: (GroupInfo) -> Unit
+    onCLickSwipeCard: (GroupInfo) -> Unit,
+    onChangeGroupName: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        GroupMembersCard(
-            groupTitle = "Group 0",
-            members = uiState.groupsInfo,
+        GroupCard(
+            groupTitle = "Worker Dudes",
+            groupUiState = groupUiState,
+            members = groupBackendState.groupsInfo,
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
             onDeleteGroupClick = onDeleteGroupClick,
+            onChangeGroupName = onChangeGroupName
         )
     }
 }
@@ -61,10 +74,14 @@ fun GroupContent(
 fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            uiState = GroupUIState(),
+            groupBackendState = GroupBackendState(),
+            groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},
-            onDeleteGroupClick = {}
-        ) { _ -> }
+            onDeleteGroupClick = {},
+            onCLickSwipeCard = { _ -> },
+            onChangeGroupName = {}
+        )
     }
 }
+

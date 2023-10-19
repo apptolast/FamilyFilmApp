@@ -3,6 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import app.cash.turbine.test
 import com.digitalsolution.familyfilmapp.MainDispatcherRule
 import com.digitalsolution.familyfilmapp.model.local.User
+import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
@@ -12,6 +13,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RecoverPassUs
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
@@ -52,6 +54,12 @@ class LoginViewModelTest {
     private lateinit var recoverPassUseCase: RecoverPassUseCase
 
     @Mock
+    private lateinit var backendRepository: BackendRepository
+
+    @Mock
+    private lateinit var firebaseAuth: FirebaseAuth
+
+    @Mock
     private lateinit var googleSignInClient: GoogleSignInClient
 
     @Before
@@ -63,6 +71,8 @@ class LoginViewModelTest {
             registerUseCase,
             recoverPassUseCase,
             coroutineRule.testDispatcherProvider,
+            backendRepository,
+            firebaseAuth,
             googleSignInClient,
         )
     }

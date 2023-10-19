@@ -35,17 +35,17 @@ fun GroupCard(groupInfo: GroupInfo, onRemoveMemberClick: (GroupInfo) -> Unit) {
             .padding(8.dp),
         shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.scrim
+            containerColor = MaterialTheme.colorScheme.scrim,
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        )
+            defaultElevation = 3.dp,
+        ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // TODO: Does groups really have an image?
 //            AsyncImage(
@@ -64,19 +64,19 @@ fun GroupCard(groupInfo: GroupInfo, onRemoveMemberClick: (GroupInfo) -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = groupInfo.name,
                     style = MaterialTheme.typography.titleSmall.bold(),
-                    color = Color.White
+                    color = Color.White,
                 )
             }
             IconButton(onClick = { onRemoveMemberClick(groupInfo) }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Delete Member",
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
         }
@@ -93,10 +93,10 @@ fun GroupCardPreview() {
                 "Group Test",
                 arrayListOf(Movie()),
                 arrayListOf(
-                    Movie()
-                )
+                    Movie(),
+                ),
             ),
-            onRemoveMemberClick = { _ -> }
+            onRemoveMemberClick = { _ -> },
         )
     }
 }

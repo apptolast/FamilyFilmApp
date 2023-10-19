@@ -23,7 +23,6 @@ fun GroupsScreen(
     navController: NavController,
     viewModel: GroupViewModel = hiltViewModel(),
 ) {
-
     val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
 
     val groupUiState by viewModel.groupUIState.observeAsState()
@@ -36,7 +35,7 @@ fun GroupsScreen(
             onCLickSwipeCard = {},
             onAddMemberClick = {},
             onDeleteGroupClick = {},
-            onChangeGroupName = {}
+            onChangeGroupName = {},
         )
     }
 }
@@ -49,12 +48,12 @@ fun GroupContent(
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
     onCLickSwipeCard: (GroupInfo) -> Unit,
-    onChangeGroupName: (String) -> Unit
+    onChangeGroupName: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
             groupTitle = "Worker Dudes",
@@ -64,7 +63,7 @@ fun GroupContent(
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
             onDeleteGroupClick = onDeleteGroupClick,
-            onChangeGroupName = onChangeGroupName
+            onChangeGroupName = onChangeGroupName,
         )
     }
 }
@@ -80,8 +79,7 @@ fun GroupContentPreview() {
             onAddMemberClick = {},
             onDeleteGroupClick = {},
             onCLickSwipeCard = { _ -> },
-            onChangeGroupName = {}
+            onChangeGroupName = {},
         )
     }
 }
-

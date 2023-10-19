@@ -29,7 +29,7 @@ class GroupViewModel @Inject constructor(
     val state: StateFlow<GroupBackendState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = GroupBackendState()
+        initialValue = GroupBackendState(),
     )
 
     private val _groupUIState = MutableLiveData(GroupUiState())
@@ -42,7 +42,7 @@ class GroupViewModel @Inject constructor(
                     groupsInfo = repository.getGroups().getOrElse {
                         Timber.e(it)
                         emptyList()
-                    }
+                    },
                 )
             }
         }

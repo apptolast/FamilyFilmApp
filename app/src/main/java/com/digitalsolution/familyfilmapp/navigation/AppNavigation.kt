@@ -53,16 +53,7 @@ fun AppNavigation(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                TopBar(
-                    onClickLogOut = {
-                        viewModel.logOut()
-                    },
-                    title = if (navigationUIState?.titleScreens?.value != null) {
-                        stringResource(id = navigationUIState!!.titleScreens.value!!)
-                    } else {
-                        ""
-                    },
-                )
+                TopBar()
             }
         },
         bottomBar = {

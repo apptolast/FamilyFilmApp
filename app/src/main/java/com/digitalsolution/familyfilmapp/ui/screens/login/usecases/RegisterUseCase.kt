@@ -80,7 +80,7 @@ class RegisterUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { _ ->
+                                onSuccess = { authResult ->
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginRegisterState.Register(),

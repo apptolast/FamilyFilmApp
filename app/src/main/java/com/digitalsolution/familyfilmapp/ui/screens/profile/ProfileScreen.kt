@@ -34,33 +34,31 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
-
     val profileUiState by viewModel.state.collectAsStateWithLifecycle()
     ProfileContent(profileUiState)
 }
 
 @Composable
 fun ProfileContent(profileUiState: ProfileUiState) {
-
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card {
             Column(
                 modifier = Modifier.padding(50.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Column(
                     modifier = Modifier.padding(bottom = 50.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AsyncImage(
                         model = profileUiState.userData.photo,
                         contentDescription = null,
                         modifier = Modifier
                             .size(100.dp)
-                            .clip(RoundedCornerShape(50.dp))
+                            .clip(RoundedCornerShape(50.dp)),
                     )
                     Text(text = profileUiState.userData.name)
                     Text(text = profileUiState.userData.email)
@@ -74,7 +72,6 @@ fun ProfileContent(profileUiState: ProfileUiState) {
             }
         }
     }
-
 }
 
 @Preview(showSystemUi = true, showBackground = true)

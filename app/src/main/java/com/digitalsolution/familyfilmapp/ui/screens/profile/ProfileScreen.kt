@@ -34,14 +34,21 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun ProfileScreen(
     navController: NavController,
+    onClickNavigateLogin: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val profileUiState by viewModel.state.collectAsStateWithLifecycle()
-    ProfileContent(profileUiState)
+    ProfileContent(
+        profileUiState,
+        onClickLogOut = {
+            viewModel.logOut()
+            onClickNavigateLogin()
+        },
+    )
 }
 
 @Composable
-fun ProfileContent(profileUiState: ProfileUiState) {
+fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card {
             Column(
@@ -53,18 +60,20 @@ fun ProfileContent(profileUiState: ProfileUiState) {
                     modifier = Modifier.padding(bottom = 50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    AsyncImage(
-                        model = profileUiState.userData.photo,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(50.dp)),
-                    )
-                    Text(text = profileUiState.userData.name)
+                    if (profileUiState.userData.photo.isNotBlank()) {
+                        AsyncImage(
+                            model = profileUiState.userData.photo,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(RoundedCornerShape(50.dp)),
+                        )
+                    }
+                    if (profileUiState.userData.name.isNotBlank()) Text(text = profileUiState.userData.name)
                     Text(text = profileUiState.userData.email)
                 }
                 Text(text = "6 Grupos", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.padding(top = 80.dp)) {
+                Button(onClick = { onClickLogOut() }, modifier = Modifier.padding(top = 80.dp)) {
                     Text(text = "Logout")
                     Spacer(modifier = Modifier.width(10.dp))
                     Icon(imageVector = Icons.Default.Logout, contentDescription = "Logout")
@@ -78,6 +87,6 @@ fun ProfileContent(profileUiState: ProfileUiState) {
 @Composable
 fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
-        ProfileScreen(navController = rememberNavController())
+        ProfileScreen(navController = rememberNavController(), onClickNavigateLogin = {})
     }
 }

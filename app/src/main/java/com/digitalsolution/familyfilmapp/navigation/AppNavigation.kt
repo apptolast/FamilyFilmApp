@@ -131,7 +131,12 @@ fun AppNavigation(
                 GroupsScreen(navController = navController)
             }
             composable(route = Routes.Profile.routes) {
-                ProfileScreen(navController = navController)
+                ProfileScreen(
+                    navController = navController,
+                    onClickNavigateLogin = {
+                        navController.navigate(Routes.Login.routes)
+                    },
+                )
             }
             composable(route = Routes.Details.routes) {
                 DetailsScreen(navController = navController)

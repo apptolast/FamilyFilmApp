@@ -13,5 +13,4 @@ class ApplicationModule {
 
     @Provides
     fun provideDispatcherProvider(): DispatcherProvider = DefaultDispatcherProvider()
-
 }

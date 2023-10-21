@@ -1,6 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -8,9 +5,9 @@ plugins {
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
-    id 'io.gitlab.arturbosch.detekt'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'org.jlleitschuh.gradle.ktlint' version '11.6.1'
 }
 
 android {
@@ -63,6 +60,20 @@ android {
     }
 }
 
+tasks.getByPath("preBuild").dependsOn("ktlintFormat")
+
+ktlint {
+    android = true
+    ignoreFailures = false
+//    disableRules = [""]
+    reporters {
+        reporter "plain"
+        reporter "checkstyle"
+        reporter "sarif"
+    }
+}
+
+
 dependencies {
 
     // Androidx
@@ -76,7 +87,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.1"
 
     //Swipe
-    implementation 'me.saket.swipe:swipe:1.2.0'
+    implementation "me.saket.swipe:swipe:1.2.0"
 
     // Navigation
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
@@ -95,11 +106,11 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Retrofit
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation('com.google.code.gson:gson:2.10.1')
 
     // Hilt
     implementation "com.google.dagger:hilt-android:2.48.1"
@@ -120,26 +131,22 @@ dependencies {
     implementation "io.coil-kt:coil:2.4.0"
     implementation 'io.coil-kt:coil-compose:2.4.0'
 
-    // Retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-
     // Test
     testImplementation "junit:junit:4.13.2"
-    testImplementation 'com.google.truth:truth:1.1.5'
+    testImplementation "com.google.truth:truth:1.1.5"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
-    testImplementation "org.junit.jupiter:junit-jupiter:5.10.0"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation "androidx.test:core-ktx:1.5.0"
     testImplementation "androidx.test.ext:junit-ktx:1.1.5"
     testImplementation "androidx.test:rules:1.5.0"
 
-    testImplementation 'io.mockk:mockk:1.13.8'
+    testImplementation "io.mockk:mockk:1.13.8"
 
-    testImplementation 'org.mockito:mockito-core:5.6.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
-    testImplementation 'org.mockito:mockito-inline:5.2.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
+    testImplementation "org.mockito:mockito-core:5.6.0"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:5.1.0"
+    testImplementation "org.mockito:mockito-inline:5.2.0"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:5.1.0"
 
     testImplementation "app.cash.turbine:turbine:1.0.0"
 
@@ -150,35 +157,4 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-}
-
-
-// Add detekt configuration
-detekt {
-    buildUponDefaultConfig = false // preconfigure defaults
-    allRules = true // activate all available (even unstable) rules.
-    config = files("$projectDir/config/detekt.yml")
-    // point to your custom config defining rules to run, overwriting default behavior
-    basePath = rootProject.projectDir.absolutePath
-    baseline = file("$projectDir/config/baseline.xml") // a way of suppressing issues before introducing detekt
-}
-
-tasks.withType(Detekt).configureEach {
-    reports {
-        html.required.set(true) // observe findings in your browser with structure and code snippets
-        xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
-        txt.required.set(true)
-        // similar to the console output, contains issue signature to manually edit baseline files
-        sarif.required.set(true)
-        // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with GitHub Code Scanning
-        md.required.set(true) // simple Markdown format
-    }
-}
-
-tasks.withType(Detekt).configureEach {
-    jvmTarget = JavaVersion.VERSION_17
-}
-
-tasks.withType(DetektCreateBaselineTask).configureEach {
-    jvmTarget = JavaVersion.VERSION_17
 }

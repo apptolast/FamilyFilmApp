@@ -24,11 +24,10 @@ fun TopBar(
     onClickLogOut: () -> Unit,
 ) {
     val customTopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.outlineVariant
+        containerColor = MaterialTheme.colorScheme.outlineVariant,
     )
 
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
-
         TopAppBar(
             title = { Text(text = title, style = MaterialTheme.typography.headlineMedium) },
             actions = {
@@ -37,10 +36,10 @@ fun TopBar(
                     contentDescription = "Settings icon",
                     modifier = Modifier.clickable {
                         onClickLogOut()
-                    }
+                    },
                 )
             },
-            colors = customTopAppBarColors
+            colors = customTopAppBarColors,
         )
 
         TabGroups()

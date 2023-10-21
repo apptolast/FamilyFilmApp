@@ -54,37 +54,36 @@ fun GroupCard(
     onSwipeDelete: (GroupInfo) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
-    onChangeGroupName: (String) -> Unit
+    onChangeGroupName: (String) -> Unit,
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
-        )
+            defaultElevation = 8.dp,
+        ),
     ) {
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,  // Cambiado a SpaceBetween
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween, // Cambiado a SpaceBetween
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (!groupUiState.checkedEditGroupName.value) {
                     Text(
                         text = groupTitle,
                         style = MaterialTheme.typography.titleLarge.bold(),
                         modifier = Modifier
-                            .weight(1f)  // Asigna un peso al texto
-                            .padding(3.dp)
+                            .weight(1f) // Asigna un peso al texto
+                            .padding(3.dp),
                     )
                 } else {
                     OutlinedTextField(
@@ -100,28 +99,28 @@ fun GroupCard(
                                     .padding(bottom = 4.dp),
                                 text = stringResource(id = R.string.groups_text_edit_group_name),
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
                             )
                         },
                         trailingIcon = {
                             IconButton(onClick = { onChangeGroupName(groupUiState.groupTitleChange.value) }) {
                                 Text(text = stringResource(id = R.string.send_text))
                             }
-                        }
+                        },
                     )
                 }
                 OutlinedIconToggleButton(
                     modifier = Modifier
                         .wrapContentWidth() // Asigna un peso al botón
-                        .padding(end = 8.dp),  // Añade un padding al final (derecha) del botón
+                        .padding(end = 8.dp), // Añade un padding al final (derecha) del botón
                     checked = groupUiState.checkedEditGroupName.value,
                     onCheckedChange = { groupUiState.checkedEditGroupName.value = it },
                     enabled = true,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ModeEditOutline,
-                        contentDescription = "Edit"
+                        contentDescription = "Edit",
                     )
                 }
             }
@@ -130,7 +129,7 @@ fun GroupCard(
                     .fillMaxWidth()
                     .padding(bottom = 2.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 OutlinedButton(onClick = { onAddMemberClick() }) {
                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
@@ -149,7 +148,7 @@ fun GroupCard(
                                 onSwipeDelete(item)
                             }
                             true
-                        }
+                        },
                     )
                     AnimatedVisibility(
                         visible = state.currentValue != DismissValue.DismissedToEnd,
@@ -169,11 +168,11 @@ fun GroupCard(
                                         .padding(8.dp),
                                     shape = MaterialTheme.shapes.small,
                                     colors = CardDefaults.cardColors(
-                                        containerColor = color
+                                        containerColor = color,
                                     ),
                                     elevation = CardDefaults.cardElevation(
-                                        defaultElevation = 3.dp
-                                    )
+                                        defaultElevation = 3.dp,
+                                    ),
                                 ) {
                                     Row(
                                         modifier = Modifier
@@ -181,11 +180,11 @@ fun GroupCard(
                                             .background(color)
                                             .padding(12.dp, 8.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.End
+                                        horizontalArrangement = Arrangement.End,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = ""
+                                            contentDescription = "",
                                         )
                                     }
                                 }
@@ -193,10 +192,10 @@ fun GroupCard(
                             dismissContent = {
                                 GroupCard(
                                     groupInfo = item,
-                                    onRemoveMemberClick = onRemoveMemberClick
+                                    onRemoveMemberClick = onRemoveMemberClick,
                                 )
                             },
-                            directions = setOf(DismissDirection.EndToStart)
+                            directions = setOf(DismissDirection.EndToStart),
                         )
                     }
                 }

@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.di
 
-import com.digitalsolution.familyfilmapp.managers.SharedPreferencesManager
+import com.digitalsolution.familyfilmapp.managers.SharedPreferenceManager
 import com.digitalsolution.familyfilmapp.network.BackendApi
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.repositories.BackendRepositoryImpl
@@ -26,7 +26,7 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideLocalRepository(prefs: SharedPreferencesManager): LocalRepository =
+    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository =
         LocalRepositoryImpl(prefs)
 
     @Singleton

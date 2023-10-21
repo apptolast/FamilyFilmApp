@@ -19,13 +19,13 @@ data class LoginUiState(
         screenState = LoginRegisterState.Login(),
         user = User(
             email = "",
-            pass = ""
+            pass = "",
         ),
         emailErrorMessage = null,
         passErrorMessage = null,
         isLogged = false,
         isSendEmailRecovered = false,
         isLoading = false,
-        errorMessage = null
+        errorMessage = null,
     )
 }

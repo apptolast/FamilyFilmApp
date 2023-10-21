@@ -37,9 +37,8 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
 ) {
-
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     SearchContent(uiState.movies)
@@ -47,7 +46,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchContent(
-    movies: List<Movie>
+    movies: List<Movie>,
 ) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -56,7 +55,7 @@ fun SearchContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 5.dp)
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
         OutlinedTextField(
             modifier = Modifier

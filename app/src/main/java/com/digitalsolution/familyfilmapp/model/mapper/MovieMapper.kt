@@ -23,6 +23,6 @@ object MovieMapper {
 
     private fun GenresRemote.toDomain() = Genre(
         movieId = movieId ?: -1,
-        genreId = genreId ?: -1
+        genreId = genreId ?: -1,
     )
 }

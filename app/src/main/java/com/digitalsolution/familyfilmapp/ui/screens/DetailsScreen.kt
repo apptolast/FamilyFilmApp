@@ -39,14 +39,13 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun DetailsScreen(navController: NavController) {
-
     val lazyListState = rememberLazyListState()
     var scrolledY = 0f
     var previousOffset = 0
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        state = lazyListState
+        state = lazyListState,
     ) {
         item {
             AsyncImage(
@@ -61,21 +60,23 @@ fun DetailsScreen(navController: NavController) {
                         translationY = scrolledY * 0.5f
                         previousOffset = lazyListState.firstVisibleItemScrollOffset
                     },
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
             Column(
                 modifier = Modifier.padding(18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = "Cat's Returns",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(text = "2023")
                     Text(text = "1h 34min")
@@ -85,7 +86,7 @@ fun DetailsScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
                         DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
@@ -98,11 +99,11 @@ fun DetailsScreen(navController: NavController) {
                 Text(
                     text = "Description",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(top = 15.dp)
+                    modifier = Modifier.padding(top = 15.dp),
                 )
                 Text(
                     text = stringResource(R.string.details_screen_description_lorem_ipsum).trimIndent(),
-                    modifier = Modifier.padding(vertical = 15.dp)
+                    modifier = Modifier.padding(vertical = 15.dp),
                 )
             }
         }
@@ -113,12 +114,12 @@ fun DetailsScreen(navController: NavController) {
 private fun DetailsButtonContent(icon: ImageVector, text: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 3.dp)
+        modifier = Modifier.padding(vertical = 3.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.padding(end = 6.dp)
+            modifier = Modifier.padding(end = 6.dp),
         )
         Text(text = text)
     }

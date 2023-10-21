@@ -3,14 +3,14 @@ package com.digitalsolution.familyfilmapp.repositories
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
 ) : LoginRepository {
 
     override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> =
@@ -67,13 +67,13 @@ class LoginRepositoryImpl @Inject constructor(
             if (it.currentUser != null) {
                 launch {
                     send(
-                        Result.success(true)
+                        Result.success(true),
                     )
                 }
             } else {
                 launch {
                     send(
-                        Result.success(false)
+                        Result.success(false),
                     )
                 }
             }
@@ -86,14 +86,14 @@ class LoginRepositoryImpl @Inject constructor(
             .addOnCompleteListener {
                 launch {
                     send(
-                        Result.success(it.isSuccessful)
+                        Result.success(it.isSuccessful),
                     )
                 }
             }
             .addOnFailureListener {
                 launch {
                     send(
-                        Result.failure(it)
+                        Result.failure(it),
                     )
                 }
             }

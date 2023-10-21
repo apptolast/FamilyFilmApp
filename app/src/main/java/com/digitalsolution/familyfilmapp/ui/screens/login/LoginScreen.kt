@@ -56,7 +56,6 @@ fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
-
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
@@ -73,7 +72,7 @@ fun LoginScreen(
                 "Firebase Message : ${loginUiState.errorMessage!!.error}",
                 "Close",
                 true,
-                SnackbarDuration.Long
+                SnackbarDuration.Long,
             )
         }
     }
@@ -95,7 +94,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             LoginContent(
                 loginUiState = loginUiState,
@@ -103,8 +102,12 @@ fun LoginScreen(
                 onClickLogin = viewModel::loginOrRegister,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onClickScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = { startForResult.launch(viewModel.googleSignInClient.signInIntent) },
-                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState
+                onClickGoogleButton = {
+                    startForResult.launch(
+                        viewModel.googleSignInClient.signInIntent,
+                    )
+                },
+                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             )
         }
     }
@@ -121,7 +124,6 @@ fun LoginContent(
     onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -130,30 +132,30 @@ fun LoginContent(
                 when (loginUiState.isLoading) {
                     true -> 0.4f
                     false -> 1f
-                }
+                },
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         LoginMainContent(
             loginUiState = loginUiState,
-            onClick = onClickLogin
+            onClick = onClickLogin,
         )
 
         Row(
             modifier = Modifier
                 .padding(6.dp)
-                .clickable { onClickScreenState() }
+                .clickable { onClickScreenState() },
         ) {
             Text(
                 text = stringResource(loginUiState.screenState.accountText),
-                modifier = Modifier.padding(end = 4.dp)
+                modifier = Modifier.padding(end = 4.dp),
             )
 
             // TODO: Create Typography for this text.
             Text(
                 text = stringResource(loginUiState.screenState.signText),
                 color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
 
@@ -163,29 +165,29 @@ fun LoginContent(
                     recoverPassUIState.copy(
                         isDialogVisible = mutableStateOf(true),
                         emailErrorMessage = null,
-                        errorMessage = null
-                    )
+                        errorMessage = null,
+                    ),
                 )
             },
             text = stringResource(R.string.login_text_forgot_your_password),
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
 
         Button(
             onClick = onClickGoogleButton,
-            modifier = Modifier.padding(vertical = 10.dp)
+            modifier = Modifier.padding(vertical = 10.dp),
         ) {
             Row(
                 modifier = modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Image(
                     painter = painterResource(R.drawable.logo_google),
                     contentDescription = stringResource(R.string.login_icon_google),
                     modifier = Modifier
                         .size(30.dp)
-                        .padding(end = 6.dp)
+                        .padding(end = 6.dp),
                 )
                 Text(stringResource(R.string.login_text_sign_in_with_google))
             }
@@ -193,16 +195,17 @@ fun LoginContent(
     }
 
     if (loginUiState.isLoading) {
-        CircularProgressIndicator(modifier = Modifier.testTag(Constants.CIRCULAR_PROGRESS_INDICATOR))
+        CircularProgressIndicator(
+            modifier = Modifier.testTag(Constants.CIRCULAR_PROGRESS_INDICATOR),
+        )
     }
 
     if (recoverPassUIState.isDialogVisible.value) {
         AlertRecoverPassDialog(
             onCLickSend = onCLickRecoverPassword,
-            recoverPassUIState = recoverPassUIState
+            recoverPassUIState = recoverPassUIState,
         )
     }
-
 }
 
 @Preview(showBackground = true)
@@ -217,7 +220,7 @@ fun LoginScreenPreview() {
             onClickGoogleButton = {},
             onClickScreenState = {},
             modifier = Modifier,
-            onRecoveryPassUpdate = {}
+            onRecoveryPassUpdate = {},
         )
     }
 }

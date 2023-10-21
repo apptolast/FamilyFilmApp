@@ -42,9 +42,8 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun LoginMainContent(
     loginUiState: LoginUiState,
     onClick: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     var email by rememberSaveable { mutableStateOf(loginUiState.user.email) }
     var pass by rememberSaveable { mutableStateOf(loginUiState.user.pass) }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
@@ -54,7 +53,7 @@ fun LoginMainContent(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_film_family),
@@ -65,11 +64,11 @@ fun LoginMainContent(
             )
             Text(
                 text = stringResource(R.string.login_text_app_title),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
             Text(
                 text = stringResource(R.string.login_text_app_subtitle),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -84,7 +83,7 @@ fun LoginMainContent(
                 isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
                 supportingText = {
                     SupportingErrorText(loginUiState.emailErrorMessage?.error)
-                }
+                },
             )
 
             Spacer(modifier = modifier.height(4.dp))
@@ -96,7 +95,7 @@ fun LoginMainContent(
                 trailingIcon = {
                     LoginPasswordIcon(
                         isPasswordVisible = isPasswordVisible,
-                        passwordToVisible = { passwordToVisible(!isPasswordVisible) }
+                        passwordToVisible = { passwordToVisible(!isPasswordVisible) },
                     )
                 },
                 visualTransformation = when (isPasswordVisible) {
@@ -109,7 +108,7 @@ fun LoginMainContent(
                 isError = !loginUiState.passErrorMessage?.error.isNullOrBlank(),
                 supportingText = {
                     SupportingErrorText(loginUiState.passErrorMessage?.error)
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -117,11 +116,11 @@ fun LoginMainContent(
             FamilyFilmAppLoginButtonTheme(dynamicColor = false) {
                 Button(
                     onClick = { onClick(email, pass) },
-                    modifier = modifier.fillMaxWidth()
+                    modifier = modifier.fillMaxWidth(),
                 ) {
                     Text(
                         text = stringResource(id = loginUiState.screenState.buttonText),
-                        modifier = modifier.padding(4.dp)
+                        modifier = modifier.padding(4.dp),
                     )
                 }
             }
@@ -136,7 +135,7 @@ fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Filled.Error,
                 contentDescription = "Error",
-                modifier = modifier.padding(4.dp)
+                modifier = modifier.padding(4.dp),
             )
             Text(text = it)
         }
@@ -149,7 +148,7 @@ fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
             loginUiState = LoginUiState(),
-            onClick = { _, _ -> }
+            onClick = { _, _ -> },
         )
     }
 }

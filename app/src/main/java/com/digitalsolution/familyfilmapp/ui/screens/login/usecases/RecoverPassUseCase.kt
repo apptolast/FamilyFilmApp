@@ -7,14 +7,14 @@ import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.extensions.isEmailValid
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
 
 class RecoverPassUseCase @Inject constructor(
-    private val loginRepository: LoginRepository
+    private val loginRepository: LoginRepository,
 ) : BaseUseCase<String, Flow<RecoverPassUiState>>() {
 
     override suspend fun execute(parameters: String): Flow<RecoverPassUiState> = channelFlow {
@@ -22,7 +22,7 @@ class RecoverPassUseCase @Inject constructor(
             RecoverPassUiState().copy(
                 isDialogVisible = mutableStateOf(true),
                 isLoading = false,
-            )
+            ),
         )
 
         if (!parameters.isEmailValid()) {
@@ -30,15 +30,15 @@ class RecoverPassUseCase @Inject constructor(
                 RecoverPassUiState().copy(
                     isDialogVisible = mutableStateOf(true),
                     isLoading = false,
-                    emailErrorMessage = LoginException.EmailInvalidFormat()
-                )
+                    emailErrorMessage = LoginException.EmailInvalidFormat(),
+                ),
             )
         } else {
             send(
                 RecoverPassUiState().copy(
                     isDialogVisible = mutableStateOf(true),
                     isLoading = true,
-                )
+                ),
             )
             loginRepository.recoverPassword(parameters).catch { exception ->
                 send(
@@ -46,9 +46,9 @@ class RecoverPassUseCase @Inject constructor(
                         isDialogVisible = mutableStateOf(false),
                         isLoading = false,
                         errorMessage = CustomException.GenericException(
-                            exception.message ?: "Recover Pass Email Error"
-                        )
-                    )
+                            exception.message ?: "Recover Pass Email Error",
+                        ),
+                    ),
                 )
             }.collectLatest { result ->
                 result.fold(
@@ -57,8 +57,8 @@ class RecoverPassUseCase @Inject constructor(
                             RecoverPassUiState().copy(
                                 isDialogVisible = mutableStateOf(!firebaseResponse),
                                 isLoading = false,
-                                recoveryPassResponse = firebaseResponse
-                            )
+                                recoveryPassResponse = firebaseResponse,
+                            ),
                         )
                     },
                     onFailure = {
@@ -67,11 +67,11 @@ class RecoverPassUseCase @Inject constructor(
                                 isDialogVisible = mutableStateOf(false),
                                 isLoading = false,
                                 errorMessage = CustomException.GenericException(
-                                    it.message ?: "Recover Pass Email Error"
-                                )
-                            )
+                                    it.message ?: "Recover Pass Email Error",
+                                ),
+                            ),
                         )
-                    }
+                    },
                 )
             }
         }

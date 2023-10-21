@@ -1,6 +1,8 @@
 package com.digitalsolution.familyfilmapp.model.local.sealed
 
-enum class StatusResponse(val value: String) {
+enum class StatusResponse(
+    val value: String,
+) {
     SUCCESS("success"),
-    ERROR("error")
+    ERROR("error"),
 }

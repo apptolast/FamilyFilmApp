@@ -30,7 +30,7 @@ object GoogleSignInModule {
     @Provides
     fun provideGoogleSignInClient(
         @ApplicationContext context: Context,
-        googleSignInOptions: GoogleSignInOptions
+        googleSignInOptions: GoogleSignInOptions,
     ): GoogleSignInClient =
         GoogleSignIn.getClient(context, googleSignInOptions)
 }

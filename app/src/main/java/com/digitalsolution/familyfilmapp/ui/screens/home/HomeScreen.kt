@@ -37,9 +37,8 @@ import kotlin.system.exitProcess
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
-
     val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -64,21 +63,20 @@ fun HomeContent(
     homeUiState: HomeUiState,
     navigateToDetailsScreen: () -> Unit,
 ) {
-
     Column(modifier = Modifier.fillMaxSize()) {
         RowMovie(
             title = stringResource(R.string.home_text_my_list),
             icon = Icons.Default.ListAlt,
             movies = homeUiState.seen,
             navigateToDetailsScreen = navigateToDetailsScreen,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         RowMovie(
             title = stringResource(R.string.home_text_seen),
             icon = Icons.Default.Visibility,
             movies = homeUiState.forSeen,
             navigateToDetailsScreen = navigateToDetailsScreen,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -89,21 +87,20 @@ private fun RowMovie(
     icon: ImageVector,
     movies: List<Movie>,
     navigateToDetailsScreen: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .padding(start = 22.dp)
                 .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(imageVector = icon, contentDescription = null)
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Light)
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Light),
             )
         }
         LazyRow {
@@ -127,8 +124,8 @@ fun HomeScreenPreview() {
                 forSeen = listOf(Movie(image = "", "Movie title")),
                 groups = listOf("Group 1", "Group 2"),
                 isLoading = true,
-                errorMessage = null
-            )
+                errorMessage = null,
+            ),
         ) {}
     }
 }

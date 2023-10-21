@@ -14,7 +14,6 @@ data class GroupInfoRemote(
     val watchList: List<MovieInfoRemote>? = null,
 
     @SerializedName("viewList")
-    val viewList: List<MovieInfoRemote>? = null
+    val viewList: List<MovieInfoRemote>? = null,
 
 )
-

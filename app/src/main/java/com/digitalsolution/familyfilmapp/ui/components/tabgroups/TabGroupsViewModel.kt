@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(
@@ -21,10 +21,12 @@ class TabGroupsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _groups.postValue(repository.getGroups().getOrElse {
-                Timber.e(it)
-                emptyList()
-            })
+            _groups.postValue(
+                repository.getGroups().getOrElse {
+                    Timber.e(it)
+                    emptyList()
+                },
+            )
         }
     }
 
@@ -34,8 +36,8 @@ class TabGroupsViewModel @Inject constructor(
                 1,
                 "Group Test",
                 watchList = emptyList(),
-                viewList = emptyList()
-            )
+                viewList = emptyList(),
+            ),
         )
     }
 }

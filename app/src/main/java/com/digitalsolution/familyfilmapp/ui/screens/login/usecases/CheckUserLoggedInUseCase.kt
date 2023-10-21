@@ -4,11 +4,11 @@ import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
 
 class CheckUserLoggedInUseCase @Inject constructor(
     private val repository: LoginRepository,
@@ -19,17 +19,17 @@ class CheckUserLoggedInUseCase @Inject constructor(
                 LoginUiState().copy(
                     isLogged = false,
                     errorMessage = CustomException.GenericException(
-                        exception.message ?: "Google Login Error"
+                        exception.message ?: "Google Login Error",
                     ),
-                )
+                ),
             )
         }.collectLatest { result ->
             result.fold(
                 onSuccess = { logged ->
                     send(
                         LoginUiState().copy(
-                            isLogged = logged
-                        )
+                            isLogged = logged,
+                        ),
                     )
                 },
                 onFailure = {
@@ -37,11 +37,11 @@ class CheckUserLoggedInUseCase @Inject constructor(
                         LoginUiState().copy(
                             isLogged = false,
                             errorMessage = CustomException.GenericException(
-                                it.message ?: "Google Login Error"
+                                it.message ?: "Google Login Error",
                             ),
-                        )
+                        ),
                     )
-                }
+                },
             )
         }
     }

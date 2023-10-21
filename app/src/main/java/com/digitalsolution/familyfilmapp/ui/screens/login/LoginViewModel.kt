@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -48,14 +48,14 @@ class LoginViewModel @Inject constructor(
     val state: StateFlow<LoginUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = LoginUiState()
+        initialValue = LoginUiState(),
     )
 
     private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
     val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = RecoverPassUiState()
+        initialValue = RecoverPassUiState(),
     )
 
     init {
@@ -87,7 +87,7 @@ class LoginViewModel @Inject constructor(
         }.catch { error ->
             _state.update { loginState ->
                 loginState.copy(
-                    errorMessage = GenericException(error.message ?: "Login Error")
+                    errorMessage = GenericException(error.message ?: "Login Error"),
                 )
             }
         }.collectLatest { newLoginUIState ->
@@ -100,7 +100,7 @@ class LoginViewModel @Inject constructor(
         recoverPassUseCase(email).catch { error ->
             _recoverPasswordState.update {
                 it.copy(
-                    errorMessage = GenericException(error.message ?: "Recover Pass Error")
+                    errorMessage = GenericException(error.message ?: "Recover Pass Error"),
                 )
             }
         }.collectLatest { newLoginUIState ->
@@ -130,21 +130,21 @@ class LoginViewModel @Inject constructor(
      * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
      */
     private suspend fun backendLogin(
-        newLoginUIState: LoginUiState
+        newLoginUIState: LoginUiState,
     ) {
         if (newLoginUIState.isLogged) {
-            when (_state.value.screenState) {
+            when (newLoginUIState.screenState) {
                 is LoginRegisterState.Login -> {
                     backendRepository.login(
                         firebaseAuth.currentUser!!.email!!,
-                        firebaseAuth.currentUser!!.uid
+                        firebaseAuth.currentUser!!.uid,
                     )
                 }
 
                 is LoginRegisterState.Register -> {
                     backendRepository.register(
                         firebaseAuth.currentUser!!.email!!,
-                        firebaseAuth.currentUser!!.uid
+                        firebaseAuth.currentUser!!.uid,
                     )
                 }
             }.fold(
@@ -159,7 +159,7 @@ class LoginViewModel @Inject constructor(
                     // In this case we will try to register the user again in our backend.
                     backendRepository.register(
                         firebaseAuth.currentUser!!.email!!,
-                        firebaseAuth.currentUser!!.uid
+                        firebaseAuth.currentUser!!.uid,
                     ).fold(
                         onSuccess = {
                             Timber.w("User edge case that needs to be register again")
@@ -169,16 +169,15 @@ class LoginViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoading = false,
-                                    errorMessage = LoginException.BackendLogin()
+                                    errorMessage = LoginException.BackendLogin(),
                                 )
                             }
-                        }
+                        },
                     )
-                }
+                },
             )
         } else {
             _state.update { newLoginUIState }
         }
     }
 }
-

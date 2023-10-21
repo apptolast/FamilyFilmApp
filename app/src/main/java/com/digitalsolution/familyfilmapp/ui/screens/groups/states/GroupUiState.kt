@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 
 data class GroupUiState(
     var checkedEditGroupName: MutableState<Boolean>,
-    var groupTitleChange: MutableState<String>
+    var groupTitleChange: MutableState<String>,
 ) {
     constructor() : this(
         checkedEditGroupName = mutableStateOf(false),
@@ -13,18 +13,16 @@ data class GroupUiState(
     )
 
     constructor(
-        checkedEditGroupName: Boolean
+        checkedEditGroupName: Boolean,
     ) : this(
         checkedEditGroupName = mutableStateOf(checkedEditGroupName),
-        groupTitleChange = mutableStateOf("")
+        groupTitleChange = mutableStateOf(""),
     )
 
     constructor(
-        groupTitleChange: String
+        groupTitleChange: String,
     ) : this(
         checkedEditGroupName = mutableStateOf(false),
-        groupTitleChange = mutableStateOf(groupTitleChange)  // Envuelve groupTitleChange con mutableStateOf
+        groupTitleChange = mutableStateOf(groupTitleChange), // Envuelve groupTitleChange con mutableStateOf
     )
-
-
 }

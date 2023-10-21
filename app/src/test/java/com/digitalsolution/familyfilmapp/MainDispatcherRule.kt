@@ -14,7 +14,7 @@ import org.junit.runner.Description
 // Reusable JUnit4 TestRule to override the Main dispatcher
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainDispatcherRule(
-    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
 ) : TestWatcher() {
 
     val testDispatcherProvider = object : DispatcherProvider {

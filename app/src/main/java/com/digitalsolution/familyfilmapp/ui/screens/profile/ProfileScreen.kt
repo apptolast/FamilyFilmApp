@@ -10,10 +10,9 @@ import androidx.navigation.NavController
 
 @Composable
 fun ProfileScreen(navController: NavController) {
-
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = "ProfileScreen")
     }

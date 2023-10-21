@@ -41,10 +41,3 @@ jobs:
         with:
           name: test-reports
           path: '**/build/reports/tests/'
-
-      - name: Upload Detekt Report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: detekt-reports
-          path: '**/build/reports/detekt/detekt.sarif'

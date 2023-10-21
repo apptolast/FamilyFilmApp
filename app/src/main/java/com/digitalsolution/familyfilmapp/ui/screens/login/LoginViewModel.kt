@@ -75,9 +75,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun loginOrRegister(email: String, password: String) = viewModelScope.launch(
-        dispatcherProvider.io(),
-    ) {
+    fun loginOrRegister(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         when (_state.value.screenState) {
             is LoginRegisterState.Login -> {
                 loginEmailPassUseCase(email to password)
@@ -116,9 +114,7 @@ class LoginViewModel @Inject constructor(
         _recoverPasswordState.update { newRecoverPassUiState }
     }
 
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(
-        dispatcherProvider.io(),
-    ) {
+    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(dispatcherProvider.io()) {
         val account = task.result as GoogleSignInAccount
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
@@ -137,7 +133,7 @@ class LoginViewModel @Inject constructor(
         newLoginUIState: LoginUiState,
     ) {
         if (newLoginUIState.isLogged) {
-            when (_state.value.screenState) {
+            when (newLoginUIState.screenState) {
                 is LoginRegisterState.Login -> {
                     backendRepository.login(
                         firebaseAuth.currentUser!!.email!!,

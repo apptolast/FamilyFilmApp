@@ -5,4 +5,5 @@ object ApiRoutes {
     const val AUTH_LOGIN = "auth/login"
     const val MOVIES = "movies"
     const val GROUPS = "groups"
+    const val GENRES = "genres"
 }

@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.repositories
 
+import com.digitalsolution.familyfilmapp.model.local.GenreInfo
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
@@ -54,6 +55,10 @@ class BackendRepositoryImpl @Inject constructor(
             it.toDomain()
         } ?: emptyList()
     }
+
+    override suspend fun getGenres(): Result<List<GenreInfo>> {
+        TODO("Not yet implemented")
+    }
 }
 
 interface BackendRepository {
@@ -61,4 +66,5 @@ interface BackendRepository {
     suspend fun login(user: String, firebaseId: String): Result<Unit>
     suspend fun getMovies(): Result<List<Movie>>
     suspend fun getGroups(): Result<List<GroupInfo>>
+    suspend fun getGenres(): Result<List<GenreInfo>>
 }

@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.network
 
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
+import com.digitalsolution.familyfilmapp.model.remote.response.GenreInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.GroupInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.MovieRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.ResponseWrapper
@@ -26,4 +27,8 @@ interface BackendApi {
 
     @GET(ApiRoutes.GROUPS)
     suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
+
+    @GET(ApiRoutes.GENRES)
+    suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>
+
 }

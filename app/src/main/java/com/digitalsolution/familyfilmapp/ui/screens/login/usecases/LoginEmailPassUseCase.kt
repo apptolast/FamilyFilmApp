@@ -87,6 +87,8 @@ class LoginEmailPassUseCase @Inject constructor(
                                             user = User(
                                                 email = email,
                                                 pass = pass,
+                                                name = authResult.user?.displayName ?: "",
+                                                photo = authResult.user?.photoUrl.toString(),
                                             ),
                                             isLogged = true,
                                             isLoading = false,

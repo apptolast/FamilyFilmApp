@@ -80,13 +80,15 @@ class RegisterUseCase @Inject constructor(
                         }
                         .collectLatest { result ->
                             result.fold(
-                                onSuccess = { _ ->
+                                onSuccess = { authResult ->
                                     send(
                                         LoginUiState().copy(
                                             screenState = LoginRegisterState.Register(),
                                             user = User(
                                                 email = email,
                                                 pass = pass,
+                                                name = authResult.user?.displayName ?: "",
+                                                photo = authResult.user?.photoUrl.toString(),
                                             ),
                                             isLogged = true,
                                             isLoading = false,

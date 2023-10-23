@@ -1,8 +1,11 @@
 package com.digitalsolution.familyfilmapp.ui.screens.recommend
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.GenresBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +30,9 @@ class RecommendViewModel @Inject constructor(
         initialValue = MovieUiState(),
     )
 
+    private val _recommendUIBackendState = MutableLiveData(GenresBackendState())
+    val recommendUIBackendState: LiveData<GenresBackendState> = _recommendUIBackendState
+
     init {
         viewModelScope.launch {
             _state.update { state ->
@@ -37,6 +43,12 @@ class RecommendViewModel @Inject constructor(
                     },
                 )
             }
+            _recommendUIBackendState.value = GenresBackendState(
+                genreInfo = repository.getGenres().getOrElse {
+                    emptyList()
+                },
+            )
         }
     }
+
 }

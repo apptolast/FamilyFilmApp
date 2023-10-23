@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -27,6 +24,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.screens.home.CustomCard
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.GenresBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -36,35 +34,16 @@ fun RecommendScreen(
     viewModel: RecommendViewModel = hiltViewModel(),
 ) {
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
-    RecommendContent(recommendUiState)
+    val backendState by viewModel.recommendUIBackendState.observeAsState()
+    RecommendContent(recommendUiState, backendState)
 }
 
 @Composable
-private fun RecommendContent(movieState: MovieUiState) {
+private fun RecommendContent(movieState: MovieUiState, backendState: GenresBackendState?) {
     val categories = movieState.categories
 
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyRow {
-            items(categories.take(5)) { item ->
-                val isSelected by remember { mutableStateOf(false) }
-                AssistChip(
-                    onClick = { isSelected != isSelected },
-                    label = { Text(text = item) },
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
-            }
-        }
-        LazyRow {
-            items(categories.takeLast(5)) { item ->
-                val isSelected by remember { mutableStateOf(false) }
-                AssistChip(
-                    onClick = { isSelected != isSelected },
-                    label = { Text(text = item) },
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
-            }
-        }
-
+        
         Text(
             text = "Comedy",
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),

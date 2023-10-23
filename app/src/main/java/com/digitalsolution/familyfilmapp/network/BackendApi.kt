@@ -30,5 +30,4 @@ interface BackendApi {
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>
-
 }

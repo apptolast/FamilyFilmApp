@@ -50,5 +50,4 @@ class RecommendViewModel @Inject constructor(
             )
         }
     }
-
 }

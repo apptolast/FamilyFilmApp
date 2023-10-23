@@ -12,5 +12,4 @@ data class GenreInfoRemote(
 
     @SerializedName("movies")
     val movies: List<GenreMovies>? = null,
-
-    )
+)

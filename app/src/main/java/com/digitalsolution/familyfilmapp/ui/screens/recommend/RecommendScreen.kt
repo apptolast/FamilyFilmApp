@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.screens.home.CustomCard
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -75,7 +76,9 @@ private fun RecommendContent(movieState: MovieUiState) {
             items(movieState.movies) { film ->
                 CustomCard(
                     // TODO: Add the clickable property to the modifier
-                    modifier = Modifier.padding(5.dp).padding(vertical = 12.dp),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .padding(vertical = 12.dp),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -85,7 +88,9 @@ private fun RecommendContent(movieState: MovieUiState) {
                             model = film.image,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
                         )
                         Text(
                             text = film.title,

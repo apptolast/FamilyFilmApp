@@ -4,6 +4,7 @@ import com.digitalsolution.familyfilmapp.model.local.GenreInfo
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
+import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
@@ -56,8 +57,10 @@ class BackendRepositoryImpl @Inject constructor(
         } ?: emptyList()
     }
 
-    override suspend fun getGenres(): Result<List<GenreInfo>> {
-        TODO("Not yet implemented")
+    override suspend fun getGenres(): Result<List<GenreInfo>> = kotlin.runCatching {
+        backendApi.getGenres().data?.map {
+            it.toDomain()
+        } ?: emptyList()
     }
 }
 

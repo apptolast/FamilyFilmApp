@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.ui.screens.recommend
+package com.digitalsolution.familyfilmapp.ui.screens.recommend.states
 
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException

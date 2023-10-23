@@ -10,4 +10,12 @@ data class GenreInfo(
         name = "",
         movies = emptyList<Movie>(),
     )
+
+    constructor(id: Int, name: String, movies: List<List<Movie>?>) : this(
+        id = id,
+        name = name,
+        movies = movies.filterNotNull().flatten(),
+    )
+
+
 }

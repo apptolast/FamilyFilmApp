@@ -10,5 +10,5 @@ data class GenreMovies(
     val movieId: Int? = null,
 
     @SerializedName("movie")
-    val movie: List<MovieRemote>? = null,
+    val movie: List<MovieInfoRemote>? = null,
 )

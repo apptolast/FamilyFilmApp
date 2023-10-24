@@ -2,7 +2,7 @@ package com.digitalsolution.familyfilmapp.model.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class GenreMovies(
+data class GenreMoviesRemote(
     @SerializedName("genre_id")
     val genreId: Int? = null,
 
@@ -10,5 +10,5 @@ data class GenreMovies(
     val movieId: Int? = null,
 
     @SerializedName("movie")
-    val movie: List<MovieInfoRemote>? = null,
+    val movie: MovieRemote? = null,
 )

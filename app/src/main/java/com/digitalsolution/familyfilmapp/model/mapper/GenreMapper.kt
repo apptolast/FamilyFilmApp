@@ -10,10 +10,8 @@ object GenreMapper {
     fun GenreInfoRemote.toDomain() = GenreInfo(
         id = id ?: -1,
         name = genreName ?: "",
-        movies = movies?.flatMap { movieWrapper ->
-            movieWrapper.movie?.map { movieInfoRemote ->
-                movieInfoRemote.movieRemote?.toDomain() ?: Movie()
-            } ?: emptyList()
+        movies = movies?.map {
+            it.movie?.toDomain() ?: Movie()
         } ?: emptyList(),
     )
 }

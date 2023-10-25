@@ -6,19 +6,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +36,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.digitalsolution.familyfilmapp.ui.screens.home.CustomCard
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.GenresBackendState
+import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -35,30 +46,36 @@ fun RecommendScreen(
     viewModel: RecommendViewModel = hiltViewModel(),
 ) {
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
-    RecommendContent(recommendUiState)
+    val backendState by viewModel.recommendUIBackendState.observeAsState()
+    RecommendContent(recommendUiState, backendState)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RecommendContent(movieState: MovieUiState) {
-    val categories = movieState.categories
-
+private fun RecommendContent(movieState: MovieUiState, backendState: GenresBackendState?) {
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyRow {
-            items(categories.take(5)) { item ->
-                val isSelected by remember { mutableStateOf(false) }
-                AssistChip(
-                    onClick = { isSelected != isSelected },
-                    label = { Text(text = item) },
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
-            }
-        }
-        LazyRow {
-            items(categories.takeLast(5)) { item ->
-                val isSelected by remember { mutableStateOf(false) }
-                AssistChip(
-                    onClick = { isSelected != isSelected },
-                    label = { Text(text = item) },
+        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+            items(backendState!!.genreInfo) { item ->
+
+                var isSelected by remember { mutableStateOf(false) }
+                FilterChip(
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        selectedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        selectedLabelColor = Color.White,
+                    ),
+                    onClick = {
+                        isSelected = !isSelected
+                    },
+                    selected = isSelected,
+                    label = {
+                        Text(
+                            item.name,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
                     modifier = Modifier.padding(horizontal = 4.dp),
                 )
             }
@@ -75,7 +92,9 @@ private fun RecommendContent(movieState: MovieUiState) {
             items(movieState.movies) { film ->
                 CustomCard(
                     // TODO: Add the clickable property to the modifier
-                    modifier = Modifier.padding(5.dp).padding(vertical = 12.dp),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .padding(vertical = 12.dp),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -85,7 +104,9 @@ private fun RecommendContent(movieState: MovieUiState) {
                             model = film.image,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
                         )
                         Text(
                             text = film.title,

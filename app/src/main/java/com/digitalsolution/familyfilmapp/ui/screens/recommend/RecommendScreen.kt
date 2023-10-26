@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.ui.screens.home.CustomCard
+import com.digitalsolution.familyfilmapp.ui.components.CustomCard
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.GenresBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme

@@ -1,12 +1,12 @@
 package com.digitalsolution.familyfilmapp.ui.screens.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,7 +64,7 @@ fun HomeContent(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         RowMovie(
-            title = stringResource(R.string.home_text_my_list),
+            title = stringResource(R.string.home_text_to_see),
             icon = Icons.Default.ListAlt,
             movies = homeUiState.seen,
             navigateToDetailsScreen = navigateToDetailsScreen,
@@ -92,18 +91,18 @@ private fun RowMovie(
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
-                .padding(start = 22.dp)
-                .padding(10.dp),
+                .fillMaxWidth()
+                .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Icon(imageVector = icon, contentDescription = null)
-            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Light),
+                style = MaterialTheme.typography.headlineLarge,
             )
+            Icon(imageVector = icon, contentDescription = icon.toString())
         }
-        LazyRow {
+        LazyRow(modifier = Modifier.padding(bottom = 15.dp)) {
             items(movies) { movie ->
                 HomeItem(
                     movie = movie,

@@ -1,11 +1,13 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
+import androidx.compose.runtime.mutableStateOf
 import app.cash.turbine.test
 import com.digitalsolution.familyfilmapp.MainDispatcherRule
 import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginEmailPassUseCase
 import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
@@ -241,6 +243,56 @@ class LoginViewModelTest {
             // Act
             viewModel.changeScreenState()
             viewModel.changeScreenState()
+
+            job.join()
+            job.cancel()
+        }
+
+    @Test
+    fun `LoginViewModel - Recovery Password - Success`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+            val email = "email"
+            val isDialogVisible = mutableStateOf(false)
+
+            whenever(recoverPassUseCase(any())).thenReturn(
+                channelFlow {
+                    send(
+                        RecoverPassUiState().copy(
+                            isDialogVisible = isDialogVisible,
+                            recoveryPassResponse = true,
+                            isLoading = false,
+                        ),
+                    )
+                    awaitClose()
+                },
+            )
+
+            // Assert
+            val job = launch {
+                viewModel.recoverPassUIState.test {
+                    awaitItem().let {
+                        assertThat(it.isDialogVisible.value).isEqualTo(false)
+                        assertThat(it.isLoading).isFalse()
+                        assertThat(it.recoveryPassResponse).isFalse()
+                    }
+                    awaitItem().let {
+                        assertThat(it.isDialogVisible.value).isEqualTo(false)
+                        assertThat(it.isLoading).isFalse()
+                        assertThat(it.recoveryPassResponse).isFalse()
+                    }
+                    awaitItem().let {
+                        assertThat(it.isDialogVisible.value).isEqualTo(isDialogVisible.value)
+                        assertThat(it.isLoading).isFalse()
+                        assertThat(it.recoveryPassResponse).isTrue()
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.recoverPassword(email)
 
             job.join()
             job.cancel()

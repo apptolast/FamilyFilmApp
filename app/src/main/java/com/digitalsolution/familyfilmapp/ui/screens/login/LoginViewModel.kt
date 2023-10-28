@@ -44,8 +44,6 @@ class LoginViewModel @Inject constructor(
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
-    // private val scope = viewModelScope  + dispatcherProvider.io()
-
     private val _state = MutableStateFlow(LoginUiState())
     val state: StateFlow<LoginUiState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
@@ -53,8 +51,8 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState(),
     )
 
-    private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
-    val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
+    private val _recoverPassUIState = MutableStateFlow(RecoverPassUiState())
+    val recoverPassUIState = _recoverPassUIState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = RecoverPassUiState(),
@@ -100,20 +98,20 @@ class LoginViewModel @Inject constructor(
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         recoverPassUseCase(email).catch { error ->
-            _recoverPasswordState.update {
+            _recoverPassUIState.update {
                 it.copy(
                     errorMessage = GenericException(error.message ?: "Recover Pass Error"),
                 )
             }
         }.collectLatest { newLoginUIState ->
-            _recoverPasswordState.update {
+            _recoverPassUIState.update {
                 newLoginUIState
             }
         }
     }
 
     fun updateRecoveryPasswordState(newRecoverPassUiState: RecoverPassUiState) {
-        _recoverPasswordState.update { newRecoverPassUiState }
+        _recoverPassUIState.update { newRecoverPassUiState }
     }
 
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(dispatcherProvider.io()) {

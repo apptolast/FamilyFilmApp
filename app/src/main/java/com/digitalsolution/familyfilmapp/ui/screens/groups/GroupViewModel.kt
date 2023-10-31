@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
+import com.digitalsolution.familyfilmapp.ui.screens.groups.uistates.AddMemberUiState
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -34,6 +35,9 @@ class GroupViewModel @Inject constructor(
 
     private val _groupUIState = MutableLiveData(GroupUiState())
     val groupUIState: LiveData<GroupUiState> = _groupUIState
+
+    private val _addMemberUIState = MutableLiveData(AddMemberUiState())
+    val addMemberUIState: LiveData<AddMemberUiState> = _addMemberUIState
 
     init {
         viewModelScope.launch(dispatcherProvider.io()) {

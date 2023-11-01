@@ -8,6 +8,8 @@ import com.digitalsolution.familyfilmapp.exceptions.CustomException
 data class AddMemberUiState(
     val isBottomSheetVisible: MutableState<Boolean>,
 
+    val email: MutableState<String>,
+
     val emailErrorMessage: CustomException?,
 
     val addMemberResponse: Boolean,
@@ -19,6 +21,7 @@ data class AddMemberUiState(
     ) : BaseUiState {
     constructor() : this(
         isBottomSheetVisible = mutableStateOf(false),
+        email = mutableStateOf(""),
         emailErrorMessage = null,
         addMemberResponse = false,
         isLoading = false,

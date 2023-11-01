@@ -37,6 +37,7 @@
     <string name="groups_text_add_member">Add Member</string>
     <string name="groups_text_delete_group">Delete Group</string>
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
+    <string name="groups_text_edit_add_member">Email for add member</string>
 
 
     <string name="send_text">Send</string>

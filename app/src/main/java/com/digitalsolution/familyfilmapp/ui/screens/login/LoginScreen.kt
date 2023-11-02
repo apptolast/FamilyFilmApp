@@ -84,7 +84,7 @@ fun LoginScreen(
                 if (intent != null) {
                     val task: Task<GoogleSignInAccount> =
                         GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    viewModel.handleGoogleSignInResult(task)
+                    viewModel.handleGoogleSignInResult(task.result as GoogleSignInAccount)
                 }
             }
         }

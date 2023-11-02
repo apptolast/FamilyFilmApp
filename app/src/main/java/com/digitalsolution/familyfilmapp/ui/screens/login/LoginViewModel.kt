@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
@@ -16,10 +17,8 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCa
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -51,8 +51,8 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState(),
     )
 
-    private val _recoverPasswordState = MutableStateFlow(RecoverPassUiState())
-    val recoverPassUIState = _recoverPasswordState.asStateFlow().stateIn(
+    private val _recoverPassUIState = MutableStateFlow(RecoverPassUiState())
+    val recoverPassUIState = _recoverPassUIState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = RecoverPassUiState(),
@@ -98,24 +98,23 @@ class LoginViewModel @Inject constructor(
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         recoverPassUseCase(email).catch { error ->
-            _recoverPasswordState.update {
+            _recoverPassUIState.update {
                 it.copy(
                     errorMessage = GenericException(error.message ?: "Recover Pass Error"),
                 )
             }
         }.collectLatest { newLoginUIState ->
-            _recoverPasswordState.update {
+            _recoverPassUIState.update {
                 newLoginUIState
             }
         }
     }
 
     fun updateRecoveryPasswordState(newRecoverPassUiState: RecoverPassUiState) {
-        _recoverPasswordState.update { newRecoverPassUiState }
+        _recoverPassUIState.update { newRecoverPassUiState }
     }
 
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(dispatcherProvider.io()) {
-        val account = task.result as GoogleSignInAccount
+    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
                 // User Login into our backend before update the UI state
@@ -129,7 +128,8 @@ class LoginViewModel @Inject constructor(
      *
      * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
      */
-    private suspend fun backendLogin(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    suspend fun backendLogin(
         newLoginUIState: LoginUiState,
     ) {
         if (newLoginUIState.isLogged) {

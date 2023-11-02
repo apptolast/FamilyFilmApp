@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.network
 
+import com.digitalsolution.familyfilmapp.model.remote.body.AddMemberBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.model.remote.response.GenreInfoRemote
@@ -8,7 +9,9 @@ import com.digitalsolution.familyfilmapp.model.remote.response.MovieRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.ResponseWrapper
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface BackendApi {
 
@@ -27,6 +30,12 @@ interface BackendApi {
 
     @GET(ApiRoutes.GROUPS)
     suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
+
+    @PATCH(ApiRoutes.GROUP_ADD_MEMBER)
+    suspend fun addMemberToGroup(
+        @Path("groupId") groupId: Int,
+        @Body memberBody: AddMemberBody,
+    ): ResponseWrapper<Any>
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

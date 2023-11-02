@@ -31,7 +31,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.launch
 
-const val CARD_HEIGHT = 0.67
+const val CARD_HEIGHT = 0.75
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +40,8 @@ fun GroupsScreen(
     viewModel: GroupViewModel = hiltViewModel(),
 ) {
     val coroutineModalBottomSheetScope = rememberCoroutineScope()
+
+    val coroutineForAddMember = rememberCoroutineScope()
 
     val sheetState = rememberModalBottomSheetState()
 
@@ -68,7 +70,11 @@ fun GroupsScreen(
             ) {
                 BottomSheetGroupScreenContent(
                     addMemberUiState = addMemberUiState!!,
-                    onCLickAddMember = {},
+                    onCLickAddMember = { groupID, email ->
+                        coroutineForAddMember.launch {
+                            viewModel.addMemberToGroup(groupID, email)
+                        }
+                    },
                 )
             }
         }

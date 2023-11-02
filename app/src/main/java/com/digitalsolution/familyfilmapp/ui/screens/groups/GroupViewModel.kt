@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.model.remote.body.AddMemberBody
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
@@ -50,6 +51,10 @@ class GroupViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    suspend fun addMemberToGroup(groupId: Int, memberBody: AddMemberBody): String {
+        return repository.addGroupMember(groupId, memberBody)
     }
 
     fun updateUiState(newGroupUIState: GroupUiState) {

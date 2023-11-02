@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException.GenericException
@@ -16,7 +17,6 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCa
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,8 +114,7 @@ class LoginViewModel @Inject constructor(
         _recoverPassUIState.update { newRecoverPassUiState }
     }
 
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch(dispatcherProvider.io()) {
-        val account = task.result as GoogleSignInAccount
+    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
         loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
                 // User Login into our backend before update the UI state
@@ -129,7 +128,8 @@ class LoginViewModel @Inject constructor(
      *
      * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
      */
-    private suspend fun backendLogin(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    suspend fun backendLogin(
         newLoginUIState: LoginUiState,
     ) {
         if (newLoginUIState.isLogged) {

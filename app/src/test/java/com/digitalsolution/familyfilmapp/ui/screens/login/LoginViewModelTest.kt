@@ -3,6 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login
 import androidx.compose.runtime.mutableStateOf
 import app.cash.turbine.test
 import com.digitalsolution.familyfilmapp.MainDispatcherRule
+import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.model.local.User
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
@@ -16,6 +17,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.RegisterUseCa
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
@@ -60,6 +62,9 @@ class LoginViewModelTest {
 
     @Mock
     private lateinit var googleSignInClient: GoogleSignInClient
+
+    @Mock
+    private lateinit var firebaseUser: FirebaseUser
 
     @Before
     fun setUp() = runTest(coroutineRule.testDispatcherProvider.io()) {
@@ -296,5 +301,236 @@ class LoginViewModelTest {
 
             job.join()
             job.cancel()
+        }
+
+    @Test
+    fun `LoginViewModel - Recovery Pass - Receive catch exception`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+            val errorMessage = "Error"
+
+            whenever(recoverPassUseCase(any())).thenReturn(
+                channelFlow {
+                    throw Exception(errorMessage)
+                },
+            )
+
+            // Assert
+            val job = launch {
+                viewModel.recoverPassUIState.test {
+                    assertThat(awaitItem().errorMessage?.error).isNull()
+                    assertThat(awaitItem().errorMessage?.error).isNull()
+                    assertThat(awaitItem().errorMessage?.error).isEqualTo(errorMessage)
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.recoverPassword("email")
+
+            job.join()
+        }
+
+    @Test
+    fun `LoginViewModel - updateRecoveryPasswordState - Successful`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+            val recoveryPassUiState = RecoverPassUiState()
+
+            // Assert
+            val job = launch {
+                viewModel.recoverPassUIState.test {
+                    awaitItem().let { updateRecoveryPassUiState ->
+                        assertThat(updateRecoveryPassUiState.isDialogVisible.value).isEqualTo(
+                            recoveryPassUiState.isDialogVisible.value,
+                        )
+                        assertThat(updateRecoveryPassUiState.emailErrorMessage).isEqualTo(
+                            recoveryPassUiState.emailErrorMessage,
+                        )
+                        assertThat(updateRecoveryPassUiState.recoveryPassResponse).isEqualTo(
+                            recoveryPassUiState.recoveryPassResponse,
+                        )
+                        assertThat(updateRecoveryPassUiState.isLoading).isEqualTo(recoveryPassUiState.isLoading)
+                        assertThat(updateRecoveryPassUiState.errorMessage).isEqualTo(recoveryPassUiState.errorMessage)
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.updateRecoveryPasswordState(recoveryPassUiState)
+
+            job.join()
+        }
+
+    @Test
+    fun `LoginViewModel - backendLogin Login - Successful`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+
+            val loginUiState = LoginUiState().copy(
+                isLogged = true,
+                screenState = LoginRegisterState.Login(),
+            )
+
+            whenever(backendRepository.login(any(), any())).thenReturn(
+                Result.success(Unit),
+            )
+
+            whenever(firebaseUser.email).thenReturn("email")
+            whenever(firebaseUser.uid).thenReturn("uid")
+
+            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+
+            // Assert
+            val job = launch {
+                viewModel.state.test {
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
+                    }
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(loginUiState).isEqualTo(newLoginUiState)
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.backendLogin(loginUiState)
+
+            job.join()
+        }
+
+    @Test
+    fun `LoginViewModel - backendLogin Register - Successful`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+
+            val loginUiState = LoginUiState().copy(
+                isLogged = true,
+                screenState = LoginRegisterState.Register(),
+            )
+
+            whenever(backendRepository.register(any(), any())).thenReturn(
+                Result.success(Unit),
+            )
+
+            whenever(firebaseUser.email).thenReturn("email")
+            whenever(firebaseUser.uid).thenReturn("uid")
+
+            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+
+            // Assert
+            val job = launch {
+                viewModel.state.test {
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
+                    }
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(loginUiState).isEqualTo(newLoginUiState)
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.backendLogin(loginUiState)
+
+            job.join()
+        }
+
+    @Test
+    fun `LoginViewModel - backendLogin Login Failure but Backend Repository - Successful`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+
+            val loginUiState = LoginUiState().copy(
+                isLogged = true,
+                screenState = LoginRegisterState.Login(),
+            )
+            val errorMessage = "Error"
+
+            whenever(backendRepository.login(any(), any())).thenReturn(
+                Result.failure(Exception(errorMessage)),
+            )
+
+            whenever(backendRepository.register(any(), any())).thenReturn(
+                Result.success(Unit),
+            )
+
+            whenever(firebaseUser.email).thenReturn("email")
+            whenever(firebaseUser.uid).thenReturn("uid")
+
+            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+
+            // Assert
+            val job = launch {
+                viewModel.state.test {
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
+                    }
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(loginUiState).isEqualTo(newLoginUiState)
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.backendLogin(loginUiState)
+
+            job.join()
+        }
+
+    @Test
+    fun `LoginViewModel - backendLogin Login Failure but Backend Repository - Fails`() =
+        runTest(coroutineRule.testDispatcherProvider.io()) {
+            // Arrange
+            val loginUiState = LoginUiState().copy(
+                isLogged = true,
+                screenState = LoginRegisterState.Login(),
+            )
+            val loginUiStateReturnError = LoginUiState().copy(
+                isLoading = false,
+                errorMessage = LoginException.BackendLogin(),
+            )
+            val errorMessage = "Error"
+
+            whenever(backendRepository.login(any(), any())).thenReturn(
+                Result.failure(Exception(errorMessage)),
+            )
+
+            whenever(backendRepository.register(any(), any())).thenReturn(
+                Result.failure(Exception(errorMessage)),
+            )
+
+            whenever(firebaseUser.email).thenReturn("email")
+            whenever(firebaseUser.uid).thenReturn("uid")
+
+            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+
+            // Assert
+            val job = launch {
+                viewModel.state.test {
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
+                    }
+                    awaitItem().let { newLoginUiState ->
+                        assertThat(loginUiStateReturnError).isEqualTo(newLoginUiState)
+                    }
+
+                    cancelAndConsumeRemainingEvents()
+                }
+            }
+
+            // Act
+            viewModel.backendLogin(loginUiState)
+
+            job.join()
         }
 }

@@ -12,7 +12,7 @@ data class AddMemberUiState(
 
     val emailErrorMessage: CustomException?,
 
-    val addMemberResponse: Boolean,
+    val showSnackbar: MutableState<Boolean>,
 
     override val isLoading: Boolean,
 
@@ -23,7 +23,7 @@ data class AddMemberUiState(
         isBottomSheetVisible = mutableStateOf(false),
         email = mutableStateOf(""),
         emailErrorMessage = null,
-        addMemberResponse = false,
+        showSnackbar = mutableStateOf(false),
         isLoading = false,
         errorMessage = null,
     )

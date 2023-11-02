@@ -53,11 +53,20 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    suspend fun addMemberToGroup(groupId: Int, memberBody: AddMemberBody): String {
-        return repository.addGroupMember(groupId, memberBody)
-    }
+    fun addMemberToGroup(groupId: Int, memberBody: AddMemberBody) =
+        viewModelScope.launch(dispatcherProvider.io()) {
+            _state.update { state ->
+                state.copy(
+                    addMemberInfoMessage = repository.addGroupMember(groupId, memberBody),
+                )
+            }
+        }
 
     fun updateUiState(newGroupUIState: GroupUiState) {
         _groupUIState.value = newGroupUIState
+    }
+
+    fun updateAddMemberUiState(newAddMemberUIState: AddMemberUiState) {
+        _addMemberUIState.value = newAddMemberUIState
     }
 }

@@ -16,7 +16,9 @@ import com.digitalsolution.familyfilmapp.ui.theme.secondarySemiBoldHeadLineS
 
 @Composable
 fun CustomSmallButton(
-    onClick: () -> Unit, @StringRes text: Int, enabled: Boolean,
+    onClick: () -> Unit,
+    @StringRes text: Int,
+    enabled: Boolean,
 ) {
     Button(
         onClick = onClick,

@@ -41,7 +41,7 @@ val Typography = Typography(
         textAlign = TextAlign.Center,
     ),
 
-    )
+)
 
 val secondarySemiBoldHeadLineM = TextStyle(
     fontFamily = FontFamily(Font(R.font.opensans_condensed_semibold)),

@@ -41,6 +41,21 @@ val Typography = Typography(
         textAlign = TextAlign.Center,
     ),
 
+    )
+
+val secondarySemiBoldHeadLineM = TextStyle(
+    fontFamily = FontFamily(Font(R.font.opensans_condensed_semibold)),
+    fontSize = 23.sp,
+)
+
+val secondaryRegularBodyL = TextStyle(
+    fontFamily = FontFamily(Font(R.font.open_sans_regular)),
+    fontSize = 16.sp,
+)
+
+val secondarySemiBoldHeadLineS = TextStyle(
+    fontFamily = FontFamily(Font(R.font.opensans_condensed_semibold)),
+    fontSize = 19.sp,
 )
 
 fun TextStyle.bold(): TextStyle = this.copy(fontWeight = FontWeight.Bold)

@@ -101,6 +101,21 @@ dependencies {
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.compose.material:material-icons-extended"
     implementation "androidx.compose.runtime:runtime-livedata"
+    implementation 'androidx.activity:activity-compose:1.8.0'
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation 'com.google.accompanist:accompanist-pager:0.22.0-rc'
+
+    //Compose Previews
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.ui:ui-tooling'
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.30.1'
+
+
+    // Normal Material
+    implementation 'androidx.compose.material:material'
+    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.compose.material3:material3:1.2.0-alpha10'
+    implementation 'com.google.android.material:material:1.10.0'
 
     //Google auth
     implementation("com.google.android.gms:play-services-auth:20.7.0")

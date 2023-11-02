@@ -1,5 +1,3 @@
 package com.digitalsolution.familyfilmapp.model.mapper
 
-object MemberBodyMapper {
-
-}
+object MemberBodyMapper

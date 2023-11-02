@@ -1,6 +1,8 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +41,7 @@ import kotlinx.coroutines.launch
 
 const val CARD_HEIGHT = 0.75
 
+@RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
@@ -56,7 +59,6 @@ fun GroupsScreen(
     val groupUiState by viewModel.groupUIState.observeAsState()
 
     val addMemberUiState by viewModel.addMemberUIState.observeAsState()
-
 
     if (addMemberUiState?.showSnackbar?.value == true) {
         Box(modifier = Modifier.fillMaxSize()) {

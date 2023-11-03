@@ -31,6 +31,9 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideBackendRepository(backendApi: BackendApi, localRepository: LocalRepository): BackendRepository =
+    fun provideBackendRepository(
+        backendApi: BackendApi,
+        localRepository: LocalRepository,
+    ): BackendRepository =
         BackendRepositoryImpl(backendApi, localRepository)
 }

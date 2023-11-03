@@ -1,3 +1,9 @@
 package com.digitalsolution.familyfilmapp.model.mapper
 
-object MemberBodyMapper
+import com.digitalsolution.familyfilmapp.model.remote.request.AddMemberBody
+
+object MemberBodyMapper {
+    fun String.toBody() = AddMemberBody(
+        email = this,
+    )
+}

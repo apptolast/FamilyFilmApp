@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.network
 
-import com.digitalsolution.familyfilmapp.model.remote.body.AddMemberBody
+import com.digitalsolution.familyfilmapp.model.remote.request.AddMemberBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.model.remote.response.GenreInfoRemote
@@ -32,7 +32,7 @@ interface BackendApi {
     suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
 
     @PATCH(ApiRoutes.GROUP_ADD_MEMBER)
-    suspend fun addMemberToGroup(
+    suspend fun addGroupMember(
         @Path("groupId") groupId: Int,
         @Body memberBody: AddMemberBody,
     ): ResponseWrapper<Any>

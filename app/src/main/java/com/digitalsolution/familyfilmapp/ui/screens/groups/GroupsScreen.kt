@@ -1,8 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups
 
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +17,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +32,11 @@ import com.digitalsolution.familyfilmapp.ui.screens.groups.components.BottomShee
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
-import com.digitalsolution.familyfilmapp.ui.screens.groups.uistates.AddMemberUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.launch
 
 const val CARD_HEIGHT = 0.75
 
-@RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
@@ -49,8 +44,6 @@ fun GroupsScreen(
     viewModel: GroupViewModel = hiltViewModel(),
 ) {
     val coroutineModalBottomSheetScope = rememberCoroutineScope()
-
-    val coroutineForAddMember = rememberCoroutineScope()
 
     val sheetState = rememberModalBottomSheetState()
 
@@ -66,14 +59,14 @@ fun GroupsScreen(
                 action = {
                 },
                 modifier = Modifier
-                    .align(Alignment.TopCenter) // Posiciona la Snackbar en la parte superior
+                    .align(Alignment.TopCenter)
                     .padding(16.dp)
-                    .background(Color.Blue, shape = RoundedCornerShape(4.dp)) // Fondo azul y esquinas redondeadas
-                    .padding(horizontal = 24.dp, vertical = 8.dp), // Padding interno
-                actionOnNewLine = false, // Coloca el botón de acción en la misma línea que el texto
-                containerColor = Color.Transparent, // Hacer el fondo transparente y usar el color del modificador anterior
+                    .background(Color.Blue, shape = RoundedCornerShape(4.dp))
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                actionOnNewLine = false,
+                containerColor = Color.Transparent,
             ) {
-                Text(groupBackendState.addMemberInfoMessage, color = Color.White) // Texto blanco
+                Text(groupBackendState.addMemberInfoMessage, color = Color.White)
             }
         }
     }
@@ -97,16 +90,7 @@ fun GroupsScreen(
             ) {
                 BottomSheetGroupScreenContent(
                     addMemberUiState = addMemberUiState!!,
-                    onCLickAddMember = { groupID, email ->
-                        coroutineForAddMember.launch {
-                            viewModel.addMemberToGroup(groupID, email)
-                        }
-                        viewModel.updateAddMemberUiState(
-                            AddMemberUiState().copy(
-                                showSnackbar = mutableStateOf(true),
-                            ),
-                        )
-                    },
+                    onCLickAddMember = viewModel::addGroupMember,
                 )
             }
         }

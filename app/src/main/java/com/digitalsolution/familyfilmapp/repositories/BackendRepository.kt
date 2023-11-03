@@ -1,15 +1,13 @@
 package com.digitalsolution.familyfilmapp.repositories
 
-import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.managers.ResourceProvider
 import com.digitalsolution.familyfilmapp.model.local.GenreInfo
 import com.digitalsolution.familyfilmapp.model.local.GroupInfo
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
+import com.digitalsolution.familyfilmapp.model.mapper.MemberBodyMapper.toBody
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
-import com.digitalsolution.familyfilmapp.model.remote.body.AddMemberBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.network.BackendApi
@@ -18,7 +16,6 @@ import javax.inject.Inject
 class BackendRepositoryImpl @Inject constructor(
     private val backendApi: BackendApi,
     private val localRepository: LocalRepository,
-    private val resourceProvider: ResourceProvider,
 ) : BackendRepository {
 
     override suspend fun register(user: String, firebaseId: String): Result<Unit> = kotlin.runCatching {
@@ -67,14 +64,12 @@ class BackendRepositoryImpl @Inject constructor(
         } ?: emptyList()
     }
 
-    override suspend fun addGroupMember(groupId: Int, memberBody: AddMemberBody): String {
-        backendApi.addMemberToGroup(groupId, memberBody).let { response ->
+    override suspend fun addGroupMember(groupId: Int, email: String): Result<String> = kotlin.runCatching {
+        backendApi.addGroupMember(groupId, email.toBody()).let { response ->
             if (response.status == StatusResponse.SUCCESS.value) {
-                // Store the user token to authenticate the future requests to our backend
-                return resourceProvider.getString(R.string.member_added_success, memberBody.email)
+                email
             } else {
-                // Return a throwable just to indicate there was an error that will be handle in the ViewModel
-                throw Throwable()
+                throw Throwable(response.message)
             }
         }
     }
@@ -86,5 +81,5 @@ interface BackendRepository {
     suspend fun getMovies(): Result<List<Movie>>
     suspend fun getGroups(): Result<List<GroupInfo>>
     suspend fun getGenres(): Result<List<GenreInfo>>
-    suspend fun addGroupMember(groupId: Int, memberBody: AddMemberBody): String
+    suspend fun addGroupMember(groupId: Int, email: String): Result<String>
 }

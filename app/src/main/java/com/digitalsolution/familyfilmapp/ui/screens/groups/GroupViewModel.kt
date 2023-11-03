@@ -1,10 +1,10 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.digitalsolution.familyfilmapp.model.remote.body.AddMemberBody
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
@@ -53,13 +53,21 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun addMemberToGroup(groupId: Int, memberBody: AddMemberBody) =
+    fun addGroupMember(groupId: Int, email: String) =
         viewModelScope.launch(dispatcherProvider.io()) {
             _state.update { state ->
                 state.copy(
-                    addMemberInfoMessage = repository.addGroupMember(groupId, memberBody),
+                    addMemberInfoMessage = repository.addGroupMember(groupId, email).getOrElse {
+                        Timber.e(it)
+                        ""
+                    },
                 )
             }
+            updateAddMemberUiState(
+                AddMemberUiState().copy(
+                    showSnackbar = mutableStateOf(true),
+                ),
+            )
         }
 
     fun updateUiState(newGroupUIState: GroupUiState) {

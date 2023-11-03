@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,12 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.screens.search.components.MovieItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -41,18 +47,37 @@ fun SearchScreen(
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    SearchContent(uiState.movies)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(Routes.Search.routes) },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.padding(10.dp),
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+    ) { paddingValues ->
+        SearchContent(
+            movies = uiState.movies,
+            modifier = Modifier.padding(paddingValues),
+        )
+    }
 }
 
 @Composable
 fun SearchContent(
     movies: List<Movie>,
+    modifier: Modifier = Modifier,
 ) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(top = 5.dp)
             .padding(12.dp),
@@ -68,7 +93,7 @@ fun SearchContent(
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             },
             label = {
-                Text(text = "Search film or series for add to the group are you join")
+                Text(text = stringResource(R.string.search_film_or_series))
             },
         )
 

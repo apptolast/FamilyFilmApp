@@ -12,37 +12,37 @@ sealed class Routes(
     val icon: ImageVector?,
 ) {
 
-    object Login : Routes(
+    data object Login : Routes(
         routes = "Login",
         icon = null,
     )
 
-    object Home : Routes(
+    data object Home : Routes(
         "Home",
         icon = Icons.Outlined.Home,
     )
 
-    object Recommend : Routes(
+    data object Recommend : Routes(
         "Recommend",
         icon = Icons.Outlined.Recommend,
     )
 
-    object Groups : Routes(
+    data object Groups : Routes(
         "Groups",
         icon = Icons.Outlined.Groups,
     )
 
-    object Profile : Routes(
+    data object Profile : Routes(
         "Profile",
         icon = Icons.Outlined.Person,
     )
 
-    object Details : Routes(
+    data object Details : Routes(
         "Details",
         icon = null,
     )
 
-    object Search : Routes(
+    data object Search : Routes(
         "Search",
         null,
     )

@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -38,18 +40,28 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val profileUiState by viewModel.state.collectAsStateWithLifecycle()
-    ProfileContent(
-        profileUiState,
-        onClickLogOut = {
-            viewModel.logOut()
-            onClickNavigateLogin()
-        },
-    )
+
+    Scaffold(
+        bottomBar = { BottomBar(navController = navController) },
+    ) { paddingValues ->
+        ProfileContent(
+            profileUiState,
+            onClickLogOut = {
+                viewModel.logOut()
+                onClickNavigateLogin()
+            },
+            modifier = Modifier.padding(paddingValues),
+        )
+    }
 }
 
 @Composable
-fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun ProfileContent(
+    profileUiState: ProfileUiState,
+    onClickLogOut: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card {
             Column(
                 modifier = Modifier.padding(50.dp),

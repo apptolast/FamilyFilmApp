@@ -32,14 +32,16 @@
     <string name="home_text_seen">Seen</string>
     <string name="details_screen_description_lorem_ipsum">"\n                    Lorem ipsum dolor sit amet consectetur adipiscing elit, nunc nibh erat cum ultrices sociis, nisi facilisi per mollis torquent laoreet. Ultricies tellus cubilia vulputate iaculis varius, aliquam enim velit egestas. Malesuada etiam tempus lectus facilisis nam at ultricies, mus fermentum sollicitudin natoque sodales.\n\n                    Effendi facilisi integer magna porttitor rutrum sodales aliquet volutpat, porta aenean lectus nisi ridiculus penatibus leo rhoncus semper, sagittis libero dignissim pellentesque urna fames in. Natoque volutpat imperdiet dis quisque cum iaculis, senectus euismod molestie mollis cubilia purus, dictumst cras nec platea dictum. Mollis sodales mus sed ligula condimentum dui aliquet, sociis scelerisque senectus commodo convallis taciti, donec hac gravida cursus id viverra. \n\n                    Lorem ipsum dolor sit amet consectetur adipiscing elit, nunc nibh erat cum ultrices sociis, nisi facilisi per mollis torquent laoreet. Ultricies tellus cubilia vulputate iaculis varius, aliquam enim velit egestas. Malesuada etiam tempus lectus facilisis nam at ultricies, mus fermentum sollicitudin natoque sodales.\n\n                    Effendi facilisi integer magna porttitor rutrum sodales aliquet volutpat, porta aenean lectus nisi ridiculus penatibus leo rhoncus semper, sagittis libero dignissim pellentesque urna fames in. Natoque volutpat imperdiet dis quisque cum iaculis, senectus euismod molestie mollis cubilia purus, dictumst cras nec platea dictum. Mollis sodales mus sed ligula condimentum dui aliquet, sociis scelerisque senectus commodo convallis taciti, donec hac gravida cursus id viverra. \n\n                    Eleifend facilisi integer magna porttitor rutrum sodales aliquet volutpat, porta aenean lectus nisi ridiculus penatibus leo rhoncus semper, sagittis libero dignissim pellentesque urna fames in. Natoque volutpat imperdiet dis quisque cum iaculis, senectus euismod molestie mollis cubilia purus, dictumst cras nec platea dictum. Mollis sodales mus sed ligula condimentum dui aliquet, sociis scelerisque senectus commodo convallis taciti, donec hac gravida cursus id viverra.\n                "</string>
 
-    <!--Groups-->
+    <!-- GROUPS -->
     <string name="groups_text_add">Add Group</string>
     <string name="groups_text_add_member">Add Member</string>
     <string name="groups_text_delete_group">Delete Group</string>
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
 
+    <!-- SEARCH -->
+    <string name="search_film_or_series">Search film or series</string>
 
+    <!-- GENERAL STRINGS -->
     <string name="send_text">Send</string>
-
 
 </resources>

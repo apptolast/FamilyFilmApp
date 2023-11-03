@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.CustomCard
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.GenresBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiState
@@ -47,13 +49,26 @@ fun RecommendScreen(
 ) {
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
     val backendState by viewModel.recommendUIBackendState.observeAsState()
-    RecommendContent(recommendUiState, backendState)
+
+    Scaffold(
+        bottomBar = { BottomBar(navController = navController) },
+    ) { paddingValues ->
+        RecommendContent(
+            recommendUiState,
+            backendState,
+            modifier = Modifier.padding(paddingValues),
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RecommendContent(movieState: MovieUiState, backendState: GenresBackendState?) {
-    Column(modifier = Modifier.fillMaxSize()) {
+private fun RecommendContent(
+    movieState: MovieUiState,
+    backendState: GenresBackendState?,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
             items(backendState!!.genreInfo) { item ->
 

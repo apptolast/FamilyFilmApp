@@ -11,18 +11,4 @@ data class GroupUiState(
         checkedEditGroupName = mutableStateOf(false),
         groupTitleChange = mutableStateOf(""),
     )
-
-    constructor(
-        checkedEditGroupName: Boolean,
-    ) : this(
-        checkedEditGroupName = mutableStateOf(checkedEditGroupName),
-        groupTitleChange = mutableStateOf(""),
-    )
-
-    constructor(
-        groupTitleChange: String,
-    ) : this(
-        checkedEditGroupName = mutableStateOf(false),
-        groupTitleChange = mutableStateOf(groupTitleChange), // Envuelve groupTitleChange con mutableStateOf
-    )
 }

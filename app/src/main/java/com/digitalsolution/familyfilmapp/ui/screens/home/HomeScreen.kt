@@ -11,9 +11,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +34,8 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.ui.components.BottomBar
+import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
@@ -51,18 +57,37 @@ fun HomeScreen(
         }
     }
 
-    HomeContent(
-        homeUiState = homeUiState,
-        navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
-    )
+    Scaffold(
+        topBar = { TopBar() },
+        bottomBar = { BottomBar(navController = navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(Routes.Search.routes) },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.padding(10.dp),
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+    ) { paddingValues ->
+        HomeContent(
+            homeUiState = homeUiState,
+            navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
+            modifier = Modifier.padding(paddingValues),
+        )
+    }
 }
 
 @Composable
 fun HomeContent(
     homeUiState: HomeUiState,
+    modifier: Modifier = Modifier,
     navigateToDetailsScreen: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         RowMovie(
             title = stringResource(R.string.home_text_to_see),
             icon = Icons.Default.ListAlt,
@@ -115,7 +140,7 @@ private fun RowMovie(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
             HomeUiState(

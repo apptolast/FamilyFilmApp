@@ -1,6 +1,6 @@
 package com.digitalsolution.familyfilmapp.model.local
 
-data class GroupInfo(
+data class Group(
     val id: Int,
     val name: String,
     val watchList: List<Movie>,

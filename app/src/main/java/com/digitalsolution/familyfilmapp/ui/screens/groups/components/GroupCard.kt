@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
-import com.digitalsolution.familyfilmapp.model.local.GroupInfo
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
@@ -49,9 +49,9 @@ import com.digitalsolution.familyfilmapp.ui.theme.bold
 fun GroupCard(
     groupTitle: String,
     groupUiState: GroupUiState,
-    members: List<GroupInfo>,
-    onRemoveMemberClick: (GroupInfo) -> Unit,
-    onSwipeDelete: (GroupInfo) -> Unit,
+    members: List<Group>,
+    onRemoveMemberClick: (Group) -> Unit,
+    onSwipeDelete: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
     onChangeGroupName: (String) -> Unit,
@@ -191,7 +191,7 @@ fun GroupCard(
                             },
                             dismissContent = {
                                 GroupCard(
-                                    groupInfo = item,
+                                    group = item,
                                     onRemoveMemberClick = onRemoveMemberClick,
                                 )
                             },

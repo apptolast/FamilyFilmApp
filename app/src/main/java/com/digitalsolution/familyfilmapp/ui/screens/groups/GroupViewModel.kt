@@ -52,7 +52,7 @@ class GroupViewModel @Inject constructor(
         _groupUIState.value = newGroupUIState
     }
 
-    fun addGroup() = viewModelScope.launch(dispatcherProvider.io()) {
-        // TODO: Connect endpoint to create group (FFA-94)
+    fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        Timber.d("Repository: $groupName")
     }
 }

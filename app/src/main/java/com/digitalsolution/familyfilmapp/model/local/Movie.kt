@@ -6,7 +6,7 @@ import java.util.Date
 data class Movie(
     val title: String,
     val isAdult: Boolean,
-    val genres: List<Genre>,
+    val genres: List<Pair<Int, String>>,
     val image: String,
     val synopsis: String,
     val voteAverage: Float,
@@ -17,7 +17,7 @@ data class Movie(
     constructor(image: String, title: String) : this(
         title = title,
         isAdult = true,
-        genres = emptyList<Genre>(),
+        genres = emptyList<Pair<Int, String>>(),
         image = image,
         synopsis = "",
         voteAverage = 0f,
@@ -28,8 +28,3 @@ data class Movie(
 
     constructor() : this("", "")
 }
-
-data class Genre(
-    val movieId: Int,
-    val genreId: Int,
-)

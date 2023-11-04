@@ -1,7 +1,7 @@
 package com.digitalsolution.familyfilmapp.repositories
 
 import com.digitalsolution.familyfilmapp.model.local.GenreInfo
-import com.digitalsolution.familyfilmapp.model.local.GroupInfo
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
@@ -51,7 +51,7 @@ class BackendRepositoryImpl @Inject constructor(
         backendApi.getMovies().data?.map { it.toDomain() } ?: emptyList()
     }
 
-    override suspend fun getGroups(): Result<List<GroupInfo>> = kotlin.runCatching {
+    override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
         backendApi.getGroups().data?.map {
             it.toDomain()
         } ?: emptyList()
@@ -68,6 +68,6 @@ interface BackendRepository {
     suspend fun register(user: String, firebaseId: String): Result<Unit>
     suspend fun login(user: String, firebaseId: String): Result<Unit>
     suspend fun getMovies(): Result<List<Movie>>
-    suspend fun getGroups(): Result<List<GroupInfo>>
+    suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<GenreInfo>>
 }

@@ -1,5 +1,9 @@
 package com.digitalsolution.familyfilmapp.model.mapper
 
-object AddGroupsMapper {
+import com.digitalsolution.familyfilmapp.model.remote.body.GroupBody
 
+object AddGroupsMapper {
+    fun String.toBody() = GroupBody(
+        name = this,
+    )
 }

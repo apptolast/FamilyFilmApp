@@ -53,6 +53,9 @@ class GroupViewModel @Inject constructor(
     }
 
     fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.addGroups(groupName).let {
+            Timber.d("Data return $it")
+        }
         Timber.d("Repository: $groupName")
     }
 }

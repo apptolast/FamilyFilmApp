@@ -20,4 +20,8 @@ data class RecoverPassUiState(
         isLoading = false,
         errorMessage = null,
     )
+
+    override fun copyWithLoading(isLoading: Boolean): BaseUiState {
+        return this.copy(isLoading = isLoading)
+    }
 }

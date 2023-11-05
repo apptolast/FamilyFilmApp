@@ -5,13 +5,17 @@ import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.Group
 
 data class GroupBackendState(
-    val groupsInfo: List<Group>,
+    val groups: List<Group>,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
     constructor() : this(
-        groupsInfo = emptyList(),
+        groups = emptyList(),
         isLoading = false,
         errorMessage = null,
     )
+
+    override fun copyWithLoading(isLoading: Boolean): BaseUiState {
+        return this.copy(isLoading = isLoading)
+    }
 }

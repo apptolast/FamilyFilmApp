@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.exceptions.GroupException
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
@@ -42,23 +43,29 @@ class GroupViewModel @Inject constructor(
     }
 
     private fun init() = viewModelScope.launch(dispatcherProvider.io()) {
+        _state.showProgressIndicator(true)
+
         _state.update { state ->
             state.copy(
-                groupsInfo = repository.getGroups().getOrElse {
+                groups = repository.getGroups().getOrElse {
                     Timber.e(it)
                     emptyList()
                 },
+                isLoading = false,
             )
         }
     }
 
     fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        _state.showProgressIndicator(true)
+
         repository.addGroups(groupName).fold(
             onSuccess = {
                 init()
                 _state.update { oldState ->
                     oldState.copy(
                         errorMessage = CustomException.GenericException("New group created!"),
+                        isLoading = false,
                     )
                 }
             },
@@ -67,9 +74,15 @@ class GroupViewModel @Inject constructor(
                 _state.update { oldState ->
                     oldState.copy(
                         errorMessage = GroupException.AddGroup(),
+                        isLoading = false,
                     )
                 }
             },
         )
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : BaseUiState> MutableStateFlow<T>.showProgressIndicator(value: Boolean) {
+    this.value = this.value.copyWithLoading(value) as T
 }

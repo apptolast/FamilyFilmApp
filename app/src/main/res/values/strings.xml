@@ -41,6 +41,7 @@
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
     <string name="groups_text_edit_add_member">Email for add member</string>
     <string name="member_added_success">Member with this email %1$s add successfully.</string>
+    <string name="member_added_numeric_value">GroupID.</string>
 
 
     <string name="send_text">Send</string>

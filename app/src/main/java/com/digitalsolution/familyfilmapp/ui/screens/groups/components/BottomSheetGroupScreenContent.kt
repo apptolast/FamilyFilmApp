@@ -3,10 +3,11 @@ package com.digitalsolution.familyfilmapp.ui.screens.groups.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.IconButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,6 +26,7 @@ fun BottomSheetGroupScreenContent(
     addMemberUiState: AddMemberUiState,
     onCLickAddMember: (Int, String) -> Unit,
 ) {
+    val pattern = rememberSaveable{ Regex("^\\d+$") }
     CustomSpacer(size = 8.dp)
     CardHandlerDivider()
     CustomSpacer(size = 16.dp)
@@ -57,6 +59,22 @@ fun BottomSheetGroupScreenContent(
             SupportingErrorText(addMemberUiState.emailErrorMessage?.error)
         },
     )
+    CustomSpacer(size = 10.dp)
+    OutlinedTextField(
+        value = addMemberUiState.groupID.value,
+        onValueChange = {
+            if (it.isEmpty() || it.matches(pattern)) {
+                addMemberUiState.groupID.value = it
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        label = {
+            Text(text = stringResource(id = R.string.member_added_numeric_value))  // Reemplaza con tu recurso de string
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        shape = RoundedCornerShape(25.dp)
+    )
+
     CustomSpacer(size = 24.dp)
     CustomSmallButton(
         onClick = {

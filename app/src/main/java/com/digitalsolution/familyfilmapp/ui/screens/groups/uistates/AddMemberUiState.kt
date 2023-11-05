@@ -1,6 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups.uistates
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
@@ -9,6 +10,8 @@ data class AddMemberUiState(
     val isBottomSheetVisible: MutableState<Boolean>,
 
     val email: MutableState<String>,
+
+    val groupID: MutableState<String>,
 
     val emailErrorMessage: CustomException?,
 
@@ -22,6 +25,7 @@ data class AddMemberUiState(
     constructor() : this(
         isBottomSheetVisible = mutableStateOf(false),
         email = mutableStateOf(""),
+        groupID = mutableStateOf(""),
         emailErrorMessage = null,
         showSnackbar = mutableStateOf(false),
         isLoading = false,

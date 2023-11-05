@@ -12,12 +12,17 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,6 +36,7 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.TopBar
+import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
@@ -41,7 +47,9 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun GroupsScreen(
     navController: NavController,
     viewModel: GroupViewModel = hiltViewModel(),
+    tabViewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
+    val snackBarHostState = remember { SnackbarHostState() }
     val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
     val groupUiState by viewModel.groupUIState.observeAsState()
 
@@ -49,7 +57,19 @@ fun GroupsScreen(
         mutableStateOf(false)
     }
 
+    if (!groupBackendState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(groupBackendState.errorMessage) {
+            snackBarHostState.showSnackbar(
+                groupBackendState.errorMessage!!.error,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = { TopBar() },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {

@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(
@@ -20,14 +20,20 @@ class TabGroupsViewModel @Inject constructor(
     val groups: LiveData<List<Group>> = _groups
 
     init {
-        viewModelScope.launch {
-            _groups.postValue(
-                repository.getGroups().getOrElse {
-                    Timber.e(it)
-                    emptyList()
+        init()
+    }
+
+    fun init() = viewModelScope.launch {
+        _groups.postValue(
+            repository.getGroups().getOrElse {
+                Timber.e(it)
+                emptyList()
+            }.sortedWith(
+                compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
+                    group.name
                 },
-            )
-        }
+            ),
+        )
     }
 
     companion object {

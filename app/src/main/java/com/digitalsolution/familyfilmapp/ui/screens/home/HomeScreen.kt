@@ -35,7 +35,7 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
-import com.digitalsolution.familyfilmapp.ui.components.TopBar
+import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 

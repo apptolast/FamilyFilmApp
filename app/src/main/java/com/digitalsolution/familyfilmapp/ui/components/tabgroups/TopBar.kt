@@ -19,7 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TabGroups(
+fun TopBar(
     viewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
@@ -64,8 +64,8 @@ fun TabGroups(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TabGroupsPreview() {
+fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TabGroups(viewmodel = hiltViewModel())
+        TopBar(viewmodel = hiltViewModel())
     }
 }

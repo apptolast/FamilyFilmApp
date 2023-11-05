@@ -35,8 +35,8 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
-import com.digitalsolution.familyfilmapp.ui.components.TopBar
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
+import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
@@ -61,16 +61,17 @@ fun GroupsScreen(
         LaunchedEffect(groupBackendState.errorMessage) {
             snackBarHostState.showSnackbar(
                 groupBackendState.errorMessage!!.error,
-                "Close",
-                true,
-                SnackbarDuration.Long,
+                null,
+                false,
+                SnackbarDuration.Short,
             )
+            tabViewmodel.init()
         }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
-        topBar = { TopBar() },
+        topBar = { TopBar(tabViewmodel) },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(

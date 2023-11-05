@@ -76,8 +76,6 @@ class BackendRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
 }
 
 interface BackendRepository {

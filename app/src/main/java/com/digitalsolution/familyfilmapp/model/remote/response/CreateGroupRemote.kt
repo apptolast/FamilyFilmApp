@@ -7,11 +7,10 @@ data class CreateGroupRemote(
     @SerializedName("id")
     val id: Int? = null,
 
-
     @SerializedName("name")
     val name: String? = null,
 
     @SerializedName("user_id")
     val userId: Int? = null,
 
-    )
+)

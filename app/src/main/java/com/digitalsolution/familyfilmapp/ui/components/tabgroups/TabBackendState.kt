@@ -1,19 +1,16 @@
-package com.digitalsolution.familyfilmapp.ui.screens.profile
+package com.digitalsolution.familyfilmapp.ui.components.tabgroups
 
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
-import com.digitalsolution.familyfilmapp.model.local.User
+import com.digitalsolution.familyfilmapp.model.local.Group
 
-data class ProfileUiState(
-    val userData: User,
-    val isLogged: Boolean,
+data class TabBackendState(
+    val groups: List<Group>,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
-
     constructor() : this(
-        userData = User(email = "", pass = "", name = "", photo = ""),
-        isLogged = false,
+        groups = emptyList(),
         isLoading = false,
         errorMessage = null,
     )

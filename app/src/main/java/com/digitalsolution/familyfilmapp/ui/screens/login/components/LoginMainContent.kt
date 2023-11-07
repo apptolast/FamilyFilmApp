@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -148,6 +149,19 @@ fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
             loginUiState = LoginUiState(),
+            onClick = { _, _ -> },
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardLoginMainErrorPreview() {
+    FamilyFilmAppTheme {
+        LoginMainContent(
+            loginUiState = LoginUiState().copy(
+                emailErrorMessage = LoginException.EmailInvalidFormat(),
+            ),
             onClick = { _, _ -> },
         )
     }

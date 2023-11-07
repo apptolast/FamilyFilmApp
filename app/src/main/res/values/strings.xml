@@ -43,5 +43,6 @@
 
     <!-- GENERAL STRINGS -->
     <string name="send_text">Send</string>
+    <string name="group_dialog_name_empty_error_message">Group Name is empty</string>
 
 </resources>

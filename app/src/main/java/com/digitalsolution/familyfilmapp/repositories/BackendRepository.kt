@@ -1,9 +1,12 @@
 package com.digitalsolution.familyfilmapp.repositories
 
+import com.digitalsolution.familyfilmapp.model.local.AddGroup
 import com.digitalsolution.familyfilmapp.model.local.GenreInfo
-import com.digitalsolution.familyfilmapp.model.local.GroupInfo
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
+import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toBody
+import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
@@ -51,7 +54,7 @@ class BackendRepositoryImpl @Inject constructor(
         backendApi.getMovies().data?.map { it.toDomain() } ?: emptyList()
     }
 
-    override suspend fun getGroups(): Result<List<GroupInfo>> = kotlin.runCatching {
+    override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
         backendApi.getGroups().data?.map {
             it.toDomain()
         } ?: emptyList()
@@ -62,12 +65,17 @@ class BackendRepositoryImpl @Inject constructor(
             it.toDomain()
         } ?: emptyList()
     }
+
+    override suspend fun addGroups(groupName: String): Result<AddGroup> = kotlin.runCatching {
+        backendApi.addGroups(groupName.toBody()).data?.toDomain() ?: AddGroup()
+    }
 }
 
 interface BackendRepository {
     suspend fun register(user: String, firebaseId: String): Result<Unit>
     suspend fun login(user: String, firebaseId: String): Result<Unit>
     suspend fun getMovies(): Result<List<Movie>>
-    suspend fun getGroups(): Result<List<GroupInfo>>
+    suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<GenreInfo>>
+    suspend fun addGroups(groupName: String): Result<AddGroup>
 }

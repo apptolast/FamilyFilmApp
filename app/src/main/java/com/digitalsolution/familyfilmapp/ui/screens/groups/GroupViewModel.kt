@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.BaseUiState
+import com.digitalsolution.familyfilmapp.exceptions.CustomException
+import com.digitalsolution.familyfilmapp.exceptions.GroupException
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
@@ -36,23 +39,50 @@ class GroupViewModel @Inject constructor(
     val groupUIState: LiveData<GroupUiState> = _groupUIState
 
     init {
-        viewModelScope.launch(dispatcherProvider.io()) {
-            _state.update { state ->
-                state.copy(
-                    groupsInfo = repository.getGroups().getOrElse {
-                        Timber.e(it)
-                        emptyList()
-                    },
-                )
-            }
+        init()
+    }
+
+    private fun init() = viewModelScope.launch(dispatcherProvider.io()) {
+        _state.showProgressIndicator(true)
+
+        _state.update { state ->
+            state.copy(
+                groups = repository.getGroups().getOrElse {
+                    Timber.e(it)
+                    emptyList()
+                },
+                isLoading = false,
+            )
         }
     }
 
-    fun updateUiState(newGroupUIState: GroupUiState) {
-        _groupUIState.value = newGroupUIState
-    }
+    fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        _state.showProgressIndicator(true)
 
-    fun addGroup() = viewModelScope.launch(dispatcherProvider.io()) {
-        // TODO: Connect endpoint to create group (FFA-94)
+        repository.addGroups(groupName).fold(
+            onSuccess = {
+                init()
+                _state.update { oldState ->
+                    oldState.copy(
+                        errorMessage = CustomException.GenericException("New group created!"),
+                        isLoading = false,
+                    )
+                }
+            },
+            onFailure = {
+                Timber.e(it)
+                _state.update { oldState ->
+                    oldState.copy(
+                        errorMessage = GroupException.AddGroup(),
+                        isLoading = false,
+                    )
+                }
+            },
+        )
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : BaseUiState> MutableStateFlow<T>.showProgressIndicator(value: Boolean) {
+    this.value = this.value.copyWithLoading(value) as T
 }

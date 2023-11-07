@@ -1,15 +1,13 @@
 package com.digitalsolution.familyfilmapp.model.local
 
-data class GroupInfo(
+data class AddGroup(
     val id: Int,
     val name: String,
-    val watchList: List<Movie>,
-    val viewList: List<Movie>,
+    val userId: Int,
 ) {
     constructor() : this(
         id = -1,
         name = "",
-        watchList = emptyList<Movie>(),
-        viewList = emptyList<Movie>(),
+        userId = -1,
     )
 }

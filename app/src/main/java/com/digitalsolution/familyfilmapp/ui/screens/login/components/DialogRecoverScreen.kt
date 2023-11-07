@@ -34,56 +34,58 @@ fun AlertRecoverPassDialog(
 ) {
     var email by rememberSaveable { mutableStateOf("") }
 
-    if (recoverPassUIState.isDialogVisible.value) {
-        AlertDialog(
-            onDismissRequest = {
-                recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
-            },
-            title = {
-                Text(text = stringResource(id = R.string.login_text_recover_password))
-            },
-            text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it.trim() },
-                        modifier = modifier.fillMaxWidth(),
-                        label = { Text(text = stringResource(R.string.login_text_field_email)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        shape = RoundedCornerShape(25.dp),
-                        isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
-                        supportingText = {
-                            SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
-                        },
-                    )
+    AlertDialog(
+        onDismissRequest = {
+            recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
+        },
+        title = {
+            Text(text = stringResource(id = R.string.login_text_recover_password))
+        },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it.trim() },
+                    modifier = modifier.fillMaxWidth(),
+                    label = { Text(text = stringResource(R.string.login_text_field_email)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    shape = RoundedCornerShape(25.dp),
+                    isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
+                    supportingText = {
+                        SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
+                    },
+                )
 
-                    if (recoverPassUIState.isLoading) {
-                        CircularProgressIndicator()
-                    }
+                if (recoverPassUIState.isLoading) {
+                    CircularProgressIndicator()
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = {
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
                     onCLickSend(email)
-                },) {
-                    Text(
-                        text = stringResource(R.string.login_text_send_recover_password),
-                        fontSize = 20.sp,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
+                },
+            ) {
+                Text(
+                    text = stringResource(R.string.login_text_send_recover_password),
+                    fontSize = 20.sp,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
                     recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
-                },) {
-                    Text(
-                        text = stringResource(R.string.login_text_recover_password_cancel),
-                        fontSize = 20.sp,
-                    )
-                }
-            },
-        )
-    }
+                },
+            ) {
+                Text(
+                    text = stringResource(R.string.login_text_recover_password_cancel),
+                    fontSize = 20.sp,
+                )
+            }
+        },
+    )
 }
 
 @Preview

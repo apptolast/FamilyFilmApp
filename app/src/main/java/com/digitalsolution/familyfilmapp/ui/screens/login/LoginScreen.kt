@@ -69,7 +69,7 @@ fun LoginScreen(
     if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
         LaunchedEffect(loginUiState.errorMessage) {
             snackBarHostState.showSnackbar(
-                "Firebase Message : ${loginUiState.errorMessage!!.error}",
+                loginUiState.errorMessage!!.error,
                 "Close",
                 true,
                 SnackbarDuration.Long,

@@ -9,4 +9,15 @@ data class GenresRemote(
 
     @SerializedName("genre_id")
     val genreId: Int? = null,
+
+    @SerializedName("genre")
+    val genre: GenreRemote? = null,
+)
+
+data class GenreRemote(
+    @SerializedName("id")
+    val id: Int? = null,
+
+    @SerializedName("name")
+    val name: String? = null,
 )

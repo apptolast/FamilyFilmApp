@@ -4,15 +4,18 @@ import com.digitalsolution.familyfilmapp.model.remote.request.AddGroupBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.model.remote.response.AddGroupRemote
+import com.digitalsolution.familyfilmapp.model.remote.response.ChangeGroupRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.GenreInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.GroupInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.MovieRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.ResponseWrapper
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Param
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.PUT
 
 interface BackendApi {
 
@@ -33,6 +36,11 @@ interface BackendApi {
 
     @DELETE(ApiRoutes.GROUP)
     suspend fun deleteGroup(@Path("group_id") groupId: Int)
+
+    @PUT(ApiRoutes.GROUP)
+    suspend fun updateNameGroup(
+        @Path("group_id") groupID: String?
+    ): ResponseWrapper<ChangeGroupRemote>
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

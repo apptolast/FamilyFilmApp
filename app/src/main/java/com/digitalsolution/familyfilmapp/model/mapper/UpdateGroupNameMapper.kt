@@ -5,7 +5,7 @@ import com.digitalsolution.familyfilmapp.model.remote.request.UpdateGroupNameBod
 import com.digitalsolution.familyfilmapp.model.remote.response.UpdateGroupRemote
 
 object UpdateGroupNameMapper {
-    fun String.toBody() = UpdateGroupNameBody(
+    fun String.toBodyUpdateGroup() = UpdateGroupNameBody(
         name = this,
     )
 

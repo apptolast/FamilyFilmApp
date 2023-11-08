@@ -2,7 +2,7 @@ package com.digitalsolution.familyfilmapp.model.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class ChangeGroupRemote(
+data class UpdateGroupRemote(
 
     @SerializedName("id")
     val groupID: Int? = null,

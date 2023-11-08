@@ -4,12 +4,11 @@ import com.digitalsolution.familyfilmapp.model.remote.request.AddGroupBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.model.remote.response.AddGroupRemote
-import com.digitalsolution.familyfilmapp.model.remote.response.ChangeGroupRemote
+import com.digitalsolution.familyfilmapp.model.remote.response.UpdateGroupRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.GenreInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.GroupInfoRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.MovieRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.ResponseWrapper
-import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Param
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -39,7 +38,7 @@ interface BackendApi {
 
     @PUT(ApiRoutes.GROUP)
     suspend fun updateNameGroup(
-        @Path("group_id") groupID: String?
+        @Path("group_id") groupID: String
     ): ResponseWrapper<ChangeGroupRemote>
 
     @GET(ApiRoutes.GENRES)

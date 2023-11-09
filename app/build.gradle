@@ -1,13 +1,11 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-//    id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
-    id 'org.jlleitschuh.gradle.ktlint' version '11.6.1'
 }
 
 android {
@@ -58,30 +56,25 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-}
-
-tasks.getByPath("preBuild").dependsOn("ktlintFormat")
-
-ktlint {
-    android = true
-    ignoreFailures = false
-//    disableRules = [""]
-    reporters {
-        reporter "plain"
-        reporter "checkstyle"
-        reporter "sarif"
+    configurations {
+        ktlint
     }
 }
 
-
 dependencies {
+    // ktlint
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.0.1") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
+        }
+    }
 
     // Androidx
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.activity:activity-compose:1.8.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
-    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha03"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0-beta01"
 
     // Splash
     implementation "androidx.core:core-splashscreen:1.0.1"
@@ -90,8 +83,8 @@ dependencies {
     implementation "me.saket.swipe:swipe:1.2.0"
 
     // Navigation
-    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
-    implementation "androidx.navigation:navigation-compose:2.7.4"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
+    implementation "androidx.navigation:navigation-compose:2.7.5"
 
     // Compose
     implementation platform('androidx.compose:compose-bom:2023.10.00')
@@ -157,4 +150,27 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+}
+
+tasks.register("ktlintCheck", JavaExec) {
+    group = "verification"
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    mainClass = "com.pinterest.ktlint.Main"
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "src/**/*.kt", "**.kts", "!**/build/**"
+}
+
+tasks.named("check") {
+    dependsOn tasks.named("ktlintCheck")
+}
+
+tasks.register("ktlintFormat", JavaExec) {
+    group = "formatting"
+    description = "Fix Kotlin code style deviations."
+    classpath = configurations.ktlint
+    mainClass = "com.pinterest.ktlint.Main"
+    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "-F", "src/**/*.kt", "**.kts", "!**/build/**"
 }

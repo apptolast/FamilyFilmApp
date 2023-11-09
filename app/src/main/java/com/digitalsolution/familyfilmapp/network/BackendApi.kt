@@ -15,14 +15,10 @@ import retrofit2.http.POST
 interface BackendApi {
 
     @POST(ApiRoutes.AUTH_REGISTER)
-    suspend fun register(
-        @Body registerBody: RegisterBody,
-    ): ResponseWrapper<Any>
+    suspend fun register(@Body registerBody: RegisterBody): ResponseWrapper<Any>
 
     @POST(ApiRoutes.AUTH_LOGIN)
-    suspend fun login(
-        @Body loginBody: LoginBody,
-    ): ResponseWrapper<Any>
+    suspend fun login(@Body loginBody: LoginBody): ResponseWrapper<Any>
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>
@@ -31,9 +27,7 @@ interface BackendApi {
     suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
 
     @POST(ApiRoutes.GROUPS)
-    suspend fun addGroups(
-        @Body addGroupBody: AddGroupBody,
-    ): ResponseWrapper<AddGroupRemote>
+    suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

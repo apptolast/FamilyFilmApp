@@ -9,12 +9,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,29 +36,24 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory =
-        GsonConverterFactory.create(gson)
+    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory = GsonConverterFactory.create(gson)
 
     @Provides
     @Singleton
-    fun provideScalarsConverterFactory(): ScalarsConverterFactory =
-        ScalarsConverterFactory.create()
+    fun provideScalarsConverterFactory(): ScalarsConverterFactory = ScalarsConverterFactory.create()
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(
-        authInterceptor: AuthInterceptor,
-    ): OkHttpClient =
-        OkHttpClient.Builder().apply {
-            addInterceptor(authInterceptor)
-            if (BuildConfig.DEBUG) {
-                addInterceptor(
-                    HttpLoggingInterceptor().apply {
-                        setLevel(HttpLoggingInterceptor.Level.BODY)
-                    },
-                )
-            }
-        }.build()
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder().apply {
+        addInterceptor(authInterceptor)
+        if (BuildConfig.DEBUG) {
+            addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                },
+            )
+        }
+    }.build()
 
     @Provides
     @Singleton
@@ -67,16 +62,14 @@ class NetworkModule {
         gsonConverterFactory: GsonConverterFactory,
         scalarsConverterFactory: ScalarsConverterFactory,
         client: OkHttpClient,
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(scalarsConverterFactory)
-            .addConverterFactory(gsonConverterFactory)
-            .client(client)
-            .build()
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .addConverterFactory(scalarsConverterFactory)
+        .addConverterFactory(gsonConverterFactory)
+        .client(client)
+        .build()
 
     @Provides
     @Singleton
-    fun provideServiceApi(retrofit: Retrofit): BackendApi =
-        retrofit.create(BackendApi::class.java)
+    fun provideServiceApi(retrofit: Retrofit): BackendApi = retrofit.create(BackendApi::class.java)
 }

@@ -254,54 +254,53 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `LoginViewModel - Recovery Password - Success`() =
-        runTest(coroutineRule.testDispatcherProvider.io()) {
-            // Arrange
-            val email = "email"
-            val isDialogVisible = mutableStateOf(false)
+    fun `LoginViewModel - Recovery Password - Success`() = runTest(coroutineRule.testDispatcherProvider.io()) {
+        // Arrange
+        val email = "email"
+        val isDialogVisible = mutableStateOf(false)
 
-            whenever(recoverPassUseCase(any())).thenReturn(
-                channelFlow {
-                    send(
-                        RecoverPassUiState().copy(
-                            isDialogVisible = isDialogVisible,
-                            recoveryPassResponse = true,
-                            isLoading = false,
-                        ),
-                    )
-                    awaitClose()
-                },
-            )
+        whenever(recoverPassUseCase(any())).thenReturn(
+            channelFlow {
+                send(
+                    RecoverPassUiState().copy(
+                        isDialogVisible = isDialogVisible,
+                        recoveryPassResponse = true,
+                        isLoading = false,
+                    ),
+                )
+                awaitClose()
+            },
+        )
 
-            // Assert
-            val job = launch {
-                viewModel.recoverPassUIState.test {
-                    awaitItem().let {
-                        assertThat(it.isDialogVisible.value).isEqualTo(false)
-                        assertThat(it.isLoading).isFalse()
-                        assertThat(it.recoveryPassResponse).isFalse()
-                    }
-                    awaitItem().let {
-                        assertThat(it.isDialogVisible.value).isEqualTo(false)
-                        assertThat(it.isLoading).isFalse()
-                        assertThat(it.recoveryPassResponse).isFalse()
-                    }
-                    awaitItem().let {
-                        assertThat(it.isDialogVisible.value).isEqualTo(isDialogVisible.value)
-                        assertThat(it.isLoading).isFalse()
-                        assertThat(it.recoveryPassResponse).isTrue()
-                    }
-
-                    cancelAndConsumeRemainingEvents()
+        // Assert
+        val job = launch {
+            viewModel.recoverPassUIState.test {
+                awaitItem().let {
+                    assertThat(it.isDialogVisible.value).isEqualTo(false)
+                    assertThat(it.isLoading).isFalse()
+                    assertThat(it.recoveryPassResponse).isFalse()
                 }
+                awaitItem().let {
+                    assertThat(it.isDialogVisible.value).isEqualTo(false)
+                    assertThat(it.isLoading).isFalse()
+                    assertThat(it.recoveryPassResponse).isFalse()
+                }
+                awaitItem().let {
+                    assertThat(it.isDialogVisible.value).isEqualTo(isDialogVisible.value)
+                    assertThat(it.isLoading).isFalse()
+                    assertThat(it.recoveryPassResponse).isTrue()
+                }
+
+                cancelAndConsumeRemainingEvents()
             }
-
-            // Act
-            viewModel.recoverPassword(email)
-
-            job.join()
-            job.cancel()
         }
+
+        // Act
+        viewModel.recoverPassword(email)
+
+        job.join()
+        job.cancel()
+    }
 
     @Test
     fun `LoginViewModel - Recovery Pass - Receive catch exception`() =
@@ -366,82 +365,80 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `LoginViewModel - backendLogin Login - Successful`() =
-        runTest(coroutineRule.testDispatcherProvider.io()) {
-            // Arrange
+    fun `LoginViewModel - backendLogin Login - Successful`() = runTest(coroutineRule.testDispatcherProvider.io()) {
+        // Arrange
 
-            val loginUiState = LoginUiState().copy(
-                isLogged = true,
-                screenState = LoginRegisterState.Login(),
-            )
+        val loginUiState = LoginUiState().copy(
+            isLogged = true,
+            screenState = LoginRegisterState.Login(),
+        )
 
-            whenever(backendRepository.login(any(), any())).thenReturn(
-                Result.success(Unit),
-            )
+        whenever(backendRepository.login(any(), any())).thenReturn(
+            Result.success(Unit),
+        )
 
-            whenever(firebaseUser.email).thenReturn("email")
-            whenever(firebaseUser.uid).thenReturn("uid")
+        whenever(firebaseUser.email).thenReturn("email")
+        whenever(firebaseUser.uid).thenReturn("uid")
 
-            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+        whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
 
-            // Assert
-            val job = launch {
-                viewModel.state.test {
-                    awaitItem().let { newLoginUiState ->
-                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
-                    }
-                    awaitItem().let { newLoginUiState ->
-                        assertThat(loginUiState).isEqualTo(newLoginUiState)
-                    }
-
-                    cancelAndConsumeRemainingEvents()
+        // Assert
+        val job = launch {
+            viewModel.state.test {
+                awaitItem().let { newLoginUiState ->
+                    assertThat(LoginUiState()).isEqualTo(newLoginUiState)
                 }
+                awaitItem().let { newLoginUiState ->
+                    assertThat(loginUiState).isEqualTo(newLoginUiState)
+                }
+
+                cancelAndConsumeRemainingEvents()
             }
-
-            // Act
-            viewModel.backendLogin(loginUiState)
-
-            job.join()
         }
+
+        // Act
+        viewModel.backendLogin(loginUiState)
+
+        job.join()
+    }
 
     @Test
-    fun `LoginViewModel - backendLogin Register - Successful`() =
-        runTest(coroutineRule.testDispatcherProvider.io()) {
-            // Arrange
+    fun `LoginViewModel - backendLogin Register - Successful`() = runTest(coroutineRule.testDispatcherProvider.io()) {
+        // Arrange
 
-            val loginUiState = LoginUiState().copy(
-                isLogged = true,
-                screenState = LoginRegisterState.Register(),
-            )
+        val loginUiState = LoginUiState().copy(
+            isLogged = true,
+            screenState = LoginRegisterState.Register(),
+        )
 
-            whenever(backendRepository.register(any(), any())).thenReturn(
-                Result.success(Unit),
-            )
+        whenever(backendRepository.register(any(), any())).thenReturn(
+            Result.success(Unit),
+        )
 
-            whenever(firebaseUser.email).thenReturn("email")
-            whenever(firebaseUser.uid).thenReturn("uid")
+        whenever(firebaseUser.email).thenReturn("email")
+        whenever(firebaseUser.uid).thenReturn("uid")
 
-            whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
+        whenever(firebaseAuth.currentUser).thenReturn(firebaseUser)
 
-            // Assert
-            val job = launch {
-                viewModel.state.test {
-                    awaitItem().let { newLoginUiState ->
-                        assertThat(LoginUiState()).isEqualTo(newLoginUiState)
-                    }
-                    awaitItem().let { newLoginUiState ->
-                        assertThat(loginUiState).isEqualTo(newLoginUiState)
-                    }
-
-                    cancelAndConsumeRemainingEvents()
+        // Assert
+        val job = launch {
+            viewModel.state.test {
+                awaitItem().let { newLoginUiState ->
+                    assertThat(LoginUiState()).isEqualTo(newLoginUiState)
                 }
+                awaitItem().let { newLoginUiState ->
+                    assertThat(loginUiState).isEqualTo(newLoginUiState)
+                }
+
+                cancelAndConsumeRemainingEvents()
             }
-
-            // Act
-            viewModel.backendLogin(loginUiState)
-
-            job.join()
         }
+
+        // Act
+        viewModel.backendLogin(loginUiState)
+
+        job.join()
+    }
 
     @Test
     fun `LoginViewModel - backendLogin Login Failure but Backend Repository - Successful`() =

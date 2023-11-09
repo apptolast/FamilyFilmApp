@@ -45,10 +45,7 @@ fun SplashScreen(navController: NavController) {
 }
 
 @Composable
-fun ContentSplashScreen(
-    scaleAnimation: Animatable<Float, AnimationVector1D>,
-    modifier: Modifier = Modifier,
-) {
+fun ContentSplashScreen(scaleAnimation: Animatable<Float, AnimationVector1D>, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()

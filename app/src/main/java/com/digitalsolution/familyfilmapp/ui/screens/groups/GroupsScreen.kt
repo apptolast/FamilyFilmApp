@@ -159,10 +159,7 @@ fun GroupContent(
 }
 
 @Composable
-fun AddGroupDialog(
-    dismissDialog: () -> Unit,
-    addGroup: (String) -> Unit,
-) {
+fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
     val errorMessage = stringResource(id = R.string.group_dialog_name_empty_error_message)
     var groupName by rememberSaveable { mutableStateOf("") }
 

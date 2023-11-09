@@ -19,9 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TopBar(
-    viewmodel: TabGroupsViewModel = hiltViewModel(),
-) {
+fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
 
     val tabState by viewmodel.state.collectAsStateWithLifecycle()

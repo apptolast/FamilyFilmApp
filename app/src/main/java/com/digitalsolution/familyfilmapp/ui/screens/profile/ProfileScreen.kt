@@ -56,11 +56,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileContent(
-    profileUiState: ProfileUiState,
-    onClickLogOut: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card {
             Column(

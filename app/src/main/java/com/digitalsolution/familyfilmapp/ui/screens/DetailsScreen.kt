@@ -125,7 +125,10 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true)
+@Preview(
+    showSystemUi = true,
+    showBackground = true,
+)
 @Composable
 fun DetailsScreenPreview() {
     FamilyFilmAppTheme {

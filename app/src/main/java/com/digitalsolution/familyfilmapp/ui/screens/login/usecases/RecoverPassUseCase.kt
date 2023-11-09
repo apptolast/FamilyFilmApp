@@ -7,11 +7,11 @@ import com.digitalsolution.familyfilmapp.exceptions.LoginException
 import com.digitalsolution.familyfilmapp.extensions.isEmailValid
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 class RecoverPassUseCase @Inject constructor(
     private val loginRepository: LoginRepository,

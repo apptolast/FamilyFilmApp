@@ -1,12 +1,12 @@
 [*.{kt,kts}]
 ktlint_code_style = intellij_idea
-ktlint_experimental = enabled
+ktlint_experimental = disabled
 
-ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+# ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
 ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
 ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 
-# disabled_rules = import-ordering
+ij_kotlin_function-naming = disable
 
 max_line_length = 120
 

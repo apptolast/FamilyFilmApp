@@ -40,11 +40,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun LoginMainContent(
-    loginUiState: LoginUiState,
-    onClick: (String, String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Unit, modifier: Modifier = Modifier) {
     var email by rememberSaveable { mutableStateOf(loginUiState.user.email) }
     var pass by rememberSaveable { mutableStateOf(loginUiState.user.pass) }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }

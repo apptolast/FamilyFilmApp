@@ -17,9 +17,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
-fun AppNavigation(
-    viewModel: NavigationViewModel = hiltViewModel(),
-) {
+fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     NavHost(

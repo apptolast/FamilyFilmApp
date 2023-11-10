@@ -1,29 +1,46 @@
-[*.{kt,kts}]
-ktlint_code_style = intellij_idea
-ktlint_experimental = disabled
+root = true
 
-# ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
-ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
-ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
-
-ij_kotlin_function-naming = disable
-
-max_line_length = 120
-
-end_of_line = lf
-ij_kotlin_allow_trailing_comma = true
-ij_kotlin_allow_trailing_comma_on_call_site = true
-ij_kotlin_imports_layout = *, java.**, javax.**, kotlin.**, ^
-ij_kotlin_packages_to_use_import_on_demand = unset
-indent_size = 4
-indent_style = space
+[*]
+charset = utf-8
 insert_final_newline = true
-ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than = unset
-ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 1
-ktlint_function_naming_ignore_when_annotated_with = unset
+trim_trailing_whitespace = true
 
-[unset]
-ktlint_function_signature_body_expression_wrapping = multiline
-ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 2
-ktlint_ignore_back_ticked_identifier = false
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+max_line_length = 120
+indent_size = 4
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_allow_trailing_comma = true # Only used for declaration site
+ij_kotlin_packages_to_use_import_on_demand = unset
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+# ktlint_standard_import-ordering = disabled
 
+[*.{yml,yaml}]
+indent_size = 2
+
+
+# An individual rule can be enabled or disabled with a rule property.
+# The name of the rule property consists of the ktlint_ prefix followed by the rule set id followed by a _ and the rule id.
+# Examples:
+# ktlint_standard_final-newline = disabled # Disables the `final-newline` rule provided by KtLint
+# ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
+# ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+
+
+
+
+
+
+
+# ij_kotlin_packages_to_use_import_on_demand = unset
+#
+# ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than = unset
+# ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 1
+# ktlint_function_naming_ignore_when_annotated_with = unset
+#
+# [unset]
+# ktlint_function_signature_body_expression_wrapping = multiline
+# ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 2
+# ktlint_ignore_back_ticked_identifier = false
+#

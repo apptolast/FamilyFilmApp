@@ -146,7 +146,8 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
-            groupTitle = "Worker Dudes", // FIXME: harcoded name
+            // FIXME: harcoded name
+            groupTitle = "Worker Dudes",
             groupUiState = groupUiState,
             members = groupBackendState.groups,
             onRemoveMemberClick = onClickRemoveMember,
@@ -203,7 +204,7 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 
 @Preview(showSystemUi = true)
 @Composable
-fun GroupContentPreview() {
+private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
             groupBackendState = GroupBackendState(),

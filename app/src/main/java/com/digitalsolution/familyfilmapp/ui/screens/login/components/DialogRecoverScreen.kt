@@ -90,7 +90,7 @@ fun AlertRecoverPassDialog(
 
 @Preview
 @Composable
-fun AlertRecoverPassDialogPreview() {
+private fun AlertRecoverPassDialogPreview() {
     FamilyFilmAppTheme {
         AlertRecoverPassDialog(
             recoverPassUIState = RecoverPassUiState().copy(

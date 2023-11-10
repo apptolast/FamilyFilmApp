@@ -31,7 +31,7 @@ fun HomeItem(movie: Movie, navigateToDetailsScreen: () -> Unit, modifier: Modifi
     backgroundColor = 0xFF1F1B16,
 )
 @Composable
-fun HomeItemPreview() {
+private fun HomeItemPreview() {
     FamilyFilmAppTheme {
         HomeItem(
             movie = Movie(

@@ -130,7 +130,7 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
     showBackground = true,
 )
 @Composable
-fun DetailsScreenPreview() {
+private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(navController = rememberNavController())
     }

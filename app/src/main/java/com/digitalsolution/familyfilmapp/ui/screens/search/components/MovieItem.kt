@@ -45,7 +45,7 @@ fun MovieItem(movie: Movie, modifier: Modifier = Modifier) {
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun MovieItemPreview() {
+private fun MovieItemPreview() {
     FamilyFilmAppTheme {
         MovieItem(Movie())
     }

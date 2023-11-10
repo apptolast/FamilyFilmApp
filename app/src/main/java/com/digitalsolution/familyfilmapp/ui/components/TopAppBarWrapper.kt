@@ -37,7 +37,7 @@ fun TopAppBarWrapper(title: String, onClickLogOut: () -> Unit) {
 
 @Preview
 @Composable
-fun TopAppBarWrapperPreview() {
+private fun TopAppBarWrapperPreview() {
     FamilyFilmAppTheme {
         TopAppBarWrapper("Title") {}
     }

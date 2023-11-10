@@ -133,7 +133,7 @@ private fun RowMovie(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun HomeContentPreview() {
+private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
             HomeUiState(

@@ -47,7 +47,7 @@ fun SplashScreen(navController: NavController) {
 @Composable
 fun ContentSplashScreen(scaleAnimation: Animatable<Float, AnimationVector1D>, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
@@ -64,7 +64,7 @@ fun ContentSplashScreen(scaleAnimation: Animatable<Float, AnimationVector1D>, mo
             Image(
                 painter = painterResource(id = R.drawable.logo_film_family),
                 contentDescription = "Logotipo Splash Screen",
-                modifier = modifier
+                modifier = Modifier
                     .size(400.dp)
                     .scale(scale = scaleAnimation.value),
             )

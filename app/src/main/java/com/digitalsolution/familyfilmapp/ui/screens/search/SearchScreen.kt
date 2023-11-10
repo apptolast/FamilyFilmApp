@@ -107,7 +107,7 @@ fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier) {
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun SearchScreenPreview() {
+private fun SearchScreenPreview() {
     FamilyFilmAppTheme {
         SearchScreen(NavController(LocalContext.current))
     }

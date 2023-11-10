@@ -93,7 +93,7 @@ fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit, mo
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
+private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
         ProfileScreen(navController = rememberNavController(), onClickNavigateLogin = {})
     }

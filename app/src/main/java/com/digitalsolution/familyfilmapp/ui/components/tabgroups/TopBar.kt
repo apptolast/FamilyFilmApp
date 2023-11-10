@@ -62,7 +62,7 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TopBarPreview() {
+private fun TopBarPreview() {
     FamilyFilmAppTheme {
         TopBar(viewmodel = hiltViewModel())
     }

@@ -118,6 +118,9 @@ dependencies {
     implementation "io.coil-kt:coil:2.4.0"
     implementation 'io.coil-kt:coil-compose:2.5.0'
 
+    // Ktlint Ruleset
+    ktlintRuleset "io.nlopez.compose.rules:ktlint:0.3.3"
+
     // Test
     testImplementation "junit:junit:4.13.2"
     testImplementation "com.google.truth:truth:1.1.5"
@@ -147,7 +150,7 @@ dependencies {
 }
 
 ktlint {
-    version = "0.49.1"
+    version = "1.0.1"
     debug = true
     verbose = true
     android = false
@@ -156,7 +159,7 @@ ktlint {
     ignoreFailures = false
     enableExperimentalRules = true
 //    additionalEditorconfigFile = file("/some/additional/.editorconfig")  // not supported with ktlint 0.47+
-//    baseline = file("my-project-ktlint-baseline.xml")
+    baseline = file("ktlint-baseline.xml")
     reporters {
         reporter "plain"
         reporter "checkstyle"

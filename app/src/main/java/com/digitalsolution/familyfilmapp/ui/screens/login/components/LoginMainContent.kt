@@ -73,7 +73,7 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it.trim() },
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
@@ -141,7 +141,7 @@ fun SupportingErrorText(errorMessage: String?, modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun CardLoginMainPreview() {
+private fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
             loginUiState = LoginUiState(),
@@ -152,7 +152,7 @@ fun CardLoginMainPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun CardLoginMainErrorPreview() {
+private fun CardLoginMainErrorPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
             loginUiState = LoginUiState().copy(

@@ -207,7 +207,7 @@ fun LoginContent(
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+private fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
             loginUiState = LoginUiState(),

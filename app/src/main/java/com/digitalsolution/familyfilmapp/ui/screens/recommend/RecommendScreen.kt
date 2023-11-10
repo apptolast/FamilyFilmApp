@@ -138,7 +138,7 @@ private fun RecommendContent(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun RecommendScreenPreview() {
+private fun RecommendScreenPreview() {
     FamilyFilmAppTheme {
         RecommendScreen(navController = rememberNavController())
     }

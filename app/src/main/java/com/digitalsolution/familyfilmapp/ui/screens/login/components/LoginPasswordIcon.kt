@@ -25,7 +25,7 @@ fun LoginPasswordIcon(isPasswordVisible: Boolean, passwordToVisible: () -> Unit)
 
 @Preview(showBackground = true)
 @Composable
-fun TrailingIconPasswordPreview() {
+private fun TrailingIconPasswordPreview() {
     FamilyFilmAppTheme {
         LoginPasswordIcon(isPasswordVisible = true) {}
     }

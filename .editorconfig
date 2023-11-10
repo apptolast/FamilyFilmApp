@@ -10,11 +10,16 @@ ktlint_code_style = android_studio
 max_line_length = 120
 indent_size = 4
 ij_kotlin_allow_trailing_comma_on_call_site = true
-ij_kotlin_allow_trailing_comma = true # Only used for declaration site
+ij_kotlin_allow_trailing_comma = true
 ij_kotlin_packages_to_use_import_on_demand = unset
 ij_kotlin_name_count_to_use_star_import = 999
 ij_kotlin_name_count_to_use_star_import_for_members = 999
 # ktlint_standard_import-ordering = disabled
+
+# Compose
+ktlint_function_naming_ignore_when_annotated_with=Composable
+ktlint_compose_modifier-missing-check = disabled
+ktlint_compose_unstable-collections = disabled
 
 [*.{yml,yaml}]
 indent_size = 2

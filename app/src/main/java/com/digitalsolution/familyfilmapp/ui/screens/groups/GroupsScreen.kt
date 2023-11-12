@@ -182,7 +182,7 @@ fun GroupContent(
             confirmButtonText = stringResource(id = android.R.string.ok),
             cancelButtonText = stringResource(id = android.R.string.cancel),
             onConfirm = onDeleteGroupClick,
-            onDismiss = { showDeleteGroupDialog = true },
+            onDismiss = { showDeleteGroupDialog = false },
         )
     }
 }

@@ -33,7 +33,6 @@ fun TopBar(
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
     if (tabState.groups.isNotEmpty()) {
-
         // Execute the callback with the first selected tab by default.
         selectedGroup(tabState.groups.first())
 

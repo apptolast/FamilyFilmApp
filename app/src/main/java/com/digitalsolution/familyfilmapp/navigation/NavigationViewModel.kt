@@ -32,8 +32,6 @@ class NavigationViewModel @Inject constructor(
         _navigationUIState.value = newNavigationUIState
     }
 
-    fun logOut() = firebaseAuth.signOut()
-
     fun checkUserLoggedIn(): Flow<Boolean> = channelFlow {
         checkUserLoggedInUseCase(Unit).collectLatest { uiState ->
             send(uiState.isLogged)

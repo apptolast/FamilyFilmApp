@@ -1,19 +1,11 @@
 package com.digitalsolution.familyfilmapp.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +18,6 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 import com.digitalsolution.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
-import kotlinx.coroutines.delay
 
 @Composable
 fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
@@ -35,24 +26,11 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
 
     LaunchedEffect(key1 = Unit) {
         viewModel.checkUserLoggedIn().collect { isLoggedIn ->
-            delay(800)
             isUserLoggedIn.value = isLoggedIn
         }
     }
 
-    if (isUserLoggedIn.value == null) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally, // Centra el contenido horizontalmente
-            verticalArrangement = Arrangement.Center,
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .height(200.dp)
-                    .width(200.dp),
-            )
-        }
-    } else {
+    if (isUserLoggedIn.value != null) {
         NavHost(
             navController = navController,
             modifier = Modifier.padding(),

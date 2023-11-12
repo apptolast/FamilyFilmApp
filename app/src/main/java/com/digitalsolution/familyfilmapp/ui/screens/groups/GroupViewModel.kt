@@ -1,13 +1,14 @@
 package com.digitalsolution.familyfilmapp.ui.screens.groups
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.BaseUiState
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.exceptions.GroupException
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
+import com.digitalsolution.familyfilmapp.repositories.LocalRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
@@ -25,6 +26,7 @@ import timber.log.Timber
 @HiltViewModel
 class GroupViewModel @Inject constructor(
     private val repository: BackendRepository,
+    private val localRepository: LocalRepository,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
@@ -35,8 +37,12 @@ class GroupViewModel @Inject constructor(
         initialValue = GroupBackendState(),
     )
 
-    private val _groupUIState = MutableLiveData(GroupUiState())
-    val groupUIState: LiveData<GroupUiState> = _groupUIState
+    private val _groupUIState = MutableStateFlow(GroupUiState())
+    val groupUIState: StateFlow<GroupUiState> = _groupUIState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = GroupUiState(),
+    )
 
     init {
         init()
@@ -80,8 +86,24 @@ class GroupViewModel @Inject constructor(
             },
         )
     }
+
+    fun deleteGroup(groupId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.deleteGroup(groupId)
+    }
+
+    fun tabChange(selectedGroup: Group) {
+        _groupUIState.update { oldValue ->
+            Timber.d("Compare users Id: ${selectedGroup.groupCreatorId} == ${localRepository.getUserId()}")
+            oldValue.copy(
+                deleteGroupButtonVisibility = mutableStateOf(
+                    selectedGroup.groupCreatorId == localRepository.getUserId(),
+                ),
+            )
+        }
+    }
 }
 
+// TODO: Move this extension function
 @Suppress("UNCHECKED_CAST")
 fun <T : BaseUiState> MutableStateFlow<T>.showProgressIndicator(value: Boolean) {
     this.value = this.value.copyWithLoading(value) as T

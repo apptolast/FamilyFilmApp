@@ -135,9 +135,11 @@ fun GroupCard(
                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                     Text(text = stringResource(id = R.string.groups_text_add_member))
                 }
-                OutlinedButton(onClick = { onDeleteGroupClick() }) {
-                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
-                    Text(text = stringResource(id = R.string.groups_text_delete_group))
+                if (groupUiState.deleteGroupButtonVisibility.value) {
+                    OutlinedButton(onClick = { onDeleteGroupClick() }) {
+                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                        Text(text = stringResource(id = R.string.groups_text_delete_group))
+                    }
                 }
             }
             LazyColumn {

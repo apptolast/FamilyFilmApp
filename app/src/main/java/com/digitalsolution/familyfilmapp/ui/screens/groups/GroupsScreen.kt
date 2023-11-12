@@ -21,7 +21,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,10 +36,11 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
+import com.digitalsolution.familyfilmapp.ui.components.dialogs.BasicDialog
+import com.digitalsolution.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.screens.groups.components.GroupCard
-import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendState
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -54,7 +54,8 @@ fun GroupsScreen(
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
-    val groupUiState by viewModel.groupUIState.observeAsState()
+    val groupUiState by viewModel.groupUIState.collectAsStateWithLifecycle()
+    var selectedGroup by remember { mutableStateOf<Group?>(null) }
 
     var showGroupNameDialog by rememberSaveable {
         mutableStateOf(false)
@@ -74,7 +75,12 @@ fun GroupsScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
-        topBar = { TopBar(tabViewmodel) },
+        topBar = {
+            TopBar(tabViewmodel) {
+                selectedGroup = it
+                viewModel.tabChange(it)
+            }
+        },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -93,23 +99,28 @@ fun GroupsScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         GroupContent(
-            groupBackendState,
-            groupUiState = groupUiState!!,
-            onClickRemoveMember = {},
+            selectedGroup = selectedGroup,
+            groupUiState = groupUiState,
             onCLickSwipeCard = {},
+            onClickRemoveMember = {},
             onAddMemberClick = {},
-            onDeleteGroupClick = {},
+            onDeleteGroupClick = {
+                viewModel.deleteGroup(selectedGroup!!.id)
+            },
             onChangeGroupName = {},
             modifier = Modifier.padding(paddingValues),
         )
 
+        // Dialog to change group name
         if (showGroupNameDialog) {
-            AddGroupDialog(
-                dismissDialog = {
-                    showGroupNameDialog = false
-                },
-                addGroup = { groupName ->
+            TextFieldDialog(
+                title = "Set group name",
+                description = "Group name",
+                onConfirm = { groupName ->
                     viewModel.addGroup(groupName)
+                },
+                onDismiss = {
+                    showGroupNameDialog = false
                 },
             )
         }
@@ -131,7 +142,7 @@ fun GroupsScreen(
 
 @Composable
 fun GroupContent(
-    groupBackendState: GroupBackendState,
+    selectedGroup: Group?,
     groupUiState: GroupUiState,
     onClickRemoveMember: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
@@ -140,21 +151,38 @@ fun GroupContent(
     onChangeGroupName: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showDeleteGroupDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
-            // FIXME: harcoded name
-            groupTitle = "Worker Dudes",
+            groupTitle = selectedGroup?.name ?: "No name",
             groupUiState = groupUiState,
-            members = groupBackendState.groups,
+            members = emptyList(), // FIXME: Members not serialized
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
-            onDeleteGroupClick = onDeleteGroupClick,
+            onDeleteGroupClick = {
+                showDeleteGroupDialog = true
+            },
             onChangeGroupName = onChangeGroupName,
+        )
+    }
+
+    // Dialog to delete the group
+    if (showDeleteGroupDialog) {
+        BasicDialog(
+            title = stringResource(R.string.dialog_delete_group_title),
+            description = stringResource(R.string.dialog_delete_group_description),
+            confirmButtonText = stringResource(id = android.R.string.ok),
+            cancelButtonText = stringResource(id = android.R.string.cancel),
+            onConfirm = onDeleteGroupClick,
+            onDismiss = { showDeleteGroupDialog = true },
         )
     }
 }
@@ -207,7 +235,7 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            groupBackendState = GroupBackendState(),
+            selectedGroup = Group(),
             groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},

@@ -10,10 +10,13 @@ data class GroupInfoRemote(
     @SerializedName("name")
     val name: String? = null,
 
+    @SerializedName("user_id")
+    val groupCreatorId: Int? = null,
+
     @SerializedName("watchList")
     val watchList: List<MovieInfoRemote>? = null,
 
     @SerializedName("viewList")
     val viewList: List<MovieInfoRemote>? = null,
 
-)
+    )

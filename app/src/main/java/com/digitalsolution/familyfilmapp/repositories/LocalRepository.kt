@@ -10,9 +10,12 @@ class LocalRepositoryImpl @Inject constructor(
     override fun setToken(token: String?) = prefs.setToken(token)
 
     override fun getToken(): String? = prefs.getToken()
+
+    override fun getUserId(): Int = prefs.getUserId()
 }
 
 interface LocalRepository {
     fun setToken(token: String?)
     fun getToken(): String?
+    fun getUserId(): Int
 }

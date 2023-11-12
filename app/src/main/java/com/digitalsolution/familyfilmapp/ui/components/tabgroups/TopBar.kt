@@ -16,10 +16,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
+fun TopBar(
+    viewmodel: TabGroupsViewModel = hiltViewModel(),
+    selectedGroup: (Group) -> Unit,
+) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
 
     val tabState by viewmodel.state.collectAsStateWithLifecycle()
@@ -29,6 +33,10 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
     if (tabState.groups.isNotEmpty()) {
+
+        // Execute the callback with the first selected tab by default.
+        selectedGroup(tabState.groups.first())
+
         ScrollableTabRow(
             selectedTabIndex = stateRow,
             containerColor = MaterialTheme.colorScheme.outlineVariant,
@@ -38,7 +46,10 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
             tabState.groups.forEachIndexed { index, groupInfo ->
                 Tab(
                     selected = stateRow == index,
-                    onClick = { stateRow = index },
+                    onClick = {
+                        selectedGroup(groupInfo)
+                        stateRow = index
+                    },
                     modifier = tabPadding,
                     selectedContentColor = selectedTabColor,
                     unselectedContentColor = unselectedTabColor,
@@ -65,6 +76,6 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
 @Composable
 private fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TopBar(viewmodel = hiltViewModel())
+        TopBar(viewmodel = hiltViewModel()) {}
     }
 }

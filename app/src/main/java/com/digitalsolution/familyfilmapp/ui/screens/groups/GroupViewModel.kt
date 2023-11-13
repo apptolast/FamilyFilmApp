@@ -88,8 +88,28 @@ class GroupViewModel @Inject constructor(
     }
 
     fun deleteGroup(groupId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.deleteGroup(groupId)
+        _state.showProgressIndicator(true)
+
+        try {
+            repository.deleteGroup(groupId)
+            init() // Recarga los grupos después de la eliminación
+            _state.update { oldState ->
+                oldState.copy(
+                    errorMessage = CustomException.GenericException("Group deleted"),
+                    isLoading = false,
+                )
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+            _state.update { oldState ->
+                oldState.copy(
+                    errorMessage = GroupException.DeleteGroup(),
+                    isLoading = false,
+                )
+            }
+        }
     }
+
 
     fun tabChange(selectedGroup: Group) {
         _groupUIState.update { oldValue ->

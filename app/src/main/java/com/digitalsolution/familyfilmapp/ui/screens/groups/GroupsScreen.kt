@@ -66,12 +66,13 @@ fun GroupsScreen(
             snackBarHostState.showSnackbar(
                 groupBackendState.errorMessage!!.error,
                 null,
-                false,
-                SnackbarDuration.Short,
+                true,
             )
-            tabViewmodel.init()
+            // Puede ser necesario actualizar también el TabGroupsViewModel
+            tabViewmodel.refreshGroups()
         }
     }
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },

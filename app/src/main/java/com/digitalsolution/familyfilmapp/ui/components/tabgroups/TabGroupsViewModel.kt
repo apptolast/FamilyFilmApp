@@ -23,7 +23,7 @@ class TabGroupsViewModel @Inject constructor(
     private val _state = MutableStateFlow(TabBackendState())
     val state: StateFlow<TabBackendState> = _state.asStateFlow().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(),
         initialValue = TabBackendState(),
     )
 
@@ -48,4 +48,18 @@ class TabGroupsViewModel @Inject constructor(
             )
         }
     }
+
+    fun refreshGroups() = viewModelScope.launch {
+        _state.showProgressIndicator(true)
+        _state.update { oldState ->
+            oldState.copy(
+                groups = repository.getGroups().getOrElse {
+                    Timber.e(it)
+                    emptyList()
+                },
+                isLoading = false,
+            )
+        }
+    }
+
 }

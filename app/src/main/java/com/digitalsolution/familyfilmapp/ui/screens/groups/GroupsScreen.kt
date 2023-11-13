@@ -72,6 +72,7 @@ fun GroupsScreen(
         }
     }
 
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {

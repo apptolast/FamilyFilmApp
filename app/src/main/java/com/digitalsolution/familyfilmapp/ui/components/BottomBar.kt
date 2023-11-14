@@ -11,6 +11,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.ui.theme.FFATheme
+import com.digitalsolution.familyfilmapp.ui.theme.LocalContentColor
 
 @Composable
 fun BottomBar(navController: NavController) {
@@ -42,7 +44,10 @@ fun BottomBar(navController: NavController) {
                     Icon(imageVector = screen.icon!!, contentDescription = "")
                 },
                 label = {
-                    Text(text = stringResource(id = screen.title))
+                    Text(
+                        text = stringResource(id = screen.title),
+                        fontStyle = FFATheme.typography.bodyXS,
+                    )
                 },
                 alwaysShowLabel = false,
             )

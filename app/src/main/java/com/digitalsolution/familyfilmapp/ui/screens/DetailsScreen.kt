@@ -27,18 +27,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(navController: NavController) {
+fun DetailsScreen(navController: NavController, title: String, image: String, synopsis: String) {
     val lazyListState = rememberLazyListState()
     var scrolledY = 0f
     var previousOffset = 0
@@ -49,7 +47,7 @@ fun DetailsScreen(navController: NavController) {
     ) {
         item {
             AsyncImage(
-                model = "https://loremflickr.com/400/400/cat?lock=37",
+                model = image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +65,7 @@ fun DetailsScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Cat's Returns",
+                    text = title,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
                     ),
@@ -102,7 +100,7 @@ fun DetailsScreen(navController: NavController) {
                     modifier = Modifier.padding(top = 15.dp),
                 )
                 Text(
-                    text = stringResource(R.string.details_screen_description_lorem_ipsum).trimIndent(),
+                    text = synopsis,
                     modifier = Modifier.padding(vertical = 15.dp),
                 )
             }
@@ -132,6 +130,11 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
 @Composable
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
-        DetailsScreen(navController = rememberNavController())
+        DetailsScreen(
+            navController = rememberNavController(),
+            title = "",
+            image = "",
+            synopsis = "",
+        )
     }
 }

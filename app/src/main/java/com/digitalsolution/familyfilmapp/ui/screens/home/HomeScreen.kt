@@ -40,7 +40,11 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigateToDetailsScreen: (Movie) -> Unit,
+) {
     val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -72,20 +76,28 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     ) { paddingValues ->
         HomeContent(
             homeUiState = homeUiState,
-            navigateToDetailsScreen = { navController.navigate(Routes.Details.routes) },
+            navigateToDetailsScreen = {
+                navigateToDetailsScreen(it)
+            },
             modifier = Modifier.padding(paddingValues),
         )
     }
 }
 
 @Composable
-fun HomeContent(homeUiState: HomeUiState, modifier: Modifier = Modifier, navigateToDetailsScreen: () -> Unit) {
+fun HomeContent(
+    homeUiState: HomeUiState,
+    modifier: Modifier = Modifier,
+    navigateToDetailsScreen: (Movie) -> Unit,
+) {
     Column(modifier = modifier.fillMaxSize()) {
         RowMovie(
             title = stringResource(R.string.home_text_to_see),
             icon = Icons.Default.ListAlt,
             movies = homeUiState.seen,
-            navigateToDetailsScreen = navigateToDetailsScreen,
+            navigateToDetailsScreen = {
+                navigateToDetailsScreen(it)
+            },
             modifier = Modifier.weight(1f),
         )
         RowMovie(
@@ -103,7 +115,7 @@ private fun RowMovie(
     title: String,
     icon: ImageVector,
     movies: List<Movie>,
-    navigateToDetailsScreen: () -> Unit,
+    navigateToDetailsScreen: (Movie) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -124,7 +136,9 @@ private fun RowMovie(
             items(movies) { movie ->
                 HomeItem(
                     movie = movie,
-                    navigateToDetailsScreen = navigateToDetailsScreen,
+                    navigateToDetailsScreen = {
+                        navigateToDetailsScreen(it)
+                    },
                 )
             }
         }
@@ -135,14 +149,7 @@ private fun RowMovie(
 @Composable
 private fun HomeContentPreview() {
     FamilyFilmAppTheme {
-        HomeContent(
-            HomeUiState(
-                seen = listOf(Movie(image = "", "Movie title")),
-                forSeen = listOf(Movie(image = "", "Movie title")),
-                groups = listOf("Group 1", "Group 2"),
-                isLoading = true,
-                errorMessage = null,
-            ),
-        ) {}
+        HomeContent(homeUiState = HomeUiState(), navigateToDetailsScreen = {
+        },)
     }
 }

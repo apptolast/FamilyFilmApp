@@ -104,6 +104,12 @@ dependencies {
     ksp "com.google.dagger:hilt-android-compiler:2.48.1"
     kspTest "com.google.dagger:hilt-android-compiler:2.48.1"
 
+
+    // Navegacion Con Safe Arguments
+    implementation "io.github.dilrajsingh1997:compose-annotation:1.0.3"
+    ksp "io.github.dilrajsingh1997:compose-annotation-processor:1.0.6"
+    implementation "com.google.devtools.ksp:symbol-processing-api:1.9.20-1.0.14"
+
     // Firebase
     implementation(platform('com.google.firebase:firebase-bom:32.3.1'))
     implementation 'com.google.firebase:firebase-crashlytics-ktx'

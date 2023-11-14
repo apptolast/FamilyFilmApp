@@ -1,5 +1,7 @@
 package com.digitalsolution.familyfilmapp.ui.components.tabgroups
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
@@ -27,13 +29,16 @@ class TabGroupsViewModel @Inject constructor(
         initialValue = TabBackendState(),
     )
 
+
+    private val _tabUIState = MutableLiveData(TabUIState())
+    val tabUIState: LiveData<TabUIState> = _tabUIState
+
     init {
-        init()
+        refreshGroups()
     }
 
-    fun init() = viewModelScope.launch {
+    fun refreshGroups() = viewModelScope.launch {
         _state.showProgressIndicator(true)
-
         _state.update { oldState ->
             oldState.copy(
                 groups = repository.getGroups().getOrElse {
@@ -48,18 +53,4 @@ class TabGroupsViewModel @Inject constructor(
             )
         }
     }
-
-    fun refreshGroups() = viewModelScope.launch {
-        _state.showProgressIndicator(true)
-        _state.update { oldState ->
-            oldState.copy(
-                groups = repository.getGroups().getOrElse {
-                    Timber.e(it)
-                    emptyList()
-                },
-                isLoading = false,
-            )
-        }
-    }
-
 }

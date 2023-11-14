@@ -110,7 +110,6 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-
     fun tabChange(selectedGroup: Group) {
         _groupUIState.update { oldValue ->
             Timber.d("Compare users Id: ${selectedGroup.groupCreatorId} == ${localRepository.getUserId()}")

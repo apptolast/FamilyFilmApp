@@ -147,7 +147,7 @@ private fun RowMovie(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-private fun HomeContentPreview() {
+fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(homeUiState = HomeUiState(), navigateToDetailsScreen = {
         },)

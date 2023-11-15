@@ -35,7 +35,7 @@ fun HomeItem(
     backgroundColor = 0xFF1F1B16,
 )
 @Composable
-private fun HomeItemPreview() {
+fun HomeItemPreview() {
     FamilyFilmAppTheme {
         HomeItem(
             movie = Movie(

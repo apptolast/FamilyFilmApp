@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -21,6 +22,9 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 @Composable
 fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
+    val graph = remember(navController) {
+        NavigationGraph(navController)
+    }
 
     NavHost(
         navController = navController,
@@ -30,8 +34,20 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)
         }
-        composable(route = Routes.Home.routes) {
-            HomeScreen(navController = navController)
+        composable(
+            route = Routes.Home.routes,
+            arguments = listOf(),
+        ) { backStackEntry ->
+            HomeScreen(navController = navController) {
+                graph.openDetailPage(
+                    it.image,
+                    it.title,
+                    it.releaseDate.toString(),
+                    it.voteAverage,
+                    it.isAdult,
+                    it.synopsis,
+                )
+            }
         }
         composable(route = Routes.Recommend.routes) {
             RecommendScreen(navController = navController)
@@ -48,18 +64,17 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
             )
         }
         composable(
-            route = "${Routes.Details.routes}/{title}/{image}/{synopsis}",
-            arguments = listOf(
-                navArgument("title") { type = NavType.StringType },
-                navArgument("image") { type = NavType.StringType },
-                navArgument("synopsis") { type = NavType.StringType },
-            ),
+            route = DetailPageDestination.route,
+            arguments = DetailPageDestination.argumentList,
         ) { backStackEntry ->
+            val (image, title, date, voteAverage, isAdult, synopsis) = DetailPageDestination.parseArguments(
+                backStackEntry,
+            )
             DetailsScreen(
                 navController = navController,
-                title = backStackEntry.arguments?.getString("title") ?: "title",
-                image = backStackEntry.arguments?.getString("image") ?: "image",
-                synopsis = backStackEntry.arguments?.getString("synopsis") ?: "synopsis",
+                title = title,
+                image = image,
+                synopsis = synopsis,
             )
         }
         composable(route = Routes.Search.routes) {

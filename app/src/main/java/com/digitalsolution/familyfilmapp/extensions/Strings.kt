@@ -8,9 +8,8 @@ import java.util.regex.Pattern
 
 fun String.isEmailValid(): Boolean = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
-private const val passwordValidationRegex =
-    "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}\$"
+private const val PASSWORD_VALIDATION_REGEX = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}\$"
 
-fun String.isPasswordValid(): Boolean = Pattern.compile(passwordValidationRegex).matcher(this).matches()
+fun String.isPasswordValid(): Boolean = Pattern.compile(PASSWORD_VALIDATION_REGEX).matcher(this).matches()
 
 fun String.toDate(format: String = "yyyy-MM-dd"): Date = SimpleDateFormat(format, Locale.getDefault()).parse(this)

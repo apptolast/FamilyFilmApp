@@ -146,7 +146,8 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
-            groupTitle = "Worker Dudes", // FIXME: harcoded name
+            // FIXME: harcoded name
+            groupTitle = "Worker Dudes",
             groupUiState = groupUiState,
             members = groupBackendState.groups,
             onRemoveMemberClick = onClickRemoveMember,
@@ -159,10 +160,7 @@ fun GroupContent(
 }
 
 @Composable
-fun AddGroupDialog(
-    dismissDialog: () -> Unit,
-    addGroup: (String) -> Unit,
-) {
+fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
     val errorMessage = stringResource(id = R.string.group_dialog_name_empty_error_message)
     var groupName by rememberSaveable { mutableStateOf("") }
 
@@ -206,7 +204,7 @@ fun AddGroupDialog(
 
 @Preview(showSystemUi = true)
 @Composable
-fun GroupContentPreview() {
+private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
             groupBackendState = GroupBackendState(),

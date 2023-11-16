@@ -13,54 +13,51 @@ class LoginRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
 ) : LoginRepository {
 
-    override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> =
-        channelFlow {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    launch {
-                        send(Result.success(it))
-                    }
+    override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> = channelFlow {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                launch {
+                    send(Result.success(it))
                 }
-                .addOnFailureListener {
-                    launch {
-                        send(Result.failure(it))
-                    }
+            }
+            .addOnFailureListener {
+                launch {
+                    send(Result.failure(it))
                 }
-            awaitClose()
-        }
+            }
+        awaitClose()
+    }
 
-    override fun register(email: String, password: String): Flow<Result<AuthResult>> =
-        channelFlow {
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    launch {
-                        send(Result.success(it))
-                    }
+    override fun register(email: String, password: String): Flow<Result<AuthResult>> = channelFlow {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                launch {
+                    send(Result.success(it))
                 }
-                .addOnFailureListener {
-                    launch {
-                        send(Result.failure(it))
-                    }
+            }
+            .addOnFailureListener {
+                launch {
+                    send(Result.failure(it))
                 }
-            awaitClose()
-        }
+            }
+        awaitClose()
+    }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> =
-        channelFlow {
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(credential)
-                .addOnSuccessListener {
-                    launch {
-                        send(Result.success(it))
-                    }
+    override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = channelFlow {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnSuccessListener {
+                launch {
+                    send(Result.success(it))
                 }
-                .addOnFailureListener {
-                    launch {
-                        send(Result.failure(it))
-                    }
+            }
+            .addOnFailureListener {
+                launch {
+                    send(Result.failure(it))
                 }
-            awaitClose()
-        }
+            }
+        awaitClose()
+    }
 
     override fun getUser(): Flow<Result<Boolean>> = channelFlow {
         firebaseAuth.addAuthStateListener {

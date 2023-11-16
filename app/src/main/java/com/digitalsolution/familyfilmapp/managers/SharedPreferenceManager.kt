@@ -12,11 +12,9 @@ class SharedPreferenceManager @Inject constructor(
     // -----------------------
     // TOKEN
     // -----------------------
-    fun getToken(): String? =
-        prefs.getString(KEY_TOKEN, null)
+    fun getToken(): String? = prefs.getString(KEY_TOKEN, null)
 
-    fun setToken(value: String?) =
-        prefs.edit().putString(KEY_TOKEN, value).apply()
+    fun setToken(value: String?) = prefs.edit().putString(KEY_TOKEN, value).apply()
 
     companion object {
         const val SHARED_PREFERENCES_FILE_NAME = "shared_preferences_file_name"

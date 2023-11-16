@@ -129,9 +129,7 @@ class LoginViewModel @Inject constructor(
      * @param newLoginUIState Valid `LoginUIState` retrieved from firebase
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun backendLogin(
-        newLoginUIState: LoginUiState,
-    ) {
+    suspend fun backendLogin(newLoginUIState: LoginUiState) {
         if (newLoginUIState.isLogged) {
             when (newLoginUIState.screenState) {
                 is LoginRegisterState.Login -> {

@@ -43,10 +43,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.recommend.states.MovieUiStat
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun RecommendScreen(
-    navController: NavController,
-    viewModel: RecommendViewModel = hiltViewModel(),
-) {
+fun RecommendScreen(navController: NavController, viewModel: RecommendViewModel = hiltViewModel()) {
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
     val backendState by viewModel.recommendUIBackendState.observeAsState()
 
@@ -141,7 +138,7 @@ private fun RecommendContent(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun RecommendScreenPreview() {
+private fun RecommendScreenPreview() {
     FamilyFilmAppTheme {
         RecommendScreen(navController = rememberNavController())
     }

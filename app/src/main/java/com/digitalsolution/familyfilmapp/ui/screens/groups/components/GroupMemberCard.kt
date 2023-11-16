@@ -85,7 +85,7 @@ fun GroupCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun GroupCardPreview() {
+private fun GroupCardPreview() {
     FamilyFilmAppTheme {
         GroupCard(
             group = Group(

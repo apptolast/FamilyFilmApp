@@ -74,7 +74,7 @@ fun GroupCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween, // Cambiado a SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (!groupUiState.checkedEditGroupName.value) {
@@ -111,8 +111,8 @@ fun GroupCard(
                 }
                 OutlinedIconToggleButton(
                     modifier = Modifier
-                        .wrapContentWidth() // Asigna un peso al botón
-                        .padding(end = 8.dp), // Añade un padding al final (derecha) del botón
+                        .wrapContentWidth()
+                        .padding(end = 8.dp),
                     checked = groupUiState.checkedEditGroupName.value,
                     onCheckedChange = { groupUiState.checkedEditGroupName.value = it },
                     enabled = true,

@@ -19,10 +19,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun MovieItem(
-    movie: Movie,
-    modifier: Modifier = Modifier,
-) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -48,7 +45,7 @@ fun MovieItem(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun MovieItemPreview() {
+private fun MovieItemPreview() {
     FamilyFilmAppTheme {
         MovieItem(Movie())
     }

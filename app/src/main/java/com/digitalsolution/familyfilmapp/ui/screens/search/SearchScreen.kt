@@ -41,10 +41,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.components.MovieItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun SearchScreen(
-    navController: NavController,
-    viewModel: SearchViewModel = hiltViewModel(),
-) {
+fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -69,10 +66,7 @@ fun SearchScreen(
 }
 
 @Composable
-fun SearchContent(
-    movies: List<Movie>,
-    modifier: Modifier = Modifier,
-) {
+fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
@@ -113,7 +107,7 @@ fun SearchContent(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun SearchScreenPreview() {
+private fun SearchScreenPreview() {
     FamilyFilmAppTheme {
         SearchScreen(NavController(LocalContext.current))
     }

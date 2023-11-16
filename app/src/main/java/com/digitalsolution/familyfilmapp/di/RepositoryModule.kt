@@ -21,13 +21,11 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(firebaseAuth: FirebaseAuth): LoginRepository =
-        LoginRepositoryImpl(firebaseAuth)
+    fun provideLoginRepository(firebaseAuth: FirebaseAuth): LoginRepository = LoginRepositoryImpl(firebaseAuth)
 
     @Singleton
     @Provides
-    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository =
-        LocalRepositoryImpl(prefs)
+    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository = LocalRepositoryImpl(prefs)
 
     @Singleton
     @Provides

@@ -40,10 +40,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
 @Composable
-fun HomeScreen(
-    navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel(),
-) {
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -82,11 +79,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeContent(
-    homeUiState: HomeUiState,
-    modifier: Modifier = Modifier,
-    navigateToDetailsScreen: () -> Unit,
-) {
+fun HomeContent(homeUiState: HomeUiState, modifier: Modifier = Modifier, navigateToDetailsScreen: () -> Unit) {
     Column(modifier = modifier.fillMaxSize()) {
         RowMovie(
             title = stringResource(R.string.home_text_to_see),
@@ -140,7 +133,7 @@ private fun RowMovie(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun HomeContentPreview() {
+private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
             HomeUiState(

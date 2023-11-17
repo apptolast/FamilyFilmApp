@@ -33,10 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(navController: NavController, title: String, image: String, synopsis: String) {
+fun DetailsScreen(
+    navController: NavController,
+    movie: Movie,
+) {
     val lazyListState = rememberLazyListState()
     var scrolledY = 0f
     var previousOffset = 0
@@ -47,7 +51,7 @@ fun DetailsScreen(navController: NavController, title: String, image: String, sy
     ) {
         item {
             AsyncImage(
-                model = image,
+                model = movie.image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -65,7 +69,7 @@ fun DetailsScreen(navController: NavController, title: String, image: String, sy
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = title,
+                    text = movie.title,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
                     ),
@@ -100,7 +104,7 @@ fun DetailsScreen(navController: NavController, title: String, image: String, sy
                     modifier = Modifier.padding(top = 15.dp),
                 )
                 Text(
-                    text = synopsis,
+                    text = movie.synopsis,
                     modifier = Modifier.padding(vertical = 15.dp),
                 )
             }
@@ -132,9 +136,7 @@ private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
             navController = rememberNavController(),
-            title = "",
-            image = "",
-            synopsis = "",
+            movie = Movie(),
         )
     }
 }

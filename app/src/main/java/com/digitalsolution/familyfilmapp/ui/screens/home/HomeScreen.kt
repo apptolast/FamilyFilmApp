@@ -33,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.navigation.DetailPageDestination
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
@@ -43,7 +44,6 @@ import kotlin.system.exitProcess
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel(),
-    navigateToDetailsScreen: (Movie) -> Unit,
 ) {
     val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
@@ -76,8 +76,8 @@ fun HomeScreen(
     ) { paddingValues ->
         HomeContent(
             homeUiState = homeUiState,
-            navigateToDetailsScreen = {
-                navigateToDetailsScreen(it)
+            navigateToDetailsScreen = { movie ->
+                navController.navigate(DetailPageDestination.getDestination(movie))
             },
             modifier = Modifier.padding(paddingValues),
         )
@@ -149,7 +149,6 @@ private fun RowMovie(
 @Composable
 fun HomeContentPreview() {
     FamilyFilmAppTheme {
-        HomeContent(homeUiState = HomeUiState(), navigateToDetailsScreen = {
-        },)
+        HomeContent(homeUiState = HomeUiState(), navigateToDetailsScreen = { })
     }
 }

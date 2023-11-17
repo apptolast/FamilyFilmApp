@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
@@ -28,7 +29,10 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)
         }
-        composable(route = Routes.Home.routes) {
+        composable(
+            route = Routes.Home.routes,
+            arguments = listOf(),
+        ) {
             HomeScreen(navController = navController)
         }
         composable(route = Routes.Recommend.routes) {
@@ -45,8 +49,15 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
                 },
             )
         }
-        composable(route = Routes.Details.routes) {
-            DetailsScreen(navController = navController)
+        composable(
+            route = DetailNavTypeDestination.route,
+            arguments = DetailNavTypeDestination.argumentList,
+        ) { backStackEntry ->
+            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
+            DetailsScreen(
+                navController = navController,
+                movie = movie,
+            )
         }
         composable(route = Routes.Search.routes) {
             SearchScreen(navController = navController)

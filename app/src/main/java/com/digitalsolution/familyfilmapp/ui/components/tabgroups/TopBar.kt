@@ -57,6 +57,7 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
                 )
             }
         }
+    } else {
     }
 }
 

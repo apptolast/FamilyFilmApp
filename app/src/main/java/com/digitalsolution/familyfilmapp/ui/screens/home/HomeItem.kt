@@ -12,9 +12,9 @@ import com.digitalsolution.familyfilmapp.ui.components.CustomCard
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeItem(movie: Movie, navigateToDetailsScreen: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeItem(movie: Movie, navigateToDetailsScreen: (Movie) -> Unit, modifier: Modifier = Modifier) {
     CustomCard(
-        modifier = modifier.clickable { navigateToDetailsScreen() },
+        modifier = modifier.clickable { navigateToDetailsScreen(movie) },
         content = {
             AsyncImage(
                 model = movie.image,

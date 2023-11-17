@@ -1,5 +1,6 @@
 package com.digitalsolution.familyfilmapp.ui.screens.search.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,9 +20,11 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun MovieItem(movie: Movie, modifier: Modifier = Modifier) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
     Row(
-        modifier = Modifier.padding(12.dp),
+        modifier = Modifier.padding(12.dp).clickable {
+            onNavigateDetailScreen(movie)
+        },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
@@ -47,6 +50,6 @@ fun MovieItem(movie: Movie, modifier: Modifier = Modifier) {
 @Composable
 private fun MovieItemPreview() {
     FamilyFilmAppTheme {
-        MovieItem(Movie())
+        MovieItem(Movie()) {}
     }
 }

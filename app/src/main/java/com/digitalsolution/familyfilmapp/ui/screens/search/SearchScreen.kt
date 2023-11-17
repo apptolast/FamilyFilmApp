@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.screens.search.components.MovieItem
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -61,12 +62,14 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         SearchContent(
             movies = uiState.movies,
             modifier = Modifier.padding(paddingValues),
-        )
+        ) { movie ->
+            navController.navigate(DetailNavTypeDestination.getDestination(movie))
+        }
     }
 }
 
 @Composable
-fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier) {
+fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
@@ -95,7 +98,9 @@ fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier) {
 
         LazyColumn {
             items(movies) { movie ->
-                MovieItem(movie = movie)
+                MovieItem(movie = movie) {
+                    onNavigateDetailScreen(it)
+                }
             }
         }
     }

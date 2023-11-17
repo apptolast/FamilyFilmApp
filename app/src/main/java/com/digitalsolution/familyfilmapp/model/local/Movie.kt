@@ -1,8 +1,11 @@
 package com.digitalsolution.familyfilmapp.model.local
 
+import android.os.Parcelable
 import java.util.Calendar
 import java.util.Date
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Movie(
     val title: String,
     val isAdult: Boolean,
@@ -13,7 +16,7 @@ data class Movie(
     val voteCount: Int,
     val releaseDate: Date,
     val language: String,
-) {
+) : Parcelable {
     constructor(image: String, title: String) : this(
         title = title,
         isAdult = true,

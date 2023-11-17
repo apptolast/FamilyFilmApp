@@ -33,8 +33,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Movie
-import com.digitalsolution.familyfilmapp.navigation.DetailPageDestination
 import com.digitalsolution.familyfilmapp.navigation.Routes
+import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -77,7 +77,7 @@ fun HomeScreen(
         HomeContent(
             homeUiState = homeUiState,
             navigateToDetailsScreen = { movie ->
-                navController.navigate(DetailPageDestination.getDestination(movie))
+                navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
             modifier = Modifier.padding(paddingValues),
         )

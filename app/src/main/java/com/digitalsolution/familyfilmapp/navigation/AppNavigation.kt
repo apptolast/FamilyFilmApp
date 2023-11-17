@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.digitalsolution.familyfilmapp.R
+import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.home.HomeScreen
@@ -51,10 +52,10 @@ fun AppNavigation(
             )
         }
         composable(
-            route = DetailPageDestination.route,
-            arguments = DetailPageDestination.argumentList,
+            route = DetailNavTypeDestination.route,
+            arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
-            val (movie) = DetailPageDestination.parseArguments(backStackEntry)
+            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,
                 movie = movie,

@@ -4,6 +4,6 @@ import com.compose.type_safe_args.annotation.ComposeDestination
 import com.digitalsolution.familyfilmapp.model.local.Movie
 
 @ComposeDestination
-abstract class DetailPage {
-    abstract val movie: Movie
+interface DetailPage {
+    val movie: Movie
 }

@@ -37,11 +37,6 @@ sealed class Routes(
         icon = Icons.Outlined.Person,
     )
 
-    data object Details : Routes(
-        "Details",
-        icon = null,
-    )
-
     data object Search : Routes(
         "Search",
         null,

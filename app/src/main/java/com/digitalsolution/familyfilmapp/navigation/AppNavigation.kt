@@ -34,7 +34,7 @@ fun AppNavigation(
         composable(
             route = Routes.Home.routes,
             arguments = listOf(),
-        ) { backStackEntry ->
+        ) {
             HomeScreen(navController = navController)
         }
         composable(route = Routes.Recommend.routes) {

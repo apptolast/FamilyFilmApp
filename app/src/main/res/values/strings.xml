@@ -44,5 +44,11 @@
     <!-- GENERAL STRINGS -->
     <string name="send_text">Send</string>
     <string name="group_dialog_name_empty_error_message">Group Name is empty</string>
+    <string name="login">Login</string>
+    <string name="home">Home</string>
+    <string name="recommend">Recommend</string>
+    <string name="groups">Groups</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
 
 </resources>

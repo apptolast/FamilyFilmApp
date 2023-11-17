@@ -3,9 +3,9 @@ package com.digitalsolution.familyfilmapp.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,11 +24,9 @@ fun AppNavigation(
     viewModel: NavigationViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
-    val iUIState by viewModel.navigationUIState.observeAsState()
+    val iUIState by viewModel.navigationUIState.collectAsStateWithLifecycle()
 
-    iUIState?.let {
-        AppNavHost(navController = navController, isUserLoggedIn = it.isUserLoggedIn)
-    }
+    iUIState.isUserLoggedIn?.let { AppNavHost(navController = navController, isUserLoggedIn = it) }
 }
 
 @Composable

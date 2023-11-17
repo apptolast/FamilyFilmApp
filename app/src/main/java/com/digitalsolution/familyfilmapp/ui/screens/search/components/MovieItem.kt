@@ -20,14 +20,10 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun MovieItem(
-    movie: Movie,
-              modifier: Modifier = Modifier,
-    onNavigateDetailScreen: (Movie) -> Unit
-) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
     Row(
         modifier = Modifier.padding(12.dp).clickable {
-                                                     onNavigateDetailScreen(movie)
+            onNavigateDetailScreen(movie)
         },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -54,6 +50,6 @@ fun MovieItem(
 @Composable
 private fun MovieItemPreview() {
     FamilyFilmAppTheme {
-        MovieItem(Movie()){}
+        MovieItem(Movie()) {}
     }
 }

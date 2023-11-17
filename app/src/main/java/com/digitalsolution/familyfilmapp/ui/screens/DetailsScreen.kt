@@ -37,10 +37,7 @@ import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(
-    navController: NavController,
-    movie: Movie,
-) {
+fun DetailsScreen(navController: NavController, movie: Movie) {
     val lazyListState = rememberLazyListState()
     var scrolledY = 0f
     var previousOffset = 0

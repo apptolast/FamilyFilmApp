@@ -62,17 +62,14 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         SearchContent(
             movies = uiState.movies,
             modifier = Modifier.padding(paddingValues),
-        ) {movie ->
+        ) { movie ->
             navController.navigate(DetailNavTypeDestination.getDestination(movie))
         }
     }
 }
 
 @Composable
-fun SearchContent(
-    movies: List<Movie>, modifier: Modifier = Modifier,
-    onNavigateDetailScreen: (Movie) -> Unit,
-) {
+fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
     var searchText by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 

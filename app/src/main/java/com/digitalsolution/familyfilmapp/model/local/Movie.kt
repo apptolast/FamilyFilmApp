@@ -1,9 +1,9 @@
 package com.digitalsolution.familyfilmapp.model.local
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import java.util.Calendar
 import java.util.Date
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Movie(

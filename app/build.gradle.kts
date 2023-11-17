@@ -67,7 +67,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
 }
 
 dependencies {
@@ -81,7 +80,7 @@ dependencies {
     // Splash
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    //Swipe
+    // Swipe
     implementation("me.saket.swipe:swipe:1.2.0")
 
     // Navigation
@@ -96,7 +95,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.runtime:runtime-livedata")
 
-    //Google auth
+    // Google auth
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Retrofit
@@ -178,7 +177,6 @@ ktlint {
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.JSON)
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
     }
     filter {
         exclude("**/generated/**")

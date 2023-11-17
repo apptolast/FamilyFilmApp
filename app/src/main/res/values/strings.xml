@@ -50,5 +50,6 @@
     <string name="groups">Groups</string>
     <string name="profile">Profile</string>
     <string name="search">Search</string>
+    <string name="text_read_more">Read More\n</string>
 
 </resources>

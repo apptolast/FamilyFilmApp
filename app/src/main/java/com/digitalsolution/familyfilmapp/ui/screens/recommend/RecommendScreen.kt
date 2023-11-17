@@ -54,7 +54,7 @@ fun RecommendScreen(navController: NavController, viewModel: RecommendViewModel 
             recommendUiState,
             backendState,
             modifier = Modifier.padding(paddingValues),
-            navigationToDetail = {movie ->
+            navigationToDetail = { movie ->
                 navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
         )

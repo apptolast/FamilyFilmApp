@@ -104,7 +104,7 @@ fun RecommendedMovieCard(modifier: Modifier = Modifier, movie: Movie, navigateTo
                             .width(200.dp)
                             .height(35.dp),
 
-                        ) {
+                    ) {
                         Text(text = stringResource(id = R.string.text_read_more))
                     }
                 }

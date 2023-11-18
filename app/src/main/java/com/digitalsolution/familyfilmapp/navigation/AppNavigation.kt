@@ -20,9 +20,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
-fun AppNavigation(
-    viewModel: NavigationViewModel = hiltViewModel(),
-) {
+fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val iUIState by viewModel.navigationUIState.collectAsStateWithLifecycle()
 
@@ -30,10 +28,7 @@ fun AppNavigation(
 }
 
 @Composable
-fun AppNavHost(
-    navController: NavHostController,
-    isUserLoggedIn: Boolean = false,
-) {
+fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false) {
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),

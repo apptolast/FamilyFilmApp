@@ -44,8 +44,7 @@ fun RecommendedMovieCard(modifier: Modifier = Modifier, movie: Movie, navigateTo
             AsyncImage(
                 model = movie.image,
                 contentDescription = movie.title,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(150.dp),
+                contentScale = ContentScale.Inside,
             )
             Column(
                 modifier = Modifier

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <baseline version="1.0">
+    <file
+        name="src/main/java/com/digitalsolution/familyfilmapp/ui/components/RecommendedMovieCard.kt">
+        <error column="5" line="34" source="compose:param-order-check" />
+    </file>
     <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/groups/GroupsScreen.kt">
         <error column="20" line="77" source="compose:vm-forwarding-check" />
     </file>
@@ -9,10 +13,12 @@
         <error column="13" line="177" source="compose:modifier-reused-check" />
         <error column="17" line="178" source="compose:modifier-not-used-at-root" />
     </file>
-    <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/components/DialogRecoverScreen.kt">
+    <file
+        name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/components/DialogRecoverScreen.kt">
         <error column="21" line="49" source="compose:modifier-not-used-at-root" />
     </file>
-    <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/components/LoginMainContent.kt">
+    <file
+        name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/components/LoginMainContent.kt">
         <error column="9" line="49" source="compose:modifier-reused-check" />
         <error column="13" line="50" source="compose:modifier-not-used-at-root" />
         <error column="13" line="55" source="compose:modifier-reused-check" />
@@ -28,8 +34,5 @@
         <error column="5" line="130" source="compose:modifier-reused-check" />
         <error column="13" line="132" source="compose:modifier-reused-check" />
         <error column="17" line="135" source="compose:modifier-not-used-at-root" />
-    </file>
-    <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/recommend/usecases/FilmsListUseCase.kt">
-        <error column="1" line="1" source="standard:no-empty-file" />
     </file>
 </baseline>

@@ -75,10 +75,7 @@ fun GroupsScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
-            TopBar(tabViewmodel) {
-                selectedGroup = it
-                viewModel.tabChange(it)
-            }
+            TopBar(tabViewmodel)
         },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {

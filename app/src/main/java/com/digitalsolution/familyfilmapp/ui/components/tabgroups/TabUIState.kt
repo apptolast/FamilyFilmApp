@@ -5,12 +5,12 @@ import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.Group
 
 data class TabUIState(
-    val selectedGroup: Group,
+    val selectedGroup: Int,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
     constructor(): this(
-        selectedGroup = Group(),
+        selectedGroup = -1,
         isLoading = false,
         errorMessage = null
     )

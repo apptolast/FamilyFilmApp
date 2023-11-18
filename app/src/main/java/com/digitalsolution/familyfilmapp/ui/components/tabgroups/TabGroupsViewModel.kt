@@ -35,6 +35,7 @@ class TabGroupsViewModel @Inject constructor(
 
     init {
         refreshGroups()
+        indexOfSelectedGroup(0)
     }
 
     fun refreshGroups() = viewModelScope.launch {
@@ -53,4 +54,10 @@ class TabGroupsViewModel @Inject constructor(
             )
         }
     }
+
+    fun indexOfSelectedGroup(index: Int) {
+        _tabUIState.value = _tabUIState.value?.copy(selectedGroup = index) ?: TabUIState()
+    }
+
+
 }

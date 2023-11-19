@@ -46,7 +46,7 @@ fun BasicDialog(
 
 @Preview
 @Composable
-fun BasicDialogPreview() {
+private fun BasicDialogPreview() {
     FamilyFilmAppTheme {
         BasicDialog(
             title = "title",

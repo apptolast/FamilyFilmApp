@@ -6,9 +6,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -18,13 +16,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TopBar(
-    viewmodel: TabGroupsViewModel = hiltViewModel()
-) {
+fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     var stateRow by rememberSaveable { mutableIntStateOf(0) }
 
     val tabState by viewmodel.state.collectAsStateWithLifecycle()
@@ -32,7 +27,6 @@ fun TopBar(
     val selectedTabColor = MaterialTheme.colorScheme.primary
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-
 
     if (tabState.groups.isNotEmpty()) {
         // Execute the callback with the first selected tab by default.
@@ -43,6 +37,7 @@ fun TopBar(
             divider = {},
         ) {
             tabState.groups.forEachIndexed { index, groupInfo ->
+                if (index == 0) viewmodel.indexOfSelectedGroup(0)
                 Tab(
                     selected = stateRow == index,
                     onClick = {

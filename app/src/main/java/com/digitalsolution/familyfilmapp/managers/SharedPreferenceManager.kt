@@ -27,11 +27,9 @@ class SharedPreferenceManager @Inject constructor(
     // -----------------------
     // USER ID
     // -----------------------
-    fun getUserId(): Int =
-        prefs.getInt(KEY_USER_ID, -1)
+    fun getUserId(): Int = prefs.getInt(KEY_USER_ID, -1)
 
-    private fun setUserid(value: Int) =
-        prefs.edit().putInt(KEY_USER_ID, value).apply()
+    private fun setUserid(value: Int) = prefs.edit().putInt(KEY_USER_ID, value).apply()
 
     companion object {
         const val SHARED_PREFERENCES_FILE_NAME = "shared_preferences_file_name"

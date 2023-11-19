@@ -110,6 +110,16 @@ class GroupViewModel @Inject constructor(
         }
     }
 
+    fun getGroupForIndex(index: Int) = viewModelScope.launch(dispatcherProvider.io()) {
+        if (index in _state.value.groups.indices) {
+            run {
+                _groupUIState.update {
+                    it.copy(groupSelected = _state.value.groups[index])
+                }
+            }
+        }
+    }
+
     fun tabChange(selectedGroup: Group) {
         _groupUIState.update { oldValue ->
             Timber.d("Compare users Id: ${selectedGroup.groupCreatorId} == ${localRepository.getUserId()}")

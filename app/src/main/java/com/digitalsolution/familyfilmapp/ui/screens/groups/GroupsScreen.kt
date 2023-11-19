@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -55,7 +56,13 @@ fun GroupsScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
     val groupUiState by viewModel.groupUIState.collectAsStateWithLifecycle()
-    var selectedGroup by remember { mutableStateOf<Group?>(null) }
+    val tabUIState by tabViewmodel.tabUIState.observeAsState()
+
+    val selectedGroup by remember { mutableStateOf<Group?>(null) }
+
+    LaunchedEffect(key1 = tabUIState?.selectedGroup) {
+        tabUIState?.selectedGroup?.let { viewModel.getGroupForIndex(it) }
+    }
 
     var showGroupNameDialog by rememberSaveable {
         mutableStateOf(false)

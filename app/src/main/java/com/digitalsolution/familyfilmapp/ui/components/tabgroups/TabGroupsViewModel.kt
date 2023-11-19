@@ -29,7 +29,6 @@ class TabGroupsViewModel @Inject constructor(
         initialValue = TabBackendState(),
     )
 
-
     private val _tabUIState = MutableLiveData(TabUIState())
     val tabUIState: LiveData<TabUIState> = _tabUIState
 
@@ -58,6 +57,4 @@ class TabGroupsViewModel @Inject constructor(
     fun indexOfSelectedGroup(index: Int) {
         _tabUIState.value = _tabUIState.value?.copy(selectedGroup = index) ?: TabUIState()
     }
-
-
 }

@@ -44,6 +44,8 @@ Para atacar a nuestra API REST utilizamos un cliente de [Postman](https://www.po
 **Crashlytics**: Se utiliza Crashlytics para la detección temprana de errores que puedan ocurrir en la aplicación y poder atajarlos los antes posible evitando que afecte a más usuarios.
 
 ## Librerías Principales
+**Jetpack Compose**: Este proyecto está construido utilizando Jetpack Compose, el moderno toolkit de UI de Android para crear interfaces nativas de forma declarativa y eficiente. Simplifica y acelera el desarrollo de la IU en Android.
+
 **Retrofit**: Para las llamadas a la API, Retrofit es utilizado por su eficiencia y facilidad de integración con los convertidores de JSON como Gson.
 
 **Navigation Component**: Para la gestión de la navegación en la aplicación, se emplea el componente de navegación de Android Jetpack, en conjunto con una [libreria de terceros para gestionar los argumentos de navegacion](https://github.com/dilrajsingh1997/safe-compose-args).
@@ -103,25 +105,17 @@ New repository secret
 ![image](https://github.com/apptolast/FamilyFilmApp/assets/51128924/22bd07ee-7ad3-4658-98a4-4bcd5adb3427)
 
 ## Contribuidores
-####Android:
+
+#### Android:
 [![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
 [![GitHub](https://img.shields.io/badge/-Coshiloco-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Coshiloco)
 [![GitHub](https://img.shields.io/badge/-rndevelo-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/rndevelo)
 [![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
 
-####Backend:
+#### Backend:
 [![GitHub](https://img.shields.io/badge/-TuColegaDev-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/TuColegaDev)
 [![GitHub](https://img.shields.io/badge/-Isabel9422-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Isabel9422)
 [![GitHub](https://img.shields.io/badge/-El3auti-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/El3auti)
-
-
-
-
-
-
-
-
-
 
 ## Contacto
 Puedes encontrarnos en:

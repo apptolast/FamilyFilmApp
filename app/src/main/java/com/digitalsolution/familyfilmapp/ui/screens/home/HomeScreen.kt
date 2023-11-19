@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     }
 
     Scaffold(
-        topBar = { TopBar {} },
+        topBar = { TopBar() },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(

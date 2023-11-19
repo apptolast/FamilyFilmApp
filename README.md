@@ -84,7 +84,7 @@ Para utilizar el proveedor de Google en firebase auth, se require añadir un **I
 WEB_ID_CLIENT=your_token_id
 ```
 * Este token id se puede conseguir aqui:
-  **[ADD Image]**
+![image](https://github.com/apptolast/FamilyFilmApp/assets/51128924/e923b26f-b33b-4c04-8c95-ec38dab557fb)
 
 #### Github Action
 Por último, hay que tener en cuenta que para que pase la integración continua con Github Action al crear el Pull Request, se tiene que configurar el fichero de firebase en las settings del repositorio del qu has hecho el fork.
@@ -99,6 +99,8 @@ New repository secret
 
 * Nombre: **FIREBASE_JSON**
 * Secret: Pega el json de `google-service.json
+
+![image](https://github.com/apptolast/FamilyFilmApp/assets/51128924/22bd07ee-7ad3-4658-98a4-4bcd5adb3427)
 
 ## Contribuidores
 ####Android:

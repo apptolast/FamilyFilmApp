@@ -1,6 +1,11 @@
 name: Android Build
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - develop
+      - 'feature/**'
+      - 'bugfix/**'
 
 jobs:
   build:

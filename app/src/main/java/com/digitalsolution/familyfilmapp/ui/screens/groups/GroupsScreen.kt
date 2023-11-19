@@ -13,6 +13,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -65,9 +66,9 @@ fun GroupsScreen(
             snackBarHostState.showSnackbar(
                 groupBackendState.errorMessage!!.error,
                 null,
-                true,
+                false,
+                SnackbarDuration.Short,
             )
-            // Puede ser necesario actualizar también el TabGroupsViewModel
             tabViewmodel.refreshGroups()
         }
     }
@@ -178,7 +179,7 @@ fun GroupContent(
             confirmButtonText = stringResource(id = android.R.string.ok),
             cancelButtonText = stringResource(id = android.R.string.cancel),
             onConfirm = onDeleteGroupClick,
-            onDismiss = { showDeleteGroupDialog = false },
+            onDismiss = { showDeleteGroupDialog = true },
         )
     }
 }

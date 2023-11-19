@@ -37,7 +37,6 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
             divider = {},
         ) {
             tabState.groups.forEachIndexed { index, groupInfo ->
-                if (index == 0) viewmodel.indexOfSelectedGroup(0)
                 Tab(
                     selected = stateRow == index,
                     onClick = {

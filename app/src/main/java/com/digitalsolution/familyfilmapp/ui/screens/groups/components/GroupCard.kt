@@ -47,7 +47,6 @@ import com.digitalsolution.familyfilmapp.ui.theme.bold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
-    groupTitle: String,
     groupUiState: GroupUiState,
     members: List<Group>,
     onRemoveMemberClick: (Group) -> Unit,
@@ -79,7 +78,7 @@ fun GroupCard(
             ) {
                 if (!groupUiState.checkedEditGroupName.value) {
                     Text(
-                        text = groupTitle,
+                        text = groupUiState.groupSelected.name,
                         style = MaterialTheme.typography.titleLarge.bold(),
                         modifier = Modifier
                             .weight(1f) // Asigna un peso al texto

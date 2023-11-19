@@ -13,7 +13,6 @@ import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupBackendSt
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -112,11 +112,11 @@ class GroupViewModel @Inject constructor(
 
     fun getGroupForIndex(index: Int) = viewModelScope.launch(dispatcherProvider.io()) {
         if (index in _state.value.groups.indices) {
-            run {
-                _groupUIState.update {
-                    it.copy(groupSelected = _state.value.groups[index])
-                }
+            val newSelectedGroup = _state.value.groups[index]
+            _groupUIState.update { uiState ->
+                uiState.copy(groupSelected = newSelectedGroup)
             }
+            Timber.tag("El grupo actualizado es este ${_groupUIState.value.groupSelected.name}")
         }
     }
 

@@ -61,7 +61,10 @@ fun GroupsScreen(
     val selectedGroup by remember { mutableStateOf<Group?>(null) }
 
     LaunchedEffect(key1 = tabUIState?.selectedGroup) {
-        tabUIState?.selectedGroup?.let { viewModel.getGroupForIndex(it) }
+        tabUIState?.selectedGroup?.let { index ->
+            // Aquí deberías actualizar el estado de UI con el grupo correspondiente al índice
+            viewModel.getGroupForIndex(index)
+        }
     }
 
     var showGroupNameDialog by rememberSaveable {
@@ -103,7 +106,6 @@ fun GroupsScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         GroupContent(
-            selectedGroup = selectedGroup,
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = {},
@@ -146,7 +148,6 @@ fun GroupsScreen(
 
 @Composable
 fun GroupContent(
-    selectedGroup: Group?,
     groupUiState: GroupUiState,
     onClickRemoveMember: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
@@ -165,7 +166,6 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
-            groupTitle = selectedGroup?.name ?: "No name",
             groupUiState = groupUiState,
             members = emptyList(), // FIXME: Members not serialized
             onRemoveMemberClick = onClickRemoveMember,
@@ -239,7 +239,6 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            selectedGroup = Group(),
             groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},

@@ -4,8 +4,9 @@ on:
   pull_request:
     branches:
       - develop
-      - 'feature/**'
-      - 'bugfix/**'
+  push:
+    branches:
+      - develop
 
 jobs:
   build:

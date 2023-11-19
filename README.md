@@ -106,20 +106,19 @@ New repository secret
 
 ## Contribuidores
 
-#### Android:
-[![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
-[![GitHub](https://img.shields.io/badge/-Coshiloco-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Coshiloco)
-[![GitHub](https://img.shields.io/badge/-rndevelo-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/rndevelo)
-[![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
+### Android:
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/hgarciaalberto)
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-Coshiloco-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/Coshiloco)
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-rndevelo-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/rndevelo)
 
-#### Backend:
-[![GitHub](https://img.shields.io/badge/-TuColegaDev-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/TuColegaDev)
-[![GitHub](https://img.shields.io/badge/-Isabel9422-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Isabel9422)
-[![GitHub](https://img.shields.io/badge/-El3auti-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/El3auti)
+### Backend:
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-TuColegaDev-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/TuColegaDev)
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-Isabel9422-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/Isabel9422)
+[<img alt="GitHub" height="35" src="https://img.shields.io/badge/-El3auti-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/El3auti)
 
-## Contacto
-Puedes encontrarnos en:
+## Puedes encontrarnos en:
 
-[![Discord](https://img.shields.io/badge/-Discord-7289DA?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/eM25JGk3TC)
-![Twitch Status](https://img.shields.io/twitch/status/AndroidZen)
+[<img alt="Discord" height="35" src="https://img.shields.io/badge/-Discord-7289DA?style=flat-square&amp;logo=discord&amp;logoColor=white"/>](https://discord.gg/eM25JGk3TC)
+<img alt="Twitch Status" height="35" src="https://img.shields.io/twitch/status/AndroidZen"/>
+
 

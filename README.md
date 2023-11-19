@@ -1,6 +1,7 @@
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/apptolast/FamilyFilmApp/build.yml)
 ![GitHub top language](https://img.shields.io/github/languages/top/apptolast/FamilyFilmApp)
 
+![GitHub contributors](https://img.shields.io/github/contributors/apptolast/FamilyFilmApp)
 ![GitHub issues](https://img.shields.io/github/issues/apptolast/FamilyFilmApp)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/apptolast/FamilyFilmApp)
 
@@ -23,6 +24,19 @@ La aplicación te permite añadir las películas que has visto y las que quieres
 
 ## Inyección de Dependencias
 **Hilt**: La inyección de dependencias se maneja a través de Hilt, simplificando la construcción de objetos y promoviendo un acoplamiento más débil y un código más testeable.
+
+## Backend propio (API REST)
+Hemos implementado un doble sistema de autenticación mediante una API REST utilizando las siguientes tecnologías:
+
+* TypeScript
+* Express (NodeJS)
+* SGBD (PostgreSQL)
+* Contenedores en Docker
+* Deploy en [Render](https://render.com/)
+
+La URL de la API es: [https://ffa-develop-back.onrender.com/api/](https://ffa-develop-back.onrender.com/api/)
+
+Para atacar a nuestra API REST utilizamos un cliente de [Postman](https://www.postman.com/) y puedes encontrar el projecto de backend en el siguiente repo: [FamilyFilmAppBack](https://github.com/apptolast/FamilyFilmAppBack.git)
 
 ## Firebase
 **Auth**: Se utiliza Firebase **Authentication** para obtener el UID que se enviará al backend para identifciar a los usuarios. Los proveedores de registro utilizados son: **emial/pass** y **Google**
@@ -85,6 +99,27 @@ New repository secret
 
 * Nombre: **FIREBASE_JSON**
 * Secret: Pega el json de `google-service.json
+
+## Contribuidores
+####Android:
+[![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
+[![GitHub](https://img.shields.io/badge/-Coshiloco-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Coshiloco)
+[![GitHub](https://img.shields.io/badge/-rndevelo-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/rndevelo)
+[![GitHub](https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hgarciaalberto)
+
+####Backend:
+[![GitHub](https://img.shields.io/badge/-TuColegaDev-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/TuColegaDev)
+[![GitHub](https://img.shields.io/badge/-Isabel9422-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Isabel9422)
+[![GitHub](https://img.shields.io/badge/-El3auti-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/El3auti)
+
+
+
+
+
+
+
+
+
 
 ## Contacto
 Puedes encontrarnos en:

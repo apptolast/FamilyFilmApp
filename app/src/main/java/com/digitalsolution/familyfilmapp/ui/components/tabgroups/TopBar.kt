@@ -40,8 +40,8 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
                 Tab(
                     selected = stateRow == index,
                     onClick = {
-                        viewmodel.indexOfSelectedGroup(stateRow)
                         stateRow = index
+                        viewmodel.indexOfSelectedGroup(stateRow)
                     },
                     modifier = tabPadding,
                     selectedContentColor = selectedTabColor,

@@ -7,15 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.showProgressIndicator
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(
@@ -23,11 +20,7 @@ class TabGroupsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TabBackendState())
-    val state: StateFlow<TabBackendState> = _state.asStateFlow().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = TabBackendState(),
-    )
+    val state: StateFlow<TabBackendState> = _state
 
     private val _tabUIState = MutableLiveData(TabUIState())
     val tabUIState: LiveData<TabUIState> = _tabUIState

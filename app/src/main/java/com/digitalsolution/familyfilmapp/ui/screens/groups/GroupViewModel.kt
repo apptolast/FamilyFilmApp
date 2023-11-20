@@ -35,6 +35,7 @@ class GroupViewModel @Inject constructor(
 
     init {
         init()
+        // getGroupForIndex(0)
     }
 
     private fun init() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -105,7 +106,9 @@ class GroupViewModel @Inject constructor(
             _groupUIState.update { uiState ->
                 uiState.copy(groupSelected = newSelectedGroup)
             }
-            Timber.tag("El grupo actualizado es este ${_groupUIState.value.groupSelected.name}")
+            Timber.d("El grupo actualizado es este ${_groupUIState.value.groupSelected.name}")
+        } else {
+            Timber.d("El grupo actualizado es este ${_groupUIState.value.groupSelected.name}")
         }
     }
 

@@ -9,7 +9,7 @@ data class TabUIState(
     override val errorMessage: CustomException?,
 ) : BaseUiState {
     constructor() : this(
-        selectedGroup = -1,
+        selectedGroup = 0,
         isLoading = false,
         errorMessage = null,
     )

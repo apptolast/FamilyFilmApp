@@ -20,9 +20,9 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
-    var stateRow by rememberSaveable { mutableIntStateOf(0) }
-
     val tabState by viewmodel.state.collectAsStateWithLifecycle()
+
+    var selectedGroupId by rememberSaveable { mutableIntStateOf(tabState.groups.firstOrNull()?.id ?: 2) }
 
     val selectedTabColor = MaterialTheme.colorScheme.primary
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -31,17 +31,17 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     if (tabState.groups.isNotEmpty()) {
         // Execute the callback with the first selected tab by default.
         ScrollableTabRow(
-            selectedTabIndex = stateRow,
+            selectedTabIndex = tabState.groups.indexOfFirst { it.id == selectedGroupId },
             containerColor = MaterialTheme.colorScheme.outlineVariant,
             edgePadding = 0.dp,
             divider = {},
         ) {
-            tabState.groups.forEachIndexed { index, groupInfo ->
+            tabState.groups.forEach { groupInfo ->
                 Tab(
-                    selected = stateRow == index,
+                    selected = selectedGroupId == groupInfo.id,
                     onClick = {
-                        stateRow = index
-                        viewmodel.indexOfSelectedGroup(stateRow)
+                        selectedGroupId = groupInfo.id
+                        viewmodel.selectGroupById(groupInfo.id)
                     },
                     modifier = tabPadding,
                     selectedContentColor = selectedTabColor,
@@ -51,7 +51,7 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
                             text = groupInfo.name,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            style = if (stateRow == index) {
+                            style = if (selectedGroupId == groupInfo.id) {
                                 MaterialTheme.typography.titleSmall
                             } else {
                                 MaterialTheme.typography.titleMedium

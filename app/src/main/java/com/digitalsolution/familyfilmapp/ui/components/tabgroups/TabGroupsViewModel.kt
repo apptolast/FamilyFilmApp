@@ -27,7 +27,6 @@ class TabGroupsViewModel @Inject constructor(
 
     init {
         refreshGroups()
-        indexOfSelectedGroup(0)
     }
 
     fun refreshGroups() = viewModelScope.launch {
@@ -37,17 +36,21 @@ class TabGroupsViewModel @Inject constructor(
                 groups = repository.getGroups().getOrElse {
                     Timber.e(it)
                     emptyList()
-                }.sortedWith(
-                    compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
-                        group.name
-                    },
-                ),
+                },
                 isLoading = false,
             )
         }
     }
 
-    fun indexOfSelectedGroup(index: Int) {
+    fun selectGroupById(groupId: Int) {
+        // Encuentra el índice del grupo por ID y actualiza el estado
+        val index = _state.value.groups.indexOfFirst { it.id == groupId }
+        if (index != -1) {
+            indexOfSelectedGroup(index)
+        }
+    }
+
+    private fun indexOfSelectedGroup(index: Int) {
         _tabUIState.value = _tabUIState.value?.copy(selectedGroup = index) ?: TabUIState()
     }
 }

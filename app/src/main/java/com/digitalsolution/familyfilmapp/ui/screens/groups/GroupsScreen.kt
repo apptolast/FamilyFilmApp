@@ -21,7 +21,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
@@ -50,31 +50,34 @@ import com.digitalsolution.familyfilmapp.utils.Constants
 @Composable
 fun GroupsScreen(
     navController: NavController,
-    viewModel: GroupViewModel = hiltViewModel(),
+    groupViewModel: GroupViewModel = hiltViewModel(),
     tabViewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
-    val groupUiState by viewModel.groupUIState.collectAsStateWithLifecycle()
-    val tabUIState by tabViewmodel.tabUIState.observeAsState()
+//    val groupBackendState by groupViewModel.backendState.collectAsStateWithLifecycle()
+    val groupUiState by groupViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
+    val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
-    val selectedGroup by remember { mutableStateOf<Group?>(null) }
+//    LaunchedEffect(key1 = tabUIState.selectedGroupId) {
+//        tabUIState?.selectedGroup?.let { index ->
+//            // Aquí deberías actualizar el estado de UI con el grupo correspondiente al índice
+//            viewModel.getGroupForIndex(index)
+//        }
+//    }
 
-    LaunchedEffect(key1 = tabUIState?.selectedGroup) {
-        tabUIState?.selectedGroup?.let { index ->
-            // Aquí deberías actualizar el estado de UI con el grupo correspondiente al índice
-            viewModel.getGroupForIndex(index)
-        }
+    LaunchedEffect(key1 = tabUiState.selectedGroupPos){
+        groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
     }
 
     var showGroupNameDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    if (!groupBackendState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(groupBackendState.errorMessage) {
+    if (!tabBackendState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(tabBackendState.errorMessage) {
             snackBarHostState.showSnackbar(
-                groupBackendState.errorMessage!!.error,
+                tabBackendState.errorMessage!!.error,
                 null,
                 false,
                 SnackbarDuration.Short,
@@ -106,12 +109,15 @@ fun GroupsScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         GroupContent(
+            group = tabBackendState.groups[tabUiState.selectedGroupPos],
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = {},
             onAddMemberClick = {},
             onDeleteGroupClick = {
-                viewModel.deleteGroup(selectedGroup!!.id)
+                tabViewmodel.deleteGroup(
+                    tabBackendState.groups[tabUiState.selectedGroupPos].id,
+                )
             },
             onChangeGroupName = {},
             modifier = Modifier.padding(paddingValues),
@@ -123,7 +129,7 @@ fun GroupsScreen(
                 title = "Set group name",
                 description = "Group name",
                 onConfirm = { groupName ->
-                    viewModel.addGroup(groupName)
+                    tabViewmodel.addGroup(groupName)
                 },
                 onDismiss = {
                     showGroupNameDialog = false
@@ -131,7 +137,7 @@ fun GroupsScreen(
             )
         }
 
-        if (groupBackendState.isLoading) {
+        if (tabBackendState.isLoading) {
             Column(
                 Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -148,6 +154,7 @@ fun GroupsScreen(
 
 @Composable
 fun GroupContent(
+    group: Group,
     groupUiState: GroupUiState,
     onClickRemoveMember: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
@@ -166,6 +173,7 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
+            group = group,
             groupUiState = groupUiState,
             members = emptyList(), // FIXME: Members not serialized
             onRemoveMemberClick = onClickRemoveMember,
@@ -186,7 +194,7 @@ fun GroupContent(
             confirmButtonText = stringResource(id = android.R.string.ok),
             cancelButtonText = stringResource(id = android.R.string.cancel),
             onConfirm = onDeleteGroupClick,
-            onDismiss = { showDeleteGroupDialog = true },
+            onDismiss = { showDeleteGroupDialog = false },
         )
     }
 }
@@ -239,6 +247,7 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
+            group = Group(),
             groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},

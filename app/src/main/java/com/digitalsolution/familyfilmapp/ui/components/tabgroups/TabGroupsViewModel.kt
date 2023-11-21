@@ -1,56 +1,104 @@
 package com.digitalsolution.familyfilmapp.ui.components.tabgroups
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.exceptions.CustomException
+import com.digitalsolution.familyfilmapp.exceptions.GroupException
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
-import com.digitalsolution.familyfilmapp.ui.screens.groups.showProgressIndicator
+import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import showProgressIndicator
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(
     private val repository: BackendRepository,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(TabBackendState())
-    val state: StateFlow<TabBackendState> = _state
+    private val _backendState = MutableStateFlow(TabBackendState())
+    val backendState: StateFlow<TabBackendState> = _backendState
 
-    private val _tabUIState = MutableLiveData(TabUIState())
-    val tabUIState: LiveData<TabUIState> = _tabUIState
+    private val _uiState = MutableStateFlow(TabUiState())
+    val uiState: StateFlow<TabUiState> = _uiState
 
     init {
         refreshGroups()
     }
 
     fun refreshGroups() = viewModelScope.launch {
-        _state.showProgressIndicator(true)
-        _state.update { oldState ->
-            oldState.copy(
-                groups = repository.getGroups().getOrElse {
-                    Timber.e(it)
-                    emptyList()
-                },
+        _backendState.showProgressIndicator(true)
+        val groups = repository.getGroups().getOrElse {
+            Timber.e(it)
+            emptyList()
+        }.sortedWith(
+            compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
+                group.name
+            },
+        )
+
+        _backendState.update {
+            it.copy(
+                groups = groups,
                 isLoading = false,
             )
         }
     }
 
-    fun selectGroupById(groupId: Int) {
-        // Encuentra el índice del grupo por ID y actualiza el estado
-        val index = _state.value.groups.indexOfFirst { it.id == groupId }
-        if (index != -1) {
-            indexOfSelectedGroup(index)
+    fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        _backendState.showProgressIndicator(true)
+
+        repository.addGroups(groupName).fold(
+            onSuccess = {
+                refreshGroups()
+                _backendState.update { oldState ->
+                    oldState.copy(
+                        errorMessage = CustomException.GenericException("New group created!"),
+                        isLoading = false,
+                    )
+                }
+            },
+            onFailure = {
+                Timber.e(it)
+                _backendState.update { oldState ->
+                    oldState.copy(
+                        errorMessage = GroupException.AddGroup(),
+                        isLoading = false,
+                    )
+                }
+            },
+        )
+    }
+
+    fun deleteGroup(groupId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
+        _backendState.showProgressIndicator(true)
+
+        try {
+            repository.deleteGroup(groupId)
+            refreshGroups() // Refresh group after deletion
+            _backendState.update { oldState ->
+                oldState.copy(
+                    errorMessage = CustomException.GenericException("Group deleted"),
+                    isLoading = false,
+                )
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+            _backendState.update { oldState ->
+                oldState.copy(
+                    errorMessage = GroupException.DeleteGroup(),
+                    isLoading = false,
+                )
+            }
         }
     }
 
-    private fun indexOfSelectedGroup(index: Int) {
-        _tabUIState.value = _tabUIState.value?.copy(selectedGroup = index) ?: TabUIState()
+    fun selectGroupByPos(pos: Int) {
+        _uiState.update { it.copy(selectedGroupPos = pos) }
     }
 }

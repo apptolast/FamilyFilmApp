@@ -34,9 +34,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Decode google-services.json
-        env:
-          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
-        run: echo $FIREBASE_JSON > app/google-services.json
+        run: echo ${{ vars.FIREBASE_JSON }} > app/google-services.json
 
       - name: Run Debug Tests
         run: ./gradlew build test --continue

@@ -113,7 +113,6 @@ dependencies {
     // Navigation Con Safe Arguments
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.navigation:navigation-compose:2.7.5")
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.20-1.0.14")
     implementation("io.github.dilrajsingh1997:compose-annotation:1.0.3")
     ksp("io.github.dilrajsingh1997:compose-annotation-processor:1.0.6")
 

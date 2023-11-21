@@ -2,10 +2,8 @@ package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +16,8 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.LoginScreen
 import com.digitalsolution.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
@@ -58,9 +58,10 @@ fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false
             )
         }
         composable(
-            route = DetailNavTypeDestination.route,
+            route = Routes.Details.routes,
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
+            // Using deconstruction
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,

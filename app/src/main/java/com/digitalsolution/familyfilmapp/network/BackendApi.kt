@@ -32,9 +32,7 @@ interface BackendApi {
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
 
     @DELETE(ApiRoutes.GROUP)
-    suspend fun deleteGroup(
-        @Path("group_id") groupId: Int,
-    )
+    suspend fun deleteGroup(@Path("group_id") groupId: Int)
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

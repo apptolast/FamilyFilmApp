@@ -49,37 +49,38 @@ import com.digitalsolution.familyfilmapp.utils.Constants
 @Composable
 fun GroupsScreen(
     navController: NavController,
-    viewModel: GroupViewModel = hiltViewModel(),
+    groupViewModel: GroupViewModel = hiltViewModel(),
     tabViewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val groupBackendState by viewModel.state.collectAsStateWithLifecycle()
-    val groupUiState by viewModel.groupUIState.collectAsStateWithLifecycle()
-    var selectedGroup by remember { mutableStateOf<Group?>(null) }
+    val groupUiState by groupViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
+    val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
+        groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
+    }
 
     var showGroupNameDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    if (!groupBackendState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(groupBackendState.errorMessage) {
+    if (!tabBackendState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(tabBackendState.errorMessage) {
             snackBarHostState.showSnackbar(
-                groupBackendState.errorMessage!!.error,
+                tabBackendState.errorMessage?.error ?: "WHYYYYY????",
                 null,
                 false,
                 SnackbarDuration.Short,
             )
-            tabViewmodel.init()
         }
+        tabViewmodel.clearErrorMessage()
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
-            TopBar(tabViewmodel) {
-                selectedGroup = it
-                viewModel.tabChange(it)
-            }
+            TopBar(tabViewmodel)
         },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
@@ -99,13 +100,15 @@ fun GroupsScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         GroupContent(
-            selectedGroup = selectedGroup,
+            group = tabBackendState.groups[tabUiState.selectedGroupPos],
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = {},
             onAddMemberClick = {},
             onDeleteGroupClick = {
-                viewModel.deleteGroup(selectedGroup!!.id)
+                tabViewmodel.deleteGroup(
+                    tabBackendState.groups[tabUiState.selectedGroupPos].id,
+                )
             },
             onChangeGroupName = {},
             modifier = Modifier.padding(paddingValues),
@@ -117,7 +120,7 @@ fun GroupsScreen(
                 title = "Set group name",
                 description = "Group name",
                 onConfirm = { groupName ->
-                    viewModel.addGroup(groupName)
+                    tabViewmodel.addGroup(groupName)
                 },
                 onDismiss = {
                     showGroupNameDialog = false
@@ -125,7 +128,7 @@ fun GroupsScreen(
             )
         }
 
-        if (groupBackendState.isLoading) {
+        if (tabBackendState.isLoading) {
             Column(
                 Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -142,7 +145,7 @@ fun GroupsScreen(
 
 @Composable
 fun GroupContent(
-    selectedGroup: Group?,
+    group: Group,
     groupUiState: GroupUiState,
     onClickRemoveMember: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
@@ -161,9 +164,9 @@ fun GroupContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GroupCard(
-            groupTitle = selectedGroup?.name ?: "No name",
+            group = group,
             groupUiState = groupUiState,
-            members = emptyList(), // FIXME: Members not serialized
+            members = emptyList(),
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,
@@ -235,7 +238,7 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            selectedGroup = Group(),
+            group = Group(),
             groupUiState = GroupUiState(),
             onClickRemoveMember = { _ -> },
             onAddMemberClick = {},

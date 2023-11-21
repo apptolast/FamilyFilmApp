@@ -7,67 +7,54 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TopBar(
-    viewmodel: TabGroupsViewModel = hiltViewModel(),
-    selectedGroup: (Group) -> Unit,
-) {
-    var stateRow by rememberSaveable { mutableIntStateOf(0) }
-
-    val tabState by viewmodel.state.collectAsStateWithLifecycle()
-
-    val selectedTabColor = MaterialTheme.colorScheme.primary
+fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    val tabPadding = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 
-    if (tabState.groups.isNotEmpty()) {
-        // Execute the callback with the first selected tab by default.
-        selectedGroup(tabState.groups.first())
+    val backendState by viewmodel.backendState.collectAsStateWithLifecycle()
+    val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
 
-        ScrollableTabRow(
-            selectedTabIndex = stateRow,
-            containerColor = MaterialTheme.colorScheme.outlineVariant,
-            edgePadding = 0.dp,
-            divider = {},
-        ) {
-            tabState.groups.forEachIndexed { index, groupInfo ->
-                Tab(
-                    selected = stateRow == index,
-                    onClick = {
-                        selectedGroup(groupInfo)
-                        stateRow = index
-                    },
-                    modifier = tabPadding,
-                    selectedContentColor = selectedTabColor,
-                    unselectedContentColor = unselectedTabColor,
-                    text = {
-                        Text(
-                            text = groupInfo.name,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            style = if (stateRow == index) {
-                                MaterialTheme.typography.titleSmall
-                            } else {
-                                MaterialTheme.typography.titleMedium
-                            },
-                        )
-                    },
-                )
-            }
+//    LaunchedEffect(key1 = true){
+//        viewmodel.refreshGroups()
+//    }
+
+    ScrollableTabRow(
+        selectedTabIndex = uiState.selectedGroupPos,
+        containerColor = MaterialTheme.colorScheme.outlineVariant,
+        edgePadding = 0.dp,
+        divider = {},
+    ) {
+        backendState.groups.forEachIndexed { index, group ->
+            Tab(
+                selected = uiState.selectedGroupPos == index,
+                onClick = {
+                    viewmodel.selectGroupByPos(index)
+                },
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                selectedContentColor = MaterialTheme.colorScheme.primary,
+                unselectedContentColor = unselectedTabColor,
+                text = {
+                    Text(
+                        text = group.name,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = if (uiState.selectedGroupPos == index) {
+                            MaterialTheme.typography.titleSmall
+                        } else {
+                            MaterialTheme.typography.titleMedium
+                        },
+                    )
+                },
+            )
         }
-    } else {
     }
 }
 
@@ -75,6 +62,6 @@ fun TopBar(
 @Composable
 private fun TopBarPreview() {
     FamilyFilmAppTheme {
-        TopBar(viewmodel = hiltViewModel()) {}
+        TopBar(viewmodel = hiltViewModel())
     }
 }

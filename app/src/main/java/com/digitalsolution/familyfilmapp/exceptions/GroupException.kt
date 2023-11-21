@@ -7,4 +7,8 @@ sealed class GroupException(
     data class AddGroup(
         val value: String = "Group can't be created",
     ) : GroupException(value)
+
+    data class DeleteGroup(
+        val value: String = "Group can't be deleted",
+    ) : GroupException(value)
 }

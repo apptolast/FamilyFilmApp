@@ -16,12 +16,7 @@ import com.digitalsolution.familyfilmapp.ui.screens.login.components.SupportingE
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun TextFieldDialog(
-    title: String,
-    description: String,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun TextFieldDialog(title: String, description: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     val errorMessage = stringResource(id = R.string.group_dialog_name_empty_error_message)
     var groupName by rememberSaveable { mutableStateOf("") }
 
@@ -70,7 +65,7 @@ fun TextFieldDialog(
 
 @Preview
 @Composable
-fun TextFieldDialogPreview() {
+private fun TextFieldDialogPreview() {
     FamilyFilmAppTheme {
         TextFieldDialog(
             title = "title",

@@ -36,27 +36,33 @@ import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
+import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.system.exitProcess
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
-    val loginState by viewModel.isUserLoggedIn.collectAsStateWithLifecycle()
-    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+fun HomeScreen(
+    navController: NavController,
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    tabViewmodel: TabGroupsViewModel = hiltViewModel(),
+) {
+    val loginState by homeViewModel.isUserLoggedIn.collectAsStateWithLifecycle()
+    val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
 
     BackHandler(true) {
         exitProcess(0)
     }
 
-    LaunchedEffect(key1 = loginState) {
+    LaunchedEffect(key1 = loginState, key2 = tabViewmodel) {
         if (!loginState) {
             navController.navigateUp()
         }
+        tabViewmodel.refreshGroups()
     }
 
     Scaffold(
-        topBar = { TopBar {} },
+        topBar = { TopBar(tabViewmodel) },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(

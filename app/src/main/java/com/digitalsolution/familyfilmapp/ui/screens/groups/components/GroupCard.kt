@@ -47,7 +47,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.bold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
-    groupTitle: String,
+    group: Group,
     groupUiState: GroupUiState,
     members: List<Group>,
     onRemoveMemberClick: (Group) -> Unit,
@@ -77,12 +77,12 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!groupUiState.checkedEditGroupName.value) {
+                if (!groupUiState.checkedEditGroupName) {
                     Text(
-                        text = groupTitle,
+                        text = group.name,
                         style = MaterialTheme.typography.titleLarge.bold(),
                         modifier = Modifier
-                            .weight(1f) // Asigna un peso al texto
+                            .weight(1f) // Assign weight to text
                             .padding(3.dp),
                     )
                 } else {
@@ -90,8 +90,8 @@ fun GroupCard(
                         modifier = Modifier
                             .weight(1f)
                             .padding(6.dp),
-                        value = groupUiState.groupTitleChange.value,
-                        onValueChange = { groupUiState.groupTitleChange.value = it },
+                        value = groupUiState.groupTitleChange,
+                        onValueChange = { groupUiState.groupTitleChange = it },
                         shape = RoundedCornerShape(10.dp),
                         label = {
                             Text(
@@ -103,7 +103,7 @@ fun GroupCard(
                             )
                         },
                         trailingIcon = {
-                            IconButton(onClick = { onChangeGroupName(groupUiState.groupTitleChange.value) }) {
+                            IconButton(onClick = { onChangeGroupName(groupUiState.groupTitleChange) }) {
                                 Text(text = stringResource(id = R.string.send_text))
                             }
                         },
@@ -113,8 +113,8 @@ fun GroupCard(
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(end = 8.dp),
-                    checked = groupUiState.checkedEditGroupName.value,
-                    onCheckedChange = { groupUiState.checkedEditGroupName.value = it },
+                    checked = groupUiState.checkedEditGroupName,
+                    onCheckedChange = { groupUiState.checkedEditGroupName = it },
                     enabled = true,
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -135,7 +135,7 @@ fun GroupCard(
                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                     Text(text = stringResource(id = R.string.groups_text_add_member))
                 }
-                if (groupUiState.deleteGroupButtonVisibility.value) {
+                if (groupUiState.deleteGroupButtonVisibility) {
                     OutlinedButton(onClick = { onDeleteGroupClick() }) {
                         Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                         Text(text = stringResource(id = R.string.groups_text_delete_group))

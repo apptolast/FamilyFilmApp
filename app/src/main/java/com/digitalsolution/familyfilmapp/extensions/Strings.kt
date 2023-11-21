@@ -3,10 +3,10 @@ package com.digitalsolution.familyfilmapp.extensions
 import android.icu.text.SimpleDateFormat
 import android.util.Base64
 import android.util.Patterns
-import org.json.JSONObject
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
+import org.json.JSONObject
 
 fun String.isEmailValid(): Boolean = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 

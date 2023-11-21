@@ -54,17 +54,9 @@ fun GroupsScreen(
     tabViewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-//    val groupBackendState by groupViewModel.backendState.collectAsStateWithLifecycle()
     val groupUiState by groupViewModel.uiState.collectAsStateWithLifecycle()
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
-
-//    LaunchedEffect(key1 = tabUIState.selectedGroupId) {
-//        tabUIState?.selectedGroup?.let { index ->
-//            // Aquí deberías actualizar el estado de UI con el grupo correspondiente al índice
-//            viewModel.getGroupForIndex(index)
-//        }
-//    }
 
     LaunchedEffect(key1 = tabUiState.selectedGroupPos){
         groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
@@ -77,13 +69,13 @@ fun GroupsScreen(
     if (!tabBackendState.errorMessage?.error.isNullOrBlank()) {
         LaunchedEffect(tabBackendState.errorMessage) {
             snackBarHostState.showSnackbar(
-                tabBackendState.errorMessage!!.error,
+                tabBackendState.errorMessage?.error ?: "WHYYYYY????",
                 null,
                 false,
                 SnackbarDuration.Short,
             )
-            tabViewmodel.refreshGroups()
         }
+        tabViewmodel.clearErrorMessage()
     }
 
     Scaffold(

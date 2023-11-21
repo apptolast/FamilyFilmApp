@@ -101,4 +101,8 @@ class TabGroupsViewModel @Inject constructor(
     fun selectGroupByPos(pos: Int) {
         _uiState.update { it.copy(selectedGroupPos = pos) }
     }
+
+    fun clearErrorMessage() {
+        _backendState.update { it.copy(errorMessage = null) }
+    }
 }

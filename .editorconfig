@@ -20,6 +20,7 @@ ij_kotlin_name_count_to_use_star_import_for_members = 999
 ktlint_function_naming_ignore_when_annotated_with=Composable
 ktlint_compose_modifier-missing-check = disabled
 ktlint_compose_unstable-collections = disabled
+ktlint_compose_vm-forwarding-check = disabled  # TODO: Review this one, it should be enabled
 
 [*.{yml,yaml}]
 indent_size = 2

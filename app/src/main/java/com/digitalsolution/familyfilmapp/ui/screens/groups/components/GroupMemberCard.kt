@@ -91,6 +91,7 @@ private fun GroupCardPreview() {
             group = Group(
                 1,
                 "Group Test",
+                1,
                 arrayListOf(Movie()),
                 arrayListOf(
                     Movie(),

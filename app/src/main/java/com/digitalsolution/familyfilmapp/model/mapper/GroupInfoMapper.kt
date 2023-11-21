@@ -10,6 +10,7 @@ object GroupInfoMapper {
     fun GroupInfoRemote.toDomain() = Group(
         id = id ?: -1,
         name = name ?: "",
+        groupCreatorId = groupCreatorId ?: -1,
         watchList = watchList?.map {
             it.movieRemote?.toDomain() ?: Movie()
         } ?: emptyList(),

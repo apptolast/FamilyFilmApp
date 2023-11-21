@@ -41,6 +41,10 @@
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
 
+    <!-- DIALOGS -->
+    <string name="dialog_delete_group_title">Delete Group</string>
+    <string name="dialog_delete_group_description">Are you sure you want to delete de group?</string>
+
     <!-- GENERAL STRINGS -->
     <string name="send_text">Send</string>
     <string name="group_dialog_name_empty_error_message">Group Name is empty</string>

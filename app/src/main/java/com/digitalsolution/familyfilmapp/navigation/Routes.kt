@@ -13,6 +13,7 @@ import com.digitalsolution.familyfilmapp.navigation.navtypes.HomeNavType
 import com.digitalsolution.familyfilmapp.navigation.navtypes.LoginNavType
 import com.digitalsolution.familyfilmapp.navigation.navtypes.ProfileNavType
 import com.digitalsolution.familyfilmapp.navigation.navtypes.RecommendNavType
+import com.digitalsolution.familyfilmapp.navigation.navtypes.SearchNavType
 import com.digitalsolution.familyfilmapp.navigation.navtypes.route
 
 sealed class Routes(
@@ -53,7 +54,7 @@ sealed class Routes(
 
     data object Search : Routes(
         title = R.string.search,
-        ProfileNavType.route,
+        SearchNavType.route,
         null,
     )
 }

@@ -59,7 +59,7 @@ sealed class Routes(
         null,
     )
 
-    data object Details: Routes(
+    data object Details : Routes(
         title = R.string.screen_title_details,
         routes = DetailNavTypeDestination.route,
         null,

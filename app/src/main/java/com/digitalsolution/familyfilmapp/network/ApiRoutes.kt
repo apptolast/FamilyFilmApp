@@ -11,7 +11,6 @@ object ApiRoutes {
     const val GENRES = "genres"
 }
 
-
-object ApiRoutesParams{
+object ApiRoutesParams {
     const val GROUP_ID_PARAM = "group_id"
 }

@@ -6,17 +6,17 @@ import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.model.local.UpdateGroupName
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
+import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
+import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
 import com.digitalsolution.familyfilmapp.network.BackendApi
 import javax.inject.Inject
-import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
-import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(
     private val backendApi: BackendApi,
@@ -77,9 +77,10 @@ class BackendRepositoryImpl @Inject constructor(
         backendApi.deleteGroup(groupId)
     }
 
-    override suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName> = kotlin.runCatching {
-        backendApi.updateGroupName(groupId, groupName.updateGroupToBody()).data?.toDomain() ?: UpdateGroupName()
-    }
+    override suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName> =
+        kotlin.runCatching {
+            backendApi.updateGroupName(groupId, groupName.updateGroupToBody()).data?.toDomain() ?: UpdateGroupName()
+        }
 }
 
 interface BackendRepository {

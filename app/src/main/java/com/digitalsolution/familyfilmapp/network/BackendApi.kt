@@ -39,7 +39,7 @@ interface BackendApi {
     suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int)
 
     @PUT(ApiRoutes.GROUP)
-    suspend fun updateNameGroup(
+    suspend fun updateGroupName(
         @Path(GROUP_ID_PARAM) groupId: Int,
         @Body updateGroupNameBody: UpdateGroupNameBody,
     ): ResponseWrapper<UpdateGroupRemote>

@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
@@ -58,7 +57,7 @@ fun GroupsScreen(
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = tabUiState.selectedGroupPos){
+    LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
         groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
     }
 
@@ -167,7 +166,7 @@ fun GroupContent(
         GroupCard(
             group = group,
             groupUiState = groupUiState,
-            members = emptyList(), // FIXME: Members not serialized
+            members = emptyList(),
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,

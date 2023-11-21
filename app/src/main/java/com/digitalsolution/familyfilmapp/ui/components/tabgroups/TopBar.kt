@@ -6,7 +6,6 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -18,7 +17,6 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
-
     val unselectedTabColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     val backendState by viewmodel.backendState.collectAsStateWithLifecycle()
@@ -34,7 +32,7 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
         edgePadding = 0.dp,
         divider = {},
     ) {
-        backendState.groups.forEachIndexed { index, group->
+        backendState.groups.forEachIndexed { index, group ->
             Tab(
                 selected = uiState.selectedGroupPos == index,
                 onClick = {

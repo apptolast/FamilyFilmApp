@@ -47,7 +47,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.bold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
-    group:Group,
+    group: Group,
     groupUiState: GroupUiState,
     members: List<Group>,
     onRemoveMemberClick: (Group) -> Unit,

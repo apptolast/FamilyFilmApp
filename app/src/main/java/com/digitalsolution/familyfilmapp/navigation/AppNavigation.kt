@@ -2,12 +2,14 @@ package com.digitalsolution.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.digitalsolution.familyfilmapp.ui.screens.DetailsScreen
 import com.digitalsolution.familyfilmapp.ui.screens.groups.GroupsScreen
@@ -20,11 +22,17 @@ import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 @Composable
 fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
+    val iUIState by viewModel.navigationUIState.collectAsStateWithLifecycle()
 
+    iUIState.isUserLoggedIn?.let { AppNavHost(navController = navController, isUserLoggedIn = it) }
+}
+
+@Composable
+fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false) {
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = Routes.Login.routes,
+        startDestination = if (isUserLoggedIn) Routes.Home.routes else Routes.Login.routes,
     ) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)
@@ -61,40 +69,6 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
         }
         composable(route = Routes.Search.routes) {
             SearchScreen(navController = navController)
-        }
-    }
-
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        val isBottomBarVisible = when (destination.route) {
-            Routes.Home.routes,
-            Routes.Recommend.routes,
-            Routes.Groups.routes,
-            Routes.Profile.routes,
-            -> {
-                true
-            }
-
-            else -> {
-                false
-            }
-        }
-        val titleScreens = when (destination.route) {
-            Routes.Home.routes -> R.string.screen_title_home
-            Routes.Recommend.routes -> R.string.screen_title_recommendations
-            Routes.Groups.routes -> R.string.screen_title_groups
-            Routes.Profile.routes -> R.string.screen_title_profile
-            Routes.Search.routes -> R.string.screen_title_search
-            else -> null
-        }
-        val searchBottomVisible = destination.route == Routes.Home.routes
-        val isTopBarVisible = destination.route == Routes.Search.routes
-        NavigationUIState(
-            isBottomBarVisible,
-            searchBottomVisible,
-            isTopBarVisible,
-            titleScreens,
-        ).let {
-            viewModel.updateUIState(it)
         }
     }
 }

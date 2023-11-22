@@ -1,31 +1,46 @@
 package com.digitalsolution.familyfilmapp.navigation
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.digitalsolution.familyfilmapp.ui.screens.login.usecases.CheckUserLoggedInUseCase
+import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _navigationUIState = MutableLiveData(NavigationUIState())
-    val navigationUIState: MutableLiveData<NavigationUIState> = _navigationUIState
+    private val _navigationUIState = MutableStateFlow(NavigationUIState())
+    val navigationUIState: StateFlow<NavigationUIState> = _navigationUIState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = NavigationUIState(),
+    )
 
     init {
-        viewModelScope.launch {
-            delay(800)
+        checkUserLoggedIn()
+    }
+
+    private fun checkUserLoggedIn() = viewModelScope.launch(dispatcherProvider.io()) {
+        checkUserLoggedInUseCase(Unit).collectLatest { uiState ->
+            _navigationUIState.update { oldState ->
+                oldState.copy(
+                    isUserLoggedIn = uiState.isLogged,
+                )
+            }
         }
     }
-
-    fun updateUIState(newNavigationUIState: NavigationUIState) {
-        _navigationUIState.value = newNavigationUIState
-    }
-
-    fun logOut() = firebaseAuth.signOut()
 }

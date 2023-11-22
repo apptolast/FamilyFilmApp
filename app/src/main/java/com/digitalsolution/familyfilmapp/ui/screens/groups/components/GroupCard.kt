@@ -24,7 +24,6 @@ import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -62,7 +61,8 @@ fun GroupCard(
     onDeleteGroupClick: () -> Unit,
     onChangeGroupName: (String) -> Unit,
 ) {
-    var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange)}
+    var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange) }
+    var checkedEditGroupName by rememberSaveable { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -85,7 +85,7 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!groupUiState.checkedEditGroupName) {
+                if (!checkedEditGroupName && groupName.isBlank()) {
                     Text(
                         text = group.name,
                         style = MaterialTheme.typography.titleLarge.bold(),
@@ -93,6 +93,9 @@ fun GroupCard(
                             .weight(1f) // Assign weight to text
                             .padding(3.dp),
                     )
+                } else if (!checkedEditGroupName && groupName.isNotBlank()) {
+                    onChangeGroupName(groupName)
+                    checkedEditGroupName = false
                 } else {
                     OutlinedTextField(
                         modifier = Modifier
@@ -110,19 +113,14 @@ fun GroupCard(
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },
-                        trailingIcon = {
-                            IconButton(onClick = { onChangeGroupName(groupUiState.groupTitleChange) }) {
-                                Text(text = stringResource(id = R.string.send_text))
-                            }
-                        },
                     )
                 }
                 OutlinedIconToggleButton(
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(end = 8.dp),
-                    checked = groupUiState.checkedEditGroupName,
-                    onCheckedChange = { groupUiState.checkedEditGroupName = it },
+                    checked = checkedEditGroupName,
+                    onCheckedChange = { checkedEditGroupName = it },
                     enabled = true,
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -216,7 +214,7 @@ fun GroupCard(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun GroupCardPreview() {
+private fun GroupCardPreview() {
     FamilyFilmAppTheme {
         GroupCard(
             group = Group(),

@@ -110,7 +110,9 @@ fun GroupsScreen(
                     tabBackendState.groups[tabUiState.selectedGroupPos].id,
                 )
             },
-            onChangeGroupName = {},
+            onChangeGroupName = { newGroupName ->
+                tabViewmodel.updateGroupName(tabBackendState.groups[tabUiState.selectedGroupPos].id, newGroupName)
+            },
             modifier = Modifier.padding(paddingValues),
         )
 

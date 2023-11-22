@@ -33,15 +33,21 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +62,8 @@ fun GroupCard(
     onDeleteGroupClick: () -> Unit,
     onChangeGroupName: (String) -> Unit,
 ) {
+    var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange)}
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,8 +98,8 @@ fun GroupCard(
                         modifier = Modifier
                             .weight(1f)
                             .padding(6.dp),
-                        value = groupUiState.groupTitleChange,
-                        onValueChange = { groupUiState.groupTitleChange = it },
+                        value = groupName,
+                        onValueChange = { groupName = it },
                         shape = RoundedCornerShape(10.dp),
                         label = {
                             Text(
@@ -192,7 +200,7 @@ fun GroupCard(
                                 }
                             },
                             dismissContent = {
-                                GroupCard(
+                                GroupMemberCard(
                                     group = item,
                                     onRemoveMemberClick = onRemoveMemberClick,
                                 )
@@ -203,5 +211,22 @@ fun GroupCard(
                 }
             }
         }
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun GroupCardPreview() {
+    FamilyFilmAppTheme {
+        GroupCard(
+            group = Group(),
+            groupUiState = GroupUiState(),
+            members = listOf(),
+            onRemoveMemberClick = {},
+            onSwipeDelete = {},
+            onAddMemberClick = { },
+            onDeleteGroupClick = { },
+            onChangeGroupName = {},
+        )
     }
 }

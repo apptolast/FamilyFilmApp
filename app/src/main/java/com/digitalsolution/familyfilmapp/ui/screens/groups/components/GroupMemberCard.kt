@@ -28,7 +28,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun GroupCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
+fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -83,11 +83,11 @@ fun GroupCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true)
+@Preview
 @Composable
-private fun GroupCardPreview() {
+private fun GroupMemberCardPreview() {
     FamilyFilmAppTheme {
-        GroupCard(
+        GroupMemberCard(
             group = Group(
                 1,
                 "Group Test",

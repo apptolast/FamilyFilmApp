@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ModeEditOutline
 import androidx.compose.material3.Card
@@ -62,7 +63,7 @@ fun GroupCard(
     onChangeGroupName: (String) -> Unit,
 ) {
     var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange) }
-    var checkedEditGroupName by rememberSaveable { mutableStateOf(false) }
+    var checkedEditGroupName by rememberSaveable { mutableStateOf(groupUiState.checkedEditGroupName) }
 
     Card(
         modifier = Modifier
@@ -85,7 +86,8 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!checkedEditGroupName && groupName.isBlank()) {
+                if (!checkedEditGroupName) {
+                    // Show the group name (not editing)
                     Text(
                         text = group.name,
                         style = MaterialTheme.typography.titleLarge.bold(),
@@ -93,10 +95,8 @@ fun GroupCard(
                             .weight(1f) // Assign weight to text
                             .padding(3.dp),
                     )
-                } else if (!checkedEditGroupName && groupName.isNotBlank()) {
-                    onChangeGroupName(groupName)
-                    checkedEditGroupName = false
                 } else {
+                    // Show the group name (during the editing)
                     OutlinedTextField(
                         modifier = Modifier
                             .weight(1f)
@@ -120,14 +120,26 @@ fun GroupCard(
                         .wrapContentWidth()
                         .padding(end = 8.dp),
                     checked = checkedEditGroupName,
-                    onCheckedChange = { checkedEditGroupName = it },
+                    onCheckedChange = {
+                        checkedEditGroupName = it
+
+                        // If I press check (edit mode) and it's not empty, I change the name
+                        if (groupName.isNotBlank()) {
+                            onChangeGroupName(groupName)
+                        }
+                    },
                     enabled = true,
                     shape = RoundedCornerShape(8.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.ModeEditOutline,
-                        contentDescription = "Edit",
-                    )
+                    when (checkedEditGroupName) {
+                        true -> Icons.Filled.Check
+                        false -> Icons.Filled.ModeEditOutline
+                    }.let { icon ->
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = stringResource(R.string.edit_text),
+                        )
+                    }
                 }
             }
             Row(
@@ -212,12 +224,12 @@ fun GroupCard(
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true)
+@Preview
 @Composable
 private fun GroupCardPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            group = Group(),
+            group = Group().copy(name = "Name"),
             groupUiState = GroupUiState(),
             members = listOf(),
             onRemoveMemberClick = {},

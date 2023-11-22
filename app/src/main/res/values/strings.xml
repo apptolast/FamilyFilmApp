@@ -51,5 +51,6 @@
     <string name="group_dialog_name_empty_error_message">Group Name is empty</string>
     <string name="login">Login</string>
     <string name="text_read_more">Read More</string>
+    <string name="edit_text">Edit</string>
 
 </resources>

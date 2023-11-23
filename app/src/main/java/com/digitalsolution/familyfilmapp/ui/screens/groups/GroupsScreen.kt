@@ -57,6 +57,12 @@ fun GroupsScreen(
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
+    if (tabBackendState.groups[0].id != -1) {
+        LaunchedEffect(key1 = true) {
+            groupViewModel.updateSelectedGroup(tabBackendState.groups[0])
+        }
+    }
+
     LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
         groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
     }

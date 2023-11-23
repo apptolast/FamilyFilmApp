@@ -121,11 +121,12 @@ fun GroupCard(
                         .padding(end = 8.dp),
                     checked = checkedEditGroupName,
                     onCheckedChange = {
+                        // If I press check (edit mode) and it's not empty, I change the name
                         checkedEditGroupName = it
 
-                        // If I press check (edit mode) and it's not empty, I change the name
-                        if (groupName.isNotBlank()) {
+                        if (!checkedEditGroupName && groupName.isNotBlank()) {
                             onChangeGroupName(groupName)
+                            groupName = ""
                         }
                     },
                     enabled = true,
@@ -230,12 +231,12 @@ private fun GroupCardPreview() {
     FamilyFilmAppTheme {
         GroupCard(
             group = Group().copy(name = "Name"),
-            groupUiState = GroupUiState(),
+            groupUiState = GroupUiState().copy(deleteGroupButtonVisibility = true),
             members = listOf(),
             onRemoveMemberClick = {},
             onSwipeDelete = {},
-            onAddMemberClick = { },
-            onDeleteGroupClick = { },
+            onAddMemberClick = {},
+            onDeleteGroupClick = {},
             onChangeGroupName = {},
         )
     }

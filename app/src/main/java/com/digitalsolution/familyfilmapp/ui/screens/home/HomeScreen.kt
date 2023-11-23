@@ -136,7 +136,7 @@ private fun RowMovie(
                 HomeItem(
                     movie = movie,
                     navigateToDetailsScreen = {
-                        navigateToDetailsScreen(it)
+                        navigateToDetailsScreen(movie)
                     },
                 )
             }

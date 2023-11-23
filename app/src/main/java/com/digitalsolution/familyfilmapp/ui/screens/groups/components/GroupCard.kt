@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ModeEditOutline
 import androidx.compose.material3.Card
@@ -24,7 +25,6 @@ import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -33,15 +33,21 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
+import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +62,9 @@ fun GroupCard(
     onDeleteGroupClick: () -> Unit,
     onChangeGroupName: (String) -> Unit,
 ) {
+    var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange) }
+    var checkedEditGroupName by rememberSaveable { mutableStateOf(groupUiState.checkedEditGroupName) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +86,8 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!groupUiState.checkedEditGroupName) {
+                if (!checkedEditGroupName) {
+                    // Show the group name (not editing)
                     Text(
                         text = group.name,
                         style = MaterialTheme.typography.titleLarge.bold(),
@@ -86,12 +96,13 @@ fun GroupCard(
                             .padding(3.dp),
                     )
                 } else {
+                    // Show the group name (during the editing)
                     OutlinedTextField(
                         modifier = Modifier
                             .weight(1f)
                             .padding(6.dp),
-                        value = groupUiState.groupTitleChange,
-                        onValueChange = { groupUiState.groupTitleChange = it },
+                        value = groupName,
+                        onValueChange = { groupName = it },
                         shape = RoundedCornerShape(10.dp),
                         label = {
                             Text(
@@ -102,26 +113,34 @@ fun GroupCard(
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },
-                        trailingIcon = {
-                            IconButton(onClick = { onChangeGroupName(groupUiState.groupTitleChange) }) {
-                                Text(text = stringResource(id = R.string.send_text))
-                            }
-                        },
                     )
                 }
                 OutlinedIconToggleButton(
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(end = 8.dp),
-                    checked = groupUiState.checkedEditGroupName,
-                    onCheckedChange = { groupUiState.checkedEditGroupName = it },
+                    checked = checkedEditGroupName,
+                    onCheckedChange = {
+                        // If I press check (edit mode) and it's not empty, I change the name
+                        checkedEditGroupName = it
+
+                        if (!checkedEditGroupName && groupName.isNotBlank()) {
+                            onChangeGroupName(groupName)
+                            groupName = ""
+                        }
+                    },
                     enabled = true,
                     shape = RoundedCornerShape(8.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.ModeEditOutline,
-                        contentDescription = "Edit",
-                    )
+                    when (checkedEditGroupName) {
+                        true -> Icons.Filled.Check
+                        false -> Icons.Filled.ModeEditOutline
+                    }.let { icon ->
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = stringResource(R.string.edit_text),
+                        )
+                    }
                 }
             }
             Row(
@@ -192,7 +211,7 @@ fun GroupCard(
                                 }
                             },
                             dismissContent = {
-                                GroupCard(
+                                GroupMemberCard(
                                     group = item,
                                     onRemoveMemberClick = onRemoveMemberClick,
                                 )
@@ -203,5 +222,22 @@ fun GroupCard(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun GroupCardPreview() {
+    FamilyFilmAppTheme {
+        GroupCard(
+            group = Group().copy(name = "Name"),
+            groupUiState = GroupUiState().copy(deleteGroupButtonVisibility = true),
+            members = listOf(),
+            onRemoveMemberClick = {},
+            onSwipeDelete = {},
+            onAddMemberClick = {},
+            onDeleteGroupClick = {},
+            onChangeGroupName = {},
+        )
     }
 }

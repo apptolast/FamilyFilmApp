@@ -58,9 +58,10 @@ fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false
             )
         }
         composable(
-            route = DetailNavTypeDestination.route,
+            route = Routes.Details.routes,
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
+            // Using deconstruction
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,

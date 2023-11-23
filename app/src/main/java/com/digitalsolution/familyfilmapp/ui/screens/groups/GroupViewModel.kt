@@ -2,6 +2,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.groups
 
 import androidx.lifecycle.ViewModel
 import com.digitalsolution.familyfilmapp.model.local.Group
+import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.repositories.LocalRepository
 import com.digitalsolution.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
+    private val repository: BackendRepository,
     private val localRepository: LocalRepository,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {

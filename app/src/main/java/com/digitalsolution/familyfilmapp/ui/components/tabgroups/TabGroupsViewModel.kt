@@ -98,6 +98,12 @@ class TabGroupsViewModel @Inject constructor(
         }
     }
 
+    fun updateGroupName(groupId: Int, newName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.updateGroupName(groupId, newName).getOrThrow().let {
+            refreshGroups()
+        }
+    }
+
     fun selectGroupByPos(pos: Int) {
         _uiState.update { it.copy(selectedGroupPos = pos) }
     }

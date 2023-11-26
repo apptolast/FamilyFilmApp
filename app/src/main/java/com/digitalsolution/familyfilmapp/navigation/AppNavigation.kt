@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,19 +17,13 @@ import com.digitalsolution.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.digitalsolution.familyfilmapp.ui.screens.search.SearchScreen
 
 @Composable
-fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
+fun AppNavigation() {
     val navController = rememberNavController()
-    val iUIState by viewModel.navigationUIState.collectAsStateWithLifecycle()
 
-    iUIState.isUserLoggedIn?.let { AppNavHost(navController = navController, isUserLoggedIn = it) }
-}
-
-@Composable
-fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false) {
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = if (isUserLoggedIn) Routes.Home.routes else Routes.Login.routes,
+        startDestination = Routes.Login.routes,
     ) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)
@@ -61,7 +52,6 @@ fun AppNavHost(navController: NavHostController, isUserLoggedIn: Boolean = false
             route = Routes.Details.routes,
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
-            // Using deconstruction
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,

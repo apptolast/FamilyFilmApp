@@ -64,8 +64,8 @@ fun generateFakeGroups(count: Int): List<Group> {
         Group(
             id = index,
             name = "Grupo Fake $index",
-            groupCreatorId = (index + 1) * 10, // Ejemplo de ID del creador
-            watchList = generateFakeMovies(5), // Suponiendo que tienes una función similar para películas
+            groupCreatorId = (index + 1) * 10,
+            watchList = generateFakeMovies(5),
             viewList = generateFakeMovies(3),
         )
     }

@@ -10,7 +10,7 @@ data class TabBackendState(
     override val errorMessage: CustomException?,
 ) : BaseUiState {
     constructor() : this(
-        groups = listOf(Group()),
+        groups = emptyList(),
         isLoading = false,
         errorMessage = null,
     )

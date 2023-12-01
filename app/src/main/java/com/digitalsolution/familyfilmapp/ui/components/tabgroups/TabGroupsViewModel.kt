@@ -4,16 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.exceptions.GroupException
+import com.digitalsolution.familyfilmapp.model.local.Group
+import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import showProgressIndicator
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(
@@ -28,6 +31,19 @@ class TabGroupsViewModel @Inject constructor(
     val uiState: StateFlow<TabUiState> = _uiState
 
     init {
+        loadInitialGroups()
+    }
+
+    fun loadInitialGroups() = viewModelScope.launch {
+        Timber.d("Pasa por aqui antes ")
+        val fakeBackendState = TabBackendState(
+            groups = generateFakeGroups(10), // Generar 10 grupos ficticios
+            isLoading = true,
+            errorMessage = null,
+        )
+        _backendState.update {
+            fakeBackendState
+        }
         refreshGroups()
     }
 
@@ -46,6 +62,34 @@ class TabGroupsViewModel @Inject constructor(
             it.copy(
                 groups = groups,
                 isLoading = false,
+            )
+        }
+    }
+
+    fun generateFakeGroups(count: Int): List<Group> {
+        return List(count) { index ->
+            Group(
+                id = index,
+                name = "Grupo Fake $index",
+                groupCreatorId = (index + 1) * 10, // Ejemplo de ID del creador
+                watchList = generateFakeMovies(5), // Suponiendo que tienes una función similar para películas
+                viewList = generateFakeMovies(3),
+            )
+        }
+    }
+
+    private fun generateFakeMovies(count: Int): List<Movie> {
+        return List(count) { index ->
+            Movie(
+                title = "Movie fake $index",
+                isAdult = true,
+                genres = emptyList<Pair<Int, String>>(),
+                image = "",
+                synopsis = "",
+                voteAverage = 0f,
+                voteCount = 0,
+                releaseDate = Calendar.getInstance().time,
+                language = "",
             )
         }
     }

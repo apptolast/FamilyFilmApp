@@ -24,7 +24,7 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
     val backendState by viewmodel.backendState.collectAsStateWithLifecycle()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = backendState.groups) { viewmodel.refreshGroups() }
+    LaunchedEffect(key1 = true) { viewmodel.refreshGroups() }
 
     if (backendState.groups.isNotEmpty()) {
         ScrollableTabRow(
@@ -59,7 +59,6 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
         }
     } else {
         Timber.d("PEro este es el TopBar pas apro aqui antes ")
-        viewmodel.loadInitialGroups()
     }
 }
 

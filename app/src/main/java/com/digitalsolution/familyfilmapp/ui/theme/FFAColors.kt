@@ -77,8 +77,8 @@ data class FFAError(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun FFAColorsPreview() {
-    Column(){
+private fun FFAColorsPreview() {
+    Column {
         Text(text = "Neutral", style = FFATheme.typography.body.bodyM)
         Row {
             FFAColorPreviewItem(color = FFATheme.colors.neutral.textTitle, name = "textTitle")
@@ -119,11 +119,7 @@ fun FFAColorsPreview() {
 }
 
 @Composable
-private fun FFAColorPreviewItem(
-    color: Color,
-    name: String,
-    modifier: Modifier = Modifier,
-) {
+private fun FFAColorPreviewItem(color: Color, name: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(100.dp)

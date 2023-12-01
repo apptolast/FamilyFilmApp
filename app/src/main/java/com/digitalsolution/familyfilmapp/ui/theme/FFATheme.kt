@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
-import java.time.LocalDate
 
 val LocalFFAColors = staticCompositionLocalOf {
     FFAColors()
@@ -16,21 +15,18 @@ val LocalFFATypo = staticCompositionLocalOf {
 }
 
 @Composable
-fun FFATheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
-    if (darkTheme){
+fun FFATheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    if (darkTheme) {
         CompositionLocalProvider(
             LocalFFAColors provides FFAColorsDark,
             LocalFFATypo provides FFATypo,
-            content = content
+            content = content,
         )
     } else {
         CompositionLocalProvider(
             LocalFFAColors provides FFAColorsLight,
             LocalFFATypo provides FFATypo,
-            content = content
+            content = content,
         )
     }
 }

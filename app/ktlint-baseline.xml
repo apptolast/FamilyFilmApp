@@ -29,4 +29,8 @@
         <error line="132" column="13" source="compose:modifier-reused-check" />
         <error line="135" column="17" source="compose:modifier-not-used-at-root" />
     </file>
+    <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/theme/FFATheme.kt">
+        <error column="5" line="9" source="compose:compositionlocal-allowlist" />
+        <error column="5" line="13" source="compose:compositionlocal-allowlist" />
+    </file>
 </baseline>

@@ -3,15 +3,11 @@
     <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/components/RecommendedMovieCard.kt">
         <error line="34" column="5" source="compose:param-order-check" />
     </file>
-    <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/groups/GroupsScreen.kt">
-        <error line="86" column="13" source="compose:vm-forwarding-check" />
-        <error line="170" column="36" source="standard:discouraged-comment-location" />
-    </file>
     <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/LoginScreen.kt">
-        <error line="124" column="5" source="compose:modifier-reused-check" />
-        <error line="163" column="43" source="compose:remember-missing-check" />
-        <error line="177" column="13" source="compose:modifier-reused-check" />
-        <error line="178" column="17" source="compose:modifier-not-used-at-root" />
+        <error column="5" line="127" source="compose:modifier-reused-check" />
+        <error column="43" line="166" source="compose:remember-missing-check" />
+        <error column="13" line="180" source="compose:modifier-reused-check" />
+        <error column="17" line="181" source="compose:modifier-not-used-at-root" />
     </file>
     <file name="src/main/java/com/digitalsolution/familyfilmapp/ui/screens/login/components/DialogRecoverScreen.kt">
         <error line="49" column="21" source="compose:modifier-not-used-at-root" />

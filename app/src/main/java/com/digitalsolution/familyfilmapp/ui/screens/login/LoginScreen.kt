@@ -50,6 +50,7 @@ import com.digitalsolution.familyfilmapp.utils.Constants
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
@@ -83,6 +84,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         GoogleSignIn.getSignedInAccountFromIntent(intent)
                     viewModel.handleGoogleSignInResult(task.result as GoogleSignInAccount)
                 }
+            } else {
+                Timber.d("$result")
             }
         }
 

@@ -3,6 +3,7 @@ package com.digitalsolution.familyfilmapp.ui.screens.login.usecases
 import com.digitalsolution.familyfilmapp.BaseUseCase
 import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.repositories.LoginRepository
+import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.digitalsolution.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,14 @@ class CheckUserLoggedInUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<Unit, Flow<LoginUiState>>() {
     override suspend fun execute(parameters: Unit): Flow<LoginUiState> = channelFlow {
+        // Loading
+        send(
+            LoginUiState().copy(
+                screenState = LoginRegisterState.Login(),
+                isLoading = true,
+            ),
+        )
+
         repository.getUser().catch { exception ->
             send(
                 LoginUiState().copy(

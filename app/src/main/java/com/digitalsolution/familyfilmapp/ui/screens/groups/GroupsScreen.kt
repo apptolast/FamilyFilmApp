@@ -57,10 +57,16 @@ fun GroupsScreen(
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = tabViewmodel) {
+        tabViewmodel.refreshGroups()
+    }
+
     if (tabBackendState.groups[0].id != -1) {
         LaunchedEffect(key1 = true) {
             groupViewModel.updateSelectedGroup(tabBackendState.groups[0])
         }
+    } else {
+        tabViewmodel.refreshGroups()
     }
 
     LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
@@ -119,6 +125,7 @@ fun GroupsScreen(
             onChangeGroupName = { newGroupName ->
                 tabViewmodel.updateGroupName(tabBackendState.groups[tabUiState.selectedGroupPos].id, newGroupName)
             },
+            isFakeList = tabBackendState.isFakeList,
             modifier = Modifier.padding(paddingValues),
         )
 
@@ -160,6 +167,7 @@ fun GroupContent(
     onDeleteGroupClick: () -> Unit,
     onCLickSwipeCard: (Group) -> Unit,
     onChangeGroupName: (String) -> Unit,
+    isFakeList: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var showDeleteGroupDialog by rememberSaveable {
@@ -181,6 +189,7 @@ fun GroupContent(
             onDeleteGroupClick = {
                 showDeleteGroupDialog = true
             },
+            isFakeList = isFakeList,
             onChangeGroupName = onChangeGroupName,
         )
     }
@@ -253,6 +262,7 @@ private fun GroupContentPreview() {
             onDeleteGroupClick = {},
             onCLickSwipeCard = { _ -> },
             onChangeGroupName = {},
+            isFakeList = true,
         )
     }
 }

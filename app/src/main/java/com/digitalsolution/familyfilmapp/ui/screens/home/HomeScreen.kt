@@ -47,17 +47,13 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     tabViewmodel: TabGroupsViewModel = hiltViewModel(),
 ) {
-    val loginState by homeViewModel.isUserLoggedIn.collectAsStateWithLifecycle()
     val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
 
     BackHandler(true) {
         exitProcess(0)
     }
 
-    LaunchedEffect(key1 = loginState, key2 = tabViewmodel) {
-        if (!loginState) {
-            navController.navigateUp()
-        }
+    LaunchedEffect(key1 = tabViewmodel) {
         tabViewmodel.refreshGroups()
     }
 

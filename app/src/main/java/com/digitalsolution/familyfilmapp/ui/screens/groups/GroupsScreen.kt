@@ -37,6 +37,7 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.dialogs.BasicDialog
+import com.digitalsolution.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.digitalsolution.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
@@ -74,6 +75,10 @@ fun GroupsScreen(
     }
 
     var showGroupNameDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showAddMemberDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -116,7 +121,9 @@ fun GroupsScreen(
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = {},
-            onAddMemberClick = {},
+            onAddMemberClick = {
+                showAddMemberDialog = !showAddMemberDialog
+            },
             onDeleteGroupClick = {
                 tabViewmodel.deleteGroup(
                     tabBackendState.groups[tabUiState.selectedGroupPos].id,
@@ -138,7 +145,20 @@ fun GroupsScreen(
                     tabViewmodel.addGroup(groupName)
                 },
                 onDismiss = {
-                    showGroupNameDialog = false
+                    showGroupNameDialog = !showGroupNameDialog
+                },
+            )
+        }
+
+        if (showAddMemberDialog) {
+            EmailFieldDialog(
+                title = "Introduce the Email",
+                description = "Email",
+                onConfirm = { emailUser ->
+                    tabViewmodel.updatedMemberGroup(tabBackendState.groups[tabUiState.selectedGroupPos].id, emailUser)
+                },
+                onDismiss = {
+                    showAddMemberDialog = !showAddMemberDialog
                 },
             )
         }

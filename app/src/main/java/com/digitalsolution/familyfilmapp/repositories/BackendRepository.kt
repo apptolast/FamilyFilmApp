@@ -1,7 +1,6 @@
 package com.digitalsolution.familyfilmapp.repositories
 
 import com.digitalsolution.familyfilmapp.model.local.AddGroup
-import com.digitalsolution.familyfilmapp.model.local.AddMemberGroup
 import com.digitalsolution.familyfilmapp.model.local.GenreInfo
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
@@ -13,7 +12,6 @@ import com.digitalsolution.familyfilmapp.model.mapper.AddMemberMapper.toAddMembe
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
-import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody

@@ -70,6 +70,32 @@ class TabGroupsViewModel @Inject constructor(
         )
     }
 
+    fun updatedMemberGroup(groupId: Int, email: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        _backendState.showProgressIndicator(true)
+        repository.updateGroupName(groupId, email).fold(
+            onSuccess = {
+                refreshGroups()
+                _backendState.update { oldState ->
+                    oldState.copy(
+                        errorMessage = CustomException.GenericException("New Member added!"),
+                        isLoading = false,
+                    )
+                }
+            },
+            onFailure = {
+                Timber.e(it)
+                _backendState.update { oldState ->
+                    oldState.copy(
+                        isLoading = false,
+                        errorMessage = CustomException.GenericException(
+                            it.message ?: "Error on Get Groups",
+                        ),
+                    )
+                }
+            },
+        )
+    }
+
     fun deleteGroup(groupId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
         _backendState.showProgressIndicator(true)
 

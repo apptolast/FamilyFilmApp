@@ -61,6 +61,7 @@ fun GroupCard(
     onAddMemberClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
     onChangeGroupName: (String) -> Unit,
+    isFakeList: Boolean,
 ) {
     var groupName by rememberSaveable { mutableStateOf(groupUiState.groupTitleChange) }
     var checkedEditGroupName by rememberSaveable { mutableStateOf(groupUiState.checkedEditGroupName) }
@@ -103,6 +104,7 @@ fun GroupCard(
                             .padding(6.dp),
                         value = groupName,
                         onValueChange = { groupName = it },
+                        enabled = !isFakeList,
                         shape = RoundedCornerShape(10.dp),
                         label = {
                             Text(
@@ -129,7 +131,7 @@ fun GroupCard(
                             groupName = ""
                         }
                     },
-                    enabled = true,
+                    enabled = !isFakeList,
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     when (checkedEditGroupName) {
@@ -150,12 +152,12 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlinedButton(onClick = { onAddMemberClick() }) {
+                OutlinedButton(onClick = { onAddMemberClick() }, enabled = !isFakeList) {
                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                     Text(text = stringResource(id = R.string.groups_text_add_member))
                 }
                 if (groupUiState.deleteGroupButtonVisibility) {
-                    OutlinedButton(onClick = { onDeleteGroupClick() }) {
+                    OutlinedButton(onClick = { onDeleteGroupClick() }, enabled = !isFakeList) {
                         Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                         Text(text = stringResource(id = R.string.groups_text_delete_group))
                     }
@@ -238,6 +240,7 @@ private fun GroupCardPreview() {
             onAddMemberClick = {},
             onDeleteGroupClick = {},
             onChangeGroupName = {},
+            isFakeList = true,
         )
     }
 }

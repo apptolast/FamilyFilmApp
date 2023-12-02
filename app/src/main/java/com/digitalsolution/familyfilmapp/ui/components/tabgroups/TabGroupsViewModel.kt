@@ -8,6 +8,7 @@ import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.usecases.UseCaseGroups
 import com.digitalsolution.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import showProgressIndicator
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class TabGroupsViewModel @Inject constructor(

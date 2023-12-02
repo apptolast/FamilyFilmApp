@@ -6,10 +6,10 @@ import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
 import com.digitalsolution.familyfilmapp.repositories.BackendRepository
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabBackendState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
 import java.util.Calendar
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 
 class UseCaseGroups @Inject constructor(
     private val repository: BackendRepository,
@@ -27,6 +27,7 @@ class UseCaseGroups @Inject constructor(
                     send(
                         TabBackendState().copy(
                             groups = generateFakeGroups(8),
+                            isFakeList = true,
                             isLoading = false,
                             errorMessage = null,
                         ),
@@ -39,6 +40,7 @@ class UseCaseGroups @Inject constructor(
                                     group.name
                                 },
                             ),
+                            isFakeList = false,
                             isLoading = false,
                             errorMessage = null,
                         ),

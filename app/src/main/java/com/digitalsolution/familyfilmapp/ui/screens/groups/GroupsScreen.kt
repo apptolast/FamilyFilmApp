@@ -125,6 +125,7 @@ fun GroupsScreen(
             onChangeGroupName = { newGroupName ->
                 tabViewmodel.updateGroupName(tabBackendState.groups[tabUiState.selectedGroupPos].id, newGroupName)
             },
+            isFakeList = tabBackendState.isFakeList,
             modifier = Modifier.padding(paddingValues),
         )
 
@@ -166,6 +167,7 @@ fun GroupContent(
     onDeleteGroupClick: () -> Unit,
     onCLickSwipeCard: (Group) -> Unit,
     onChangeGroupName: (String) -> Unit,
+    isFakeList: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var showDeleteGroupDialog by rememberSaveable {
@@ -187,6 +189,7 @@ fun GroupContent(
             onDeleteGroupClick = {
                 showDeleteGroupDialog = true
             },
+            isFakeList = isFakeList,
             onChangeGroupName = onChangeGroupName,
         )
     }
@@ -259,6 +262,7 @@ private fun GroupContentPreview() {
             onDeleteGroupClick = {},
             onCLickSwipeCard = { _ -> },
             onChangeGroupName = {},
+            isFakeList = true,
         )
     }
 }

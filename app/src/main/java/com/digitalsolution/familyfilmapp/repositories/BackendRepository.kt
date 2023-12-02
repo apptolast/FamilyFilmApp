@@ -1,6 +1,7 @@
 package com.digitalsolution.familyfilmapp.repositories
 
 import com.digitalsolution.familyfilmapp.model.local.AddGroup
+import com.digitalsolution.familyfilmapp.model.local.AddMemberGroup
 import com.digitalsolution.familyfilmapp.model.local.GenreInfo
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
@@ -8,9 +9,11 @@ import com.digitalsolution.familyfilmapp.model.local.UpdateGroupName
 import com.digitalsolution.familyfilmapp.model.local.sealed.StatusResponse
 import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.digitalsolution.familyfilmapp.model.mapper.AddGroupsMapper.toDomain
+import com.digitalsolution.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.digitalsolution.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
+import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
@@ -81,6 +84,10 @@ class BackendRepositoryImpl @Inject constructor(
         kotlin.runCatching {
             backendApi.updateGroupName(groupId, groupName.updateGroupToBody()).data?.toDomain() ?: UpdateGroupName()
         }
+
+    override suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit> = kotlin.runCatching {
+        backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
+    }
 }
 
 interface BackendRepository {
@@ -92,4 +99,5 @@ interface BackendRepository {
     suspend fun addGroups(groupName: String): Result<AddGroup>
     suspend fun deleteGroup(groupId: Int): Result<Unit>
     suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName>
+    suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit>
 }

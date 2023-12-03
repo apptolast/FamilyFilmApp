@@ -164,11 +164,11 @@ fun GroupCard(
                 }
             }
             LazyColumn {
-                items(members.toMutableList()) { item ->
+                items(group.users) { item ->
                     val state = rememberDismissState(
                         confirmValueChange = {
                             if (it == DismissValue.DismissedToStart) {
-                                onSwipeDelete(item)
+                                onSwipeDelete(group)
                             }
                             true
                         },

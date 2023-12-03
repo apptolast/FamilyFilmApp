@@ -22,4 +22,4 @@ data class GroupInfoRemote(
     @SerializedName("users")
     val users: List<UsersRemote>? = null,
 
-    )
+)

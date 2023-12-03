@@ -13,4 +13,4 @@ data class UsersRemote(
     @SerializedName("user")
     val user: UserRemote? = null,
 
-    )
+)

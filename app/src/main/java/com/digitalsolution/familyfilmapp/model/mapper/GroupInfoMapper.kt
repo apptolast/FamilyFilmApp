@@ -2,8 +2,6 @@ package com.digitalsolution.familyfilmapp.model.mapper
 
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.Movie
-import com.digitalsolution.familyfilmapp.model.local.UserInfoGroup
-import com.digitalsolution.familyfilmapp.model.local.Users
 import com.digitalsolution.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.MovieMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.mapper.UserMapper.toDomain

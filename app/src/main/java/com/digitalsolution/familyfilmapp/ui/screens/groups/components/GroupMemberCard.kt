@@ -47,18 +47,6 @@ fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // TODO: Does groups really have an image?
-//            AsyncImage(
-//                model = groupInfo.,
-//                contentDescription = "Member image",
-//                modifier = Modifier
-//                    .size(56.dp)
-//                    .clip(CircleShape)
-//                    .background(
-//                        MaterialTheme.colorScheme.primaryContainer
-//                    ),
-//                contentScale = ContentScale.Crop
-//            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier
@@ -96,6 +84,7 @@ private fun GroupMemberCardPreview() {
                 arrayListOf(
                     Movie(),
                 ),
+                listOf()
             ),
             onRemoveMemberClick = { _ -> },
         )

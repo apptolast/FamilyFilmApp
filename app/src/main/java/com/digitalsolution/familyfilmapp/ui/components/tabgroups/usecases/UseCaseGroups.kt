@@ -69,6 +69,7 @@ fun generateFakeGroups(count: Int): List<Group> {
             groupCreatorId = (index + 1) * 10,
             watchList = generateFakeMovies(5),
             viewList = generateFakeMovies(3),
+            users = emptyList(),
         )
     }
 }

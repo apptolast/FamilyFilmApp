@@ -84,7 +84,7 @@ private fun GroupMemberCardPreview() {
                 arrayListOf(
                     Movie(),
                 ),
-                listOf()
+                listOf(),
             ),
             onRemoveMemberClick = { _ -> },
         )

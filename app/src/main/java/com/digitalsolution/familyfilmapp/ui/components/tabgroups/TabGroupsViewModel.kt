@@ -72,7 +72,7 @@ class TabGroupsViewModel @Inject constructor(
 
     fun updatedMemberGroup(groupId: Int, email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         _backendState.showProgressIndicator(true)
-        repository.updateGroupName(groupId, email).fold(
+        repository.addMemberGroup(groupId, email).fold(
             onSuccess = {
                 refreshGroups()
                 _backendState.update { oldState ->

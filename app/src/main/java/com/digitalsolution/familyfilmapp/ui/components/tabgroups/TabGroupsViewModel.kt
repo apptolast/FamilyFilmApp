@@ -74,7 +74,6 @@ class TabGroupsViewModel @Inject constructor(
         _backendState.showProgressIndicator(true)
         repository.addMemberGroup(groupId, email).fold(
             onSuccess = {
-                refreshGroups()
                 _backendState.update { oldState ->
                     oldState.copy(
                         errorMessage = CustomException.GenericException("New Member added!"),
@@ -83,6 +82,7 @@ class TabGroupsViewModel @Inject constructor(
                 }
             },
             onFailure = {
+                Timber.d("Esta es la excepcion $it")
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(

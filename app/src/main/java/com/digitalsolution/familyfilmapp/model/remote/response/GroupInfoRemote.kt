@@ -19,4 +19,7 @@ data class GroupInfoRemote(
     @SerializedName("viewList")
     val viewList: List<MovieInfoRemote>? = null,
 
-)
+    @SerializedName("users")
+    val users: List<UsersRemote>? = null,
+
+    )

@@ -80,6 +80,7 @@ class TabGroupsViewModel @Inject constructor(
                         isLoading = false,
                     )
                 }
+                refreshGroups()
             },
             onFailure = {
                 Timber.d("Esta es la excepcion $it")

@@ -62,6 +62,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         if (loginUiState.isLogged) {
             navController.navigate(Routes.Home.routes) {
                 popUpTo(Routes.Login.routes) { inclusive = true }
+                launchSingleTop = true
             }
         }
     }

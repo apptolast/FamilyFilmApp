@@ -30,15 +30,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.digitalsolution.familyfilmapp.navigation.Routes
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun ProfileScreen(
-    navController: NavController,
-    onClickNavigateLogin: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel(),
-) {
+fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
     val profileUiState by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -48,7 +45,13 @@ fun ProfileScreen(
             profileUiState,
             onClickLogOut = {
                 viewModel.logOut()
-                onClickNavigateLogin()
+
+                navController.navigate(Routes.Login.routes) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
             },
             modifier = Modifier.padding(paddingValues),
         )
@@ -95,6 +98,6 @@ fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit, mo
 @Composable
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
-        ProfileScreen(navController = rememberNavController(), onClickNavigateLogin = {})
+        ProfileScreen(navController = rememberNavController())
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.digitalsolution.familyfilmapp.navigation.Routes
 
@@ -31,11 +30,10 @@ fun BottomBar(navController: NavController) {
                 selected = currentRoute == screen.routes,
                 onClick = {
                     navController.navigate(screen.routes) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
                         }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 icon = {

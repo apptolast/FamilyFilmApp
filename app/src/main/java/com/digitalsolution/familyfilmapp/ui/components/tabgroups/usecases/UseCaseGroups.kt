@@ -26,7 +26,7 @@ class UseCaseGroups @Inject constructor(
                 if (groups.isEmpty()) {
                     send(
                         TabBackendState().copy(
-                            groups = generateFakeGroups(8),
+                            groups = null,
                             isFakeList = true,
                             isLoading = false,
                             errorMessage = null,

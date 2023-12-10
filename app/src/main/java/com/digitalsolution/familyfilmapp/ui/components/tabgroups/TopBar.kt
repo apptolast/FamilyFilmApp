@@ -26,14 +26,14 @@ fun TopBar(viewmodel: TabGroupsViewModel = hiltViewModel()) {
 
     LaunchedEffect(key1 = true) { viewmodel.refreshGroups() }
 
-    if (backendState.groups.isNotEmpty()) {
+    if (backendState.groups?.isNotEmpty() == true) {
         ScrollableTabRow(
             selectedTabIndex = uiState.selectedGroupPos,
             containerColor = MaterialTheme.colorScheme.outlineVariant,
             edgePadding = 0.dp,
             divider = {},
         ) {
-            backendState.groups.forEachIndexed { index, group ->
+            backendState.groups!!.forEachIndexed { index, group ->
                 Tab(
                     selected = uiState.selectedGroupPos == index,
                     onClick = {

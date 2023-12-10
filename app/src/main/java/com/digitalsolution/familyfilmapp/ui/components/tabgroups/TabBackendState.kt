@@ -5,13 +5,13 @@ import com.digitalsolution.familyfilmapp.exceptions.CustomException
 import com.digitalsolution.familyfilmapp.model.local.Group
 
 data class TabBackendState(
-    val groups: List<Group>,
+    val groups: List<Group>? = null,
     val isFakeList: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
     constructor() : this(
-        groups = listOf(Group()),
+        groups = null,
         isFakeList = false,
         isLoading = false,
         errorMessage = null,

@@ -55,7 +55,6 @@ import com.digitalsolution.familyfilmapp.ui.theme.bold
 fun GroupCard(
     group: Group,
     groupUiState: GroupUiState,
-    members: List<Group>,
     onRemoveMemberClick: (Group) -> Unit,
     onSwipeDelete: (Group) -> Unit,
     onAddMemberClick: () -> Unit,
@@ -234,7 +233,6 @@ private fun GroupCardPreview() {
         GroupCard(
             group = Group().copy(name = "Name"),
             groupUiState = GroupUiState().copy(deleteGroupButtonVisibility = true),
-            members = listOf(),
             onRemoveMemberClick = {},
             onSwipeDelete = {},
             onAddMemberClick = {},

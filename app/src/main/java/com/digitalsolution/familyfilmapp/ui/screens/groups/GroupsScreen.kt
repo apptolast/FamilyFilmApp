@@ -68,7 +68,6 @@ fun GroupsScreen(
     }
 
     LaunchedEffect(key1 = tabBackendState.errorMessage) {
-
     }
 
     if (tabBackendState.groups[0].id != -1) {
@@ -211,7 +210,6 @@ fun GroupContent(
         GroupCard(
             group = group,
             groupUiState = groupUiState,
-            members = emptyList(),
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,

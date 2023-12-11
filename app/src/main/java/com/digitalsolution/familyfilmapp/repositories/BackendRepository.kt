@@ -86,6 +86,10 @@ class BackendRepositoryImpl @Inject constructor(
     override suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit> = kotlin.runCatching {
         backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
     }
+
+    override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {
+        backendApi.removeMemberFromGroup(groupId, userId)
+    }
 }
 
 interface BackendRepository {
@@ -98,4 +102,5 @@ interface BackendRepository {
     suspend fun deleteGroup(groupId: Int): Result<Unit>
     suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName>
     suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit>
+    suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
 }

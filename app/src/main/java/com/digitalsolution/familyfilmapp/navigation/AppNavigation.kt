@@ -43,9 +43,6 @@ fun AppNavigation() {
         composable(route = Routes.Profile.routes) {
             ProfileScreen(
                 navController = navController,
-                onClickNavigateLogin = {
-                    navController.navigate(Routes.Login.routes)
-                },
             )
         }
         composable(

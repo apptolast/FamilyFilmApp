@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.home
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,26 +38,21 @@ import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import kotlin.system.exitProcess
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    tabViewmodel: TabGroupsViewModel = hiltViewModel(),
+    tabViewModel: TabGroupsViewModel = hiltViewModel(),
 ) {
     val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
 
-    BackHandler(true) {
-        exitProcess(0)
-    }
-
-    LaunchedEffect(key1 = tabViewmodel) {
-        tabViewmodel.refreshGroups()
+    LaunchedEffect(key1 = tabViewModel) {
+        tabViewModel.refreshGroups()
     }
 
     Scaffold(
-        topBar = { TopBar(tabViewmodel) },
+        topBar = { TopBar(tabViewModel) },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(

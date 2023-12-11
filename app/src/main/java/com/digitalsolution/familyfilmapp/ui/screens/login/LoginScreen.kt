@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +59,10 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
-            navController.navigate(Routes.Home.routes)
+            navController.navigate(Routes.Home.routes) {
+                popUpTo(Routes.Login.routes) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 
@@ -122,10 +124,9 @@ fun LoginContent(
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
     onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
             .alpha(
@@ -163,7 +164,7 @@ fun LoginContent(
             modifier = Modifier.clickable {
                 onRecoveryPassUpdate(
                     recoverPassUIState.copy(
-                        isDialogVisible = mutableStateOf(true),
+                        isDialogVisible = true,
                         emailErrorMessage = null,
                         errorMessage = null,
                     ),
@@ -178,7 +179,7 @@ fun LoginContent(
             modifier = Modifier.padding(vertical = 10.dp),
         ) {
             Row(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -200,10 +201,17 @@ fun LoginContent(
         )
     }
 
-    if (recoverPassUIState.isDialogVisible.value) {
+    if (recoverPassUIState.isDialogVisible) {
         AlertRecoverPassDialog(
             onCLickSend = onCLickRecoverPassword,
             recoverPassUIState = recoverPassUIState,
+            dismissDialog = {
+                onRecoveryPassUpdate(
+                    recoverPassUIState.copy(
+                        isDialogVisible = false,
+                    ),
+                )
+            },
         )
     }
 }
@@ -219,7 +227,6 @@ private fun LoginScreenPreview() {
             onCLickRecoverPassword = {},
             onClickGoogleButton = {},
             onClickScreenState = {},
-            modifier = Modifier,
             onRecoveryPassUpdate = {},
         )
     }

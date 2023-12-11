@@ -59,7 +59,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+        kotlinCompilerExtensionVersion = "1.5.6"
     }
 
     packaging {
@@ -106,9 +106,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    ksp("com.google.dagger:hilt-android-compiler:2.48.1")
-    kspTest("com.google.dagger:hilt-android-compiler:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.49")
+    ksp("com.google.dagger:hilt-android-compiler:2.49")
+    kspTest("com.google.dagger:hilt-android-compiler:2.49")
 
     // Navigation Con Safe Arguments
     implementation("com.google.code.gson:gson:2.10.1")
@@ -131,7 +131,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Ktlint Ruleset
-    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.3")
+    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.5")
 
     // Test
     testImplementation("junit:junit:4.13.2")
@@ -145,10 +145,10 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.13.8")
 
-    testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 
     testImplementation("app.cash.turbine:turbine:1.0.0")
 

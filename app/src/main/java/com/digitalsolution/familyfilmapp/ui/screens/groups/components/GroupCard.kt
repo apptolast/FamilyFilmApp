@@ -214,7 +214,8 @@ fun GroupCard(
                             dismissContent = {
                                 GroupMemberCard(
                                     group = item,
-                                    groupId = group.id,
+                                    groupId = item.groupID,
+                                    userId = item.userID,
                                 ) { groupId, userId ->
                                     onRemoveMemberClick(groupId, userId)
                                 }
@@ -235,7 +236,7 @@ private fun GroupCardPreview() {
         GroupCard(
             group = Group().copy(name = "Name"),
             groupUiState = GroupUiState().copy(deleteGroupButtonVisibility = true),
-            onRemoveMemberClick = { _ , _  -> },
+            onRemoveMemberClick = { _, _ -> },
             onSwipeDelete = {},
             onAddMemberClick = {},
             onDeleteGroupClick = {},

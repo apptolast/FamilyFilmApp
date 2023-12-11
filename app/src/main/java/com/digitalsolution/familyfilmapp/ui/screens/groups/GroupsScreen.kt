@@ -129,7 +129,7 @@ fun GroupsScreen(
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = { groupId, userId ->
-
+                tabViewmodel.removeMemberGroup(groupId, userId)
             },
             onAddMemberClick = {
                 showAddMemberDialog = !showAddMemberDialog
@@ -290,7 +290,7 @@ private fun GroupContentPreview() {
         GroupContent(
             group = Group(),
             groupUiState = GroupUiState(),
-            onClickRemoveMember = { _ , _ -> },
+            onClickRemoveMember = { _, _ -> },
             onAddMemberClick = {},
             onDeleteGroupClick = {},
             onCLickSwipeCard = { _ -> },

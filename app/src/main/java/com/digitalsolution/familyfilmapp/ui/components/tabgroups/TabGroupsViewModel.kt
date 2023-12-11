@@ -127,6 +127,12 @@ class TabGroupsViewModel @Inject constructor(
         }
     }
 
+    fun removeMemberGroup(groupId: Int, userId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.removeMemberGroup(groupId, userId).getOrThrow().let {
+            refreshGroups()
+        }
+    }
+
     fun selectGroupByPos(pos: Int) {
         _uiState.update { it.copy(selectedGroupPos = pos) }
     }

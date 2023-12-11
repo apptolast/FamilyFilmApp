@@ -8,6 +8,7 @@ object ApiRoutes {
     const val MOVIES = "movies"
     const val GROUPS = "groups"
     const val GROUP = "$GROUPS/{$GROUP_ID_PARAM}"
+    const val ADD_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/addMember"
     const val GENRES = "genres"
 }
 

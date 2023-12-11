@@ -23,12 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.digitalsolution.familyfilmapp.model.local.Group
-import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.digitalsolution.familyfilmapp.model.local.UserInfoGroup
+import com.digitalsolution.familyfilmapp.model.local.Users
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
+fun GroupMemberCard(group: Users, onRemoveMemberClick: (Group) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -47,18 +48,6 @@ fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // TODO: Does groups really have an image?
-//            AsyncImage(
-//                model = groupInfo.,
-//                contentDescription = "Member image",
-//                modifier = Modifier
-//                    .size(56.dp)
-//                    .clip(CircleShape)
-//                    .background(
-//                        MaterialTheme.colorScheme.primaryContainer
-//                    ),
-//                contentScale = ContentScale.Crop
-//            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier
@@ -67,12 +56,12 @@ fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = group.name,
+                    text = group.user.email,
                     style = MaterialTheme.typography.titleSmall.bold(),
                     color = Color.White,
                 )
             }
-            IconButton(onClick = { onRemoveMemberClick(group) }) {
+            IconButton(onClick = { }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Delete Member",
@@ -88,16 +77,11 @@ fun GroupMemberCard(group: Group, onRemoveMemberClick: (Group) -> Unit) {
 private fun GroupMemberCardPreview() {
     FamilyFilmAppTheme {
         GroupMemberCard(
-            group = Group(
-                1,
-                "Group Test",
-                1,
-                arrayListOf(Movie()),
-                arrayListOf(
-                    Movie(),
-                ),
+            group = Users(
+                userID = -1,
+                groupID = -1,
+                user = UserInfoGroup(),
             ),
-            onRemoveMemberClick = { _ -> },
-        )
+        ) { _ -> }
     }
 }

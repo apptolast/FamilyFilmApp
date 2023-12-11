@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +38,7 @@ import com.digitalsolution.familyfilmapp.R
 import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.ui.components.BottomBar
 import com.digitalsolution.familyfilmapp.ui.components.dialogs.BasicDialog
+import com.digitalsolution.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.digitalsolution.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.digitalsolution.familyfilmapp.ui.components.tabgroups.TopBar
@@ -57,23 +59,34 @@ fun GroupsScreen(
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
+    val scope = rememberCoroutineScope()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(key1 = tabViewmodel) {
         tabViewmodel.refreshGroups()
     }
 
-    if (tabBackendState.groups[0].id != -1) {
+    LaunchedEffect(key1 = tabBackendState.errorMessage) {
+    }
+
+    if ((tabBackendState.groups?.get(0)?.id ?: Group()) != -1) {
         LaunchedEffect(key1 = true) {
-            groupViewModel.updateSelectedGroup(tabBackendState.groups[0])
+            groupViewModel.updateSelectedGroup(tabBackendState.groups?.get(0) ?: Group())
         }
     } else {
         tabViewmodel.refreshGroups()
     }
 
     LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
-        groupViewModel.updateSelectedGroup(tabBackendState.groups[tabUiState.selectedGroupPos])
+        groupViewModel.updateSelectedGroup(tabBackendState.groups?.get(tabUiState.selectedGroupPos) ?: Group())
     }
 
     var showGroupNameDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showAddMemberDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -112,18 +125,23 @@ fun GroupsScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         GroupContent(
-            group = tabBackendState.groups[tabUiState.selectedGroupPos],
+            group = tabBackendState.groups?.get(tabUiState.selectedGroupPos) ?: Group(),
             groupUiState = groupUiState,
             onCLickSwipeCard = {},
             onClickRemoveMember = {},
-            onAddMemberClick = {},
+            onAddMemberClick = {
+                showAddMemberDialog = !showAddMemberDialog
+            },
             onDeleteGroupClick = {
-                tabViewmodel.deleteGroup(
-                    tabBackendState.groups[tabUiState.selectedGroupPos].id,
-                )
+                tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
+                    tabViewmodel.deleteGroup(
+                        it.id,
+                    )
+                }
             },
             onChangeGroupName = { newGroupName ->
-                tabViewmodel.updateGroupName(tabBackendState.groups[tabUiState.selectedGroupPos].id, newGroupName)
+                tabBackendState.groups?.get(tabUiState.selectedGroupPos)
+                    ?.let { tabViewmodel.updateGroupName(it.id, newGroupName) }
             },
             isFakeList = tabBackendState.isFakeList,
             modifier = Modifier.padding(paddingValues),
@@ -138,7 +156,21 @@ fun GroupsScreen(
                     tabViewmodel.addGroup(groupName)
                 },
                 onDismiss = {
-                    showGroupNameDialog = false
+                    showGroupNameDialog = !showGroupNameDialog
+                },
+            )
+        }
+
+        if (showAddMemberDialog) {
+            EmailFieldDialog(
+                title = "Introduce the Email",
+                description = "Email",
+                onConfirm = { emailUser ->
+                    tabBackendState.groups?.get(tabUiState.selectedGroupPos)
+                        ?.let { tabViewmodel.updatedMemberGroup(it.id, emailUser) }
+                },
+                onDismiss = {
+                    showAddMemberDialog = !showAddMemberDialog
                 },
             )
         }
@@ -182,7 +214,6 @@ fun GroupContent(
         GroupCard(
             group = group,
             groupUiState = groupUiState,
-            members = emptyList(),
             onRemoveMemberClick = onClickRemoveMember,
             onSwipeDelete = onCLickSwipeCard,
             onAddMemberClick = onAddMemberClick,

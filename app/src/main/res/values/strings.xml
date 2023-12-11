@@ -52,5 +52,6 @@
     <string name="login">Login</string>
     <string name="text_read_more">Read More</string>
     <string name="edit_text">Edit</string>
+    <string name="email_blank">Email is empty</string>
 
 </resources>

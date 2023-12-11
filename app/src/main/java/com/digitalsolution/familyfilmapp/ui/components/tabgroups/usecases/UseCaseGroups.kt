@@ -26,7 +26,7 @@ class UseCaseGroups @Inject constructor(
                 if (groups.isEmpty()) {
                     send(
                         TabBackendState().copy(
-                            groups = generateFakeGroups(8),
+                            groups = null,
                             isFakeList = true,
                             isLoading = false,
                             errorMessage = null,
@@ -69,6 +69,7 @@ fun generateFakeGroups(count: Int): List<Group> {
             groupCreatorId = (index + 1) * 10,
             watchList = generateFakeMovies(5),
             viewList = generateFakeMovies(3),
+            users = emptyList(),
         )
     }
 }

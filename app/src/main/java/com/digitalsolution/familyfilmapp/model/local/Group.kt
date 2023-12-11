@@ -6,6 +6,7 @@ data class Group(
     val groupCreatorId: Int,
     val watchList: List<Movie>,
     val viewList: List<Movie>,
+    val users: List<Users>,
 ) {
     constructor() : this(
         id = -1,
@@ -13,5 +14,6 @@ data class Group(
         groupCreatorId = -1,
         watchList = emptyList<Movie>(),
         viewList = emptyList<Movie>(),
+        users = emptyList<Users>(),
     )
 }

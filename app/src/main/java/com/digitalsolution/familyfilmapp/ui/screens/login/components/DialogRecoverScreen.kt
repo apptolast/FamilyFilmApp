@@ -12,7 +12,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,15 +28,13 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun AlertRecoverPassDialog(
     recoverPassUIState: RecoverPassUiState,
-    modifier: Modifier = Modifier,
     onCLickSend: (String) -> Unit,
+    dismissDialog: () -> Unit,
 ) {
     var email by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
-        onDismissRequest = {
-            recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
-        },
+        onDismissRequest = dismissDialog,
         title = {
             Text(text = stringResource(id = R.string.login_text_recover_password))
         },
@@ -46,7 +43,7 @@ fun AlertRecoverPassDialog(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it.trim() },
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = stringResource(R.string.login_text_field_email)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     shape = RoundedCornerShape(25.dp),
@@ -75,9 +72,7 @@ fun AlertRecoverPassDialog(
         },
         dismissButton = {
             TextButton(
-                onClick = {
-                    recoverPassUIState.isDialogVisible.value = !recoverPassUIState.isDialogVisible.value
-                },
+                onClick = dismissDialog,
             ) {
                 Text(
                     text = stringResource(R.string.login_text_recover_password_cancel),
@@ -94,9 +89,11 @@ private fun AlertRecoverPassDialogPreview() {
     FamilyFilmAppTheme {
         AlertRecoverPassDialog(
             recoverPassUIState = RecoverPassUiState().copy(
-                isDialogVisible = remember { mutableStateOf(true) },
+                isDialogVisible = true,
                 isLoading = true,
             ),
-        ) {}
+            onCLickSend = {},
+            dismissDialog = {},
+        )
     }
 }

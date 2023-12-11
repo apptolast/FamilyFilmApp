@@ -22,14 +22,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.digitalsolution.familyfilmapp.model.local.Group
 import com.digitalsolution.familyfilmapp.model.local.UserInfoGroup
 import com.digitalsolution.familyfilmapp.model.local.Users
 import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun GroupMemberCard(group: Users, onRemoveMemberClick: (Group) -> Unit) {
+fun GroupMemberCard(
+    group: Users,
+    groupId: Int,
+    onRemoveMemberClick: (Int, Int) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +64,7 @@ fun GroupMemberCard(group: Users, onRemoveMemberClick: (Group) -> Unit) {
                     color = Color.White,
                 )
             }
-            IconButton(onClick = { }) {
+            IconButton(onClick = {  onRemoveMemberClick(0, 0)}) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Delete Member",
@@ -82,6 +85,7 @@ private fun GroupMemberCardPreview() {
                 groupID = -1,
                 user = UserInfoGroup(),
             ),
-        ) { _ -> }
+            groupId = -1,
+        ) { _ , _ -> }
     }
 }

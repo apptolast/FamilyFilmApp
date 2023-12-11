@@ -1,5 +1,7 @@
 package com.digitalsolution.familyfilmapp.model.remote.request
 
+import com.google.gson.annotations.SerializedName
+
 data class AddMemberBody(
-    val email: String,
+    @SerializedName("email") val email: String,
 )

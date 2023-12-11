@@ -28,7 +28,7 @@ import com.digitalsolution.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.digitalsolution.familyfilmapp.ui.theme.bold
 
 @Composable
-fun GroupMemberCard(group: Users, groupId: Int, userId: Int, onRemoveMemberClick: (Int, Int) -> Unit) {
+fun GroupMemberCard(group: Users, onRemoveMemberClick: (Int, Int) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -60,7 +60,7 @@ fun GroupMemberCard(group: Users, groupId: Int, userId: Int, onRemoveMemberClick
                     color = Color.White,
                 )
             }
-            IconButton(onClick = { onRemoveMemberClick(groupId, userId) }) {
+            IconButton(onClick = { onRemoveMemberClick(group.groupID, group.userID) }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Delete Member",
@@ -81,8 +81,6 @@ private fun GroupMemberCardPreview() {
                 groupID = -1,
                 user = UserInfoGroup(),
             ),
-            groupId = -1,
-            userId = -1,
         ) { _, _ -> }
     }
 }

@@ -1,5 +1,7 @@
 package com.digitalsolution.familyfilmapp.model.remote.request
 
+import com.google.gson.annotations.SerializedName
+
 data class UpdateGroupNameBody(
-    val name: String,
+    @SerializedName("name") val name: String,
 )

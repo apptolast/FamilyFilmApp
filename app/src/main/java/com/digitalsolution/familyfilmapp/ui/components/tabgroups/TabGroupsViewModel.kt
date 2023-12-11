@@ -128,7 +128,9 @@ class TabGroupsViewModel @Inject constructor(
     }
 
     fun removeMemberGroup(groupId: Int, userId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.removeMemberGroup(groupId, userId).getOrThrow().let {
+        repository.removeMemberGroup(groupId, userId).getOrElse {
+            Timber.d("Error $it")
+        }.let {
             refreshGroups()
         }
     }

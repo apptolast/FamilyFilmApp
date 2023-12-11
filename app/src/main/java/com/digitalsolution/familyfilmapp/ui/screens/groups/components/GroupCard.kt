@@ -214,11 +214,8 @@ fun GroupCard(
                             dismissContent = {
                                 GroupMemberCard(
                                     group = item,
-                                    groupId = item.groupID,
-                                    userId = item.userID,
-                                ) { groupId, userId ->
-                                    onRemoveMemberClick(groupId, userId)
-                                }
+                                    onRemoveMemberClick = onRemoveMemberClick,
+                                )
                             },
                             directions = setOf(DismissDirection.EndToStart),
                         )

@@ -16,6 +16,7 @@ import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBo
 import com.digitalsolution.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
+import com.digitalsolution.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.digitalsolution.familyfilmapp.network.BackendApi
 import javax.inject.Inject
 
@@ -88,7 +89,7 @@ class BackendRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {
-        backendApi.removeMemberFromGroup(groupId, userId)
+        backendApi.removeMemberFromGroup(groupId, RemoveMemberBody(userId = userId))
     }
 }
 

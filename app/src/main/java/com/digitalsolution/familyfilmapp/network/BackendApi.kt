@@ -4,6 +4,7 @@ import com.digitalsolution.familyfilmapp.model.remote.request.AddGroupBody
 import com.digitalsolution.familyfilmapp.model.remote.request.AddMemberBody
 import com.digitalsolution.familyfilmapp.model.remote.request.LoginBody
 import com.digitalsolution.familyfilmapp.model.remote.request.RegisterBody
+import com.digitalsolution.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.digitalsolution.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.digitalsolution.familyfilmapp.model.remote.response.AddGroupRemote
 import com.digitalsolution.familyfilmapp.model.remote.response.AddMemberRemote
@@ -52,6 +53,9 @@ interface BackendApi {
         @Path(GROUP_ID_PARAM) groupId: Int,
         @Body addMemberBody: AddMemberBody,
     ): ResponseWrapper<AddMemberRemote>
+
+    @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
+    suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

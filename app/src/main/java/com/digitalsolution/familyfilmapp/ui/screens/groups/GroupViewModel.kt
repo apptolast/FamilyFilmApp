@@ -26,6 +26,8 @@ class GroupViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 deleteGroupButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
+                addMemberButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
+                updateNameGroupVisibility = group.groupCreatorId == localRepository.getUserId(),
             )
         }
     }

@@ -116,31 +116,33 @@ fun GroupCard(
                         },
                     )
                 }
-                OutlinedIconToggleButton(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(end = 8.dp),
-                    checked = checkedEditGroupName,
-                    onCheckedChange = {
-                        // If I press check (edit mode) and it's not empty, I change the name
-                        checkedEditGroupName = it
+                if (groupUiState.updateNameGroupVisibility) {
+                    OutlinedIconToggleButton(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(end = 8.dp),
+                        checked = checkedEditGroupName,
+                        onCheckedChange = {
+                            // If I press check (edit mode) and it's not empty, I change the name
+                            checkedEditGroupName = it
 
-                        if (!checkedEditGroupName && groupName.isNotBlank()) {
-                            onChangeGroupName(groupName)
-                            groupName = ""
+                            if (!checkedEditGroupName && groupName.isNotBlank()) {
+                                onChangeGroupName(groupName)
+                                groupName = ""
+                            }
+                        },
+                        enabled = !isFakeList,
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        when (checkedEditGroupName) {
+                            true -> Icons.Filled.Check
+                            false -> Icons.Filled.ModeEditOutline
+                        }.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = stringResource(R.string.edit_text),
+                            )
                         }
-                    },
-                    enabled = !isFakeList,
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    when (checkedEditGroupName) {
-                        true -> Icons.Filled.Check
-                        false -> Icons.Filled.ModeEditOutline
-                    }.let { icon ->
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = stringResource(R.string.edit_text),
-                        )
                     }
                 }
             }
@@ -151,9 +153,11 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlinedButton(onClick = { onAddMemberClick() }, enabled = !isFakeList) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-                    Text(text = stringResource(id = R.string.groups_text_add_member))
+                if (groupUiState.addMemberButtonVisibility) {
+                    OutlinedButton(onClick = { onAddMemberClick() }, enabled = !isFakeList) {
+                        Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+                        Text(text = stringResource(id = R.string.groups_text_add_member))
+                    }
                 }
                 if (groupUiState.deleteGroupButtonVisibility) {
                     OutlinedButton(onClick = { onDeleteGroupClick() }, enabled = !isFakeList) {

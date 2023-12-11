@@ -180,9 +180,18 @@ fun GroupCard(
                             state = state,
                             background = {
                                 val color = when (state.dismissDirection) {
-                                    DismissDirection.StartToEnd -> Color.Transparent
-                                    DismissDirection.EndToStart -> Color(0xFFFF1744)
-                                    null -> Color.Transparent
+                                    DismissDirection.StartToEnd -> {
+                                        Color.Transparent
+                                    }
+
+                                    DismissDirection.EndToStart -> {
+                                        onRemoveMemberClick(item.groupID, item.userID)
+                                        Color(0xFFFF1744)
+                                    }
+
+                                    null -> {
+                                        Color.Transparent
+                                    }
                                 }
                                 Card(
                                     modifier = Modifier

@@ -1,6 +1,5 @@
 package com.digitalsolution.familyfilmapp.ui.screens.login
 
-import androidx.compose.runtime.mutableStateOf
 import app.cash.turbine.test
 import com.digitalsolution.familyfilmapp.MainDispatcherRule
 import com.digitalsolution.familyfilmapp.exceptions.LoginException
@@ -257,7 +256,7 @@ class LoginViewModelTest {
     fun `LoginViewModel - Recovery Password - Success`() = runTest(coroutineRule.testDispatcherProvider.io()) {
         // Arrange
         val email = "email"
-        val isDialogVisible = mutableStateOf(false)
+        val isDialogVisible = false
 
         whenever(recoverPassUseCase(any())).thenReturn(
             channelFlow {
@@ -276,17 +275,12 @@ class LoginViewModelTest {
         val job = launch {
             viewModel.recoverPassUIState.test {
                 awaitItem().let {
-                    assertThat(it.isDialogVisible.value).isEqualTo(false)
+                    assertThat(it.isDialogVisible).isEqualTo(false)
                     assertThat(it.isLoading).isFalse()
                     assertThat(it.recoveryPassResponse).isFalse()
                 }
                 awaitItem().let {
-                    assertThat(it.isDialogVisible.value).isEqualTo(false)
-                    assertThat(it.isLoading).isFalse()
-                    assertThat(it.recoveryPassResponse).isFalse()
-                }
-                awaitItem().let {
-                    assertThat(it.isDialogVisible.value).isEqualTo(isDialogVisible.value)
+                    assertThat(it.isDialogVisible).isEqualTo(isDialogVisible)
                     assertThat(it.isLoading).isFalse()
                     assertThat(it.recoveryPassResponse).isTrue()
                 }
@@ -318,7 +312,6 @@ class LoginViewModelTest {
             val job = launch {
                 viewModel.recoverPassUIState.test {
                     assertThat(awaitItem().errorMessage?.error).isNull()
-                    assertThat(awaitItem().errorMessage?.error).isNull()
                     assertThat(awaitItem().errorMessage?.error).isEqualTo(errorMessage)
 
                     cancelAndConsumeRemainingEvents()
@@ -341,8 +334,8 @@ class LoginViewModelTest {
             val job = launch {
                 viewModel.recoverPassUIState.test {
                     awaitItem().let { updateRecoveryPassUiState ->
-                        assertThat(updateRecoveryPassUiState.isDialogVisible.value).isEqualTo(
-                            recoveryPassUiState.isDialogVisible.value,
+                        assertThat(updateRecoveryPassUiState.isDialogVisible).isEqualTo(
+                            recoveryPassUiState.isDialogVisible,
                         )
                         assertThat(updateRecoveryPassUiState.emailErrorMessage).isEqualTo(
                             recoveryPassUiState.emailErrorMessage,

@@ -102,6 +102,7 @@ class TabGroupsViewModel @Inject constructor(
 
         try {
             repository.deleteGroup(groupId)
+            selectGroupByPos(0)
             refreshGroups() // Refresh group after deletion
             _backendState.update { oldState ->
                 oldState.copy(

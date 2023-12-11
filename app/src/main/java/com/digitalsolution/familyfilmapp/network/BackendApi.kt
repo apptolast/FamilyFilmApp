@@ -54,7 +54,7 @@ interface BackendApi {
     ): ResponseWrapper<AddMemberRemote>
 
     @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
-    suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body userId: Int): ResponseWrapper<Unit>
+    suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body userId: Int): ResponseWrapper<Any>
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

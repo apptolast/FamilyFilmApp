@@ -21,10 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,6 +42,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         floatingActionButton = {
@@ -62,6 +60,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     ) { paddingValues ->
         SearchContent(
             movies = uiState.movies,
+            searchUiState,
             modifier = Modifier.padding(paddingValues),
         ) { movie ->
             navController.navigate(DetailNavTypeDestination.getDestination(movie))
@@ -70,8 +69,12 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
 }
 
 @Composable
-fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
-    var searchText by rememberSaveable { mutableStateOf("") }
+fun SearchContent(
+    movies: List<Movie>,
+    searchUiState: SearchScreenUI,
+    modifier: Modifier = Modifier,
+    onNavigateDetailScreen: (Movie) -> Unit,
+) {
     val focusRequester = remember { FocusRequester() }
 
     Column(
@@ -84,8 +87,8 @@ fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier, onNavigate
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
-            value = searchText,
-            onValueChange = { searchText = it },
+            value = searchUiState.searchQuery.value,
+            onValueChange = { it.also { searchUiState.searchQuery.value = it } },
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")

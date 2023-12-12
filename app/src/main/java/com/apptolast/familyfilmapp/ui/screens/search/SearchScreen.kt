@@ -1,5 +1,10 @@
 package com.apptolast.familyfilmapp.ui.screens.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +49,10 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = searchUiState.searchQuery.value) {
+        viewModel.getMovieQuery()
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -59,12 +68,16 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         SearchContent(
-            movies = uiState.movies,
+            movies = searchUiState.searchResults.value.ifEmpty { uiState.movies },
             searchUiState,
             modifier = Modifier.padding(paddingValues),
-        ) { movie ->
-            navController.navigate(DetailNavTypeDestination.getDestination(movie))
-        }
+            onNavigateDetailScreen = { movie ->
+                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+            },
+            onChangeSearchQuery = {
+                viewModel.onSearchQueryChanged(it)
+            },
+        )
     }
 }
 
@@ -74,6 +87,7 @@ fun SearchContent(
     searchUiState: SearchScreenUI,
     modifier: Modifier = Modifier,
     onNavigateDetailScreen: (Movie) -> Unit,
+    onChangeSearchQuery: (String) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -88,7 +102,9 @@ fun SearchContent(
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
             value = searchUiState.searchQuery.value,
-            onValueChange = { it.also { searchUiState.searchQuery.value = it } },
+            onValueChange = {
+                onChangeSearchQuery(it)
+            },
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
@@ -100,15 +116,24 @@ fun SearchContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 10.dp)) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 10.dp),
+        ) {
             items(movies) { movie ->
-                RecommendedMovieCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    movie = movie,
-                    navigateToDetailsScreen = { onNavigateDetailScreen(it) },
-                )
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(animationSpec = tween(500)) + slideInVertically(animationSpec = tween(500)),
+                    exit = fadeOut(animationSpec = tween(500)),
+                ) {
+                    RecommendedMovieCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        movie = movie,
+                        navigateToDetailsScreen = { onNavigateDetailScreen(it) },
+                    )
+                }
             }
         }
     }

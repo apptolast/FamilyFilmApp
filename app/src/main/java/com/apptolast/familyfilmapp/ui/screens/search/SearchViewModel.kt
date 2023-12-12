@@ -57,4 +57,16 @@ class SearchViewModel @Inject constructor(
             )
         }
     }
+
+    fun getMovieQuery() = viewModelScope.launch {
+        val filteredMovies = _state.value.movies.filter {
+            it.title.contains(_uiState.value.searchQuery.value, ignoreCase = true)
+        }
+
+        _uiState.update {
+            it.copy(
+                searchResults = mutableStateOf(filteredMovies),
+            )
+        }
+    }
 }

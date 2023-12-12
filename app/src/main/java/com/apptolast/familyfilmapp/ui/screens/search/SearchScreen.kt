@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.search
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -96,11 +97,15 @@ fun SearchContent(movies: List<Movie>, modifier: Modifier = Modifier, onNavigate
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 10.dp)) {
             items(movies) { movie ->
-                MovieItem(movie = movie) {
-                    onNavigateDetailScreen(it)
-                }
+                RecommendedMovieCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    movie = movie,
+                    navigateToDetailsScreen = { onNavigateDetailScreen(it) },
+                )
             }
         }
     }

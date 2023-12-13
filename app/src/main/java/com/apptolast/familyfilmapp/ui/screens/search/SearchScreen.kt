@@ -41,7 +41,8 @@ import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.screens.search.components.MovieItem
+import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
+import com.apptolast.familyfilmapp.ui.screens.search.states.SearchScreenUI
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -85,9 +86,9 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
 fun SearchContent(
     movies: List<Movie>,
     searchUiState: SearchScreenUI,
-    modifier: Modifier = Modifier,
     onNavigateDetailScreen: (Movie) -> Unit,
     onChangeSearchQuery: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
 

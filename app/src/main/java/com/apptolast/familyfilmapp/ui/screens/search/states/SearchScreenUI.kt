@@ -1,10 +1,10 @@
-package com.digitalsolution.familyfilmapp.ui.screens.search.states
+package com.apptolast.familyfilmapp.ui.screens.search.states
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.digitalsolution.familyfilmapp.BaseUiState
-import com.digitalsolution.familyfilmapp.exceptions.CustomException
-import com.digitalsolution.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.BaseUiState
+import com.apptolast.familyfilmapp.exceptions.CustomException
+import com.apptolast.familyfilmapp.model.local.Movie
 
 data class SearchScreenUI(
     val searchQuery: MutableState<String>,

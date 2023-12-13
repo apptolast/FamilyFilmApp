@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.digitalsolution.familyfilmapp"
+    namespace = "com.apptolast.familyfilmapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.digitalsolution.familyfilmapp"
+        applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

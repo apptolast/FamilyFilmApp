@@ -1,9 +1,11 @@
 package com.apptolast.familyfilmapp.ui.screens.search
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.ui.screens.recommend.states.MovieUiState
+import com.apptolast.familyfilmapp.ui.screens.search.states.SearchScreenUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,13 @@ class SearchViewModel @Inject constructor(
         initialValue = MovieUiState(),
     )
 
+    private val _uiState = MutableStateFlow(SearchScreenUI())
+    val uiState: StateFlow<SearchScreenUI> = _uiState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = SearchScreenUI(),
+    )
+
     init {
         viewModelScope.launch {
             _state.update { oldState ->
@@ -37,6 +46,28 @@ class SearchViewModel @Inject constructor(
                     },
                 )
             }
+        }
+    }
+
+    // Método para actualizar el termino de busqueda de la UI
+
+    fun onSearchQueryChanged(query: String) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                searchQuery = mutableStateOf(query),
+            )
+        }
+    }
+
+    fun getMovieQuery() = viewModelScope.launch {
+        val filteredMovies = _state.value.movies.filter {
+            it.title.contains(_uiState.value.searchQuery.value, ignoreCase = true)
+        }
+
+        _uiState.update {
+            it.copy(
+                searchResults = mutableStateOf(filteredMovies),
+            )
         }
     }
 }

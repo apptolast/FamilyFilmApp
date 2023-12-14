@@ -6,19 +6,20 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.UpdateGroupName
 import com.apptolast.familyfilmapp.model.local.sealed.StatusResponse
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.MovieMapper.toDomain
-import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
+import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.network.BackendApi
 import javax.inject.Inject
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
+import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(
     private val backendApi: BackendApi,
@@ -91,6 +92,10 @@ class BackendRepositoryImpl @Inject constructor(
     override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {
         backendApi.removeMemberFromGroup(groupId, RemoveMemberBody(userId = userId))
     }
+
+    override suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<Unit> = kotlin.runCatching {
+        backendApi.addMovieToWatchList(groupId, AddMovieWatchListBody(movieId = movieId))
+    }
 }
 
 interface BackendRepository {
@@ -104,4 +109,5 @@ interface BackendRepository {
     suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName>
     suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit>
     suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
+    suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<Unit>
 }

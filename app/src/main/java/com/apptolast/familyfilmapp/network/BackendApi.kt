@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
+import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
@@ -56,6 +57,12 @@ interface BackendApi {
 
     @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
     suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
+
+    @PATCH(ApiRoutes.ADD_MOVIE_TO_WATCHLIST)
+    suspend fun addMovieToWatchList(
+        @Path(GROUP_ID_PARAM) groupId: Int,
+        @Body addMovieWatchListBody: AddMovieWatchListBody,
+    )
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>

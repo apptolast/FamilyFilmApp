@@ -10,6 +10,7 @@ object ApiRoutes {
     const val GROUP = "$GROUPS/{$GROUP_ID_PARAM}"
     const val ADD_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/addMember"
     const val REMOVE_MEMBER_FROM_GROUP = "$GROUPS/{$GROUP_ID_PARAM}/removeMember"
+    const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/addWatch"
     const val GENRES = "genres"
 }
 

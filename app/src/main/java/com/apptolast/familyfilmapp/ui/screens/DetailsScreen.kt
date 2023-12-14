@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -41,6 +42,7 @@ fun DetailsScreen(
     navController: NavController,
     movie: Movie,
     groupId: Int,
+    viewModel: DetailScreenViewModel = hiltViewModel(),
 ) {
 
     val lazyListState = rememberLazyListState()
@@ -96,7 +98,7 @@ fun DetailsScreen(
                         DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
                     }
                     Spacer(modifier = Modifier.width(14.dp))
-                    OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                    OutlinedButton(onClick = { viewModel.addMovieToWatchList(groupId, movie.id) }, modifier = Modifier.weight(1f)) {
                         DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
                     }
                 }
@@ -140,6 +142,7 @@ private fun DetailsScreenPreview() {
             navController = rememberNavController(),
             movie = Movie(),
             groupId = -1,
+            viewModel = hiltViewModel(),
         )
     }
 }

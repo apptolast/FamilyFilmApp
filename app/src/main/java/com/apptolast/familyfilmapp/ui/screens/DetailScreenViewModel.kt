@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -23,6 +26,15 @@ class DetailScreenViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = DetailScreenUIState(),
     )
+
+
+    fun addMovieToWatchList(groupId: Int, movieId: Int) = viewModelScope.launch {
+        watchListUseCase(groupId to movieId).collectLatest { newState ->
+            _uiState.update {
+                newState
+            }
+        }
+    }
 
 
 

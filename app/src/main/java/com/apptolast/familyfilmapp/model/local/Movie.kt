@@ -1,12 +1,13 @@
 package com.apptolast.familyfilmapp.model.local
 
 import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.util.Calendar
 import java.util.Date
-import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Movie(
+    val id: Int,
     val title: String,
     val isAdult: Boolean,
     val genres: List<Pair<Int, String>>,
@@ -18,6 +19,7 @@ data class Movie(
     val language: String,
 ) : Parcelable {
     constructor(image: String, title: String) : this(
+        id = -1,
         title = title,
         isAdult = true,
         genres = emptyList<Pair<Int, String>>(),

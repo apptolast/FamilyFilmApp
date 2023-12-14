@@ -46,6 +46,7 @@ fun HomeScreen(
     tabViewModel: TabGroupsViewModel = hiltViewModel(),
 ) {
     val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
+    val tabUiState by tabViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = tabViewModel) {
         tabViewModel.refreshGroups()
@@ -70,7 +71,7 @@ fun HomeScreen(
         HomeContent(
             homeUiState = homeUiState,
             navigateToDetailsScreen = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+                navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
             modifier = Modifier.padding(paddingValues),
         )

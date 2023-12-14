@@ -42,13 +42,20 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
+import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.screens.search.states.SearchScreenUI
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchScreen(
+    navController: NavController,
+    viewModel: SearchViewModel = hiltViewModel(),
+    tabGroupsViewModel: TabGroupsViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val tabUiState by tabGroupsViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = searchUiState.searchQuery.value) {
         viewModel.getMovieQuery()
@@ -73,7 +80,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+                navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
             onChangeSearchQuery = {
                 viewModel.onSearchQueryChanged(it)

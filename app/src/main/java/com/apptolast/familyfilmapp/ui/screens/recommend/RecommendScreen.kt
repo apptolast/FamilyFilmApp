@@ -38,14 +38,21 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
+import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.screens.recommend.states.GenresBackendState
 import com.apptolast.familyfilmapp.ui.screens.recommend.states.MovieUiState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun RecommendScreen(navController: NavController, viewModel: RecommendViewModel = hiltViewModel()) {
+fun RecommendScreen(
+    navController: NavController,
+    viewModel: RecommendViewModel = hiltViewModel(),
+    tabGroupsViewModel: TabGroupsViewModel = hiltViewModel(),
+) {
     val recommendUiState by viewModel.state.collectAsStateWithLifecycle()
     val backendState by viewModel.recommendUIBackendState.observeAsState()
+
+    val tabUiState by tabGroupsViewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
@@ -55,7 +62,7 @@ fun RecommendScreen(navController: NavController, viewModel: RecommendViewModel 
             backendState,
             modifier = Modifier.padding(paddingValues),
             navigationToDetail = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+                navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
         )
     }

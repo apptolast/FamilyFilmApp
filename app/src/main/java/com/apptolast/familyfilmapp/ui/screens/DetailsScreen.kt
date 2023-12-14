@@ -40,6 +40,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun DetailsScreen(
     navController: NavController,
     movie: Movie,
+    groupId: Int,
 ) {
 
     val lazyListState = rememberLazyListState()
@@ -138,6 +139,7 @@ private fun DetailsScreenPreview() {
         DetailsScreen(
             navController = rememberNavController(),
             movie = Movie(),
+            groupId = -1,
         )
     }
 }

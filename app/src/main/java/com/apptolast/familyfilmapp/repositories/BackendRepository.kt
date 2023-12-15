@@ -6,11 +6,13 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.UpdateGroupName
 import com.apptolast.familyfilmapp.model.local.sealed.StatusResponse
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.MovieMapper.toDomain
+import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.LoginBody
@@ -18,8 +20,6 @@ import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.network.BackendApi
 import javax.inject.Inject
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
-import com.apptolast.familyfilmapp.model.mapper.UpdateGroupNameMapper.toBody as updateGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(
     private val backendApi: BackendApi,

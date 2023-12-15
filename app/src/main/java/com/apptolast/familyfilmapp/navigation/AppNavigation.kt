@@ -52,7 +52,7 @@ fun AppNavigation() {
             DetailsScreen(
                 navController = navController,
                 movie = movie,
-                groupId = groupId
+                groupId = groupId,
             )
         }
         composable(route = Routes.Search.routes) {

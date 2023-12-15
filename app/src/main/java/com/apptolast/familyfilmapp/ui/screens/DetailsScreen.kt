@@ -44,7 +44,6 @@ fun DetailsScreen(
     groupId: Int,
     viewModel: DetailScreenViewModel = hiltViewModel(),
 ) {
-
     val lazyListState = rememberLazyListState()
     var scrolledY = 0f
     var previousOffset = 0
@@ -94,11 +93,17 @@ fun DetailsScreen(
                         .padding(vertical = 10.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Button(onClick = { viewModel.addMovieToSeenList(groupId, movie.id) }, modifier = Modifier.weight(1f)) {
+                    Button(
+                        onClick = { viewModel.addMovieToSeenList(groupId, movie.id) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
                     }
                     Spacer(modifier = Modifier.width(14.dp))
-                    OutlinedButton(onClick = { viewModel.addMovieToWatchList(groupId, movie.id) }, modifier = Modifier.weight(1f)) {
+                    OutlinedButton(
+                        onClick = { viewModel.addMovieToWatchList(groupId, movie.id) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
                     }
                 }

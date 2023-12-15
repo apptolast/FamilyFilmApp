@@ -9,7 +9,7 @@ data class DetailScreenUIState(
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 
-    ) : BaseUiState {
+) : BaseUiState {
 
     constructor() : this(
         successMovieToWatchList = "",
@@ -21,5 +21,4 @@ data class DetailScreenUIState(
     override fun copyWithLoading(isLoading: Boolean): BaseUiState {
         TODO("Not yet implemented")
     }
-
 }

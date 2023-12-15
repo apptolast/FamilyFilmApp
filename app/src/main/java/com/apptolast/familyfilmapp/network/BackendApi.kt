@@ -67,7 +67,7 @@ interface BackendApi {
     @PATCH(ApiRoutes.ADD_MOVIE_TO_SEEN)
     suspend fun addMovieToSeenList(
         @Path(GROUP_ID_PARAM) groupId: Int,
-        @Body addMovieSeenListBody: AddMovieWatchListBody
+        @Body addMovieSeenListBody: AddMovieWatchListBody,
     )
 
     @GET(ApiRoutes.GENRES)

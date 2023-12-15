@@ -35,7 +35,9 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
+import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
+import com.apptolast.familyfilmapp.ui.components.tabgroups.TabUiState
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TopBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -45,8 +47,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     tabViewModel: TabGroupsViewModel = hiltViewModel(),
 ) {
-    val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
     val tabUiState by tabViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabViewModel.backendState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = tabViewModel) {
         tabViewModel.refreshGroups()
@@ -69,7 +71,8 @@ fun HomeScreen(
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         HomeContent(
-            homeUiState = homeUiState,
+            tabUiState = tabUiState,
+            tabBackendState = tabBackendState,
             navigateToDetailsScreen = { movie ->
                 navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
@@ -79,24 +82,33 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeContent(homeUiState: HomeUiState, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
+fun HomeContent(
+    tabUiState: TabUiState,
+    tabBackendState: TabBackendState,
+    modifier: Modifier = Modifier,
+    navigateToDetailsScreen: (Movie) -> Unit,
+) {
     Column(modifier = modifier.fillMaxSize()) {
-        RowMovie(
-            title = stringResource(R.string.home_text_to_see),
-            icon = Icons.Default.ListAlt,
-            movies = homeUiState.seen,
-            navigateToDetailsScreen = {
-                navigateToDetailsScreen(it)
-            },
-            modifier = Modifier.weight(1f),
-        )
-        RowMovie(
-            title = stringResource(R.string.home_text_seen),
-            icon = Icons.Default.Visibility,
-            movies = homeUiState.forSeen,
-            navigateToDetailsScreen = navigateToDetailsScreen,
-            modifier = Modifier.weight(1f),
-        )
+        tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
+            RowMovie(
+                title = stringResource(R.string.home_text_to_see),
+                icon = Icons.Default.ListAlt,
+                movies = it.watchList,
+                navigateToDetailsScreen = {
+                    navigateToDetailsScreen(it)
+                },
+                modifier = Modifier.weight(1f),
+            )
+        }
+        tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
+            RowMovie(
+                title = stringResource(R.string.home_text_seen),
+                icon = Icons.Default.Visibility,
+                movies = it.viewList,
+                navigateToDetailsScreen = navigateToDetailsScreen,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -139,6 +151,10 @@ private fun RowMovie(
 @Composable
 private fun HomeContentPreview() {
     FamilyFilmAppTheme {
-        HomeContent(homeUiState = HomeUiState(), navigateToDetailsScreen = { })
+        HomeContent(
+            tabUiState = TabUiState(),
+            tabBackendState = TabBackendState(),
+            navigateToDetailsScreen = { },
+        )
     }
 }

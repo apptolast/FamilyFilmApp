@@ -3,16 +3,15 @@ package com.apptolast.familyfilmapp.ui.screens
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import javax.inject.Inject
 
 class SeenListUseCase @Inject constructor(
     private val repository: BackendRepository,
 ) : BaseUseCase<Pair<Int, Int>, Flow<DetailScreenUIState>>() {
 
     override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenUIState> = channelFlow {
-
         val (groupId, movieId) = parameters
 
         send(
@@ -43,7 +42,5 @@ class SeenListUseCase @Inject constructor(
                 )
             },
         )
-
     }
-
 }

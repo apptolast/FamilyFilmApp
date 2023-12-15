@@ -94,7 +94,7 @@ fun DetailsScreen(
                         .padding(vertical = 10.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
+                    Button(onClick = { viewModel.addMovieToSeenList(groupId, movie.id) }, modifier = Modifier.weight(1f)) {
                         DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
                     }
                     Spacer(modifier = Modifier.width(14.dp))

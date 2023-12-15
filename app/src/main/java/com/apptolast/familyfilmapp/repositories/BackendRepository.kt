@@ -96,6 +96,10 @@ class BackendRepositoryImpl @Inject constructor(
     override suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<Unit> = kotlin.runCatching {
         backendApi.addMovieToWatchList(groupId, AddMovieWatchListBody(movieId = movieId))
     }
+
+    override suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<Unit> = kotlin.runCatching {
+        backendApi.addMovieToSeenList(groupId, AddMovieWatchListBody(movieId = movieId))
+    }
 }
 
 interface BackendRepository {
@@ -110,4 +114,5 @@ interface BackendRepository {
     suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit>
     suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<Unit>
+    suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<Unit>
 }

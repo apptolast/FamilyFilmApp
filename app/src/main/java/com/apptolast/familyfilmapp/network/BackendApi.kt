@@ -64,6 +64,12 @@ interface BackendApi {
         @Body addMovieWatchListBody: AddMovieWatchListBody,
     )
 
+    @PATCH(ApiRoutes.ADD_MOVIE_TO_SEEN)
+    suspend fun addMovieToSeenList(
+        @Path(GROUP_ID_PARAM) groupId: Int,
+        @Body addMovieSeenListBody: AddMovieWatchListBody
+    )
+
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>
 }

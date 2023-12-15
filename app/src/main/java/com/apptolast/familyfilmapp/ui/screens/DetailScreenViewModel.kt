@@ -18,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailScreenViewModel @Inject constructor(
     private val watchListUseCase: WatchListUseCase,
+    private val seenListUseCase: SeenListUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailScreenUIState())
@@ -35,6 +36,17 @@ class DetailScreenViewModel @Inject constructor(
             }
         }
     }
+
+
+    fun addMovieToSeenList(groupId: Int, movieId: Int) = viewModelScope.launch {
+        seenListUseCase(groupId to movieId).collectLatest { newState ->
+            _uiState.update {
+                newState
+            }
+        }
+    }
+
+
 
 
 

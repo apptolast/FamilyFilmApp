@@ -49,6 +49,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun SearchScreen(
     navController: NavController,
+    groupId: Int,
     viewModel: SearchViewModel = hiltViewModel(),
     tabGroupsViewModel: TabGroupsViewModel = hiltViewModel(),
 ) {
@@ -157,6 +158,9 @@ fun SearchContent(
 @Composable
 private fun SearchScreenPreview() {
     FamilyFilmAppTheme {
-        SearchScreen(NavController(LocalContext.current))
+        SearchScreen(
+            NavController(LocalContext.current),
+            -1
+        )
     }
 }

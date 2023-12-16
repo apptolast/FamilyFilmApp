@@ -14,7 +14,7 @@ import com.apptolast.familyfilmapp.navigation.navtypes.HomeNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.LoginNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.ProfileNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.RecommendNavType
-import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavType
+import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.route
 
 sealed class Routes(
@@ -55,7 +55,7 @@ sealed class Routes(
 
     data object Search : Routes(
         title = R.string.screen_title_search,
-        routes = SearchNavType.route,
+        routes = SearchNavTypeDestination.route,
         null,
     )
 

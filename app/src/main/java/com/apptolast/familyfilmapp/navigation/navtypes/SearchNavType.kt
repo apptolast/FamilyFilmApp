@@ -4,5 +4,5 @@ import com.compose.type_safe_args.annotation.ComposeDestination
 
 @ComposeDestination
 interface SearchNavType {
-    companion object
+    val groupId: Int
 }

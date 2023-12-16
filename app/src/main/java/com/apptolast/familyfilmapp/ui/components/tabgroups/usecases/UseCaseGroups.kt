@@ -3,9 +3,9 @@ package com.apptolast.familyfilmapp.ui.components.tabgroups.usecases
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import javax.inject.Inject
 
 class UseCaseGroups @Inject constructor(
     private val repository: BackendRepository,

@@ -56,6 +56,7 @@ fun SearchScreen(
     val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val tabUiState by tabGroupsViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabGroupsViewModel.backendState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = searchUiState.searchQuery.value) {
         viewModel.getMovieQuery()
@@ -80,7 +81,8 @@ fun SearchScreen(
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
+                val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
+                navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
             },
             onChangeSearchQuery = {
                 viewModel.onSearchQueryChanged(it)

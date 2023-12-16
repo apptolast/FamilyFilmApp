@@ -53,6 +53,7 @@ fun RecommendScreen(
     val backendState by viewModel.recommendUIBackendState.observeAsState()
 
     val tabUiState by tabGroupsViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabGroupsViewModel.backendState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
@@ -62,6 +63,7 @@ fun RecommendScreen(
             backendState,
             modifier = Modifier.padding(paddingValues),
             navigationToDetail = { movie ->
+                val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
                 navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
         )

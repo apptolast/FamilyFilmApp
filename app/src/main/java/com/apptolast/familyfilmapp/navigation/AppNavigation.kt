@@ -49,11 +49,13 @@ fun AppNavigation() {
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
             val (movie, groupId) = DetailNavTypeDestination.parseArguments(backStackEntry)
-            DetailsScreen(
-                navController = navController,
-                movie = movie,
-                groupId = groupId,
-            )
+            if (groupId != null) {
+                DetailsScreen(
+                    navController = navController,
+                    movie = movie,
+                    groupId = groupId,
+                )
+            }
         }
         composable(route = Routes.Search.routes) {
             SearchScreen(navController = navController)

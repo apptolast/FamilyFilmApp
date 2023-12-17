@@ -85,7 +85,7 @@ fun DetailsScreen(
                 true,
                 SnackbarDuration.Long,
             )
-        } 
+        }
     }
 
     Scaffold(

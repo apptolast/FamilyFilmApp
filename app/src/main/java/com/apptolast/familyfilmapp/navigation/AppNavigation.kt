@@ -58,12 +58,12 @@ fun AppNavigation() {
         }
         composable(
             route = Routes.Search.routes,
-            arguments = SearchNavTypeDestination.argumentList
-        ) {backStackEntry ->
+            arguments = SearchNavTypeDestination.argumentList,
+        ) { backStackEntry ->
             val (groupId) = SearchNavTypeDestination.parseArguments(backStackEntry)
             SearchScreen(
                 navController = navController,
-                groupId = groupId
+                groupId = groupId,
             )
         }
     }

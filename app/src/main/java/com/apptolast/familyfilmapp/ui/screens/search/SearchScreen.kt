@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -39,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
@@ -63,26 +60,12 @@ fun SearchScreen(
         viewModel.getMovieQuery()
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Routes.Search.routes) },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    modifier = Modifier.padding(10.dp),
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End,
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         SearchContent(
             movies = searchUiState.searchResults.value.ifEmpty { uiState.movies },
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
                 navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
             },
             onChangeSearchQuery = {
@@ -160,7 +143,7 @@ private fun SearchScreenPreview() {
     FamilyFilmAppTheme {
         SearchScreen(
             NavController(LocalContext.current),
-            -1
+            -1,
         )
     }
 }

@@ -32,8 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
@@ -59,7 +59,10 @@ fun HomeScreen(
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Routes.Search.routes) },
+                onClick = {
+                    val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
+                    navController.navigate(SearchNavTypeDestination.getDestination(groupId))
+                },
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,

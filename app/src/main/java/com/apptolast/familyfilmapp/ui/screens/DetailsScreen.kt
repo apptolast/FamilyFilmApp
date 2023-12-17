@@ -77,6 +77,17 @@ fun DetailsScreen(
         )
     }
 
+    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
+        detailScreenUIState.errorMessage?.let {
+            snackBarHostState.showSnackbar(
+                it.error,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        } 
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
     ) {

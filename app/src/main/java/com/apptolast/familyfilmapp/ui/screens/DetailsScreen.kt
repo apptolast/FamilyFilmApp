@@ -59,10 +59,9 @@ fun DetailsScreen(
     var scrolledY = 0f
     var previousOffset = 0
 
-
-    if (detailScreenUIState.successMovieToWatchList.isNotBlank()
-        || detailScreenUIState.successMovieToViewList.isNotBlank()
-        || (detailScreenUIState.errorMessage?.error?.isNotBlank() ?: "") as Boolean
+    if (detailScreenUIState.successMovieToWatchList.isNotBlank() ||
+        detailScreenUIState.successMovieToViewList.isNotBlank() ||
+        (detailScreenUIState.errorMessage?.error?.isNotBlank() ?: "") as Boolean
     ) {
         LaunchedEffect(
             key1 = detailScreenUIState.successMovieToViewList,
@@ -95,7 +94,6 @@ fun DetailsScreen(
             }
         }
     }
-
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },

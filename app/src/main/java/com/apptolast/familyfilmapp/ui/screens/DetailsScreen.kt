@@ -59,13 +59,10 @@ fun DetailsScreen(
     var scrolledY = 0f
     var previousOffset = 0
 
-    if (detailScreenUIState.successMovieToWatchList.isNotBlank() ||
-        detailScreenUIState.successMovieToViewList.isNotBlank() ||
-        (detailScreenUIState.errorMessage?.error?.isNotBlank() ?: "") as Boolean
+    LaunchedEffect(
+        key1 = detailScreenUIState.successMovieToViewList,
     ) {
-        LaunchedEffect(
-            key1 = detailScreenUIState.successMovieToViewList,
-        ) {
+        if (detailScreenUIState.successMovieToViewList.isNotBlank()) {
             snackBarHostState.showSnackbar(
                 detailScreenUIState.successMovieToViewList,
                 "Close",
@@ -73,8 +70,10 @@ fun DetailsScreen(
                 SnackbarDuration.Long,
             )
         }
+    }
 
-        LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
+    LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
+        if (detailScreenUIState.successMovieToWatchList.isNotBlank()) {
             snackBarHostState.showSnackbar(
                 detailScreenUIState.successMovieToWatchList,
                 "Close",
@@ -82,9 +81,11 @@ fun DetailsScreen(
                 SnackbarDuration.Long,
             )
         }
+    }
 
-        LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
-            detailScreenUIState.errorMessage?.let {
+    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
+        detailScreenUIState.errorMessage?.let {
+            if (it.error.isNotBlank()) {
                 snackBarHostState.showSnackbar(
                     it.error,
                     "Close",

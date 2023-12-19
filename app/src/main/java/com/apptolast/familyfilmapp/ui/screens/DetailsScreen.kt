@@ -59,34 +59,43 @@ fun DetailsScreen(
     var scrolledY = 0f
     var previousOffset = 0
 
-    LaunchedEffect(key1 = detailScreenUIState.successMovieToViewList) {
-        snackBarHostState.showSnackbar(
-            detailScreenUIState.successMovieToViewList,
-            "Close",
-            true,
-            SnackbarDuration.Long,
-        )
-    }
 
-    LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
-        snackBarHostState.showSnackbar(
-            detailScreenUIState.successMovieToWatchList,
-            "Close",
-            true,
-            SnackbarDuration.Long,
-        )
-    }
-
-    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
-        detailScreenUIState.errorMessage?.let {
+    if (detailScreenUIState.successMovieToWatchList.isNotBlank()
+        || detailScreenUIState.successMovieToViewList.isNotBlank()
+        || (detailScreenUIState.errorMessage?.error?.isNotBlank() ?: "") as Boolean
+    ) {
+        LaunchedEffect(
+            key1 = detailScreenUIState.successMovieToViewList,
+        ) {
             snackBarHostState.showSnackbar(
-                it.error,
+                detailScreenUIState.successMovieToViewList,
                 "Close",
                 true,
                 SnackbarDuration.Long,
             )
         }
+
+        LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
+            snackBarHostState.showSnackbar(
+                detailScreenUIState.successMovieToWatchList,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        }
+
+        LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
+            detailScreenUIState.errorMessage?.let {
+                snackBarHostState.showSnackbar(
+                    it.error,
+                    "Close",
+                    true,
+                    SnackbarDuration.Long,
+                )
+            }
+        }
     }
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },

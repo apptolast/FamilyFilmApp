@@ -8,6 +8,7 @@ import java.util.Calendar
 object MovieMapper {
 
     fun MovieRemote.toDomain() = Movie(
+        id = id ?: -1,
         title = title ?: "",
         isAdult = adult ?: true,
         genres = genre?.map { genres ->

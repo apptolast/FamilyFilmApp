@@ -6,4 +6,5 @@ import com.compose.type_safe_args.annotation.ComposeDestination
 @ComposeDestination
 interface DetailNavType {
     val movie: Movie
+    val groupId: Int
 }

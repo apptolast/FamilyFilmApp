@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.ui.screens.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
@@ -48,14 +49,22 @@ fun AppNavigation() {
             route = Routes.Details.routes,
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
-            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
+            val (movie, groupId) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,
                 movie = movie,
+                groupId = groupId,
             )
         }
-        composable(route = Routes.Search.routes) {
-            SearchScreen(navController = navController)
+        composable(
+            route = Routes.Search.routes,
+            arguments = SearchNavTypeDestination.argumentList,
+        ) { backStackEntry ->
+            val (groupId) = SearchNavTypeDestination.parseArguments(backStackEntry)
+            SearchScreen(
+                navController = navController,
+                groupId = groupId,
+            )
         }
     }
 }

@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -39,41 +37,36 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
+import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.screens.search.states.SearchScreenUI
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchScreen(
+    navController: NavController,
+    groupId: Int,
+    viewModel: SearchViewModel = hiltViewModel(),
+    tabGroupsViewModel: TabGroupsViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val tabUiState by tabGroupsViewModel.uiState.collectAsStateWithLifecycle()
+    val tabBackendState by tabGroupsViewModel.backendState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = searchUiState.searchQuery.value) {
         viewModel.getMovieQuery()
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Routes.Search.routes) },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    modifier = Modifier.padding(10.dp),
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End,
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         SearchContent(
             movies = searchUiState.searchResults.value.ifEmpty { uiState.movies },
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+                navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
             },
             onChangeSearchQuery = {
                 viewModel.onSearchQueryChanged(it)
@@ -148,6 +141,9 @@ fun SearchContent(
 @Composable
 private fun SearchScreenPreview() {
     FamilyFilmAppTheme {
-        SearchScreen(NavController(LocalContext.current))
+        SearchScreen(
+            NavController(LocalContext.current),
+            -1,
+        )
     }
 }

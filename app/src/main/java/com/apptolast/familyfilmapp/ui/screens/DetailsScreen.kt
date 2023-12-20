@@ -19,8 +19,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +37,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -37,73 +46,130 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(navController: NavController, movie: Movie) {
+fun DetailsScreen(
+    navController: NavController,
+    movie: Movie,
+    groupId: Int,
+    viewModel: DetailScreenViewModel = hiltViewModel(),
+) {
+    val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val lazyListState = rememberLazyListState()
+    val snackBarHostState = remember { SnackbarHostState() }
     var scrolledY = 0f
     var previousOffset = 0
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = lazyListState,
+    LaunchedEffect(
+        key1 = detailScreenUIState.successMovieToViewList,
     ) {
-        item {
-            AsyncImage(
-                model = movie.image,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
-                    .height(250.dp)
-                    .graphicsLayer {
-                        scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
-                        translationY = scrolledY * 0.5f
-                        previousOffset = lazyListState.firstVisibleItemScrollOffset
-                    },
-                contentScale = ContentScale.Crop,
+        if (detailScreenUIState.successMovieToViewList.isNotBlank()) {
+            snackBarHostState.showSnackbar(
+                detailScreenUIState.successMovieToViewList,
+                "Close",
+                true,
+                SnackbarDuration.Long,
             )
-            Column(
-                modifier = Modifier.padding(18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = movie.title,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+        }
+    }
+
+    LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
+        if (detailScreenUIState.successMovieToWatchList.isNotBlank()) {
+            snackBarHostState.showSnackbar(
+                detailScreenUIState.successMovieToWatchList,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        }
+    }
+
+    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
+        detailScreenUIState.errorMessage?.let {
+            if (it.error.isNotBlank()) {
+                snackBarHostState.showSnackbar(
+                    it.error,
+                    "Close",
+                    true,
+                    SnackbarDuration.Long,
                 )
-                Row(
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            state = lazyListState,
+        ) {
+            item {
+                AsyncImage(
+                    model = movie.image,
+                    contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(text = "2023")
-                    Text(text = "1h 34min")
-                    Text(text = "+18")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
-                        DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
-                    }
-                    Spacer(modifier = Modifier.width(14.dp))
-                    OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
-                        DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
-                    }
-                }
-                Text(
-                    text = "Description",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(top = 15.dp),
+                        .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
+                        .height(250.dp)
+                        .graphicsLayer {
+                            scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
+                            translationY = scrolledY * 0.5f
+                            previousOffset = lazyListState.firstVisibleItemScrollOffset
+                        },
+                    contentScale = ContentScale.Crop,
                 )
-                Text(
-                    text = movie.synopsis,
-                    modifier = Modifier.padding(vertical = 15.dp),
-                )
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = movie.title,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(text = "2023")
+                        Text(text = "1h 34min")
+                        Text(text = "+18")
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Button(
+                            onClick = { viewModel.addMovieToSeenList(groupId, movie.id) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
+                        OutlinedButton(
+                            onClick = { viewModel.addMovieToWatchList(groupId, movie.id) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
+                        }
+                    }
+                    Text(
+                        text = "Description",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(top = 15.dp),
+                    )
+                    Text(
+                        text = movie.synopsis,
+                        modifier = Modifier.padding(vertical = 15.dp),
+                    )
+                }
             }
         }
     }
@@ -134,6 +200,8 @@ private fun DetailsScreenPreview() {
         DetailsScreen(
             navController = rememberNavController(),
             movie = Movie(),
+            groupId = -1,
+            viewModel = hiltViewModel(),
         )
     }
 }

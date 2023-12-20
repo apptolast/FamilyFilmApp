@@ -1,11 +1,8 @@
 package com.apptolast.familyfilmapp.ui.components.tabgroups.usecases
 
 import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
-import java.util.Calendar
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -56,35 +53,6 @@ class UseCaseGroups @Inject constructor(
                     ),
                 )
             },
-        )
-    }
-}
-
-fun generateFakeGroups(count: Int): List<Group> {
-    return List(count) { index ->
-        Group(
-            id = index,
-            name = "Grupo Fake $index",
-            groupCreatorId = (index + 1) * 10,
-            watchList = generateFakeMovies(5),
-            viewList = generateFakeMovies(3),
-            users = emptyList(),
-        )
-    }
-}
-
-private fun generateFakeMovies(count: Int): List<Movie> {
-    return List(count) { index ->
-        Movie(
-            title = "Movie fake $index",
-            isAdult = true,
-            genres = emptyList<Pair<Int, String>>(),
-            image = "",
-            synopsis = "",
-            voteAverage = 0f,
-            voteCount = 0,
-            releaseDate = Calendar.getInstance().time,
-            language = "",
         )
     }
 }

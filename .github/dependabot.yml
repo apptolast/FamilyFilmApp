@@ -10,9 +10,3 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
-
-#    ignore:
-#      - dependency-name: org.jetbrains.kotlin.android
-#        versions: "> 1.8.21"
-#      - dependency-name: org.jetbrains.kotlin:kotlin-bom
-#        versions: "> 1.8.21"

@@ -107,9 +107,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.49")
-    ksp("com.google.dagger:hilt-android-compiler:2.49")
-    kspTest("com.google.dagger:hilt-android-compiler:2.49")
+    implementation("com.google.dagger:hilt-android:2.50")
+    ksp("com.google.dagger:hilt-android-compiler:2.50")
+    kspTest("com.google.dagger:hilt-android-compiler:2.50")
 
     // Navigation Con Safe Arguments
     implementation("com.google.code.gson:gson:2.10.1")

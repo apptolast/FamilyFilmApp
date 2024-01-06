@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.details
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -147,14 +147,14 @@ fun DetailsScreen(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Button(
-                            onClick = { viewModel.addMovieToSeenList(groupId, movie.id) },
+                            onClick = { viewModel.addMovieToWatchList(groupId, movie.id) },
                             modifier = Modifier.weight(1f),
                         ) {
                             DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         OutlinedButton(
-                            onClick = { viewModel.addMovieToWatchList(groupId, movie.id) },
+                            onClick = { viewModel.addMovieToSeenList(groupId, movie.id) },
                             modifier = Modifier.weight(1f),
                         ) {
                             DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")

@@ -1,13 +1,13 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.details
 
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import javax.inject.Inject
 
-class SeenListUseCase @Inject constructor(
+class WatchListUseCase @Inject constructor(
     private val repository: BackendRepository,
 ) : BaseUseCase<Pair<Int, Int>, Flow<DetailScreenUIState>>() {
 
@@ -20,7 +20,7 @@ class SeenListUseCase @Inject constructor(
             ),
         )
 
-        repository.addMovieToSeenList(groupId, movieId).fold(
+        repository.addMovieToWatchList(groupId, movieId).fold(
             onSuccess = {
                 send(
                     DetailScreenUIState().copy(

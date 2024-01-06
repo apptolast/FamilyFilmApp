@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

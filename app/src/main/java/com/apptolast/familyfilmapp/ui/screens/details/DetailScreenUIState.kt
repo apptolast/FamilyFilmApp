@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.details
 
 import com.apptolast.familyfilmapp.BaseUiState
 import com.apptolast.familyfilmapp.exceptions.CustomException

@@ -28,6 +28,7 @@
     <string name="screen_title_search">Search</string>
     <string name="screen_title_details">Details</string>
     <string name="screen_title_login">Login</string>
+    <string name="screen_title_splash">Splash</string>
 
     <!-- HOME-->
     <string name="home_text_to_see">To see</string>

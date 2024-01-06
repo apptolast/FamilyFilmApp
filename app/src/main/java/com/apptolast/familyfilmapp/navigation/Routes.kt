@@ -15,6 +15,7 @@ import com.apptolast.familyfilmapp.navigation.navtypes.LoginNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.ProfileNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.RecommendNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
+import com.apptolast.familyfilmapp.navigation.navtypes.SplashNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.route
 
 sealed class Routes(
@@ -23,6 +24,11 @@ sealed class Routes(
     val icon: ImageVector?,
 ) {
 
+    data object Splash : Routes(
+        title = R.string.screen_title_splash,
+        routes = SplashNavType.route,
+        icon = null,
+    )
     data object Login : Routes(
         title = R.string.screen_title_login,
         routes = LoginNavType.route,

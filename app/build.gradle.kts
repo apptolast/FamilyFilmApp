@@ -146,7 +146,7 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.13.8")
 
-    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito:mockito-core:5.9.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")

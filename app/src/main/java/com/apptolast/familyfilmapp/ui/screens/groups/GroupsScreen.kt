@@ -23,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,10 +57,6 @@ fun GroupsScreen(
     val groupUiState by groupViewModel.uiState.collectAsStateWithLifecycle()
     val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
     val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
-
-    val scope = rememberCoroutineScope()
-
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = tabViewmodel) {
         tabViewmodel.refreshGroups()

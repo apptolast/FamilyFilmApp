@@ -22,7 +22,7 @@ import com.apptolast.familyfilmapp.ui.theme.bold
 @Composable
 fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
     Row(
-        modifier = Modifier.padding(12.dp).clickable {
+        modifier = modifier.padding(12.dp).clickable {
             onNavigateDetailScreen(movie)
         },
         verticalAlignment = Alignment.CenterVertically,

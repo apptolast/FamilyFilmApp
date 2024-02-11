@@ -26,6 +26,6 @@ fun AnimationSplashContent(
             ),
         )
         delay(timeMillis = delayScreen)
-        navigate()
+//        navigate()
     }
 }

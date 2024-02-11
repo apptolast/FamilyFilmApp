@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
+import java.util.Calendar
 
 @Composable
 fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
@@ -64,7 +65,9 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "${movie.releaseDate.year.plus(1900)}",
+                        text = "${
+                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
+                        }",
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Left,
                     )

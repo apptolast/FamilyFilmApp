@@ -9,12 +9,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,8 +23,8 @@ class NetworkModule {
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
         "debug" -> "https://ffa-develop-back.onrender.com/api/"
-        "staging" -> TODO()
-        "release" -> TODO()
+        "staging" -> "https://ffa-develop-back.onrender.com/api/"
+        "release" -> "https://ffa-develop-back.onrender.com/api/"
         else -> ""
     }
 

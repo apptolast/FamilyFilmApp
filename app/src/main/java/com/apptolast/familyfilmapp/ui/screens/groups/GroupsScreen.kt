@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
+import com.apptolast.familyfilmapp.model.local.FAKE_GROUPS
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
@@ -43,6 +44,7 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TopBar
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
+import com.apptolast.familyfilmapp.ui.screens.groups.states.FAKE_GROUP_UI_STATE
 import com.apptolast.familyfilmapp.ui.screens.groups.states.GroupUiState
 import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -288,8 +290,8 @@ fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            group = Group(),
-            groupUiState = GroupUiState(),
+            group = FAKE_GROUPS[0],
+            groupUiState = FAKE_GROUP_UI_STATE[0],
             onClickRemoveMember = { _, _ -> },
             onAddMemberClick = {},
             onDeleteGroupClick = {},

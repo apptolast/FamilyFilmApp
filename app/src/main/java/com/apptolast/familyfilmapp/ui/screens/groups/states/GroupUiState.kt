@@ -15,3 +15,14 @@ data class GroupUiState(
         updateNameGroupVisibility = false,
     )
 }
+
+val FAKE_GROUP_UI_STATE = listOf(
+
+    GroupUiState(
+        checkedEditGroupName = true,
+        groupTitleChange = "",
+        deleteGroupButtonVisibility = true,
+        addMemberButtonVisibility = true,
+        updateNameGroupVisibility = true
+    )
+)

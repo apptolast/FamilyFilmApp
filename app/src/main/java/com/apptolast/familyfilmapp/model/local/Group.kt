@@ -17,3 +17,15 @@ data class Group(
         users = emptyList<Users>(),
     )
 }
+
+
+val FAKE_GROUPS = listOf(
+    Group(
+        id = 1,
+        name = "Group 1",
+        groupCreatorId = 1,
+        watchList = FAKE_MOVIES_WATCHLIST,
+        viewList = FAKE_MOVIES_VIEWLIST,
+        users = FAKE_USERS
+    )
+)

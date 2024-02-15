@@ -58,7 +58,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = loginUiState) {
-        if (loginUiState.isLogged) {
+        if (loginUiState.isLogged == true) {
             navController.navigate(Routes.Home.routes) {
                 popUpTo(Routes.Login.routes) { inclusive = true }
                 launchSingleTop = true

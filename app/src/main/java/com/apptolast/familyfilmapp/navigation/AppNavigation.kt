@@ -8,13 +8,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
-import com.apptolast.familyfilmapp.ui.screens.DetailsScreen
+import com.apptolast.familyfilmapp.ui.screens.details.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
+import com.apptolast.familyfilmapp.ui.screens.splash.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -23,8 +24,11 @@ fun AppNavigation() {
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = Routes.Login.routes,
+        startDestination = Routes.Splash.routes,
     ) {
+        composable(route = Routes.Splash.routes) {
+            SplashScreen(navController = navController)
+        }
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)
         }

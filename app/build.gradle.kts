@@ -137,7 +137,7 @@ dependencies {
     // Test
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.4.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("androidx.test:core-ktx:1.5.0")

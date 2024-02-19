@@ -97,7 +97,7 @@ dependencies {
     implementation("androidx.compose.animation:animation:1.6.1")
 
     // Google auth
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // Retrofit
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")

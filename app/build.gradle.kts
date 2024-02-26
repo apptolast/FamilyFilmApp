@@ -84,7 +84,7 @@ dependencies {
     implementation("me.saket.swipe:swipe:1.3.0")
 
     // Navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Compose
     implementation(platform("androidx.compose:compose-bom:2023.10.00"))

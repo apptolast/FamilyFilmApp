@@ -151,7 +151,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 
-    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("app.cash.turbine:turbine:1.1.0")
 
     // Android Test
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

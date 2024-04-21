@@ -144,7 +144,7 @@ dependencies {
     testImplementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("androidx.test:rules:1.5.0")
 
-    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("io.mockk:mockk:1.13.10")
 
     testImplementation("org.mockito:mockito-core:5.10.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")

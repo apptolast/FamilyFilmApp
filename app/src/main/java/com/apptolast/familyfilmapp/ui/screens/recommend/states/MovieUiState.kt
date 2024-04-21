@@ -15,7 +15,7 @@ data class MovieUiState(
 ) : BaseUiState {
 
     constructor() : this(
-        user = User(email = "", pass = "", name = "", photo = ""),
+        user = User(id = "", email = "", pass = "", name = "", photo = ""),
         movies = emptyList(),
         categories = emptyList(),
         isLogged = false,

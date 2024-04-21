@@ -3,7 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login.uistates
 import com.apptolast.familyfilmapp.BaseUiState
 import com.apptolast.familyfilmapp.exceptions.CustomException
 
-data class RecoverPassUiState(
+data class RecoverPassState(
     val isDialogVisible: Boolean,
     val emailErrorMessage: CustomException?,
     val recoveryPassResponse: Boolean,

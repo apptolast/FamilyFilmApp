@@ -43,7 +43,7 @@ import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.Constants
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -54,8 +54,8 @@ import timber.log.Timber
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val loginUiState by viewModel.state.collectAsStateWithLifecycle()
-    val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
+    val loginUiState by viewModel.loginState.collectAsStateWithLifecycle()
+    val recoverPassUIState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
@@ -84,7 +84,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 if (intent != null) {
                     val task: Task<GoogleSignInAccount> =
                         GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    viewModel.handleGoogleSignInResult(task.result as GoogleSignInAccount)
+//                    viewModel.handleGoogleSignInResult(task.result as GoogleSignInAccount)
                 }
             } else {
                 Timber.d("$result")
@@ -100,16 +100,20 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         ) {
             LoginContent(
                 loginUiState = loginUiState,
-                recoverPassUIState = recoverPassUIState,
+                recoverPassState = recoverPassUIState,
                 onClickLogin = viewModel::loginOrRegister,
-                onCLickRecoverPassword = viewModel::recoverPassword,
+                onCLickRecoverPassword = {
+                    // TODO
+                },
                 onClickScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = {
                     startForResult.launch(
                         viewModel.googleSignInClient.signInIntent,
                     )
                 },
-                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
+                onRecoveryPassUpdate = {
+                    // TODO
+                },
             )
         }
     }
@@ -118,12 +122,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 @Composable
 fun LoginContent(
     loginUiState: LoginUiState,
-    recoverPassUIState: RecoverPassUiState,
+    recoverPassState: RecoverPassState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
-    onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
+    onRecoveryPassUpdate: (RecoverPassState) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -163,7 +167,7 @@ fun LoginContent(
         Text(
             modifier = Modifier.clickable {
                 onRecoveryPassUpdate(
-                    recoverPassUIState.copy(
+                    recoverPassState.copy(
                         isDialogVisible = true,
                         emailErrorMessage = null,
                         errorMessage = null,
@@ -201,13 +205,13 @@ fun LoginContent(
         )
     }
 
-    if (recoverPassUIState.isDialogVisible) {
+    if (recoverPassState.isDialogVisible) {
         AlertRecoverPassDialog(
             onCLickSend = onCLickRecoverPassword,
-            recoverPassUIState = recoverPassUIState,
+            recoverPassState = recoverPassState,
             dismissDialog = {
                 onRecoveryPassUpdate(
-                    recoverPassUIState.copy(
+                    recoverPassState.copy(
                         isDialogVisible = false,
                     ),
                 )
@@ -222,7 +226,7 @@ private fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
             loginUiState = LoginUiState(),
-            recoverPassUIState = RecoverPassUiState(),
+            recoverPassState = RecoverPassState(),
             onClickLogin = { _, _ -> },
             onCLickRecoverPassword = {},
             onClickGoogleButton = {},

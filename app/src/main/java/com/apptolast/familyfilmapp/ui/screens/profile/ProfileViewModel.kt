@@ -33,6 +33,7 @@ class ProfileViewModel @Inject constructor(
             _state.update { st ->
                 st.copy(
                     userData = User(
+                        id = firebaseAuth.currentUser?.uid.toString(),
                         email = firebaseAuth.currentUser?.email.toString(),
                         name = firebaseAuth.currentUser?.displayName.toString(),
                         pass = "",

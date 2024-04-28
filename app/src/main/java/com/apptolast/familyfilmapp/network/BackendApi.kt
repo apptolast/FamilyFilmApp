@@ -14,6 +14,7 @@ import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.ResponseWrapper
 import com.apptolast.familyfilmapp.model.remote.response.UpdateGroupRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.LANGUAGE
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -31,7 +32,7 @@ interface BackendApi {
     suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>
 
     @GET(ApiRoutes.GROUPS)
-    suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
+    suspend fun getGroups(@Path(LANGUAGE) idiom: String): ResponseWrapper<List<GroupInfoRemote>>
 
     @POST(ApiRoutes.GROUPS)
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>

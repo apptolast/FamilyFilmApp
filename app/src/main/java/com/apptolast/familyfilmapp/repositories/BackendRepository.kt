@@ -3,7 +3,6 @@ package com.apptolast.familyfilmapp.repositories
 import com.apptolast.familyfilmapp.model.local.AddGroup
 import com.apptolast.familyfilmapp.model.local.GenreInfo
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.LoginInfo
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.UpdateGroupName
 import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
@@ -14,7 +13,6 @@ import com.apptolast.familyfilmapp.model.mapper.GroupInfoMapper.toDomain
 import com.apptolast.familyfilmapp.model.mapper.MovieMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.LoginBody
-import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
@@ -35,7 +33,7 @@ class BackendRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
-        backendApi.getGroups().data?.map {
+        backendApi.getGroups("es").data?.map {
             it.toDomain()
         } ?: emptyList()
     }

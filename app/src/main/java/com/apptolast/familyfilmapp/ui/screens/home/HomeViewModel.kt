@@ -28,10 +28,9 @@ class HomeViewModel @Inject constructor(
         getMovies()
 
         viewModelScope.launch {
-            repository.login(localRepository.getToken() ?: "").getOrNull()?.let{
+            repository.login(localRepository.getToken() ?: "").getOrNull()?.let {
                 Timber.d("Login OK en el home")
             }
-
         }
     }
 

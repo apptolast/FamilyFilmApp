@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
 import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -33,7 +32,7 @@ class AppNavigationViewModel @Inject constructor(
             initialValue = null,
         ).also {
             viewModelScope.launch {
-                it.collectLatest {  user ->
+                it.collectLatest { user ->
                     user?.getIdToken(false)?.addOnSuccessListener {
                         localRepository.setToken(it.token ?: "")
                     }

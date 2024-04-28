@@ -25,12 +25,9 @@ class BackendRepositoryImpl @Inject constructor(
     private val backendApi: BackendApi,
 ) : BackendRepository {
 
-    override suspend fun register(user: String, firebaseId: String): Result<LoginInfo> = kotlin.runCatching {
-        backendApi.register(RegisterBody(user, firebaseId)).data?.toDomain() ?: LoginInfo()
-    }
-
-    override suspend fun login(user: String, firebaseId: String): Result<LoginInfo> = kotlin.runCatching {
-        backendApi.login(LoginBody(user, firebaseId)).data?.toDomain() ?: LoginInfo()
+    override suspend fun login(token: String): Result<Unit> = kotlin.runCatching {
+        backendApi.login(LoginBody(token)).data ?: Unit
+//        backendApi.login(LoginBody(user, firebaseId)).data?.toDomain() ?: LoginInfo()
     }
 
     override suspend fun getMovies(): Result<List<Movie>> = kotlin.runCatching {
@@ -82,8 +79,7 @@ class BackendRepositoryImpl @Inject constructor(
 }
 
 interface BackendRepository {
-    suspend fun register(user: String, firebaseId: String): Result<LoginInfo>
-    suspend fun login(user: String, firebaseId: String): Result<LoginInfo>
+    suspend fun login(token: String): Result<Unit>
     suspend fun getMovies(): Result<List<Movie>>
     suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<GenreInfo>>

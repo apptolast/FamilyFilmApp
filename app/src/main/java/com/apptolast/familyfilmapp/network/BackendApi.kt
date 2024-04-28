@@ -4,14 +4,12 @@ import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.LoginBody
-import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddGroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
 import com.apptolast.familyfilmapp.model.remote.response.GenreInfoRemote
 import com.apptolast.familyfilmapp.model.remote.response.GroupInfoRemote
-import com.apptolast.familyfilmapp.model.remote.response.LoginRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.ResponseWrapper
 import com.apptolast.familyfilmapp.model.remote.response.UpdateGroupRemote
@@ -26,11 +24,8 @@ import retrofit2.http.Path
 
 interface BackendApi {
 
-    @POST(ApiRoutes.AUTH_REGISTER)
-    suspend fun register(@Body registerBody: RegisterBody): ResponseWrapper<LoginRemote>
-
     @POST(ApiRoutes.AUTH_LOGIN)
-    suspend fun login(@Body loginBody: LoginBody): ResponseWrapper<LoginRemote>
+    suspend fun login(@Body loginBody: LoginBody): ResponseWrapper<Unit>
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>

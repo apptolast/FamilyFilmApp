@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -26,12 +25,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         getMovies()
-
-        viewModelScope.launch {
-            repository.login(localRepository.getToken() ?: "").getOrNull()?.let {
-                Timber.d("Login OK en el home")
-            }
-        }
     }
 
     private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {

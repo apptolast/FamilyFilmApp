@@ -7,7 +7,9 @@ object ApiRoutes {
     const val AUTH_LOGIN = "user/login"
     const val MOVIES = "movie"
     const val GROUPS = "group/all/{$LANGUAGE}"
-    const val GROUP = "$GROUPS/{$GROUP_ID_PARAM}"
+    const val CREATE_GROUP = "group/create/"
+    const val REMOVE_GROUP = "group/delete/{$GROUP_ID_PARAM}/{$LANGUAGE}"
+    const val EDIT_GROUP_NAME = "group/edit/{$GROUP_ID_PARAM}/{$LANGUAGE}"
     const val ADD_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/addMember"
     const val REMOVE_MEMBER_FROM_GROUP = "$GROUPS/{$GROUP_ID_PARAM}/removeMember"
     const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/addWatch"
@@ -16,6 +18,6 @@ object ApiRoutes {
 }
 
 object ApiRoutesParams {
-    const val GROUP_ID_PARAM = "group_id"
+    const val GROUP_ID_PARAM = "id"
     const val LANGUAGE = "idiom"
 }

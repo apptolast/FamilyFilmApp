@@ -20,7 +20,6 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface BackendApi {
@@ -34,15 +33,19 @@ interface BackendApi {
     @GET(ApiRoutes.GROUPS)
     suspend fun getGroups(@Path(LANGUAGE) idiom: String): ResponseWrapper<List<GroupInfoRemote>>
 
-    @POST(ApiRoutes.GROUPS)
+    @POST(ApiRoutes.CREATE_GROUP)
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
 
-    @DELETE(ApiRoutes.GROUP)
-    suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int)
+    @DELETE(ApiRoutes.REMOVE_GROUP)
+    suspend fun deleteGroup(
+        @Path(GROUP_ID_PARAM) groupId: Int,
+        @Path(LANGUAGE) idiom: String
+    )
 
-    @PUT(ApiRoutes.GROUP)
+    @PATCH(ApiRoutes.EDIT_GROUP_NAME)
     suspend fun updateGroupName(
         @Path(GROUP_ID_PARAM) groupId: Int,
+        @Path(LANGUAGE) idiom: String,
         @Body updateGroupNameBody: UpdateGroupNameBody,
     ): ResponseWrapper<UpdateGroupRemote>
 

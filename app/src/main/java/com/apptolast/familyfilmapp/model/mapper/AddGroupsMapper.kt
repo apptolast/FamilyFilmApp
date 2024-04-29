@@ -12,6 +12,5 @@ object AddGroupsMapper {
     fun AddGroupRemote.toDomain() = AddGroup(
         id = id ?: -1,
         name = name ?: "",
-        userId = userId ?: -1,
     )
 }

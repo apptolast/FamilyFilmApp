@@ -4,7 +4,6 @@ import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.LANGUAGE
 
 object ApiRoutes {
-    const val AUTH_LOGIN = "user/login"
     const val MOVIES = "movie"
     const val GROUPS = "group/all/{$LANGUAGE}"
     const val CREATE_GROUP = "group/create/"

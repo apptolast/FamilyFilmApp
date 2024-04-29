@@ -27,9 +27,9 @@ class BackendRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
-        backendApi.getGroups("es").data?.map {
+        backendApi.getGroups("es").map {
             it.toDomain()
-        } ?: emptyList()
+        }
     }
 
     override suspend fun getGenres(): Result<List<GenreInfo>> = kotlin.runCatching {

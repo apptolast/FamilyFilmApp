@@ -3,7 +3,6 @@ package com.apptolast.familyfilmapp.network
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
-import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddGroupRemote
@@ -24,14 +23,11 @@ import retrofit2.http.Path
 
 interface BackendApi {
 
-    @POST(ApiRoutes.AUTH_LOGIN)
-    suspend fun login(@Body loginBody: LoginBody): ResponseWrapper<Unit>
-
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>
 
     @GET(ApiRoutes.GROUPS)
-    suspend fun getGroups(@Path(LANGUAGE) idiom: String): ResponseWrapper<List<GroupInfoRemote>>
+    suspend fun getGroups(@Path(LANGUAGE) idiom: String): List<GroupInfoRemote>
 
     @POST(ApiRoutes.CREATE_GROUP)
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>

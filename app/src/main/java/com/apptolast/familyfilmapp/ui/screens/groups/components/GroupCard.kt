@@ -195,7 +195,7 @@ fun GroupCard(
                                 val color = when (state.dismissDirection) {
                                     StartToEnd -> Color.Transparent
                                     EndToStart -> {
-                                        onRemoveMemberClick(item.groupID, item.userID)
+                                        onRemoveMemberClick(group.id, item.userId)
                                         Color(0xFFFF1744)
                                     }
 

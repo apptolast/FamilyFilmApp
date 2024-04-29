@@ -9,10 +9,12 @@ import com.apptolast.familyfilmapp.ui.components.tabgroups.usecases.UseCaseGroup
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import showProgressIndicator
@@ -35,9 +37,10 @@ class TabGroupsViewModel @Inject constructor(
         refreshGroups()
     }
 
+    @OptIn(FlowPreview::class)
     fun refreshGroups() = viewModelScope.launch {
         useCaseGroups(Unit).let { result ->
-            result.collectLatest { newState ->
+            result.debounce(500).collectLatest { newState ->
                 _backendState.update {
                     newState
                 }

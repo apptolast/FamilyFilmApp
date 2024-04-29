@@ -43,13 +43,13 @@ class BackendRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteGroup(groupId: Int): Result<Unit> = kotlin.runCatching {
-        backendApi.deleteGroup(groupId,"es")
+        backendApi.deleteGroup(groupId, "es")
     }
 
     override suspend fun updateGroupName(groupId: Int, groupName: String): Result<UpdateGroupName> =
         kotlin.runCatching {
             UpdateGroupNameBody(groupName).let { groupNameBody ->
-                backendApi.updateGroupName(groupId, "es",groupNameBody).data?.toDomain() ?: UpdateGroupName()
+                backendApi.updateGroupName(groupId, "es", groupNameBody).data?.toDomain() ?: UpdateGroupName()
             }
         }
 

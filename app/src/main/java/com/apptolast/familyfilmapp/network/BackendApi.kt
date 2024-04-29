@@ -37,10 +37,7 @@ interface BackendApi {
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
 
     @DELETE(ApiRoutes.REMOVE_GROUP)
-    suspend fun deleteGroup(
-        @Path(GROUP_ID_PARAM) groupId: Int,
-        @Path(LANGUAGE) idiom: String
-    )
+    suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Path(LANGUAGE) idiom: String)
 
     @PATCH(ApiRoutes.EDIT_GROUP_NAME)
     suspend fun updateGroupName(

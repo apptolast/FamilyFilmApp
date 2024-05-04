@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.HomeException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
+import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: BackendRepository,
+    private val localRepository: LocalRepository,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 

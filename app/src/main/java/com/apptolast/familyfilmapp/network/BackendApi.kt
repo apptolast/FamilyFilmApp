@@ -3,8 +3,6 @@ package com.apptolast.familyfilmapp.network
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
-import com.apptolast.familyfilmapp.model.remote.request.LoginBody
-import com.apptolast.familyfilmapp.model.remote.request.RegisterBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddGroupRemote
@@ -15,37 +13,32 @@ import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.ResponseWrapper
 import com.apptolast.familyfilmapp.model.remote.response.UpdateGroupRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.LANGUAGE
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface BackendApi {
-
-    @POST(ApiRoutes.AUTH_REGISTER)
-    suspend fun register(@Body registerBody: RegisterBody): ResponseWrapper<Any>
-
-    @POST(ApiRoutes.AUTH_LOGIN)
-    suspend fun login(@Body loginBody: LoginBody): ResponseWrapper<Any>
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>
 
     @GET(ApiRoutes.GROUPS)
-    suspend fun getGroups(): ResponseWrapper<List<GroupInfoRemote>>
+    suspend fun getGroups(@Path(LANGUAGE) idiom: String): List<GroupInfoRemote>
 
-    @POST(ApiRoutes.GROUPS)
+    @POST(ApiRoutes.CREATE_GROUP)
     suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
 
-    @DELETE(ApiRoutes.GROUP)
-    suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int)
+    @DELETE(ApiRoutes.REMOVE_GROUP)
+    suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Path(LANGUAGE) idiom: String)
 
-    @PUT(ApiRoutes.GROUP)
+    @PATCH(ApiRoutes.EDIT_GROUP_NAME)
     suspend fun updateGroupName(
         @Path(GROUP_ID_PARAM) groupId: Int,
+        @Path(LANGUAGE) idiom: String,
         @Body updateGroupNameBody: UpdateGroupNameBody,
     ): ResponseWrapper<UpdateGroupRemote>
 

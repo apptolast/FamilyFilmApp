@@ -3,8 +3,8 @@ package com.apptolast.familyfilmapp.model.mapper
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.mapper.MovieMapper.toDomain
-import com.apptolast.familyfilmapp.model.mapper.UsersMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.response.GroupInfoRemote
+import com.apptolast.familyfilmapp.model.remote.response.toDomain
 
 object GroupInfoMapper {
 

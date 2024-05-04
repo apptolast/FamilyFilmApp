@@ -1,11 +1,10 @@
 package com.apptolast.familyfilmapp.ui.screens.login.usecases
 
-import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.extensions.isEmailValid
-import com.apptolast.familyfilmapp.repositories.LoginRepository
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
+import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,12 +12,12 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 
 class RecoverPassUseCase @Inject constructor(
-    private val loginRepository: LoginRepository,
-) : com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassUiState>>() {
+    private val firebaseRepository: FirebaseRepository,
+) : com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassState>>() {
 
-    override suspend fun execute(parameters: String): Flow<RecoverPassUiState> = channelFlow {
+    override suspend fun execute(parameters: String): Flow<RecoverPassState> = channelFlow {
         send(
-            RecoverPassUiState().copy(
+            RecoverPassState().copy(
                 isDialogVisible = true,
                 isLoading = false,
             ),
@@ -26,7 +25,7 @@ class RecoverPassUseCase @Inject constructor(
 
         if (!parameters.isEmailValid()) {
             send(
-                RecoverPassUiState().copy(
+                RecoverPassState().copy(
                     isDialogVisible = true,
                     isLoading = false,
                     emailErrorMessage = LoginException.EmailInvalidFormat(),
@@ -34,14 +33,14 @@ class RecoverPassUseCase @Inject constructor(
             )
         } else {
             send(
-                RecoverPassUiState().copy(
+                RecoverPassState().copy(
                     isDialogVisible = true,
                     isLoading = true,
                 ),
             )
-            loginRepository.recoverPassword(parameters).catch { exception ->
+            firebaseRepository.recoverPassword(parameters).catch { exception ->
                 send(
-                    RecoverPassUiState().copy(
+                    RecoverPassState().copy(
                         isDialogVisible = false,
                         isLoading = false,
                         errorMessage = CustomException.GenericException(
@@ -53,7 +52,7 @@ class RecoverPassUseCase @Inject constructor(
                 result.fold(
                     onSuccess = { firebaseResponse ->
                         send(
-                            RecoverPassUiState().copy(
+                            RecoverPassState().copy(
                                 isDialogVisible = !firebaseResponse,
                                 isLoading = false,
                                 recoveryPassResponse = firebaseResponse,
@@ -62,7 +61,7 @@ class RecoverPassUseCase @Inject constructor(
                     },
                     onFailure = {
                         send(
-                            RecoverPassUiState().copy(
+                            RecoverPassState().copy(
                                 isDialogVisible = false,
                                 isLoading = false,
                                 errorMessage = CustomException.GenericException(

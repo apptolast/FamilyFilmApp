@@ -22,12 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassUiState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun AlertRecoverPassDialog(
-    recoverPassUIState: RecoverPassUiState,
+    recoverPassState: RecoverPassState,
     onCLickSend: (String) -> Unit,
     dismissDialog: () -> Unit,
 ) {
@@ -47,13 +47,13 @@ fun AlertRecoverPassDialog(
                     label = { Text(text = stringResource(R.string.login_text_field_email)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     shape = RoundedCornerShape(25.dp),
-                    isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
+                    isError = !recoverPassState.emailErrorMessage?.error.isNullOrBlank(),
                     supportingText = {
-                        SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
+                        SupportingErrorText(recoverPassState.emailErrorMessage?.error)
                     },
                 )
 
-                if (recoverPassUIState.isLoading) {
+                if (recoverPassState.isLoading) {
                     CircularProgressIndicator()
                 }
             }
@@ -88,7 +88,7 @@ fun AlertRecoverPassDialog(
 private fun AlertRecoverPassDialogPreview() {
     FamilyFilmAppTheme {
         AlertRecoverPassDialog(
-            recoverPassUIState = RecoverPassUiState().copy(
+            recoverPassState = RecoverPassState().copy(
                 isDialogVisible = true,
                 isLoading = true,
             ),

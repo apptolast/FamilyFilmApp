@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -23,12 +22,12 @@ class GroupViewModel @Inject constructor(
     val uiState: StateFlow<GroupUiState> = _uiState
 
     fun updateSelectedGroup(group: Group) {
-        _uiState.update {
-            it.copy(
-                deleteGroupButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
-                addMemberButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
-                updateNameGroupVisibility = group.groupCreatorId == localRepository.getUserId(),
-            )
-        }
+//        _uiState.update {
+//            it.copy(
+//                deleteGroupButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
+//                addMemberButtonVisibility = group.groupCreatorId == localRepository.getUserId(),
+//                updateNameGroupVisibility = group.groupCreatorId == localRepository.getUserId(),
+//            )
+//        }
     }
 }

@@ -4,8 +4,10 @@ import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.LANGUAGE
 
 object ApiRoutes {
+    const val ME = "me"
+    const val USER_CREATE = "users"
     const val MOVIES = "movie"
-    const val GROUPS = "group/all/{$LANGUAGE}"
+    const val GROUPS = "groups"
     const val CREATE_GROUP = "group/create/"
     const val REMOVE_GROUP = "group/delete/{$GROUP_ID_PARAM}/{$LANGUAGE}"
     const val EDIT_GROUP_NAME = "group/edit/{$GROUP_ID_PARAM}/{$LANGUAGE}"

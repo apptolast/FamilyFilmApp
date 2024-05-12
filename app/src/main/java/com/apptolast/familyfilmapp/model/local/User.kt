@@ -1,10 +1,15 @@
 package com.apptolast.familyfilmapp.model.local
 
 data class User(
-    val id: String,
+    val id: Int,
     val email: String,
-    val pass: String,
-    val name: String,
-    val photo: String,
-//    val token: String,
-)
+    val language: Int,
+    val provider: String,
+){
+    constructor() : this(
+        id = -1,
+        email = "",
+        language = 0,
+        provider = "",
+    )
+}

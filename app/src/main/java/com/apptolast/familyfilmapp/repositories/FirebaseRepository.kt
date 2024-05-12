@@ -14,7 +14,7 @@ class FirebaseRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
 ) : FirebaseRepository {
 
-    override fun loginEmailPass(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
+    override fun login(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 launch {
@@ -86,7 +86,7 @@ class FirebaseRepositoryImpl @Inject constructor(
 }
 
 interface FirebaseRepository {
-    fun loginEmailPass(email: String, password: String): Flow<FirebaseUser?>
+    fun login(email: String, password: String): Flow<FirebaseUser?>
     fun register(email: String, password: String): Flow<FirebaseUser?>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun getUser(): Flow<FirebaseUser?>

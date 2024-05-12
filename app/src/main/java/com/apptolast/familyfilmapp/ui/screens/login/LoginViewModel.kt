@@ -13,7 +13,6 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,11 +20,12 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
 
-    private val backRepository: BackendRepository,
+    private val backendRepository: BackendRepository,
     private val firebaseRepository: FirebaseRepository,
     private val localRepository: LocalRepository,
 //    private val loginEmailPassUseCase: LoginEmailPassUseCase,
@@ -53,39 +53,72 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun loginOrRegister(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        when (_loginState.value.screenState) {
-            is LoginRegisterState.Login ->
-                firebaseRepository.loginEmailPass(email, password)
-
-            is LoginRegisterState.Register ->
-                firebaseRepository.register(email, password)
-        }.catch { error ->
-            _loginState.update { loginState ->
-                loginState.copy(
-                    errorMessage = GenericException(error.message ?: "Login Error"),
-                )
+    fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        firebaseRepository.login(email, password)
+            .catch { error ->
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        errorMessage = GenericException(error.message ?: "Login Error"),
+                    )
+                }
+            }.collectLatest { firebaseUser ->
+                firebaseUser?.getIdToken(false)
+                    ?.addOnSuccessListener { tokenResult ->
+                        localRepository.setToken(tokenResult.token ?: "")
+                    }
+                    ?.addOnFailureListener { error ->
+                        _loginState.update {
+                            it.copy(
+                                errorMessage = GenericException(error.message ?: "Save token failed"),
+                            )
+                        }
+                    }
             }
-        }.collectLatest { firebaseUser ->
-            firebaseUser?.getIdToken(false)
-                ?.addOnSuccessListener { tokenResult ->
-                    localRepository.setToken(tokenResult.token ?: "")
-                    _loginState.update { loginState ->
-                        loginState.copy(
-                            isLogged = true,
-                            isLoading = false,
-                            errorMessage = null,
-                        )
-                    }
+    }
+
+    fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        firebaseRepository.register(email, password)
+            .catch { error ->
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        errorMessage = GenericException(error.message ?: "Register Error"),
+                    )
                 }
-                ?.addOnFailureListener { error ->
-                    _loginState.update {
-                        it.copy(
-                            errorMessage = GenericException(error.message ?: "Save token failed"),
-                        )
+            }.collectLatest { firebaseUser ->
+                firebaseUser?.getIdToken(false)
+                    ?.addOnSuccessListener { tokenResult ->
+                        localRepository.setToken(tokenResult.token ?: "")
+                        registerUserInBackend()
                     }
+                    ?.addOnFailureListener { error ->
+                        _loginState.update {
+                            it.copy(
+                                errorMessage = GenericException(error.message ?: "Save token failed"),
+                            )
+                        }
+                    }
+            }
+    }
+
+    private fun registerUserInBackend() = viewModelScope.launch(dispatcherProvider.io()) {
+        backendRepository.createUser().fold(
+            onSuccess = {
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        isLogged = true,
+                        isLoading = false,
+                        errorMessage = null,
+                    )
                 }
-        }
+            },
+            onFailure = { error ->
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        errorMessage = GenericException(error.message ?: "Register user in our backend failed"),
+                    )
+                }
+            },
+        )
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {

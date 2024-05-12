@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -71,23 +73,34 @@ fun ProfileContent(profileUiState: ProfileUiState, onClickLogOut: () -> Unit, mo
                     modifier = Modifier.padding(bottom = 50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    if (profileUiState.userData.photo.isNotBlank()) {
-                        AsyncImage(
-                            model = profileUiState.userData.photo,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(50.dp)),
-                        )
-                    }
-                    if (profileUiState.userData.name.isNotBlank()) Text(text = profileUiState.userData.name)
+//                    if (profileUiState.userData.photo.isNotBlank()) {
+//                        AsyncImage(
+//                            model = profileUiState.userData.photo,
+//                            contentDescription = null,
+//                            modifier = Modifier
+//                                .size(100.dp)
+//                                .clip(RoundedCornerShape(50.dp)),
+//                        )
+//                    }
+//                    if (profileUiState.userData.name.isNotBlank()) Text(text = profileUiState.userData.name)
                     Text(text = profileUiState.userData.email)
                 }
-                Text(text = "6 Grupos", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
+
+                Text(
+                    text = "6 Grupos",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                )
+
                 Button(onClick = { onClickLogOut() }, modifier = Modifier.padding(top = 80.dp)) {
                     Text(text = "Logout")
                     Spacer(modifier = Modifier.width(10.dp))
-                    Icon(imageVector = Icons.Default.Logout, contentDescription = "Logout")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+                }
+
+                Button(onClick = { onClickLogOut() }, modifier = Modifier.padding(top = 80.dp)) {
+                    Text(text = "Delete User")
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 }
             }
         }

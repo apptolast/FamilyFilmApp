@@ -12,7 +12,7 @@ data class ProfileUiState(
 ) : BaseUiState {
 
     constructor() : this(
-        userData = User(id = "", email = "", pass = "", name = "", photo = ""),
+        userData = User(),
         isLogged = false,
         isLoading = false,
         errorMessage = null,

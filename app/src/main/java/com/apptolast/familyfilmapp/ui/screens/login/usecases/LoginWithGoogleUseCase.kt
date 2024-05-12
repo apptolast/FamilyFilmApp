@@ -42,11 +42,10 @@ class LoginWithGoogleUseCase @Inject constructor(
                             LoginUiState().copy(
                                 screenState = LoginRegisterState.Register(),
                                 user = User(
-                                    id = authResult.user?.uid ?: "",
+                                    id = -1,
                                     email = authResult.user?.email ?: "",
-                                    pass = "",
-                                    name = authResult.user?.displayName ?: "",
-                                    photo = authResult.user?.photoUrl.toString(),
+                                    language = 0,
+                                    provider = "",
                                 ),
                                 isLogged = true,
                                 isLoading = false,

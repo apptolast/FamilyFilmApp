@@ -10,25 +10,23 @@ data class Movie(
     val id: Int,
     val title: String,
     val isAdult: Boolean,
-    val genres: List<Pair<Int, String>>,
+    val genres: List<Genre>,
     val image: String,
     val synopsis: String,
     val voteAverage: Float,
     val voteCount: Int,
     val releaseDate: Date,
-    val language: String,
 ) : Parcelable {
     constructor(image: String, title: String) : this(
         id = -1,
         title = title,
         isAdult = true,
-        genres = emptyList<Pair<Int, String>>(),
+        genres = emptyList<Genre>(),
         image = image,
         synopsis = "",
         voteAverage = 0f,
         voteCount = 0,
         releaseDate = Calendar.getInstance().time,
-        language = "",
     )
 
     constructor() : this("", "")

@@ -44,7 +44,7 @@ class RecommendViewModel @Inject constructor(
                 )
             }
             _recommendUIBackendState.value = GenresBackendState(
-                genreInfo = repository.getGenres().getOrElse {
+                genre = repository.getGenres().getOrElse {
                     emptyList()
                 },
             )

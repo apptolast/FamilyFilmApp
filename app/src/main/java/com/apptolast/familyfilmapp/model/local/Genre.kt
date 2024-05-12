@@ -1,13 +1,15 @@
 package com.apptolast.familyfilmapp.model.local
 
-data class GenreInfo(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Genre(
     val id: Int,
     val name: String,
-    val movies: List<Movie>,
-) {
+) : Parcelable {
     constructor() : this(
         id = -1,
         name = "",
-        movies = emptyList<Movie>(),
     )
 }

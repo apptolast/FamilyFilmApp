@@ -107,9 +107,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    ksp("com.google.dagger:hilt-android-compiler:2.51.1")
-    kspTest("com.google.dagger:hilt-android-compiler:2.51.1")
+    val hiltVersion = "2.51.1"
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kspTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // Navigation Con Safe Arguments
     implementation("com.google.code.gson:gson:2.10.1")
@@ -132,7 +133,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Ktlint RuleSet
-    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.18")
+    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.20")
 
     // Test
     testImplementation("junit:junit:4.13.2")

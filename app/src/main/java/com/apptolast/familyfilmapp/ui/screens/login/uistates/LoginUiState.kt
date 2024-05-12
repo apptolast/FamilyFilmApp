@@ -16,12 +16,10 @@ data class LoginUiState(
     constructor() : this(
         screenState = LoginRegisterState.Login(),
         user = User(
-            id = "",
+            id = -1,
             email = "",
-            pass = "",
-            name = "",
-            photo = "",
-//            token = "",
+            language = 0,
+            provider = "",
         ),
         emailErrorMessage = null,
         passErrorMessage = null,

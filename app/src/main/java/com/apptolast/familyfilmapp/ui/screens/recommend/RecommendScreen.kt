@@ -80,7 +80,7 @@ private fun RecommendContent(
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-            items(backendState!!.genreInfo) { item ->
+            items(backendState!!.genre) { item ->
 
                 var isSelected by remember { mutableStateOf(false) }
                 FilterChip(

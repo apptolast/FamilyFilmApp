@@ -1,17 +1,12 @@
 package com.apptolast.familyfilmapp.model.mapper
 
-import com.apptolast.familyfilmapp.model.local.GenreInfo
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.mapper.MovieMapper.toDomain
-import com.apptolast.familyfilmapp.model.remote.response.GenreInfoRemote
+import com.apptolast.familyfilmapp.model.local.Genre
+import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
 
 object GenreMapper {
 
-    fun GenreInfoRemote.toDomain() = GenreInfo(
+    fun GenreRemote.toDomain() = Genre(
         id = id ?: -1,
-        name = genreName ?: "",
-        movies = movies?.map {
-            it.movie?.toDomain() ?: Movie()
-        } ?: emptyList(),
+        name = name ?: "",
     )
 }

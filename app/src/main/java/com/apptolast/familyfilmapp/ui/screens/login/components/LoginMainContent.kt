@@ -42,7 +42,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Unit) {
     var email by rememberSaveable { mutableStateOf(loginUiState.user.email) }
-    var pass by rememberSaveable { mutableStateOf(loginUiState.user.pass) }
+    var pass by rememberSaveable { mutableStateOf("") }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
     Card {
@@ -68,7 +68,7 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 style = MaterialTheme.typography.titleMedium,
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             OutlinedTextField(
                 value = email,

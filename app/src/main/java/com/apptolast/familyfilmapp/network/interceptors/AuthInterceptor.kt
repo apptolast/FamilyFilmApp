@@ -14,7 +14,7 @@ class AuthInterceptor @Inject constructor(
             header("Content-Type", "application/json")
             localRepository.getToken().let { token ->
                 if (!token.isNullOrBlank()) {
-                    header("Authorization", token)
+                    header("Authorization", "Bearer $token")
                 }
             }
         }.also {

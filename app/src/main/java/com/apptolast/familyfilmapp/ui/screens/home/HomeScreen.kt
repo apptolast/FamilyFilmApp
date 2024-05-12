@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.FabPosition
@@ -96,8 +96,8 @@ fun HomeContent(
         tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
             RowMovie(
                 title = stringResource(R.string.home_text_to_see),
-                icon = Icons.Default.ListAlt,
-                movies = it.watchList,
+                icon = Icons.AutoMirrored.Filled.ListAlt,
+                movies = it.watchedList,
                 navigateToDetailsScreen = {
                     navigateToDetailsScreen(it)
                 },
@@ -108,7 +108,7 @@ fun HomeContent(
             RowMovie(
                 title = stringResource(R.string.home_text_seen),
                 icon = Icons.Default.Visibility,
-                movies = it.viewList,
+                movies = it.toWatchList,
                 navigateToDetailsScreen = navigateToDetailsScreen,
                 modifier = Modifier.weight(1f),
             )

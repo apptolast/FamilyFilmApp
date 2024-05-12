@@ -42,6 +42,7 @@ import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.components.LoginMainContent
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -101,7 +102,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             LoginContent(
                 loginUiState = loginUiState,
                 recoverPassState = recoverPassUIState,
-                onClickLogin = viewModel::loginOrRegister,
+                onClickLogin = { email, pass ->
+                    when (loginUiState.screenState) {
+                        is LoginRegisterState.Login -> viewModel.login(email, pass)
+                        is LoginRegisterState.Register -> viewModel.register(email, pass)
+                    }
+                },
                 onCLickRecoverPassword = {
                     // TODO
                 },

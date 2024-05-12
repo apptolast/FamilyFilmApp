@@ -7,11 +7,11 @@ import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddGroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
-import com.apptolast.familyfilmapp.model.remote.response.GenreInfoRemote
-import com.apptolast.familyfilmapp.model.remote.response.GroupInfoRemote
+import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
+import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
-import com.apptolast.familyfilmapp.model.remote.response.ResponseWrapper
 import com.apptolast.familyfilmapp.model.remote.response.UpdateGroupRemote
+import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.LANGUAGE
 import retrofit2.http.Body
@@ -23,14 +23,20 @@ import retrofit2.http.Path
 
 interface BackendApi {
 
+    @GET(ApiRoutes.ME)
+    suspend fun me(): UserRemote
+
+    @POST(ApiRoutes.USER_CREATE)
+    suspend fun createUser(): UserRemote
+
     @GET(ApiRoutes.MOVIES)
-    suspend fun getMovies(): ResponseWrapper<List<MovieRemote>>
+    suspend fun getMovies(): List<MovieRemote>
 
     @GET(ApiRoutes.GROUPS)
-    suspend fun getGroups(@Path(LANGUAGE) idiom: String): List<GroupInfoRemote>
+    suspend fun getGroups(): List<GroupRemote>
 
     @POST(ApiRoutes.CREATE_GROUP)
-    suspend fun addGroups(@Body addGroupBody: AddGroupBody): ResponseWrapper<AddGroupRemote>
+    suspend fun addGroups(@Body addGroupBody: AddGroupBody): AddGroupRemote
 
     @DELETE(ApiRoutes.REMOVE_GROUP)
     suspend fun deleteGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Path(LANGUAGE) idiom: String)
@@ -40,13 +46,13 @@ interface BackendApi {
         @Path(GROUP_ID_PARAM) groupId: Int,
         @Path(LANGUAGE) idiom: String,
         @Body updateGroupNameBody: UpdateGroupNameBody,
-    ): ResponseWrapper<UpdateGroupRemote>
+    ): UpdateGroupRemote
 
     @PATCH(ApiRoutes.ADD_MEMBER)
     suspend fun addMemberGroup(
         @Path(GROUP_ID_PARAM) groupId: Int,
         @Body addMemberBody: AddMemberBody,
-    ): ResponseWrapper<AddMemberRemote>
+    ): AddMemberRemote
 
     @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
     suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
@@ -64,5 +70,5 @@ interface BackendApi {
     )
 
     @GET(ApiRoutes.GENRES)
-    suspend fun getGenres(): ResponseWrapper<List<GenreInfoRemote>>
+    suspend fun getGenres(): List<GenreRemote>
 }

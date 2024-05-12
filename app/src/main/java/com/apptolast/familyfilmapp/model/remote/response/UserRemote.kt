@@ -1,26 +1,26 @@
 package com.apptolast.familyfilmapp.model.remote.response
 
-import com.apptolast.familyfilmapp.model.local.UserInfoGroup
+import com.apptolast.familyfilmapp.model.local.User
 import com.google.gson.annotations.SerializedName
 
 data class UserRemote(
 
     @SerializedName("id")
-    val userId: Int? = null,
+    val id: Int? = null,
 
     @SerializedName("email")
     val email: String? = null,
 
     @SerializedName("firebase_uuid")
-    val firebaseUuid: String? = null,
+    val language: Int? = null,
 
     @SerializedName("role")
-    val role: String? = null,
+    val provider: String? = null,
 )
 
-fun UserRemote.toDomain() = UserInfoGroup(
-    id = userId ?: -1,
+fun UserRemote.toDomain() = User(
+    id = id ?: -1,
     email = email ?: "",
-    firebaseUUID = firebaseUuid ?: "",
-    role = role ?: "",
+    language = language ?: -1,
+    provider = "",
 )

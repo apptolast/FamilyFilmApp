@@ -104,7 +104,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     // Hilt
     val hiltVersion = "2.51.1"
@@ -113,7 +113,7 @@ dependencies {
     kspTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // Navigation Con Safe Arguments
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("io.github.dilrajsingh1997:compose-annotation:1.0.3")
     ksp("io.github.dilrajsingh1997:compose-annotation-processor:1.0.6")

@@ -10,5 +10,5 @@ sealed class GroupException(message: String) : CustomException(message) {
 
     data class AddMember(val value: String = "Member can't be added to group") : GroupException(value)
 
-    data class DeleteUser(val value: String = "User can't be deleted from group") : GroupException(value)
+    data class DeleteUser(val value: String = "Member can't be deleted from group") : GroupException(value)
 }

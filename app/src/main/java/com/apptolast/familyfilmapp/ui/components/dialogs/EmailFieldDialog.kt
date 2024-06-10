@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.components.dialogs
 
+import android.util.Patterns
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -20,17 +21,16 @@ import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorTe
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun EmailFieldDialog(title: String, description: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
-    val errorMessage = stringResource(id = R.string.email_blank)
-    var memberEmail by rememberSaveable { mutableStateOf("") }
+fun EmailFieldDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+    var email by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (memberEmail.isNotBlank()) {
-                        onConfirm(memberEmail)
+                    if (email.isNotBlank()) {
+                        onConfirm(email)
                         onDismiss()
                     }
                 },
@@ -50,15 +50,17 @@ fun EmailFieldDialog(title: String, description: String, onConfirm: (String) -> 
         },
         text = {
             OutlinedTextField(
-                value = memberEmail,
-                onValueChange = { memberEmail = it.trim() },
+                value = email,
+                onValueChange = { email = it.trim() },
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
-                isError = memberEmail.isBlank(),
+                isError = email.isBlank() || Patterns.EMAIL_ADDRESS.matcher(email).matches().not(),
                 supportingText = {
-                    if (memberEmail.isBlank()) {
-                        SupportingErrorText(errorMessage = errorMessage)
+                    if (email.isBlank()) {
+                        SupportingErrorText(errorMessage = stringResource(id = R.string.error_email_blank))
+                    } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        SupportingErrorText(errorMessage = stringResource(id = R.string.error_email_not_valid))
                     }
                 },
             )
@@ -66,13 +68,12 @@ fun EmailFieldDialog(title: String, description: String, onConfirm: (String) -> 
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun TextFieldDialogPreview() {
     FamilyFilmAppTheme {
         EmailFieldDialog(
             title = "title",
-            description = "description",
             onConfirm = {},
             onDismiss = {},
         )

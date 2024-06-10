@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 
-class LoginWithGoogleUseCase @Inject constructor(
-    private val repository: FirebaseRepository,
-) : com.apptolast.familyfilmapp.BaseUseCase<String, Flow<LoginUiState>>() {
+class LoginWithGoogleUseCase @Inject constructor(private val repository: FirebaseRepository) :
+    com.apptolast.familyfilmapp.BaseUseCase<String, Flow<LoginUiState>>() {
 
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
         send(
@@ -44,7 +43,7 @@ class LoginWithGoogleUseCase @Inject constructor(
                                 user = User(
                                     id = -1,
                                     email = authResult.user?.email ?: "",
-                                    language = 0,
+                                    language = "",
                                     provider = "",
                                 ),
                                 isLogged = true,

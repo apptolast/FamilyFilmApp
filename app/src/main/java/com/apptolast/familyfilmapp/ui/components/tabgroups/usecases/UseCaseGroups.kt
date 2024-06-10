@@ -7,9 +7,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
-class UseCaseGroups @Inject constructor(
-    private val repository: BackendRepository,
-) : com.apptolast.familyfilmapp.BaseUseCase<Unit, Flow<TabBackendState>>() {
+class UseCaseGroups @Inject constructor(private val repository: BackendRepository) :
+    com.apptolast.familyfilmapp.BaseUseCase<Unit, Flow<TabBackendState>>() {
     override suspend fun execute(parameters: Unit): Flow<TabBackendState> = channelFlow {
         send(
             TabBackendState().copy(

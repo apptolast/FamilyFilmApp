@@ -72,10 +72,11 @@ android {
 dependencies {
     // Androidx
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    val androidxLifecycleComposeVersion = "2.7.0" // Crash with 2.8.1 -> no fucking idea why that happens!!
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$androidxLifecycleComposeVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleComposeVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleComposeVersion")
 
     // Splash
     implementation("androidx.core:core-splashscreen:1.0.1")
@@ -97,7 +98,7 @@ dependencies {
     implementation("androidx.compose.animation:animation:1.6.7")
 
     // Google auth
-    implementation("com.google.android.gms:play-services-auth:21.1.1")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Retrofit
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
@@ -119,7 +120,7 @@ dependencies {
     ksp("io.github.dilrajsingh1997:compose-annotation-processor:1.0.6")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
@@ -163,7 +164,7 @@ dependencies {
 }
 
 ktlint {
-    version = "1.1.1"
+    version = "1.3.0"
     debug = true
     verbose = true
     android = false

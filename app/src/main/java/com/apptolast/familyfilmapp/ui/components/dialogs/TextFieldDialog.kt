@@ -17,7 +17,6 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun TextFieldDialog(title: String, description: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
-    val errorMessage = stringResource(id = R.string.group_dialog_name_empty_error_message)
     var groupName by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
@@ -55,7 +54,7 @@ fun TextFieldDialog(title: String, description: String, onConfirm: (String) -> U
                 isError = groupName.isBlank(),
                 supportingText = {
                     if (groupName.isBlank()) {
-                        SupportingErrorText(errorMessage)
+                        SupportingErrorText(stringResource(id = R.string.group_dialog_name_empty_error_message))
                     }
                 },
             )

@@ -48,30 +48,30 @@ class TabGroupsViewModel @Inject constructor(
         }
     }
 
-    fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        _backendState.showProgressIndicator(true)
-
-        repository.addGroups(groupName).fold(
-            onSuccess = {
-                refreshGroups()
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = CustomException.GenericException("New group created!"),
-                        isLoading = false,
-                    )
-                }
-            },
-            onFailure = {
-                Timber.e(it)
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = GroupException.AddGroup(),
-                        isLoading = false,
-                    )
-                }
-            },
-        )
-    }
+//    fun addGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+//        _backendState.showProgressIndicator(true)
+//
+//        repository.addGroups(groupName).fold(
+//            onSuccess = {
+//                refreshGroups()
+//                _backendState.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = CustomException.GenericException("New group created!"),
+//                        isLoading = false,
+//                    )
+//                }
+//            },
+//            onFailure = {
+//                Timber.e(it)
+//                _backendState.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = GroupException.AddGroup(),
+//                        isLoading = false,
+//                    )
+//                }
+//            },
+//        )
+//    }
 
     fun updatedMemberGroup(groupId: Int, email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         _backendState.showProgressIndicator(true)

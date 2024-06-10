@@ -25,9 +25,8 @@ data class GroupRemote(
     val recommendedMovie: MovieRemote? = null,
 
     @SerializedName("users")
-    val users: List<UsersRemote>? = null,
-
-    )
+    val users: List<UserRemote>? = null,
+)
 
 fun GroupRemote.toDomain() = Group(
     id = id ?: -1,

@@ -17,11 +17,7 @@ import com.apptolast.familyfilmapp.navigation.navtypes.RecommendNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.route
 
-sealed class Routes(
-    @StringRes val title: Int,
-    val routes: String,
-    val icon: ImageVector?,
-) {
+sealed class Routes(@StringRes val title: Int, val routes: String, val icon: ImageVector?) {
 
     data object Login : Routes(
         title = R.string.screen_title_login,

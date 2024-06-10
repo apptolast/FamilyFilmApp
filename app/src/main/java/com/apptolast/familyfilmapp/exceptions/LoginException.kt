@@ -1,12 +1,8 @@
 package com.apptolast.familyfilmapp.exceptions
 
-sealed class LoginException(
-    message: String,
-) : CustomException(message) {
+sealed class LoginException(message: String) : CustomException(message) {
 
-    data class EmailInvalidFormat(
-        val value: String = "Email format not valid",
-    ) : LoginException(value)
+    data class EmailInvalidFormat(val value: String = "Email format not valid") : LoginException(value)
 
     data class PasswordInvalidFormat(
         val value: String = """
@@ -15,7 +11,5 @@ sealed class LoginException(
         """.trimIndent(),
     ) : LoginException(value)
 
-    data class BackendLogin(
-        val value: String = "Backend login failed",
-    ) : LoginException(value)
+    data class BackendLogin(val value: String = "Backend login failed") : LoginException(value)
 }

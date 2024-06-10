@@ -38,7 +38,6 @@ import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabUiState
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TopBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -55,7 +54,6 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = { TopBar(tabViewModel) },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(

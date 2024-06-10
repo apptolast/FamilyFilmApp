@@ -20,7 +20,7 @@
     <string name="login_text_send_recover_password">Send</string>
     <string name="login_text_recover_password_cancel">Cancel</string>
 
-    <!-- SCREEN TITLES N-->
+    <!-- SCREEN TITLES-->
     <string name="screen_title_home">Home</string>
     <string name="screen_title_recommend">Recommend</string>
     <string name="screen_title_groups">Groups</string>
@@ -34,7 +34,7 @@
     <string name="home_text_seen">Seen</string>
 
     <!-- GROUPS -->
-    <string name="groups_text_add">Add Group</string>
+    <string name="groups_text_create_group">Create Group</string>
     <string name="groups_text_add_member">Add Member</string>
     <string name="groups_text_delete_group">Delete Group</string>
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
@@ -43,6 +43,12 @@
     <string name="search_film_or_series">Search film or series</string>
 
     <!-- DIALOGS -->
+    <string name="dialog_create_group_title">Create Group</string>
+    <string name="dialog_create_group_description">Introduce the group name</string>
+    <string name="dialog_change_group_title">Change Group name</string>
+    <string name="dialog_change_group_description">Introduce group\'s new name</string>
+    <string name="dialog_add_group_member_title">Add group member</string>
+    <string name="dialog_add_group_member_description">Introduce the member\'s email</string>
     <string name="dialog_delete_group_title">Delete Group</string>
     <string name="dialog_delete_group_description">Are you sure you want to delete de group?</string>
 
@@ -52,6 +58,9 @@
     <string name="login">Login</string>
     <string name="text_read_more">Read More</string>
     <string name="edit_text">Edit</string>
-    <string name="email_blank">Email is empty</string>
+
+    <!-- Error messages -->
+    <string name="error_email_blank">Email is empty</string>
+    <string name="error_email_not_valid">Email not valid</string>
 
 </resources>

@@ -11,9 +11,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 
-class RecoverPassUseCase @Inject constructor(
-    private val firebaseRepository: FirebaseRepository,
-) : com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassState>>() {
+class RecoverPassUseCase @Inject constructor(private val firebaseRepository: FirebaseRepository) :
+    com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassState>>() {
 
     override suspend fun execute(parameters: String): Flow<RecoverPassState> = channelFlow {
         send(

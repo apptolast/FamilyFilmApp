@@ -4,9 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class LoginInfo(
-    val accessToken: String,
-    val tokenType: String,
-) : Parcelable {
+data class LoginInfo(val accessToken: String, val tokenType: String) : Parcelable {
     constructor() : this("", "")
 }

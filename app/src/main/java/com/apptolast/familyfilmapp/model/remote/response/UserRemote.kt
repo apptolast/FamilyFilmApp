@@ -11,8 +11,8 @@ data class UserRemote(
     @SerializedName("email")
     val email: String? = null,
 
-    @SerializedName("firebase_uuid")
-    val language: Int? = null,
+    @SerializedName("language")
+    val language: String? = null,
 
     @SerializedName("role")
     val provider: String? = null,
@@ -21,6 +21,6 @@ data class UserRemote(
 fun UserRemote.toDomain() = User(
     id = id ?: -1,
     email = email ?: "",
-    language = language ?: -1,
+    language = language ?: "es",
     provider = "",
 )

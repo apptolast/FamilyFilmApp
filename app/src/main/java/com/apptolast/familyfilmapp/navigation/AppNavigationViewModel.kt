@@ -39,13 +39,4 @@ class AppNavigationViewModel @Inject constructor(
                 }
             }
         }
-//        .also {
-//            viewModelScope.launch {
-//                it.value?.let { user ->
-//                    user.getIdToken(false).addOnSuccessListener {
-//                        localRepository.setToken(it.token ?: "")
-//                    }
-//                }
-//            }
-//        }
 }

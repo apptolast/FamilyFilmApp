@@ -18,7 +18,7 @@ data class LoginUiState(
         user = User(
             id = -1,
             email = "",
-            language = 0,
+            language = "",
             provider = "",
         ),
         emailErrorMessage = null,

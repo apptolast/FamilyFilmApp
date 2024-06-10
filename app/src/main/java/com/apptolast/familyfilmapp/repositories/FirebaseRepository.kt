@@ -10,9 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 
-class FirebaseRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-) : FirebaseRepository {
+class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseRepository {
 
     override fun login(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
         firebaseAuth.signInWithEmailAndPassword(email, password)

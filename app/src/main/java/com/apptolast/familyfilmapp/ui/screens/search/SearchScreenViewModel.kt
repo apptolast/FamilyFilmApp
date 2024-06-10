@@ -16,9 +16,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class SearchScreenViewModel @Inject constructor(
-    private val repository: BackendRepository,
-) : ViewModel() {
+class SearchScreenViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {
 
     private val _movies = MutableStateFlow(emptyList<Movie>())
     val movies: StateFlow<List<Movie>> = _movies.asStateFlow().stateIn(

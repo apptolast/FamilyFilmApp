@@ -1,187 +1,198 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TopBar
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
-import com.apptolast.familyfilmapp.ui.screens.groups.states.GroupUiState
-import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import com.apptolast.familyfilmapp.utils.Constants
 
 @Composable
-fun GroupsScreen(
-    navController: NavController,
-    groupViewModel: GroupViewModel = hiltViewModel(),
-    tabViewmodel: TabGroupsViewModel = hiltViewModel(),
-) {
+fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val groupUiState by groupViewModel.uiState.collectAsStateWithLifecycle()
-    val tabBackendState by tabViewmodel.backendState.collectAsStateWithLifecycle()
-    val tabUiState by tabViewmodel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = tabViewmodel) {
-        tabViewmodel.refreshGroups()
-    }
+    val backendState by viewModel.backendState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = tabBackendState.errorMessage) {
-    }
-
-    if ((tabBackendState.groups?.get(0)?.id ?: Group()) != -1) {
-        LaunchedEffect(key1 = true) {
-            groupViewModel.updateSelectedGroup(tabBackendState.groups?.get(0) ?: Group())
-        }
-    } else {
-        tabViewmodel.refreshGroups()
-    }
-
-    LaunchedEffect(key1 = tabUiState.selectedGroupPos) {
-        groupViewModel.updateSelectedGroup(tabBackendState.groups?.get(tabUiState.selectedGroupPos) ?: Group())
-    }
-
-    var showGroupNameDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var showAddMemberDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    if (!tabBackendState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(tabBackendState.errorMessage) {
+    LaunchedEffect(key1 = backendState.errorMessage) {
+        if (backendState.errorMessage != null) {
             snackBarHostState.showSnackbar(
-                tabBackendState.errorMessage?.error ?: "WHYYYYY????",
-                null,
-                false,
-                SnackbarDuration.Short,
+                message = backendState.errorMessage!!,
+                actionLabel = null,
+                withDismissAction = false,
+                duration = SnackbarDuration.Short,
             )
         }
-        tabViewmodel.clearErrorMessage()
+        viewModel.clearErrorMessage()
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
-        topBar = {
-            TopBar(tabViewmodel)
-        },
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                text = { Text(text = stringResource(id = R.string.groups_text_add)) },
+                text = { Text(text = stringResource(id = R.string.groups_text_create_group)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(id = R.string.groups_text_add),
+                        contentDescription = stringResource(id = R.string.groups_text_create_group),
                     )
                 },
                 onClick = {
-                    showGroupNameDialog = true
+                    viewModel.showDialog(GroupScreenDialogs.CreateGroup)
                 },
             )
         },
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
-        GroupContent(
-            group = tabBackendState.groups?.get(tabUiState.selectedGroupPos) ?: Group(),
-            groupUiState = groupUiState,
-            onCLickSwipeCard = {},
-            onClickRemoveMember = { groupId, userId ->
-                tabViewmodel.removeMemberGroup(groupId, userId)
-            },
-            onAddMemberClick = {
-                showAddMemberDialog = !showAddMemberDialog
-            },
-            onDeleteGroupClick = {
-                tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
-                    tabViewmodel.deleteGroup(
-                        it.id,
+
+        if (backendState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            GroupContent(
+                userOwner = backendState.userOwner,
+                groups = backendState.groups,
+                modifier = Modifier.padding(paddingValues),
+                onChangeGroupName = { group ->
+                    viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
+                },
+                onAddMemberClick = { group ->
+                    viewModel.showDialog(GroupScreenDialogs.AddMember(group))
+                },
+                onDeleteGroup = { group ->
+                    viewModel.showDialog(GroupScreenDialogs.DeleteGroup(group))
+                },
+                onDeleteUser = { group, user ->
+                    viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
+                },
+            )
+
+            // Show dialog
+            when (uiState.showDialog) {
+                GroupScreenDialogs.CreateGroup -> {
+                    TextFieldDialog(
+                        title = stringResource(id = R.string.dialog_create_group_title),
+                        description = stringResource(id = R.string.dialog_create_group_description),
+                        onConfirm = { groupName ->
+                            viewModel.createGroup(groupName)
+                        },
+                        onDismiss = {
+                            viewModel.showDialog(GroupScreenDialogs.None)
+                        },
                     )
                 }
-            },
-            onChangeGroupName = { newGroupName ->
-                tabBackendState.groups?.get(tabUiState.selectedGroupPos)
-                    ?.let { tabViewmodel.updateGroupName(it.id, newGroupName) }
-            },
-            isFakeList = tabBackendState.isFakeList,
-            modifier = Modifier.padding(paddingValues),
-        )
 
-        // Dialog to change group name
-        if (showGroupNameDialog) {
-            TextFieldDialog(
-                title = "Set group name",
-                description = "Group name",
-                onConfirm = { groupName ->
-                    tabViewmodel.addGroup(groupName)
-                },
-                onDismiss = {
-                    showGroupNameDialog = !showGroupNameDialog
-                },
-            )
-        }
+                is GroupScreenDialogs.AddMember -> {
+                    val group = (uiState.showDialog as GroupScreenDialogs.AddMember).group
 
-        if (showAddMemberDialog) {
-            EmailFieldDialog(
-                title = "Introduce the Email",
-                description = "Email",
-                onConfirm = { emailUser ->
-                    tabBackendState.groups?.get(tabUiState.selectedGroupPos)
-                        ?.let { tabViewmodel.updatedMemberGroup(it.id, emailUser) }
-                },
-                onDismiss = {
-                    showAddMemberDialog = !showAddMemberDialog
-                },
-            )
-        }
+                    EmailFieldDialog(
+                        title = stringResource(id = R.string.dialog_add_group_member_title),
+                        onConfirm = { email ->
+                            viewModel.addMember(group.id, email)
+                        },
+                        onDismiss = {
+                            viewModel.showDialog(GroupScreenDialogs.None)
+                        },
+                    )
+                }
 
-        if (tabBackendState.isLoading) {
-            Column(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .testTag(Constants.CIRCULAR_PROGRESS_INDICATOR),
-                )
+                is GroupScreenDialogs.ChangeGroupName -> {
+                    val group = (uiState.showDialog as GroupScreenDialogs.ChangeGroupName).group
+
+                    TextFieldDialog(
+                        title = stringResource(id = R.string.dialog_change_group_title),
+                        description = stringResource(id = R.string.dialog_change_group_description),
+                        onConfirm = { newGroupName ->
+                            viewModel.changeGroupName(group.id, newGroupName)
+                        },
+                        onDismiss = {
+                            viewModel.showDialog(GroupScreenDialogs.None)
+                        },
+                    )
+                }
+
+                is GroupScreenDialogs.DeleteGroup -> {
+                    val group = (uiState.showDialog as GroupScreenDialogs.DeleteGroup).group
+                    BasicDialog(
+                        title = stringResource(R.string.dialog_delete_group_title),
+                        description = stringResource(R.string.dialog_delete_group_description),
+                        confirmButtonText = stringResource(id = android.R.string.ok),
+                        cancelButtonText = stringResource(id = android.R.string.cancel),
+                        onConfirm = {
+                            viewModel.deleteGroup(group)
+                        },
+                        onDismiss = {
+                            viewModel.showDialog(GroupScreenDialogs.None)
+                        },
+                    )
+                }
+
+                is GroupScreenDialogs.DeleteMember -> {
+                    val group = (uiState.showDialog as GroupScreenDialogs.DeleteMember).group
+                    val user = (uiState.showDialog as GroupScreenDialogs.DeleteMember).user
+
+                    BasicDialog(
+                        title = stringResource(R.string.dialog_delete_group_title),
+                        description = stringResource(R.string.dialog_delete_group_description),
+                        confirmButtonText = stringResource(id = android.R.string.ok),
+                        cancelButtonText = stringResource(id = android.R.string.cancel),
+                        onConfirm = {
+                            viewModel.deleteMember(group.id, user.id)
+                        },
+                        onDismiss = {
+                            viewModel.showDialog(GroupScreenDialogs.None)
+                        },
+                    )
+                }
+
+                GroupScreenDialogs.None -> {
+                    /* no-op */
+                }
             }
         }
     }
@@ -189,108 +200,119 @@ fun GroupsScreen(
 
 @Composable
 fun GroupContent(
-    group: Group,
-    groupUiState: GroupUiState,
-    onClickRemoveMember: (Int, Int) -> Unit,
-    onAddMemberClick: () -> Unit,
-    onDeleteGroupClick: () -> Unit,
-    onCLickSwipeCard: (Group) -> Unit,
-    onChangeGroupName: (String) -> Unit,
-    isFakeList: Boolean,
+    userOwner: User,
+    groups: List<Group>,
+    onChangeGroupName: (Group) -> Unit,
+    onAddMemberClick: (Group) -> Unit,
+    onDeleteGroup: (Group) -> Unit,
+    onDeleteUser: (Group, User) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var showDeleteGroupDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    if (groups.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset(y = (-70).dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "Create a group",
+                style = MaterialTheme.typography.headlineMedium,
+            )
+        }
+    } else {
+        // FIXME: Move this variable to UiState to keep this selected tab on track on every event.
+        var selectedGroup: Group by remember {
+            mutableStateOf(groups.first())
+        }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        GroupCard(
-            group = group,
-            groupUiState = groupUiState,
-            onRemoveMemberClick = onClickRemoveMember,
-            onSwipeDelete = onCLickSwipeCard,
-            onAddMemberClick = onAddMemberClick,
-            onDeleteGroupClick = {
-                showDeleteGroupDialog = true
-            },
-            isFakeList = isFakeList,
-            onChangeGroupName = onChangeGroupName,
-        )
-    }
-
-    // Dialog to delete the group
-    if (showDeleteGroupDialog) {
-        BasicDialog(
-            title = stringResource(R.string.dialog_delete_group_title),
-            description = stringResource(R.string.dialog_delete_group_description),
-            confirmButtonText = stringResource(id = android.R.string.ok),
-            cancelButtonText = stringResource(id = android.R.string.cancel),
-            onConfirm = onDeleteGroupClick,
-            onDismiss = { showDeleteGroupDialog = false },
-        )
-    }
-}
-
-@Composable
-fun AddGroupDialog(dismissDialog: () -> Unit, addGroup: (String) -> Unit) {
-    val errorMessage = stringResource(id = R.string.group_dialog_name_empty_error_message)
-    var groupName by rememberSaveable { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = {
-            dismissDialog()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (groupName.isNotBlank()) {
-                        addGroup(groupName)
-                        dismissDialog()
-                    }
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Group tabs
+            ScrollableTabRow(
+                selectedTabIndex = groups.indexOf(selectedGroup),
+//                containerColor = MaterialTheme.colorScheme.outlineVariant,
+//            edgePadding = 0.dp,
+                divider = {
+                    VerticalDivider()
                 },
             ) {
-                Text("Confirm")
+                groups.forEach { group ->
+                    Tab(
+                        selected = selectedGroup == group,
+                        onClick = { selectedGroup = group },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
+                        text = {
+                            Text(
+                                text = group.name,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                style = if (selectedGroup == group) {
+                                    MaterialTheme.typography.titleSmall
+                                } else {
+                                    MaterialTheme.typography.titleMedium
+                                },
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        },
+                    )
+                }
             }
-        },
-        title = {
-            Text("Set group name")
-        },
-        text = {
-            OutlinedTextField(
-                value = groupName,
-                onValueChange = {
-                    groupName = it
+
+            GroupCard(
+                userOwner = userOwner,
+                group = selectedGroup,
+                modifier = Modifier.padding(vertical = 12.dp),
+                onChangeGroupName = {
+                    onChangeGroupName(selectedGroup)
                 },
-                label = { Text("Group name") },
-                singleLine = true,
-                isError = groupName.isBlank(),
-                supportingText = {
-                    if (groupName.isBlank()) {
-                        SupportingErrorText(errorMessage)
-                    }
+                onAddMember = { onAddMemberClick(selectedGroup) },
+                onDeleteGroup = {
+                    onDeleteGroup(selectedGroup)
+                },
+                onDeleteUser = { user ->
+                    onDeleteUser(selectedGroup, user)
                 },
             )
-        },
-    )
+        }
+    }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
+@Composable
+private fun GroupContentEmptyPreview() {
+    FamilyFilmAppTheme {
+        GroupContent(
+            userOwner = User(),
+            groups = emptyList(),
+            onAddMemberClick = {},
+            onDeleteGroup = {},
+            onDeleteUser = { _, _ -> },
+            onChangeGroupName = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
 @Composable
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
         GroupContent(
-            group = Group(),
-            groupUiState = GroupUiState(),
-            onClickRemoveMember = { _, _ -> },
+            userOwner = User(),
+            groups = listOf(
+                Group().copy(name = "name 1"),
+                Group().copy(name = "name 2"),
+                Group().copy(name = "name 3"),
+            ),
             onAddMemberClick = {},
-            onDeleteGroupClick = {},
-            onCLickSwipeCard = { _ -> },
+            onDeleteGroup = {},
+            onDeleteUser = { _, _ -> },
             onChangeGroupName = {},
-            isFakeList = true,
         )
     }
 }

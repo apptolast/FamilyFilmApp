@@ -1,5 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.GroupException
@@ -241,6 +243,12 @@ class GroupViewModel @Inject constructor(
 
     fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
 
+    fun selectGroup(index: Int) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(selectedGroupIndex = mutableIntStateOf(index))
+        }
+    }
+
     fun clearErrorMessage() = _backendState.update { it.copy(errorMessage = null) }
 
     data class BackendState(
@@ -257,9 +265,10 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    data class UiState(val showDialog: GroupScreenDialogs) {
+    data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: MutableState<Int>) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
+            selectedGroupIndex = mutableIntStateOf(0),
         )
     }
 

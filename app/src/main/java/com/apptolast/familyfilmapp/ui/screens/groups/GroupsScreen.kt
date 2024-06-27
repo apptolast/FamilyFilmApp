@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -97,6 +98,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
             GroupContent(
                 userOwner = backendState.userOwner,
                 groups = backendState.groups,
+                selectedGroupIndex = uiState.selectedGroupIndex,
                 modifier = Modifier.padding(paddingValues),
                 onChangeGroupName = { group ->
                     viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
@@ -109,6 +111,9 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                 },
                 onDeleteUser = { group, user ->
                     viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
+                },
+                onGroupSelected = { index ->
+                    viewModel.selectGroup(index)
                 },
             )
 
@@ -204,10 +209,12 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 fun GroupContent(
     userOwner: User,
     groups: List<Group>,
+    selectedGroupIndex: MutableState<Int>,
     onChangeGroupName: (Group) -> Unit,
     onAddMemberClick: (Group) -> Unit,
     onDeleteGroup: (Group) -> Unit,
     onDeleteUser: (Group, User) -> Unit,
+    onGroupSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (groups.isEmpty()) {
@@ -223,11 +230,6 @@ fun GroupContent(
             )
         }
     } else {
-        // FIXME: Move this variable to UiState to keep this selected tab on track on every event.
-        var selectedGroup: Group by remember {
-            mutableStateOf(groups.first())
-        }
-
         Column(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -235,17 +237,17 @@ fun GroupContent(
         ) {
             // Group tabs
             ScrollableTabRow(
-                selectedTabIndex = groups.indexOf(selectedGroup),
+                selectedTabIndex = selectedGroupIndex.value,
 //                containerColor = MaterialTheme.colorScheme.outlineVariant,
 //            edgePadding = 0.dp,
                 divider = {
                     VerticalDivider()
                 },
             ) {
-                groups.forEach { group ->
+                groups.forEachIndexed { index, group ->
                     Tab(
-                        selected = selectedGroup == group,
-                        onClick = { selectedGroup = group },
+                        selected = selectedGroupIndex.value == index,
+                        onClick = { onGroupSelected(index) },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
                         unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
@@ -254,7 +256,7 @@ fun GroupContent(
                                 text = group.name,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                style = if (selectedGroup == group) {
+                                style = if (selectedGroupIndex.value == index) {
                                     MaterialTheme.typography.titleSmall
                                 } else {
                                     MaterialTheme.typography.titleMedium
@@ -266,25 +268,28 @@ fun GroupContent(
                 }
             }
 
+            val currentSelectedGroup = groups[selectedGroupIndex.value]
+
             GroupCard(
                 userOwner = userOwner,
-                group = selectedGroup,
+                group = currentSelectedGroup,
                 modifier = Modifier.padding(vertical = 12.dp),
                 onChangeGroupName = {
-                    onChangeGroupName(selectedGroup)
+                    onChangeGroupName(currentSelectedGroup)
                 },
-                onAddMember = { onAddMemberClick(selectedGroup) },
+                onAddMember = { onAddMemberClick(currentSelectedGroup) },
                 onDeleteGroup = {
-                    onDeleteGroup(selectedGroup)
+                    onDeleteGroup(currentSelectedGroup)
                 },
                 onDeleteUser = { user ->
-                    onDeleteUser(selectedGroup, user)
+                    onDeleteUser(currentSelectedGroup, user)
                 },
             )
         }
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
 private fun GroupContentEmptyPreview() {
@@ -292,14 +297,17 @@ private fun GroupContentEmptyPreview() {
         GroupContent(
             userOwner = User(),
             groups = emptyList(),
+            onChangeGroupName = {},
             onAddMemberClick = {},
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
-            onChangeGroupName = {},
+            onGroupSelected = { _ -> },
+            selectedGroupIndex = mutableIntStateOf(0),
         )
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
 private fun GroupContentPreview() {
@@ -311,10 +319,12 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 2"),
                 Group().copy(name = "name 3"),
             ),
+            onChangeGroupName = {},
             onAddMemberClick = {},
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
-            onChangeGroupName = {},
+            onGroupSelected = {},
+            selectedGroupIndex = mutableIntStateOf(0),
         )
     }
 }

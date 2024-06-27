@@ -9,7 +9,7 @@ data class GroupUiState(
     var deleteGroupButtonVisibility: Boolean,
     var addMemberButtonVisibility: Boolean,
     var updateNameGroupVisibility: Boolean,
-    var selectedGroup: MutableState<Int>
+    var selectedGroup: MutableState<Int>,
 ) {
     constructor() : this(
         checkedEditGroupName = false,

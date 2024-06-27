@@ -193,6 +193,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                 GroupScreenDialogs.None -> {
                     /* no-op */
                 }
+
+                else -> {}
             }
         }
     }

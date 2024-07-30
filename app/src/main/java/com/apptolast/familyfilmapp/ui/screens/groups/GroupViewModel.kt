@@ -1,7 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.GroupException
@@ -10,7 +8,6 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -48,13 +46,20 @@ class GroupViewModel @Inject constructor(
             onSuccess = { groups ->
                 _backendState.update {
                     it.copy(
-                        groups = groups.sortedWith(
-                            compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
-                                group.name
-                            },
-                        ),
+                        groups = groups,
+//                            .sortedWith(
+//                                compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
+//                                    group.name
+//                                },
+//                            ),
                         isLoading = false,
                         errorMessage = null,
+                    )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        selectedGroupIndex = if(groups.isEmpty()) -1 else 0,
                     )
                 }
             },
@@ -105,7 +110,12 @@ class GroupViewModel @Inject constructor(
                         isLoading = false,
                     )
                 }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                _uiState.update {
+                    it.copy(
+                        showDialog = GroupScreenDialogs.None,
+                        selectedGroupIndex = it.selectedGroupIndex.inc(),
+                    )
+                }
             },
             onFailure = {
                 Timber.e(it)
@@ -131,7 +141,12 @@ class GroupViewModel @Inject constructor(
                         isLoading = false,
                     )
                 }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                _uiState.update {
+                    it.copy(
+                        showDialog = GroupScreenDialogs.None,
+                        selectedGroupIndex = it.selectedGroupIndex.dec(),
+                    )
+                }
             },
             onFailure = {
                 Timber.e(it)
@@ -245,7 +260,7 @@ class GroupViewModel @Inject constructor(
 
     fun selectGroup(index: Int) = viewModelScope.launch {
         _uiState.update {
-            it.copy(selectedGroupIndex = mutableIntStateOf(index))
+            it.copy(selectedGroupIndex = index)
         }
     }
 
@@ -265,10 +280,13 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: MutableState<Int>) {
+    data class UiState(
+        val showDialog: GroupScreenDialogs,
+        val selectedGroupIndex: Int,
+    ) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
-            selectedGroupIndex = mutableIntStateOf(0),
+            selectedGroupIndex = -1,
         )
     }
 

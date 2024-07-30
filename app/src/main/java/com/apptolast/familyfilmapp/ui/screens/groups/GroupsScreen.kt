@@ -24,9 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -209,7 +207,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 fun GroupContent(
     userOwner: User,
     groups: List<Group>,
-    selectedGroupIndex: MutableState<Int>,
+    selectedGroupIndex: Int,
     onChangeGroupName: (Group) -> Unit,
     onAddMemberClick: (Group) -> Unit,
     onDeleteGroup: (Group) -> Unit,
@@ -217,7 +215,7 @@ fun GroupContent(
     onGroupSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (groups.isEmpty()) {
+    if (groups.isEmpty() || selectedGroupIndex == -1) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -237,7 +235,7 @@ fun GroupContent(
         ) {
             // Group tabs
             ScrollableTabRow(
-                selectedTabIndex = selectedGroupIndex.value,
+                selectedTabIndex = selectedGroupIndex,
 //                containerColor = MaterialTheme.colorScheme.outlineVariant,
 //            edgePadding = 0.dp,
                 divider = {
@@ -246,7 +244,7 @@ fun GroupContent(
             ) {
                 groups.forEachIndexed { index, group ->
                     Tab(
-                        selected = selectedGroupIndex.value == index,
+                        selected = selectedGroupIndex == index,
                         onClick = { onGroupSelected(index) },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -256,7 +254,7 @@ fun GroupContent(
                                 text = group.name,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                style = if (selectedGroupIndex.value == index) {
+                                style = if (selectedGroupIndex == index) {
                                     MaterialTheme.typography.titleSmall
                                 } else {
                                     MaterialTheme.typography.titleMedium
@@ -268,11 +266,11 @@ fun GroupContent(
                 }
             }
 
-            val currentSelectedGroup = groups[selectedGroupIndex.value]
+            val currentSelectedGroup = groups[selectedGroupIndex]
 
             GroupCard(
                 userOwner = userOwner,
-                group = currentSelectedGroup,
+                group = currentSelectedGroup!!,
                 modifier = Modifier.padding(vertical = 12.dp),
                 onChangeGroupName = {
                     onChangeGroupName(currentSelectedGroup)
@@ -302,7 +300,7 @@ private fun GroupContentEmptyPreview() {
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
             onGroupSelected = { _ -> },
-            selectedGroupIndex = mutableIntStateOf(0),
+            selectedGroupIndex = 0,
         )
     }
 }
@@ -324,7 +322,7 @@ private fun GroupContentPreview() {
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
             onGroupSelected = {},
-            selectedGroupIndex = mutableIntStateOf(0),
+            selectedGroupIndex = 0,
         )
     }
 }

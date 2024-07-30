@@ -46,13 +46,20 @@ class GroupViewModel @Inject constructor(
             onSuccess = { groups ->
                 _backendState.update {
                     it.copy(
-                        groups = groups.sortedWith(
-                            compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
-                                group.name
-                            },
-                        ),
+                        groups = groups,
+//                            .sortedWith(
+//                                compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
+//                                    group.name
+//                                },
+//                            ),
                         isLoading = false,
                         errorMessage = null,
+                    )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
                     )
                 }
             },
@@ -103,7 +110,12 @@ class GroupViewModel @Inject constructor(
                         isLoading = false,
                     )
                 }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                _uiState.update {
+                    it.copy(
+                        showDialog = GroupScreenDialogs.None,
+                        selectedGroupIndex = it.selectedGroupIndex.inc(),
+                    )
+                }
             },
             onFailure = {
                 Timber.e(it)
@@ -129,7 +141,12 @@ class GroupViewModel @Inject constructor(
                         isLoading = false,
                     )
                 }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                _uiState.update {
+                    it.copy(
+                        showDialog = GroupScreenDialogs.None,
+                        selectedGroupIndex = it.selectedGroupIndex.dec(),
+                    )
+                }
             },
             onFailure = {
                 Timber.e(it)
@@ -241,6 +258,12 @@ class GroupViewModel @Inject constructor(
 
     fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
 
+    fun selectGroup(index: Int) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(selectedGroupIndex = index)
+        }
+    }
+
     fun clearErrorMessage() = _backendState.update { it.copy(errorMessage = null) }
 
     data class BackendState(
@@ -257,9 +280,10 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    data class UiState(val showDialog: GroupScreenDialogs) {
+    data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
+            selectedGroupIndex = -1,
         )
     }
 

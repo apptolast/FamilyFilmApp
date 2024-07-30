@@ -8,6 +8,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -59,7 +59,7 @@ class GroupViewModel @Inject constructor(
 
                 _uiState.update {
                     it.copy(
-                        selectedGroupIndex = if(groups.isEmpty()) -1 else 0,
+                        selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
                     )
                 }
             },
@@ -280,10 +280,7 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    data class UiState(
-        val showDialog: GroupScreenDialogs,
-        val selectedGroupIndex: Int,
-    ) {
+    data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
             selectedGroupIndex = -1,

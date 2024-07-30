@@ -1,11 +1,8 @@
 package com.apptolast.familyfilmapp.model.local
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import java.util.Calendar
 import java.util.Date
 
-@Parcelize
 data class MovieCatalogue(
     val id: Int,
     val title: String,
@@ -16,8 +13,8 @@ data class MovieCatalogue(
     val voteAverage: Float,
     val ratingValue: Float,
     val genres: List<String>,
-) : Parcelable {
-    constructor(image: String, title: String) : this(
+) {
+    constructor() : this(
         id = -1,
         title = "",
         synopsis = "",

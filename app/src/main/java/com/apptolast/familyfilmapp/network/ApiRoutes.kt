@@ -18,6 +18,7 @@ object ApiRoutes {
     const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/addWatch"
     const val ADD_MOVIE_TO_SEEN = "$GROUPS/{$GROUP_ID_PARAM}/addView"
     const val MOVIES_CATALOGUE = "movies/catalogue/{$PAGE_MOVIES}"
+    const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
     const val GENRES = "genres"
 }
 

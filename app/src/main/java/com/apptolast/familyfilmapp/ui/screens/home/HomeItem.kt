@@ -2,24 +2,28 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.ui.components.CustomCard
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeItem(movie: Movie, navigateToDetailsScreen: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeItem(movie: MovieCatalogue, modifier: Modifier = Modifier) {
     CustomCard(
-        modifier = modifier.clickable { navigateToDetailsScreen() },
+        modifier = modifier.clickable { },
         content = {
             AsyncImage(
                 model = movie.image,
                 contentDescription = movie.title,
                 contentScale = ContentScale.Inside,
+            )
+            Text(
+                text = movie.title,
             )
         },
     )
@@ -33,12 +37,5 @@ fun HomeItem(movie: Movie, navigateToDetailsScreen: () -> Unit, modifier: Modifi
 @Composable
 private fun HomeItemPreview() {
     FamilyFilmAppTheme {
-        HomeItem(
-            movie = Movie(
-                title = "Title Title Title Title",
-                image = "https://loremflickr.com/400/400/cat?lock=1",
-            ),
-            navigateToDetailsScreen = {},
-        )
     }
 }

@@ -35,7 +35,6 @@ data class MovieCatalogueRemote(
     val genres: List<String>? = null,
 )
 
-
 fun MovieCatalogueRemote.toDomain() = MovieCatalogue(
     id = id ?: -1,
     title = title ?: "",

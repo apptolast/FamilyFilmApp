@@ -7,72 +7,48 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.ui.components.BottomBar
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeScreen(
-    navController: NavController,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    tabViewModel: TabGroupsViewModel = hiltViewModel(),
-) {
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+    val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
     ) { paddingValues ->
         HomeContent(
-            navigateToDetailsScreen = { movie ->
-                val groupId = 0 ?: -1
-                navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
-            },
+            movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
         )
     }
 }
 
 @Composable
-fun HomeContent(
-    modifier: Modifier = Modifier,
-    navigateToDetailsScreen: (Movie) -> Unit,
-) {
+fun HomeContent(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxSize()) {
         RowMovie(
-            movies = emptyList(),
-            navigateToDetailsScreen = {
-                navigateToDetailsScreen(it)
-            },
-            modifier = Modifier.weight(1f),
-        )
-        RowMovie(
-            movies = emptyList(),
-            navigateToDetailsScreen = navigateToDetailsScreen,
+            movies = movies,
             modifier = Modifier.weight(1f),
         )
     }
 }
 
 @Composable
-private fun RowMovie(
-    movies: List<Movie>,
-    navigateToDetailsScreen: (Movie) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun RowMovie(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         LazyRow(modifier = Modifier.padding(bottom = 15.dp)) {
             items(movies) { movie ->
                 HomeItem(
                     movie = movie,
-                    navigateToDetailsScreen = {
-                        navigateToDetailsScreen(movie)
-                    },
                 )
             }
         }
@@ -84,7 +60,7 @@ private fun RowMovie(
 private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
-            navigateToDetailsScreen = { },
+            movies = emptyList(),
         )
     }
 }

@@ -2,18 +2,16 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import com.apptolast.familyfilmapp.BaseUiState
 import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 
 data class HomeUiState(
-    val seen: List<Movie>,
-    val forSeen: List<Movie>,
+    val movies: List<MovieCatalogue>,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
 
     constructor() : this(
-        seen = emptyList(),
-        forSeen = emptyList(),
+        movies = emptyList(),
         isLoading = false,
         errorMessage = null,
     )

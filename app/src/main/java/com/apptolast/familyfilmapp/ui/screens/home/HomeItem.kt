@@ -14,11 +14,12 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun HomeItem(movie: MovieCatalogue, modifier: Modifier = Modifier) {
+    val baseUrl = "https://image.tmdb.org/t/p/original/"
     CustomCard(
         modifier = modifier.clickable { },
         content = {
             AsyncImage(
-                model = movie.image,
+                model = "${baseUrl}${movie.image}",
                 contentDescription = movie.title,
                 contentScale = ContentScale.Inside,
             )

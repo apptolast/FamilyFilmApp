@@ -3,8 +3,9 @@ package com.apptolast.familyfilmapp.ui.screens.home
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,9 +46,12 @@ fun HomeContent(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
 @Composable
 private fun RowMovie(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        LazyRow(modifier = Modifier.padding(bottom = 15.dp)) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.padding(bottom = 15.dp),
+        ) {
             items(movies) { movie ->
-                HomeItem(
+                MovieItem(
                     movie = movie,
                 )
             }
@@ -60,7 +64,16 @@ private fun RowMovie(movies: List<MovieCatalogue>, modifier: Modifier = Modifier
 private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
-            movies = emptyList(),
+            movies = listOf(
+                MovieCatalogue().copy(
+                    title = "Matrix",
+                    synopsis = """
+                        "Trata sobre un programador que descubre que la realidad en la que vive es
+                         una simulación creada por máquinas."
+                    """.trimIndent(),
+                    image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+                ),
+            ),
         )
     }
 }

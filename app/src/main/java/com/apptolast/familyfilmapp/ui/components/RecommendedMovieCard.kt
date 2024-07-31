@@ -25,11 +25,41 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
+import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
+import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import java.util.Calendar
+
+@Composable
+fun RecommendedMovieCard(
+    movie: MovieCatalogue,
+    modifier: Modifier = Modifier,
+    navigateToDetailsScreen: (Movie) -> Unit,
+) {
+    Movie(
+        id = movie.id,
+        title = movie.title,
+        isAdult = movie.adult,
+        genres = movie.genres.map { Genre().copy(name = it) },
+        image = "$BASE_URL${movie.image}",
+        synopsis = movie.synopsis,
+        voteAverage = movie.voteAverage,
+        voteCount = movie.ratingValue.toInt(),
+        releaseDate = movie.releaseDate,
+    ).let {
+        RecommendedMovieCard(
+            movie = it,
+            modifier = modifier,
+            navigateToDetailsScreen = navigateToDetailsScreen,
+        )
+    }
+}
 
 @Composable
 fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
@@ -113,5 +143,22 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun RecommendedMovieCardPreview() {
+    FamilyFilmAppTheme {
+        RecommendedMovieCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            movie = Movie(
+                title = "Movie Title",
+                image = "https://image.tmdb.org/t/p/original/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+            ),
+            navigateToDetailsScreen = {},
+        )
     }
 }

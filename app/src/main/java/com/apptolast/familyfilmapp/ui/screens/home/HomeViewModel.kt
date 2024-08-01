@@ -28,12 +28,11 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.getMovies().fold(
+        repository.getMovies(1).fold(
             onSuccess = { movies ->
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        seen = movies,
-                        forSeen = movies,
+                        movies = movies,
                     )
                 }
             },

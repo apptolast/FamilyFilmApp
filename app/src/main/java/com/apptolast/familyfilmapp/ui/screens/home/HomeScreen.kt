@@ -1,148 +1,120 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
-import androidx.compose.foundation.layout.Arrangement
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.ui.components.BottomBar
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabUiState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HomeScreen(
-    navController: NavController,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    tabViewModel: TabGroupsViewModel = hiltViewModel(),
-) {
-    val tabUiState by tabViewModel.uiState.collectAsStateWithLifecycle()
-    val tabBackendState by tabViewModel.backendState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = tabViewModel) {
-        tabViewModel.refreshGroups()
-    }
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+    val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
-                    navController.navigate(SearchNavTypeDestination.getDestination(groupId))
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    modifier = Modifier.padding(10.dp),
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
         HomeContent(
-            tabUiState = tabUiState,
-            tabBackendState = tabBackendState,
-            navigateToDetailsScreen = { movie ->
-                val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
-                navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
-            },
+            movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
+            onMovieClicked = { movie ->
+                // TODO: Navigate to detail movie screen
+            },
         )
     }
 }
 
 @Composable
 fun HomeContent(
-    tabUiState: TabUiState,
-    tabBackendState: TabBackendState,
+    movies: List<MovieCatalogue>,
     modifier: Modifier = Modifier,
-    navigateToDetailsScreen: (Movie) -> Unit,
+    onMovieClicked: (MovieCatalogue) -> Unit,
 ) {
+    val context = LocalContext.current
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    // val filteredMovies = movies.filter { it.title.contains(searchQuery, ignoreCase = true) }
+
     Column(modifier = modifier.fillMaxSize()) {
-        tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
-            RowMovie(
-                title = stringResource(R.string.home_text_to_see),
-                icon = Icons.AutoMirrored.Filled.ListAlt,
-                movies = it.watchedList,
-                navigateToDetailsScreen = {
-                    navigateToDetailsScreen(it)
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            value = searchQuery,
+            onValueChange = {
+                searchQuery = it
+            },
+            shape = RoundedCornerShape(12.dp),
+            leadingIcon = {
+                Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+            },
+            label = {
+                Text(text = stringResource(R.string.search_film_or_series))
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search,
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    // TODO: Implement search
+                    Toast.makeText(context, "Search: $searchQuery", Toast.LENGTH_SHORT).show()
                 },
-                modifier = Modifier.weight(1f),
-            )
-        }
-        tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.let {
-            RowMovie(
-                title = stringResource(R.string.home_text_seen),
-                icon = Icons.Default.Visibility,
-                movies = it.toWatchList,
-                navigateToDetailsScreen = navigateToDetailsScreen,
-                modifier = Modifier.weight(1f),
-            )
-        }
+            ),
+        )
+
+        RowMovie(
+            movies = movies,
+            modifier = Modifier.weight(1f),
+            onMovieClicked = onMovieClicked,
+        )
     }
 }
 
 @Composable
 private fun RowMovie(
-    title: String,
-    icon: ImageVector,
-    movies: List<Movie>,
-    navigateToDetailsScreen: (Movie) -> Unit,
+    movies: List<MovieCatalogue>,
     modifier: Modifier = Modifier,
+    onMovieClicked: (MovieCatalogue) -> Unit = {},
 ) {
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.padding(bottom = 15.dp),
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            Icon(imageVector = icon, contentDescription = icon.toString())
-        }
-        LazyRow(modifier = Modifier.padding(bottom = 15.dp)) {
             items(movies) { movie ->
-                HomeItem(
+                MovieItem(
                     movie = movie,
-                    navigateToDetailsScreen = {
-                        navigateToDetailsScreen(movie)
-                    },
+                    onClick = onMovieClicked,
                 )
             }
         }
@@ -154,9 +126,17 @@ private fun RowMovie(
 private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
-            tabUiState = TabUiState(),
-            tabBackendState = TabBackendState(),
-            navigateToDetailsScreen = { },
+            movies = listOf(
+                MovieCatalogue().copy(
+                    title = "Matrix",
+                    synopsis = """
+                        "Trata sobre un programador que descubre que la realidad en la que vive es
+                         una simulación creada por máquinas."
+                    """.trimIndent(),
+                    image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+                ),
+            ),
+            onMovieClicked = {},
         )
     }
 }

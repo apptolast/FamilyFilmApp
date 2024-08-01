@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -25,7 +26,11 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
-fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier) {
+fun MovieItem(
+    movie: MovieCatalogue,
+    modifier: Modifier = Modifier,
+    onClick: (MovieCatalogue) -> Unit,
+) {
     Box(
         modifier = modifier
             .width(IntrinsicSize.Max)
@@ -34,7 +39,9 @@ fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier
+                .padding(4.dp)
+                .clickable { onClick(movie) },
         ) {
             AsyncImage(
                 model = "${BASE_URL}${movie.image}",
@@ -70,8 +77,8 @@ private fun HomeItemPreview() {
             MovieCatalogue().copy(
                 title = "title",
                 image = "https:///600x400/000/fff",
-                // image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
             ),
+            onClick = {},
         )
     }
 }

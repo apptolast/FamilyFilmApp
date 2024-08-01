@@ -47,12 +47,19 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         HomeContent(
             movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
+            onMovieClicked = { movie ->
+                // TODO: Navigate to detail movie screen
+            },
         )
     }
 }
 
 @Composable
-fun HomeContent(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
+fun HomeContent(
+    movies: List<MovieCatalogue>,
+    modifier: Modifier = Modifier,
+    onMovieClicked: (MovieCatalogue) -> Unit,
+) {
     val context = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
     // val filteredMovies = movies.filter { it.title.contains(searchQuery, ignoreCase = true) }
@@ -88,12 +95,17 @@ fun HomeContent(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
         RowMovie(
             movies = movies,
             modifier = Modifier.weight(1f),
+            onMovieClicked = onMovieClicked,
         )
     }
 }
 
 @Composable
-private fun RowMovie(movies: List<MovieCatalogue>, modifier: Modifier = Modifier) {
+private fun RowMovie(
+    movies: List<MovieCatalogue>,
+    modifier: Modifier = Modifier,
+    onMovieClicked: (MovieCatalogue) -> Unit = {},
+) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -102,6 +114,7 @@ private fun RowMovie(movies: List<MovieCatalogue>, modifier: Modifier = Modifier
             items(movies) { movie ->
                 MovieItem(
                     movie = movie,
+                    onClick = onMovieClicked,
                 )
             }
         }
@@ -123,6 +136,7 @@ private fun HomeContentPreview() {
                     image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                 ),
             ),
+            onMovieClicked = {},
         )
     }
 }

@@ -72,8 +72,9 @@ android {
 dependencies {
     // Androidx
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.activity:activity-compose:1.9.0")
-    val androidxLifecycleComposeVersion = "2.8.3" // Crash with 2.8.1 -> no fucking idea why that happens!!
+    implementation("androidx.activity:activity-compose:1.9.1")
+
+    val androidxLifecycleComposeVersion = "2.8.4" // Crash with 2.8.1 -> no fucking idea why that happens!!
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$androidxLifecycleComposeVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleComposeVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleComposeVersion")
@@ -139,15 +140,15 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("androidx.test:core-ktx:1.6.1")
     testImplementation("androidx.test.ext:junit-ktx:1.2.1")
     testImplementation("androidx.test:rules:1.6.1")
 
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk:1.13.12")
 
-    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 

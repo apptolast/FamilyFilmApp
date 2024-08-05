@@ -130,8 +130,8 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
 
     // Coil
-    implementation("io.coil-kt:coil:2.6.0")
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil:2.7.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Ktlint RuleSet
     ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.20")

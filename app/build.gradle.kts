@@ -149,7 +149,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
 
     testImplementation("org.mockito:mockito-core:5.12.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
     testImplementation("app.cash.turbine:turbine:1.1.0")

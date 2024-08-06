@@ -50,6 +50,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             onMovieClicked = { movie ->
                 // TODO: Navigate to detail movie screen
             },
+            searchMovieByNameBody = { query ->
+                viewModel.searchMovieByName(query)
+            },
         )
     }
 }
@@ -59,6 +62,7 @@ fun HomeContent(
     movies: List<MovieCatalogue>,
     modifier: Modifier = Modifier,
     onMovieClicked: (MovieCatalogue) -> Unit,
+    searchMovieByNameBody: (String) -> Unit,
 ) {
     val context = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -72,6 +76,7 @@ fun HomeContent(
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
+                searchMovieByNameBody(searchQuery)
             },
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {
@@ -137,6 +142,7 @@ private fun HomeContentPreview() {
                 ),
             ),
             onMovieClicked = {},
+            searchMovieByNameBody = {},
         )
     }
 }

@@ -93,6 +93,7 @@ fun HomeContent(
                 onSearch = {
                     // TODO: Implement search
                     Toast.makeText(context, "Search: $searchQuery", Toast.LENGTH_SHORT).show()
+                    searchMovieByNameBody(searchQuery)
                 },
             ),
         )

@@ -43,8 +43,8 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
                 backendApi.searchMovieByName(page, nameMovie).map {
                     it.toDomain()
                 }
+            }
         }
-    }
 
     override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
         backendApi.getGroups().map {

@@ -76,7 +76,6 @@ fun HomeContent(
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
-                searchMovieByNameBody(searchQuery)
             },
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {

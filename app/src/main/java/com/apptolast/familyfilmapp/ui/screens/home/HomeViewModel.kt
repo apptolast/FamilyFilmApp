@@ -49,6 +49,7 @@ class HomeViewModel @Inject constructor(
     fun searchMovieByName(nameMovie: String) = viewModelScope.launch(dispatcherProvider.io()) {
         repository.searchMovieByName(1, nameMovie).fold(
             onSuccess = { movies ->
+                print("Movies : $movies")
                 _homeUiState.update { oldState ->
                     oldState.copy(
                         movies = movies,

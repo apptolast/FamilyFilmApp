@@ -5,7 +5,6 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
@@ -15,6 +14,7 @@ import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
 import javax.inject.Inject
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
 
@@ -32,6 +32,12 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 
     override suspend fun getMovies(page: Int): Result<List<MovieCatalogue>> = kotlin.runCatching {
         backendApi.getMoviesCatalogue(page).map {
+            it.toDomain()
+        }
+    }
+
+    override suspend fun searchMovieByName(page: Int): Result<List<MovieCatalogue>> = kotlin.runCatching {
+        backendApi.searchMovieByName(page).map {
             it.toDomain()
         }
     }
@@ -94,6 +100,7 @@ interface BackendRepository {
     suspend fun createUser(): Result<User>
     suspend fun getMovies(): Result<List<Movie>>
     suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
+    suspend fun searchMovieByName(page: Int): Result<List<MovieCatalogue>>
     suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<Genre>>
     suspend fun addGroup(groupName: String): Result<List<Group>>

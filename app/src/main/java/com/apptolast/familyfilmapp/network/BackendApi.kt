@@ -51,6 +51,9 @@ interface BackendApi {
     @GET(ApiRoutes.MOVIES_CATALOGUE)
     suspend fun getMoviesCatalogue(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
 
+    @GET(ApiRoutes.MOVIES_SEARCH_NAME)
+    suspend fun searchMovieByName(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
+
     @PUT(ApiRoutes.ADD_MEMBER)
     suspend fun addMember(@Path(GROUP_ID_PARAM) groupId: Int, @Body addMemberBody: AddMemberBody): List<GroupRemote>
 

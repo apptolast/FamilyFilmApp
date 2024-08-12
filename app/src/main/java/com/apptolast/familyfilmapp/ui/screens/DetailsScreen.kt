@@ -112,7 +112,7 @@ fun DetailsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
-                        .height(250.dp)
+                        .height(420.dp)
                         .graphicsLayer {
                             scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
                             translationY = scrolledY * 0.5f

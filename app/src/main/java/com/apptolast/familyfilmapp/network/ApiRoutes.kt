@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
 
@@ -19,7 +20,7 @@ object ApiRoutes {
     const val ADD_MOVIE_TO_SEEN = "$GROUPS/{$GROUP_ID_PARAM}/addView"
     const val MOVIES_CATALOGUE = "movies/catalogue/{$PAGE_MOVIES}"
     const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
-    const val MOVIES_SEARCH_NAME = "movies/name/{$PAGE_MOVIES}"
+    const val MOVIES_SEARCH_NAME = "movies/{$PAGE_MOVIES}/{$MOVIE_NAME}"
     const val GENRES = "genres"
 }
 
@@ -27,4 +28,5 @@ object ApiRoutesParams {
     const val GROUP_ID_PARAM = "groupId"
     const val USER_ID_PARAM = "userId"
     const val PAGE_MOVIES = "page"
+    const val MOVIE_NAME = "name"
 }

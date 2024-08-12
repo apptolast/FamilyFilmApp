@@ -7,11 +7,12 @@ import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import timber.log.Timber
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -46,8 +47,8 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun searchMovieByName(nameMovie: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.searchMovieByName(1, nameMovie).fold(
+    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.searchMovieByName(1, movieName).fold(
             onSuccess = { movies ->
                 print("Movies : $movies")
                 _homeUiState.update { oldState ->
@@ -56,10 +57,11 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = {
+            onFailure = { error ->
+                Timber.e("Error: ${error.message}")
                 _homeUiState.update { oldState ->
                     oldState.copy(
-                        errorMessage = HomeException.MovieException(),
+                        errorMessage = HomeException.MovieException(error.message!!),
                     )
                 }
             },

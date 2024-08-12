@@ -4,7 +4,6 @@ import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
-import com.apptolast.familyfilmapp.model.remote.request.SearchMovieByNameBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
 import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
@@ -13,6 +12,7 @@ import com.apptolast.familyfilmapp.model.remote.response.MovieCatalogueRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
 import retrofit2.http.Body
@@ -55,7 +55,7 @@ interface BackendApi {
     @GET(ApiRoutes.MOVIES_SEARCH_NAME)
     suspend fun searchMovieByName(
         @Path(PAGE_MOVIES) page: Int,
-        @Body searchMovieByNameBody: SearchMovieByNameBody,
+        @Path(MOVIE_NAME) movieName: String,
     ): List<MovieCatalogueRemote>
 
     @PUT(ApiRoutes.ADD_MEMBER)

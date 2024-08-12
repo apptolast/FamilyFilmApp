@@ -62,8 +62,8 @@ fun RecommendScreen(
             backendState,
             modifier = Modifier.padding(paddingValues),
             navigationToDetail = { movie ->
-                //val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
-                //navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
+                // val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
+                // navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
         )
     }

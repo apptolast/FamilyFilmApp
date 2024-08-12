@@ -65,7 +65,7 @@ fun SearchScreen(
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                //navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
+                // navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
             },
             onChangeSearchQuery = {
                 viewModel.onSearchQueryChanged(it)

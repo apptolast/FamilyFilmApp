@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -106,7 +107,7 @@ fun DetailsScreen(
         ) {
             item {
                 AsyncImage(
-                    model = movie.image,
+                    model = "${BASE_URL}${movie.image}",
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,9 +45,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         HomeContent(
             movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
-            onMovieClicked = { movie ->
+            onMovieClick = { movie ->
                 // TODO: Navigate to detail movie screen
             },
+            searchMovieByNameBody = viewModel::searchMovieByName,
         )
     }
 }
@@ -57,12 +56,11 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 @Composable
 fun HomeContent(
     movies: List<MovieCatalogue>,
+    onMovieClick: (MovieCatalogue) -> Unit,
     modifier: Modifier = Modifier,
-    onMovieClicked: (MovieCatalogue) -> Unit,
+    searchMovieByNameBody: (String) -> Unit,
 ) {
-    val context = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
-    // val filteredMovies = movies.filter { it.title.contains(searchQuery, ignoreCase = true) }
 
     Column(modifier = modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -72,6 +70,7 @@ fun HomeContent(
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
+                searchMovieByNameBody(it)
             },
             shape = RoundedCornerShape(12.dp),
             leadingIcon = {
@@ -86,8 +85,7 @@ fun HomeContent(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    // TODO: Implement search
-                    Toast.makeText(context, "Search: $searchQuery", Toast.LENGTH_SHORT).show()
+                    searchMovieByNameBody(searchQuery)
                 },
             ),
         )
@@ -95,7 +93,7 @@ fun HomeContent(
         RowMovie(
             movies = movies,
             modifier = Modifier.weight(1f),
-            onMovieClicked = onMovieClicked,
+            onMovieClick = onMovieClick,
         )
     }
 }
@@ -104,7 +102,7 @@ fun HomeContent(
 private fun RowMovie(
     movies: List<MovieCatalogue>,
     modifier: Modifier = Modifier,
-    onMovieClicked: (MovieCatalogue) -> Unit = {},
+    onMovieClick: (MovieCatalogue) -> Unit = {},
 ) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
@@ -114,7 +112,7 @@ private fun RowMovie(
             items(movies) { movie ->
                 MovieItem(
                     movie = movie,
-                    onClick = onMovieClicked,
+                    onClick = onMovieClick,
                 )
             }
         }
@@ -136,7 +134,8 @@ private fun HomeContentPreview() {
                     image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                 ),
             ),
-            onMovieClicked = {},
+            onMovieClick = {},
+            searchMovieByNameBody = {},
         )
     }
 }

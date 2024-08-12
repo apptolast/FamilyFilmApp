@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -40,6 +41,27 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.update { oldState ->
                     oldState.copy(
                         errorMessage = HomeException.MovieException(),
+                    )
+                }
+            },
+        )
+    }
+
+    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.searchMovieByName(1, movieName).fold(
+            onSuccess = { movies ->
+                print("Movies : $movies")
+                _homeUiState.update { oldState ->
+                    oldState.copy(
+                        movies = movies,
+                    )
+                }
+            },
+            onFailure = { error ->
+                Timber.e("Error: ${error.message}")
+                _homeUiState.update { oldState ->
+                    oldState.copy(
+                        errorMessage = HomeException.MovieException(error.message!!),
                     )
                 }
             },

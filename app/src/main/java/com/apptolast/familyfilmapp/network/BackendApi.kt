@@ -12,6 +12,7 @@ import com.apptolast.familyfilmapp.model.remote.response.MovieCatalogueRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
 import retrofit2.http.Body
@@ -50,6 +51,12 @@ interface BackendApi {
 
     @GET(ApiRoutes.MOVIES_CATALOGUE)
     suspend fun getMoviesCatalogue(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
+
+    @GET(ApiRoutes.MOVIES_SEARCH_NAME)
+    suspend fun searchMovieByName(
+        @Path(PAGE_MOVIES) page: Int,
+        @Path(MOVIE_NAME) movieName: String,
+    ): List<MovieCatalogueRemote>
 
     @PUT(ApiRoutes.ADD_MEMBER)
     suspend fun addMember(@Path(GROUP_ID_PARAM) groupId: Int, @Body addMemberBody: AddMemberBody): List<GroupRemote>

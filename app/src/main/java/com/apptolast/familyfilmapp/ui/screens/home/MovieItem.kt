@@ -40,7 +40,11 @@ fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier, onClick: (Mo
                 .clickable { onClick(movie) },
         ) {
             AsyncImage(
-                model = "${BASE_URL}${movie.image}",
+                model = if (movie.image.isEmpty()) {
+                    "https://picsum.photos/133/200"
+                } else {
+                    "${BASE_URL}${movie.image}"
+                },
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 133.dp, height = 200.dp)

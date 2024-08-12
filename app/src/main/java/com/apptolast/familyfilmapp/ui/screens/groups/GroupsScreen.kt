@@ -110,7 +110,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                 onDeleteUser = { group, user ->
                     viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
                 },
-                onGroupSelected = { index ->
+                onGroupSelect = { index ->
                     viewModel.selectGroup(index)
                 },
             )
@@ -212,7 +212,7 @@ fun GroupContent(
     onAddMemberClick: (Group) -> Unit,
     onDeleteGroup: (Group) -> Unit,
     onDeleteUser: (Group, User) -> Unit,
-    onGroupSelected: (Int) -> Unit,
+    onGroupSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (groups.isEmpty() || selectedGroupIndex == -1) {
@@ -245,7 +245,7 @@ fun GroupContent(
                 groups.forEachIndexed { index, group ->
                     Tab(
                         selected = selectedGroupIndex == index,
-                        onClick = { onGroupSelected(index) },
+                        onClick = { onGroupSelect(index) },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
                         unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
@@ -299,7 +299,7 @@ private fun GroupContentEmptyPreview() {
             onAddMemberClick = {},
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
-            onGroupSelected = { _ -> },
+            onGroupSelect = { _ -> },
             selectedGroupIndex = 0,
         )
     }
@@ -321,7 +321,7 @@ private fun GroupContentPreview() {
             onAddMemberClick = {},
             onDeleteGroup = {},
             onDeleteUser = { _, _ -> },
-            onGroupSelected = {},
+            onGroupSelect = {},
             selectedGroupIndex = 0,
         )
     }

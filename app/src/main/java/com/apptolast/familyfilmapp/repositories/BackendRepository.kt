@@ -36,6 +36,13 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         }
     }
 
+    override suspend fun searchMovieByName(page: Int, movieName: String): Result<List<MovieCatalogue>> =
+        kotlin.runCatching {
+            backendApi.searchMovieByName(page, movieName).map {
+                it.toDomain()
+            }
+        }
+
     override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
         backendApi.getGroups().map {
             it.toDomain()
@@ -94,6 +101,7 @@ interface BackendRepository {
     suspend fun createUser(): Result<User>
     suspend fun getMovies(): Result<List<Movie>>
     suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
+    suspend fun searchMovieByName(page: Int, movieName: String): Result<List<MovieCatalogue>>
     suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<Genre>>
     suspend fun addGroup(groupName: String): Result<List<Group>>

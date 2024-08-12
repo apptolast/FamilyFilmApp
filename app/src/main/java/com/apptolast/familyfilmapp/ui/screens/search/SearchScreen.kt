@@ -37,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
 import com.apptolast.familyfilmapp.ui.screens.search.states.SearchScreenUI
@@ -66,7 +65,7 @@ fun SearchScreen(
             searchUiState,
             modifier = Modifier.padding(paddingValues),
             onNavigateDetailScreen = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
+                //navController.navigate(DetailNavTypeDestination.getDestination(movie, groupId))
             },
             onChangeSearchQuery = {
                 viewModel.onSearchQueryChanged(it)

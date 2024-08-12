@@ -35,7 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.RecommendedMovieCard
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabGroupsViewModel
@@ -63,8 +62,8 @@ fun RecommendScreen(
             backendState,
             modifier = Modifier.padding(paddingValues),
             navigationToDetail = { movie ->
-                val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
-                navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
+                //val groupId = tabBackendState.groups?.get(tabUiState.selectedGroupPos)?.id ?: -1
+                //navController.navigate(DetailNavTypeDestination.getDestination(movie, tabUiState.selectedGroupPos))
             },
         )
     }

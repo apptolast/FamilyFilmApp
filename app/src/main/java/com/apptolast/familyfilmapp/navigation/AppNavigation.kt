@@ -68,11 +68,10 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
             route = Routes.Details.routes,
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
-            val (movie, groupId) = DetailNavTypeDestination.parseArguments(backStackEntry)
+            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreen(
                 navController = navController,
                 movie = movie,
-                groupId = groupId,
             )
         }
         composable(

@@ -32,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -47,6 +48,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             modifier = Modifier.padding(paddingValues),
             onMovieClick = { movie ->
                 // TODO: Navigate to detail movie screen
+                navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
             searchMovieByNameBody = viewModel::searchMovieByName,
         )

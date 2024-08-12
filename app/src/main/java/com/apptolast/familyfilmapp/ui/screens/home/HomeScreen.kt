@@ -45,7 +45,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         HomeContent(
             movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
-            onMovieClicked = { movie ->
+            onMovieClick = { movie ->
                 // TODO: Navigate to detail movie screen
             },
             searchMovieByNameBody = viewModel::searchMovieByName,
@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 @Composable
 fun HomeContent(
     movies: List<MovieCatalogue>,
-    onMovieClicked: (MovieCatalogue) -> Unit,
+    onMovieClick: (MovieCatalogue) -> Unit,
     modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
 ) {
@@ -93,7 +93,7 @@ fun HomeContent(
         RowMovie(
             movies = movies,
             modifier = Modifier.weight(1f),
-            onMovieClicked = onMovieClicked,
+            onMovieClick = onMovieClick,
         )
     }
 }
@@ -102,7 +102,7 @@ fun HomeContent(
 private fun RowMovie(
     movies: List<MovieCatalogue>,
     modifier: Modifier = Modifier,
-    onMovieClicked: (MovieCatalogue) -> Unit = {},
+    onMovieClick: (MovieCatalogue) -> Unit = {},
 ) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
@@ -112,7 +112,7 @@ private fun RowMovie(
             items(movies) { movie ->
                 MovieItem(
                     movie = movie,
-                    onClick = onMovieClicked,
+                    onClick = onMovieClick,
                 )
             }
         }
@@ -134,7 +134,7 @@ private fun HomeContentPreview() {
                     image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                 ),
             ),
-            onMovieClicked = {},
+            onMovieClick = {},
             searchMovieByNameBody = {},
         )
     }

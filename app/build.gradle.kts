@@ -130,18 +130,18 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
 
     // Coil
-    implementation("io.coil-kt:coil:2.6.0")
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil:2.7.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Ktlint RuleSet
-    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.3.20")
+    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.10")
 
     // Test
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.google.truth:truth:1.4.2")
+    testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
     testImplementation("androidx.test:core-ktx:1.6.1")
     testImplementation("androidx.test.ext:junit-ktx:1.2.1")
     testImplementation("androidx.test:rules:1.6.1")
@@ -149,7 +149,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
 
     testImplementation("org.mockito:mockito-core:5.12.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
     testImplementation("app.cash.turbine:turbine:1.1.0")

@@ -72,7 +72,10 @@ interface BackendApi {
     suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
 
     @PUT(ApiRoutes.ADD_MOVIE_TO_WATCHLIST)
-    suspend fun addMovieToWatchList(@Path(GROUP_ID_PARAM) groupId: Int, @Path(MOVIE_ID_PARAM) movieId: Int)
+    suspend fun addMovieToWatchList(
+        @Path(GROUP_ID_PARAM) groupId: Int,
+        @Path(MOVIE_ID_PARAM) movieId: Int,
+    ): List<GroupRemote>
 
     @PATCH(ApiRoutes.ADD_MOVIE_TO_SEEN)
     suspend fun addMovieToSeenList(

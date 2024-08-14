@@ -14,14 +14,14 @@ data class GroupRemote(
     @SerializedName("name")
     val name: String? = null,
 
-    @SerializedName("watched")
-    val watchedList: List<MovieCatalogueRemote>? = null,
+    @SerializedName("users")
+    val users: List<UserResponseRemote>? = null,
 
     @SerializedName("watch")
     val toWatchList: List<MovieCatalogueRemote>? = null,
 
-    @SerializedName("users")
-    val users: List<UserResponseRemote>? = null,
+    @SerializedName("watched")
+    val watchedList: List<MovieCatalogueRemote>? = null,
 )
 
 fun GroupRemote.toDomain() = Group(

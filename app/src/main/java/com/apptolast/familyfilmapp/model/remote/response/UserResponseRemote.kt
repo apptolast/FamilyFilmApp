@@ -16,7 +16,7 @@ data class UserResponseRemote(
     @SerializedName("provider")
     val provider: String? = null,
 
-    )
+)
 
 fun UserResponseRemote.toDomain() = User(
     id = id ?: -1,

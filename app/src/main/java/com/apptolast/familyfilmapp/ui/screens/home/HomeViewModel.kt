@@ -7,12 +7,12 @@ import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(

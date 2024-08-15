@@ -47,7 +47,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
             onMovieClick = { movie ->
-                // TODO: Navigate to detail movie screen
                 navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
             searchMovieByNameBody = viewModel::searchMovieByName,

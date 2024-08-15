@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.bold
@@ -174,13 +174,13 @@ private fun GroupCardOwnerPreview() {
                     User(id = 3, email = "Email 3", language = "es", provider = "custom"),
                 ),
                 watchedList = listOf(
-                    Movie().copy(
+                    MovieCatalogue().copy(
                         id = 1,
                         title = "Title 1",
                     ),
                 ),
                 toWatchList = listOf(
-                    Movie().copy(
+                    MovieCatalogue().copy(
                         id = 1,
                         title = "Title 2",
                     ),
@@ -210,13 +210,13 @@ private fun GroupCardNotOwnerPreview() {
                     User(id = 3, email = "Email 3", language = "es", provider = "custom"),
                 ),
                 watchedList = listOf(
-                    Movie().copy(
+                    MovieCatalogue().copy(
                         id = 1,
                         title = "Title 1",
                     ),
                 ),
                 toWatchList = listOf(
-                    Movie().copy(
+                    MovieCatalogue().copy(
                         id = 1,
                         title = "Title 2",
                     ),

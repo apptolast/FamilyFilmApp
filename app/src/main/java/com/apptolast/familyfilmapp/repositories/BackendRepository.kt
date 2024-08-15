@@ -9,7 +9,6 @@ import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGro
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
-import com.apptolast.familyfilmapp.model.remote.request.AddMovieWatchListBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
@@ -93,9 +92,10 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
             backendApi.addMovieToWatchList(groupId, movieId)
         }
 
-    override suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<Unit> = kotlin.runCatching {
-        backendApi.addMovieToSeenList(groupId, AddMovieWatchListBody(movieId = movieId))
-    }
+    override suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>> =
+        kotlin.runCatching {
+            backendApi.addMovieToSeenList(groupId, movieId)
+        }
 }
 
 interface BackendRepository {
@@ -114,5 +114,5 @@ interface BackendRepository {
     suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit>
     suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
-    suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<Unit>
+    suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
 }

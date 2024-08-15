@@ -30,7 +30,8 @@ fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier, onClick: (Mo
     Box(
         modifier = modifier
             .width(IntrinsicSize.Max)
-            .padding(4.dp),
+            .padding(4.dp)
+            .clickable { onClick(movie) },
         contentAlignment = Alignment.Center,
     ) {
         Column(

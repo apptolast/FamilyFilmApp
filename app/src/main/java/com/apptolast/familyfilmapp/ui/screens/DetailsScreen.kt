@@ -42,14 +42,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun DetailsScreen(
     navController: NavController,
-    movie: Movie,
-    groupId: Int,
+    movie: MovieCatalogue,
     viewModel: DetailScreenViewModel = hiltViewModel(),
 ) {
     val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -107,12 +107,12 @@ fun DetailsScreen(
         ) {
             item {
                 AsyncImage(
-                    model = movie.image,
+                    model = "${BASE_URL}${movie.image}",
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
-                        .height(250.dp)
+                        .height(420.dp)
                         .graphicsLayer {
                             scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
                             translationY = scrolledY * 0.5f
@@ -147,14 +147,14 @@ fun DetailsScreen(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Button(
-                            onClick = { viewModel.addMovieToSeenList(groupId, movie.id) },
+                            onClick = { },
                             modifier = Modifier.weight(1f),
                         ) {
                             DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         OutlinedButton(
-                            onClick = { viewModel.addMovieToWatchList(groupId, movie.id) },
+                            onClick = { },
                             modifier = Modifier.weight(1f),
                         ) {
                             DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
@@ -199,8 +199,7 @@ private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
             navController = rememberNavController(),
-            movie = Movie(),
-            groupId = -1,
+            movie = MovieCatalogue(),
             viewModel = hiltViewModel(),
         )
     }

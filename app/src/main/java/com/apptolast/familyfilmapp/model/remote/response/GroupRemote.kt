@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.model.remote.response
 
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
 import com.google.gson.annotations.SerializedName
 
 data class GroupRemote(
@@ -15,17 +14,14 @@ data class GroupRemote(
     @SerializedName("name")
     val name: String? = null,
 
-    @SerializedName("watched_list")
-    val watchedList: List<MovieRemote>? = null,
-
-    @SerializedName("to_watch_list")
-    val toWatchList: List<MovieRemote>? = null,
-
-    @SerializedName("recommended_movie")
-    val recommendedMovie: MovieRemote? = null,
-
     @SerializedName("users")
-    val users: List<UserRemote>? = null,
+    val users: List<UserResponseRemote>? = null,
+
+    @SerializedName("watch")
+    val toWatchList: List<MovieCatalogueRemote>? = null,
+
+    @SerializedName("watched")
+    val watchedList: List<MovieCatalogueRemote>? = null,
 )
 
 fun GroupRemote.toDomain() = Group(
@@ -34,6 +30,5 @@ fun GroupRemote.toDomain() = Group(
     name = name ?: "",
     watchedList = watchedList?.map { it.toDomain() } ?: emptyList(),
     toWatchList = toWatchList?.map { it.toDomain() } ?: emptyList(),
-    recommendedMovie = recommendedMovie?.toDomain() ?: Movie(),
     users = users?.map { it.toDomain() } ?: emptyList(),
 )

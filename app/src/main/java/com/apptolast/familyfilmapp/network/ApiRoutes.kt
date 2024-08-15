@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
@@ -16,7 +17,7 @@ object ApiRoutes {
     const val ADD_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/user"
     const val REMOVE_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/user/{$USER_ID_PARAM}"
     const val REMOVE_MEMBER_FROM_GROUP = "$GROUPS/{$GROUP_ID_PARAM}/removeMember"
-    const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/addWatch"
+    const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/ToWatch/{$MOVIE_ID_PARAM}"
     const val ADD_MOVIE_TO_SEEN = "$GROUPS/{$GROUP_ID_PARAM}/addView"
     const val MOVIES_CATALOGUE = "movies/catalogue/{$PAGE_MOVIES}"
     const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
@@ -29,4 +30,5 @@ object ApiRoutesParams {
     const val USER_ID_PARAM = "userId"
     const val PAGE_MOVIES = "page"
     const val MOVIE_NAME = "name"
+    const val MOVIE_ID_PARAM = "movieId"
 }

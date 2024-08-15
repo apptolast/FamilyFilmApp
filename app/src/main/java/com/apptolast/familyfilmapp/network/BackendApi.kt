@@ -12,6 +12,7 @@ import com.apptolast.familyfilmapp.model.remote.response.MovieCatalogueRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
@@ -70,11 +71,11 @@ interface BackendApi {
     @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
     suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
 
-    @PATCH(ApiRoutes.ADD_MOVIE_TO_WATCHLIST)
+    @PUT(ApiRoutes.ADD_MOVIE_TO_WATCHLIST)
     suspend fun addMovieToWatchList(
         @Path(GROUP_ID_PARAM) groupId: Int,
-        @Body addMovieWatchListBody: AddMovieWatchListBody,
-    )
+        @Path(MOVIE_ID_PARAM) movieId: Int,
+    ): List<GroupRemote>
 
     @PATCH(ApiRoutes.ADD_MOVIE_TO_SEEN)
     suspend fun addMovieToSeenList(

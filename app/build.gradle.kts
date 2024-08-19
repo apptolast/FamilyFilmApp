@@ -108,7 +108,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
 
     // Hilt
-    val hiltVersion = "2.51.1"
+    val hiltVersion = "2.52"
     implementation("com.google.dagger:hilt-android:$hiltVersion")
     ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
     kspTest("com.google.dagger:hilt-android-compiler:$hiltVersion")

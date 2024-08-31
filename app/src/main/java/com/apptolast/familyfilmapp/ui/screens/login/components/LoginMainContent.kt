@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
-import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppLoginButtonTheme
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -110,16 +109,14 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            FamilyFilmAppLoginButtonTheme(dynamicColor = false) {
-                Button(
-                    onClick = { onClick(email, pass) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = stringResource(id = loginUiState.screenState.buttonText),
-                        modifier = Modifier.padding(4.dp),
-                    )
-                }
+            Button(
+                onClick = { onClick(email, pass) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(id = loginUiState.screenState.buttonText),
+                    modifier = Modifier.padding(4.dp),
+                )
             }
         }
     }

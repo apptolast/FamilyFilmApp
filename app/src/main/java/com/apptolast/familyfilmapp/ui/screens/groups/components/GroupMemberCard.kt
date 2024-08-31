@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import com.apptolast.familyfilmapp.ui.theme.bold
 
 @Composable
 fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
@@ -32,7 +31,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(12.dp),
             textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleSmall.bold(),
+            style = MaterialTheme.typography.titleSmall,
         )
     }
 }

@@ -37,7 +37,6 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import com.apptolast.familyfilmapp.ui.theme.bold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +67,7 @@ fun GroupCard(
             ) {
                 Text(
                     text = group.name,
-                    style = MaterialTheme.typography.titleLarge.bold(),
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .weight(1f) // Assign weight to text
                         .padding(3.dp),

@@ -1,73 +1,78 @@
 package com.apptolast.familyfilmapp.ui.theme
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.apptolast.familyfilmapp.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs,
+)
 
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp,
-    ),
-
-    titleLarge = TextStyle(
-        fontSize = 26.sp,
-        fontFamily = FontFamily(Font(R.font.holtwood_one_sc)),
-        fontWeight = FontWeight(200),
-        textAlign = TextAlign.Center,
-    ),
-
-    titleMedium = TextStyle(
-        fontSize = 18.sp,
-        fontFamily = FontFamily(Font(R.font.homenaje)),
-        fontWeight = FontWeight(400),
-        textAlign = TextAlign.Center,
-    ),
-
-    titleSmall = TextStyle(
-        fontSize = 18.sp,
-        fontFamily = FontFamily(Font(R.font.open_sans_regular)),
-        fontWeight = FontWeight(400),
-        textAlign = TextAlign.Center,
+val bodyFontFamily = FontFamily(
+    Font(
+        googleFont = GoogleFont("Acme"),
+        fontProvider = provider,
     ),
 )
 
-fun TextStyle.bold(): TextStyle = this.copy(fontWeight = FontWeight.Bold)
+val displayFontFamily = FontFamily(
+    Font(
+        googleFont = GoogleFont("Aclonica"),
+        fontProvider = provider,
+    ),
+)
+
+// Default Material 3 typography values
+val baseline = Typography()
+
+val AppTypography = Typography(
+    displayLarge = baseline.displayLarge.copy(fontFamily = displayFontFamily),
+    displayMedium = baseline.displayMedium.copy(fontFamily = displayFontFamily),
+    displaySmall = baseline.displaySmall.copy(fontFamily = displayFontFamily),
+    headlineLarge = baseline.headlineLarge.copy(fontFamily = displayFontFamily),
+    headlineMedium = baseline.headlineMedium.copy(fontFamily = displayFontFamily),
+    headlineSmall = baseline.headlineSmall.copy(fontFamily = displayFontFamily),
+    titleLarge = baseline.titleLarge.copy(fontFamily = displayFontFamily),
+    titleMedium = baseline.titleMedium.copy(fontFamily = displayFontFamily),
+    titleSmall = baseline.titleSmall.copy(fontFamily = displayFontFamily),
+    bodyLarge = baseline.bodyLarge.copy(fontFamily = bodyFontFamily),
+    bodyMedium = baseline.bodyMedium.copy(fontFamily = bodyFontFamily),
+    bodySmall = baseline.bodySmall.copy(fontFamily = bodyFontFamily),
+    labelLarge = baseline.labelLarge.copy(fontFamily = bodyFontFamily),
+    labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
+    labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
+)
 
 @Preview(showBackground = true)
 @Composable
 private fun TypographyPreview() {
     FamilyFilmAppTheme {
         Column {
-            Text(text = "displayLarge", style = Typography.displayLarge)
-            Text(text = "displayMedium", style = Typography.displayMedium)
-            Text(text = "displaySmall", style = Typography.displaySmall)
-            Text(text = "headlineLarge", style = Typography.headlineLarge)
-            Text(text = "headlineMedium", style = Typography.headlineMedium)
-            Text(text = "headlineSmall", style = Typography.headlineSmall)
-            Text(text = "titleLarge", style = Typography.titleLarge)
-            Text(text = "titleMedium", style = Typography.titleMedium)
-            Text(text = "titleSmall", style = Typography.titleSmall)
-            Text(text = "bodyLarge", style = Typography.bodyLarge)
-            Text(text = "bodyMedium", style = Typography.bodyMedium)
-            Text(text = "bodySmall", style = Typography.bodySmall)
-            Text(text = "labelLarge", style = Typography.labelLarge)
-            Text(text = "labelMedium", style = Typography.labelMedium)
-            Text(text = "labelSmall", style = Typography.labelSmall)
+            Text(text = "displayLarge", style = MaterialTheme.typography.displayLarge)
+            Text(text = "displayLarge", style = MaterialTheme.typography.displayLarge)
+            Text(text = "displayMedium", style = MaterialTheme.typography.displayMedium)
+            Text(text = "displaySmall", style = MaterialTheme.typography.displaySmall)
+            Text(text = "headlineLarge", style = MaterialTheme.typography.headlineLarge)
+            Text(text = "headlineMedium", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "headlineSmall", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "titleLarge", style = MaterialTheme.typography.titleLarge)
+            Text(text = "titleMedium", style = MaterialTheme.typography.titleMedium)
+            Text(text = "titleSmall", style = MaterialTheme.typography.titleSmall)
+            Text(text = "bodyLarge", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "bodyMedium", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "bodySmall", style = MaterialTheme.typography.bodySmall)
+            Text(text = "labelLarge", style = MaterialTheme.typography.labelLarge)
+            Text(text = "labelMedium", style = MaterialTheme.typography.labelMedium)
+            Text(text = "labelSmall", style = MaterialTheme.typography.labelSmall)
         }
     }
 }

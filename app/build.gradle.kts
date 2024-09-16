@@ -135,7 +135,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Ktlint RuleSet
-    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.10")
+    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.12")
 
     // Test
     testImplementation("junit:junit:4.13.2")

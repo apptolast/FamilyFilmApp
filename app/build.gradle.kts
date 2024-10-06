@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("kotlin-parcelize")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
@@ -59,7 +60,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     packaging {
@@ -69,13 +70,18 @@ android {
     }
 }
 
+// composeCompiler {
+//    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+//    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+// }
+
 dependencies {
     // Androidx
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.activity:activity-compose:1.9.1")
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.8")
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.3")
 
-    val androidxLifecycleComposeVersion = "2.8.4" // Crash with 2.8.1 -> no fucking idea why that happens!!
+    val androidxLifecycleComposeVersion = "2.8.6" // Crash with 2.8.1 -> no fucking idea why that happens!!
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$androidxLifecycleComposeVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleComposeVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleComposeVersion")
@@ -90,7 +96,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2024.08.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.09.03"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -116,12 +122,12 @@ dependencies {
 
     // Navigation Con Safe Arguments
     implementation("com.google.code.gson:gson:2.11.0")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.2")
     implementation("io.github.dilrajsingh1997:compose-annotation:1.0.3")
     ksp("io.github.dilrajsingh1997:compose-annotation-processor:1.0.6")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
@@ -158,7 +164,7 @@ dependencies {
     // Android Test
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.08.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.03"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

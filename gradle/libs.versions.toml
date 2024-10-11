@@ -1,0 +1,106 @@
+[versions]
+activityCompose = "1.9.2"
+androidApplication = "8.7.0"
+androidxCoreKtx = "1.13.1"
+androidxLifecycleCompose = "2.8.6"
+coil = "2.7.0"
+composeAnnotation = "1.0.3"
+composeAnnotationProcessor = "1.0.6"
+composeBom = "2024.09.03"
+composeUiTextGoogleFonts = "1.7.3"
+coreSplashscreen = "1.0.1"
+coroutines = "1.8.1"
+espressoCore = "3.6.1"
+firebaseBom = "33.4.0"
+firebaseCrashlytics = "3.0.2"
+googleServices = "4.4.2"
+gson = "2.11.0"
+hiltNavigationCompose = "1.2.0"
+hiltVersion = "2.52"
+junit = "4.13.2"
+junitJupiter = "5.11.0"
+kotlin = "2.0.20"
+ktlint = "0.4.10"
+ktlintJlleitschuh = "12.1.1"
+ksp = "2.0.20-1.0.25"
+loggingInterceptor = "4.12.0"
+mockitoCore = "5.14.1"
+mockitoInline = "5.2.0"
+mockitoKotlin = "5.4.0"
+mockk = "1.13.12"
+navigationCompose = "2.8.2"
+playServicesAuth = "21.2.0"
+retrofit = "2.11.0"
+swipe = "1.3.0"
+testCoreKtx = "1.6.1"
+testRules = "1.6.1"
+timber = "5.0.1"
+truth = "1.4.4"
+turbine = "1.1.0"
+
+[libraries]
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
+androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }
+coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+compose-annotation = { group = "io.github.dilrajsingh1997", name = "compose-annotation", version.ref = "composeAnnotation" }
+compose-annotation-processor = { group = "io.github.dilrajsingh1997", name = "compose-annotation-processor", version.ref = "composeAnnotationProcessor" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-animation = { group = "androidx.compose.animation", name = "animation" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "composeUiTextGoogleFonts" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit" }
+core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+ktlint-ruleset = { group = "io.nlopez.compose.rules", name = "ktlint", version.ref = "ktlint" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
+mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockitoInline" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+swipe = { group = "me.saket.swipe", name = "swipe", version.ref = "swipe" }
+test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }
+test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidApplication" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
+google-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktlint-jlleitschuh = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintJlleitschuh" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

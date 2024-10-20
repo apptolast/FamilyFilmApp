@@ -184,25 +184,25 @@ fun LoginContent(
             color = MaterialTheme.colorScheme.outline,
         )
 
-        Button(
-            onClick = onClickGoogleButton,
-            modifier = Modifier.padding(vertical = 10.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.logo_google),
-                    contentDescription = stringResource(R.string.login_icon_google),
-                    modifier = Modifier
-                        .size(30.dp)
-                        .padding(end = 6.dp),
-                )
-                Text(stringResource(R.string.login_text_sign_in_with_google))
-            }
-        }
+//        Button(
+//            onClick = onClickGoogleButton,
+//            modifier = Modifier.padding(vertical = 10.dp),
+//        ) {
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center,
+//                verticalAlignment = Alignment.CenterVertically,
+//            ) {
+//                Image(
+//                    painter = painterResource(R.drawable.logo_google),
+//                    contentDescription = stringResource(R.string.login_icon_google),
+//                    modifier = Modifier
+//                        .size(30.dp)
+//                        .padding(end = 6.dp),
+//                )
+//                Text(stringResource(R.string.login_text_sign_in_with_google))
+//            }
+//        }
     }
 
     if (loginUiState.isLoading) {

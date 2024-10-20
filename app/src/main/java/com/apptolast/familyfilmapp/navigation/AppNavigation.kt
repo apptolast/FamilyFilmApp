@@ -25,24 +25,24 @@ import timber.log.Timber
 fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
-    val userState by viewModel.userState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = userState) {
-        Timber.d("User state change: $userState")
-        if (userState != null) {
-            navController.navigate(Routes.Home.routes)
-        } else {
-            navController.popBackStack(
-                Routes.Login.routes,
-                false,
-            )
-        }
-    }
+//    val userState by viewModel.userState.collectAsStateWithLifecycle()
+//
+//    LaunchedEffect(key1 = userState) {
+//        Timber.d("User state change: $userState")
+//        if (userState != null) {
+//            navController.navigate(Routes.Home.routes)
+//        } else {
+//            navController.popBackStack(
+//                Routes.Login.routes,
+//                false,
+//            )
+//        }
+//    }
 
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = Routes.Login.routes,
+        startDestination = Routes.Home.routes,
     ) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)

@@ -13,28 +13,17 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-
     private val backendRepository: BackendRepository,
-    private val firebaseRepository: FirebaseRepository,
-    private val localRepository: LocalRepository,
-//    private val loginEmailPassUseCase: LoginEmailPassUseCase,
-//    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-//    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
-//    private val registerUseCase: RegisterUseCase,
     private val dispatcherProvider: DispatcherProvider,
-//    private val backendRepository: BackendRepository,
-//    private val firebaseAuth: FirebaseAuth,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -54,54 +43,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        firebaseRepository.login(email, password)
-            .catch { error ->
-                _loginState.update { loginState ->
-                    loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Login Error"),
-                    )
-                }
-            }.collectLatest { firebaseUser ->
-                firebaseUser?.getIdToken(false)
-                    ?.addOnSuccessListener { tokenResult ->
-                        localRepository.setToken(tokenResult.token ?: "")
-                    }
-                    ?.addOnFailureListener { error ->
-                        _loginState.update {
-                            it.copy(
-                                errorMessage = GenericException(error.message ?: "Save token failed"),
-                            )
-                        }
-                    }
-            }
-    }
-
-    fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        firebaseRepository.register(email, password)
-            .catch { error ->
-                _loginState.update { loginState ->
-                    loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Register Error"),
-                    )
-                }
-            }.collectLatest { firebaseUser ->
-                firebaseUser?.getIdToken(false)
-                    ?.addOnSuccessListener { tokenResult ->
-                        localRepository.setToken(tokenResult.token ?: "")
-                        registerUserInBackend()
-                    }
-                    ?.addOnFailureListener { error ->
-                        _loginState.update {
-                            it.copy(
-                                errorMessage = GenericException(error.message ?: "Save token failed"),
-                            )
-                        }
-                    }
-            }
-    }
-
-    private fun registerUserInBackend() = viewModelScope.launch(dispatcherProvider.io()) {
-        backendRepository.createUser().fold(
+        backendRepository.login(email, password).fold(
             onSuccess = {
                 _loginState.update { loginState ->
                     loginState.copy(
@@ -114,14 +56,35 @@ class LoginViewModel @Inject constructor(
             onFailure = { error ->
                 _loginState.update { loginState ->
                     loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Register user in our backend failed"),
+                        errorMessage = GenericException(error.message ?: "Login Error"),
                     )
                 }
             },
         )
     }
 
-    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
+    fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        backendRepository.createAccount(email, password).fold(
+            onSuccess = {
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        isLogged = true,
+                        isLoading = false,
+                        errorMessage = null,
+                    )
+                }
+            },
+            onFailure = { error ->
+                _loginState.update { loginState ->
+                    loginState.copy(
+                        errorMessage = GenericException(error.message ?: "Register Error"),
+                    )
+                }
+            },
+        )
+    }
+
+//    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
 //            recoverPassUseCase(email).catch { error ->
 //                _recoverPassState.update {
 //                    it.copy(
@@ -133,18 +96,18 @@ class LoginViewModel @Inject constructor(
 //                    newLoginUIState
 //                }
 //            }
-    }
+//    }
 
-    fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {
-        _recoverPassState.update { newRecoverPassState }
-    }
+//    fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {
+//        _recoverPassState.update { newRecoverPassState }
+//    }
 
-    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
+//    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
 //            loginWithGoogleUseCase(account.idToken!!).let { result ->
 //                result.collectLatest { newLoginUIState ->
 //                    // User Login into our backend before update the UI state
 //                    backendLogin(newLoginUIState)
 //                }
 //            }
-    }
+//    }
 }

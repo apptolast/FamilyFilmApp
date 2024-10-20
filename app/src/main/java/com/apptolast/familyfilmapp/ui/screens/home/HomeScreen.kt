@@ -38,7 +38,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
-    val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val stateUI by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },

@@ -8,7 +8,6 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -121,7 +121,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.AddGroup().value,
+                        errorMessage = GroupException.AddGroup().error,
                         isLoading = false,
                     )
                 }
@@ -152,7 +152,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.DeleteGroup().value,
+                        errorMessage = GroupException.DeleteGroup().error,
                         isLoading = false,
                     )
                 }
@@ -179,7 +179,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(error)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.UpdateGroupName().value,
+                        errorMessage = GroupException.UpdateGroupName().error,
                         isLoading = false,
                     )
                 }
@@ -214,7 +214,7 @@ class GroupViewModel @Inject constructor(
                     }
 
                     else -> {
-                        GroupException.AddMember().value
+                        GroupException.AddMember().error
                     }
                 }.let { errorMessage ->
                     _backendState.update { oldState ->
@@ -247,7 +247,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(error)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.DeleteUser().value,
+                        errorMessage = GroupException.DeleteUser().error,
                         isLoading = false,
                     )
                 }

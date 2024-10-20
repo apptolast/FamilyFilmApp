@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.components.tabgroups.usecases
 
 import com.apptolast.familyfilmapp.exceptions.CustomException
+import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
 import javax.inject.Inject
@@ -46,7 +47,7 @@ class UseCaseGroups @Inject constructor(private val repository: BackendRepositor
                 send(
                     TabBackendState().copy(
                         isLoading = false,
-                        errorMessage = CustomException.GenericException(
+                        errorMessage = GenericException(
                             it.message ?: "Error on Get Groups",
                         ),
                     ),

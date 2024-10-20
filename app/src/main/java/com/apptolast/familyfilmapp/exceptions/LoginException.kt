@@ -1,15 +1,15 @@
 package com.apptolast.familyfilmapp.exceptions
 
-sealed class LoginException(message: String) : CustomException(message) {
+sealed interface LoginException : CustomException {
 
-    data class EmailInvalidFormat(val value: String = "Email format not valid") : LoginException(value)
+    data class EmailInvalidFormat(override val error: String = "Email format not valid") : LoginException
 
     data class PasswordInvalidFormat(
-        val value: String = """
+        override val error: String = """
             Password must contain special chars, numbers, lower and upper case,
             and more than 8 characters
         """.trimIndent(),
-    ) : LoginException(value)
+    ) : LoginException
 
-    data class BackendLogin(val value: String = "Backend login failed") : LoginException(value)
+    data class BackendLogin(override val error: String = "Backend login failed") : LoginException
 }

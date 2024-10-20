@@ -35,7 +35,7 @@ class RecommendViewModel @Inject constructor(private val repository: BackendRepo
         viewModelScope.launch {
             _state.update { state ->
                 state.copy(
-                    movies = repository.getMovies().getOrElse {
+                    movies = repository.getMovies(1).getOrElse {
                         Timber.e(it)
                         emptyList()
                     },

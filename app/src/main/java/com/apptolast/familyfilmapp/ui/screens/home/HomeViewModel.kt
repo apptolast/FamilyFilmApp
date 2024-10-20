@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.HomeException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
-import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -17,28 +17,28 @@ import timber.log.Timber
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: BackendRepository,
-    private val localRepository: LocalRepository,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _homeUiState = MutableStateFlow(HomeUiState())
-    val homeUiState: StateFlow<HomeUiState> = _homeUiState
+    private val _state = MutableStateFlow(HomeState())
+    val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
         getMovies()
     }
 
-    private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.getMovies(1).fold(
+    private fun getMovies(page: Int = 1) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.getMovies(page).fold(
             onSuccess = { movies ->
-                _homeUiState.update { oldState ->
+                _state.update { oldState ->
                     oldState.copy(
                         movies = movies,
                     )
                 }
             },
-            onFailure = {
-                _homeUiState.update { oldState ->
+            onFailure = { error ->
+                Timber.e(error)
+                _state.update { oldState ->
                     oldState.copy(
                         errorMessage = HomeException.MovieException(),
                     )
@@ -47,24 +47,24 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.searchMovieByName(1, movieName).fold(
-            onSuccess = { movies ->
-                print("Movies : $movies")
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        movies = movies,
-                    )
-                }
-            },
-            onFailure = { error ->
-                Timber.e("Error: ${error.message}")
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = HomeException.MovieException(error.message!!),
-                    )
-                }
-            },
-        )
-    }
+//    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+//        repository.searchMovieByName(1, movieName).fold(
+//            onSuccess = { movies ->
+//                print("Movies : $movies")
+//                _state.update { oldState ->
+//                    oldState.copy(
+//                        movies = movies,
+//                    )
+//                }
+//            },
+//            onFailure = { error ->
+//                Timber.e("Error: ${error.message}")
+//                _state.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = HomeException.MovieException(error.message!!),
+//                    )
+//                }
+//            },
+//        )
+//    }
 }

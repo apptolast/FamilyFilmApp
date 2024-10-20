@@ -3,8 +3,8 @@ package com.apptolast.familyfilmapp.repositories
 import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
@@ -16,7 +16,6 @@ import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
 import java.util.Locale
 import javax.inject.Inject
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
 
@@ -36,6 +35,10 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         }
     }
 
+    override suspend fun getMovies(page: Int): Result<List<Movie>> = runCatching {
+        backendApi.getMovies(page).results.map { it.toDomain() }
+    }
+
 //    override suspend fun loginUser(): Result<User> = kotlin.runCatching {
 //        backendApi.loginUser().toDomain()
 //    }
@@ -43,23 +46,22 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 //    override suspend fun createUser(): Result<User> = kotlin.runCatching {
 //        backendApi.createUser().toDomain()
 //    }
+//
+//    override suspend fun getMovies(): Result<List<Movie>> = kotlin.runCatching {
+//        backendApi.getMovies().map { it.toDomain() }
+//    }
+//
+//    override suspend fun getMovies(page: Int): Result<List<MovieCatalogue>> = kotlin.runCatching {
+//        backendApi.getMoviesCatalogue(page).map {
+//            it.toDomain()
+//        }
+//    }
 
-    override suspend fun getMovies(): Result<List<Movie>> = kotlin.runCatching {
-        backendApi.getMovies().map { it.toDomain() }
-    }
-
-    override suspend fun getMovies(page: Int): Result<List<MovieCatalogue>> = kotlin.runCatching {
-        backendApi.getMoviesCatalogue(page).map {
+    override suspend fun searchMovieByName(page: Int, movieName: String): Result<List<Movie>> = kotlin.runCatching {
+        backendApi.searchMovieByName(page, movieName).map {
             it.toDomain()
         }
     }
-
-    override suspend fun searchMovieByName(page: Int, movieName: String): Result<List<MovieCatalogue>> =
-        kotlin.runCatching {
-            backendApi.searchMovieByName(page, movieName).map {
-                it.toDomain()
-            }
-        }
 
     override suspend fun getGroups(): Result<List<Group>> = kotlin.runCatching {
         backendApi.getGroups().map {
@@ -120,9 +122,10 @@ interface BackendRepository {
     suspend fun me(): Result<User>
     suspend fun login(email: String, pass: String): Result<User>
     suspend fun createAccount(email: String, pass: String): Result<User>
-    suspend fun getMovies(): Result<List<Movie>>
-    suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
-    suspend fun searchMovieByName(page: Int, movieName: String): Result<List<MovieCatalogue>>
+    suspend fun getMovies(page: Int): Result<List<Movie>>
+
+    // suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
+    suspend fun searchMovieByName(page: Int, movieName: String): Result<List<Movie>>
     suspend fun getGroups(): Result<List<Group>>
     suspend fun getGenres(): Result<List<Genre>>
     suspend fun addGroup(groupName: String): Result<List<Group>>

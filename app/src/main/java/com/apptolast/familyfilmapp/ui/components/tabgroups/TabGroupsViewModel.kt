@@ -2,7 +2,7 @@ package com.apptolast.familyfilmapp.ui.components.tabgroups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.exceptions.CustomException
+import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.exceptions.GroupException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.ui.components.tabgroups.usecases.UseCaseGroups
@@ -56,7 +56,7 @@ class TabGroupsViewModel @Inject constructor(
 //                refreshGroups()
 //                _backendState.update { oldState ->
 //                    oldState.copy(
-//                        errorMessage = CustomException.GenericException("New group created!"),
+//                        errorMessage = GenericException("New group created!"),
 //                        isLoading = false,
 //                    )
 //                }
@@ -79,19 +79,18 @@ class TabGroupsViewModel @Inject constructor(
             onSuccess = {
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = CustomException.GenericException("New Member added!"),
+                        errorMessage = GenericException("New Member added!"),
                         isLoading = false,
                     )
                 }
                 refreshGroups()
             },
             onFailure = {
-                Timber.d("Esta es la excepcion $it")
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(
                         isLoading = false,
-                        errorMessage = CustomException.GenericException(
+                        errorMessage = GenericException(
                             it.message ?: "Error on Get Groups",
                         ),
                     )
@@ -109,7 +108,7 @@ class TabGroupsViewModel @Inject constructor(
             refreshGroups() // Refresh group after deletion
             _backendState.update { oldState ->
                 oldState.copy(
-                    errorMessage = CustomException.GenericException("Group deleted"),
+                    errorMessage = GenericException("Group deleted"),
                     isLoading = false,
                 )
             }

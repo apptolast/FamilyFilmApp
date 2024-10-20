@@ -1,14 +1,14 @@
 package com.apptolast.familyfilmapp.exceptions
 
-sealed class GroupException(message: String) : CustomException(message) {
+sealed interface GroupException : CustomException {
 
-    data class AddGroup(val value: String = "Group can't be created") : GroupException(value)
+    data class AddGroup(override val error: String = "Group can't be created") : GroupException
 
-    data class DeleteGroup(val value: String = "Group can't be deleted") : GroupException(value)
+    data class DeleteGroup(override val error: String = "Group can't be deleted") : GroupException
 
-    data class UpdateGroupName(val value: String = "Group name can't be updated") : GroupException(value)
+    data class UpdateGroupName(override val error: String = "Group name can't be updated") : GroupException
 
-    data class AddMember(val value: String = "Member can't be added to group") : GroupException(value)
+    data class AddMember(override val error: String = "Member can't be added to group") : GroupException
 
-    data class DeleteUser(val value: String = "Member can't be deleted from group") : GroupException(value)
+    data class DeleteUser(override val error: String = "Member can't be deleted from group") : GroupException
 }

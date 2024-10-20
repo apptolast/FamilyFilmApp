@@ -1,33 +1,41 @@
 package com.apptolast.familyfilmapp.model.local
 
 import android.os.Parcelable
-import java.util.Calendar
-import java.util.Date
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Movie(
     val id: Int,
     val title: String,
-    val isAdult: Boolean,
-    val genres: List<Genre>,
-    val image: String,
-    val synopsis: String,
+    val originalTitle: String,
+    val adult: Boolean,
+    val releaseDate: String,
+    val originalLanguage: String,
+    val overview: String,
+    val popularity: Float,
+    val posterPath: String,
     val voteAverage: Float,
     val voteCount: Int,
-    val releaseDate: Date,
+    val backdropPath: String,
+    val genresIds: List<Int>,
+    val video: Boolean,
 ) : Parcelable {
-    constructor(image: String, title: String) : this(
+    constructor(title: String) : this(
         id = -1,
         title = title,
-        isAdult = true,
-        genres = emptyList<Genre>(),
-        image = image,
-        synopsis = "",
+        originalTitle = "",
+        adult = false,
+        releaseDate = "",
+        originalLanguage = "",
+        overview = "",
+        popularity = 0f,
+        posterPath = "",
         voteAverage = 0f,
         voteCount = 0,
-        releaseDate = Calendar.getInstance().time,
+        backdropPath = "",
+        genresIds = emptyList(),
+        video = false,
     )
 
-    constructor() : this("", "")
+    constructor() : this("")
 }

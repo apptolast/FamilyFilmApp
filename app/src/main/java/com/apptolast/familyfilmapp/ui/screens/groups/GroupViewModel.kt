@@ -121,7 +121,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.AddGroup().value,
+                        errorMessage = GroupException.AddGroup().error,
                         isLoading = false,
                     )
                 }
@@ -152,7 +152,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(it)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.DeleteGroup().value,
+                        errorMessage = GroupException.DeleteGroup().error,
                         isLoading = false,
                     )
                 }
@@ -179,7 +179,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(error)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.UpdateGroupName().value,
+                        errorMessage = GroupException.UpdateGroupName().error,
                         isLoading = false,
                     )
                 }
@@ -214,7 +214,7 @@ class GroupViewModel @Inject constructor(
                     }
 
                     else -> {
-                        GroupException.AddMember().value
+                        GroupException.AddMember().error
                     }
                 }.let { errorMessage ->
                     _backendState.update { oldState ->
@@ -247,7 +247,7 @@ class GroupViewModel @Inject constructor(
                 Timber.e(error)
                 _backendState.update { oldState ->
                     oldState.copy(
-                        errorMessage = GroupException.DeleteUser().value,
+                        errorMessage = GroupException.DeleteUser().error,
                         isLoading = false,
                     )
                 }

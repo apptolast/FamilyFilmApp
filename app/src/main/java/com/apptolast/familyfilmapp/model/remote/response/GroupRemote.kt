@@ -17,18 +17,18 @@ data class GroupRemote(
     @SerializedName("users")
     val users: List<UserResponseRemote>? = null,
 
-    @SerializedName("watch")
-    val toWatchList: List<MovieCatalogueRemote>? = null,
-
-    @SerializedName("watched")
-    val watchedList: List<MovieCatalogueRemote>? = null,
+//    @SerializedName("watch")
+//    val toWatchList: List<MovieCatalogueRemote>? = null,
+//
+//    @SerializedName("watched")
+//    val watchedList: List<MovieCatalogueRemote>? = null,
 )
 
 fun GroupRemote.toDomain() = Group(
     id = id ?: -1,
     ownerId = ownerId ?: -1,
     name = name ?: "",
-    watchedList = watchedList?.map { it.toDomain() } ?: emptyList(),
-    toWatchList = toWatchList?.map { it.toDomain() } ?: emptyList(),
+//    watchedList = watchedList?.map { it.toDomain() } ?: emptyList(),
+//    toWatchList = toWatchList?.map { it.toDomain() } ?: emptyList(),
     users = users?.map { it.toDomain() } ?: emptyList(),
 )

@@ -1,7 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens
 
 import com.apptolast.familyfilmapp.BaseUseCase
-import com.apptolast.familyfilmapp.exceptions.CustomException
+import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +34,7 @@ class WatchListUseCase @Inject constructor(private val repository: BackendReposi
                     DetailScreenUIState().copy(
                         successMovieToWatchList = "",
                         isLoading = false,
-                        errorMessage = CustomException.GenericException(
+                        errorMessage = GenericException(
                             it.message ?: "Error",
                         ),
                     ),

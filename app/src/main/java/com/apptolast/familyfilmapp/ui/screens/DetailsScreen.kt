@@ -42,16 +42,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(
-    navController: NavController,
-    movie: MovieCatalogue,
-    viewModel: DetailScreenViewModel = hiltViewModel(),
-) {
+fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
     val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val lazyListState = rememberLazyListState()
@@ -107,7 +103,7 @@ fun DetailsScreen(
         ) {
             item {
                 AsyncImage(
-                    model = "${BASE_URL}${movie.image}",
+                    model = "${BASE_URL}${movie.posterPath}",
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -166,7 +162,7 @@ fun DetailsScreen(
                         modifier = Modifier.padding(top = 15.dp),
                     )
                     Text(
-                        text = movie.synopsis,
+                        text = movie.overview,
                         modifier = Modifier.padding(vertical = 15.dp),
                     )
                 }
@@ -199,7 +195,7 @@ private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
             navController = rememberNavController(),
-            movie = MovieCatalogue(),
+            movie = Movie(),
             viewModel = hiltViewModel(),
         )
     }

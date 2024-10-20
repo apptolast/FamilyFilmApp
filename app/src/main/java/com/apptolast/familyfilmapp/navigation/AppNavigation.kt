@@ -2,11 +2,8 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,7 +16,6 @@ import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
-import timber.log.Timber
 
 @Composable
 fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {

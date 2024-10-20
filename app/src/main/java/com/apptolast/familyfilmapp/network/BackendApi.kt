@@ -8,8 +8,8 @@ import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
 import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
-import com.apptolast.familyfilmapp.model.remote.response.MovieCatalogueRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
+import com.apptolast.familyfilmapp.model.remote.response.PageRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_ID_PARAM
@@ -23,25 +23,25 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface BackendApi {
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // New Backend
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
 
     @POST(ApiRoutes.LOGIN)
-    suspend fun loginUser(
-        @Body loginBody: LoginBody,
-    ): UserRemote
+    suspend fun loginUser(@Body loginBody: LoginBody): UserRemote
 
     @POST(ApiRoutes.REGISTER)
-    suspend fun createUser(
-        @Body loginBody: LoginBody,
-    ): UserRemote
+    suspend fun createUser(@Body loginBody: LoginBody): UserRemote
 
-    ///////////////////////////////////////////////////////////////////////////
+    @GET(ApiRoutes.MOVIES)
+    suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<MovieRemote>
+
+    // /////////////////////////////////////////////////////////////////////////
     // Old Backend
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
 
     @GET(ApiRoutes.ME)
     suspend fun me(): UserRemote
@@ -64,14 +64,11 @@ interface BackendApi {
         @Body updateGroupNameBody: UpdateGroupNameBody,
     ): List<GroupRemote>
 
-    @GET(ApiRoutes.MOVIES_CATALOGUE)
-    suspend fun getMoviesCatalogue(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
+//    @GET(ApiRoutes.MOVIES_CATALOGUE)
+//    suspend fun getMoviesCatalogue(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
 
     @GET(ApiRoutes.MOVIES_SEARCH_NAME)
-    suspend fun searchMovieByName(
-        @Path(PAGE_MOVIES) page: Int,
-        @Path(MOVIE_NAME) movieName: String,
-    ): List<MovieCatalogueRemote>
+    suspend fun searchMovieByName(@Path(PAGE_MOVIES) page: Int, @Path(MOVIE_NAME) movieName: String): List<MovieRemote>
 
     @PUT(ApiRoutes.ADD_MEMBER)
     suspend fun addMember(@Path(GROUP_ID_PARAM) groupId: Int, @Body addMemberBody: AddMemberBody): List<GroupRemote>

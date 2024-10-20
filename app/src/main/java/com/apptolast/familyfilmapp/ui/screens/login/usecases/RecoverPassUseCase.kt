@@ -1,6 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.login.usecases
 
-import com.apptolast.familyfilmapp.exceptions.CustomException
+import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.extensions.isEmailValid
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
@@ -42,7 +42,7 @@ class RecoverPassUseCase @Inject constructor(private val firebaseRepository: Fir
                     RecoverPassState().copy(
                         isDialogVisible = false,
                         isLoading = false,
-                        errorMessage = CustomException.GenericException(
+                        errorMessage = GenericException(
                             exception.message ?: "Recover Pass Email Error",
                         ),
                     ),
@@ -63,7 +63,7 @@ class RecoverPassUseCase @Inject constructor(private val firebaseRepository: Fir
                             RecoverPassState().copy(
                                 isDialogVisible = false,
                                 isLoading = false,
-                                errorMessage = CustomException.GenericException(
+                                errorMessage = GenericException(
                                     it.message ?: "Recover Pass Email Error",
                                 ),
                             ),

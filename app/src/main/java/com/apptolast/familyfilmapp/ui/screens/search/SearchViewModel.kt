@@ -38,7 +38,7 @@ class SearchViewModel @Inject constructor(private val repository: BackendReposit
         viewModelScope.launch {
             _state.update { oldState ->
                 oldState.copy(
-                    movies = repository.getMovies().getOrElse {
+                    movies = repository.getMovies(1).getOrElse {
                         Timber.e(it)
                         emptyList()
                     },
@@ -46,8 +46,6 @@ class SearchViewModel @Inject constructor(private val repository: BackendReposit
             }
         }
     }
-
-    // Método para actualizar el termino de busqueda de la UI
 
     fun onSearchQueryChanged(query: String) = viewModelScope.launch {
         _uiState.update {

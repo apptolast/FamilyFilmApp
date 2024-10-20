@@ -36,7 +36,7 @@ testCoreKtx = "1.6.1"
 testRules = "1.6.1"
 timber = "5.0.1"
 truth = "1.4.4"
-turbine = "1.1.0"
+turbine = "1.2.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

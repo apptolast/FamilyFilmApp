@@ -31,33 +31,33 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
-    val stateUI by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
     ) { paddingValues ->
         HomeContent(
-            movies = stateUI.movies,
+            movies = state.movies,
             modifier = Modifier.padding(paddingValues),
             onMovieClick = { movie ->
                 navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
-            searchMovieByNameBody = viewModel::searchMovieByName,
+            searchMovieByNameBody = { },
         )
     }
 }
 
 @Composable
 fun HomeContent(
-    movies: List<MovieCatalogue>,
-    onMovieClick: (MovieCatalogue) -> Unit,
+    movies: List<Movie>,
+    onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
 ) {
@@ -100,11 +100,7 @@ fun HomeContent(
 }
 
 @Composable
-private fun RowMovie(
-    movies: List<MovieCatalogue>,
-    modifier: Modifier = Modifier,
-    onMovieClick: (MovieCatalogue) -> Unit = {},
-) {
+private fun RowMovie(movies: List<Movie>, modifier: Modifier = Modifier, onMovieClick: (Movie) -> Unit = {}) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -126,13 +122,13 @@ private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
             movies = listOf(
-                MovieCatalogue().copy(
+                Movie().copy(
                     title = "Matrix",
-                    synopsis = """
+                    overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
                          una simulación creada por máquinas."
                     """.trimIndent(),
-                    image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+                    posterPath = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                 ),
             ),
             onMovieClick = {},

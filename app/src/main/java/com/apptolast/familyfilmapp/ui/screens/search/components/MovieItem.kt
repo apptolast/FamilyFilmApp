@@ -27,7 +27,7 @@ fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScree
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = movie.image,
+            model = movie.posterPath,
             contentDescription = null,
             modifier = Modifier
                 .size(width = 180.dp, height = 118.dp)

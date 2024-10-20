@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens
 
 import com.apptolast.familyfilmapp.BaseUseCase
-import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import javax.inject.Inject

@@ -20,24 +20,25 @@ class HomeViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(HomeState())
+    val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
         getMovies()
     }
 
-    private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.getMovies(1).fold(
+    private fun getMovies(page: Int = 1) = viewModelScope.launch(dispatcherProvider.io()) {
+        repository.getMovies(page).fold(
             onSuccess = { movies ->
-                _uiState.update { oldState ->
+                _state.update { oldState ->
                     oldState.copy(
                         movies = movies,
                     )
                 }
             },
-            onFailure = {
-                _uiState.update { oldState ->
+            onFailure = { error ->
+                Timber.e(error)
+                _state.update { oldState ->
                     oldState.copy(
                         errorMessage = HomeException.MovieException(),
                     )
@@ -46,24 +47,24 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.searchMovieByName(1, movieName).fold(
-            onSuccess = { movies ->
-                print("Movies : $movies")
-                _uiState.update { oldState ->
-                    oldState.copy(
-                        movies = movies,
-                    )
-                }
-            },
-            onFailure = { error ->
-                Timber.e("Error: ${error.message}")
-                _uiState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = HomeException.MovieException(error.message!!),
-                    )
-                }
-            },
-        )
-    }
+//    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+//        repository.searchMovieByName(1, movieName).fold(
+//            onSuccess = { movies ->
+//                print("Movies : $movies")
+//                _state.update { oldState ->
+//                    oldState.copy(
+//                        movies = movies,
+//                    )
+//                }
+//            },
+//            onFailure = { error ->
+//                Timber.e("Error: ${error.message}")
+//                _state.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = HomeException.MovieException(error.message!!),
+//                    )
+//                }
+//            },
+//        )
+//    }
 }

@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.ui.components.tabgroups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.exceptions.GroupException
 import com.apptolast.familyfilmapp.repositories.BackendRepository

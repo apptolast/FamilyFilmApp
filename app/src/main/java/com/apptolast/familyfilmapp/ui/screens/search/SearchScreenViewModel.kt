@@ -27,7 +27,7 @@ class SearchScreenViewModel @Inject constructor(private val repository: BackendR
 
     init {
         viewModelScope.launch {
-            repository.getMovies().fold(
+            repository.getMovies(1).fold(
                 onSuccess = { movies ->
                     _movies.update { movies }
                 },

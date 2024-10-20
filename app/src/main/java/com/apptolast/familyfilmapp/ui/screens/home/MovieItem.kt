@@ -20,13 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
-fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier, onClick: (MovieCatalogue) -> Unit) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onClick: (Movie) -> Unit) {
     Box(
         modifier = modifier
             .width(IntrinsicSize.Max)
@@ -41,10 +41,10 @@ fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier, onClick: (Mo
                 .clickable { onClick(movie) },
         ) {
             AsyncImage(
-                model = if (movie.image.isEmpty()) {
+                model = if (movie.posterPath.isEmpty()) {
                     "https://picsum.photos/133/200"
                 } else {
-                    "${BASE_URL}${movie.image}"
+                    "${BASE_URL}${movie.posterPath}"
                 },
                 contentDescription = null,
                 modifier = Modifier
@@ -75,9 +75,9 @@ fun MovieItem(movie: MovieCatalogue, modifier: Modifier = Modifier, onClick: (Mo
 private fun HomeItemPreview() {
     FamilyFilmAppTheme {
         MovieItem(
-            MovieCatalogue().copy(
+            Movie().copy(
                 title = "title",
-                image = "https:///600x400/000/fff",
+                posterPath = "https:///600x400/000/fff",
             ),
             onClick = {},
         )

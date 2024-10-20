@@ -24,7 +24,7 @@ class NetworkModule {
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
         "debug" -> "http://10.0.2.2:8080/familyfilmapp/api/"
-        //"debug" -> "https://familyfilmappback-refactor-mio.onrender.com/"
+        // "debug" -> "https://familyfilmappback-refactor-mio.onrender.com/"
         "staging" -> "https://familyfilmappback-refactor-mio.onrender.com/"
         "release" -> "https://familyfilmappback-refactor-mio.onrender.com/"
         else -> ""
@@ -38,8 +38,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory =
-        GsonConverterFactory.create(gson)
+    fun provideGsonConverterFactory(gson: Gson): GsonConverterFactory = GsonConverterFactory.create(gson)
 
     @Provides
     @Singleton
@@ -47,17 +46,16 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient =
-        OkHttpClient.Builder().apply {
-            addInterceptor(authInterceptor)
-            if (BuildConfig.DEBUG) {
-                addInterceptor(
-                    HttpLoggingInterceptor().apply {
-                        setLevel(HttpLoggingInterceptor.Level.BODY)
-                    },
-                )
-            }
-        }.build()
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder().apply {
+        addInterceptor(authInterceptor)
+        if (BuildConfig.DEBUG) {
+            addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                },
+            )
+        }
+    }.build()
 
     @Provides
     @Singleton

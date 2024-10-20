@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -172,18 +171,18 @@ private fun GroupCardOwnerPreview() {
                     User(id = 2, email = "Email 2", language = "es", provider = "custom"),
                     User(id = 3, email = "Email 3", language = "es", provider = "custom"),
                 ),
-                watchedList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 1",
-                    ),
-                ),
-                toWatchList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 2",
-                    ),
-                ),
+//                watchedList = listOf(
+//                    Movie().copy(
+//                        id = 1,
+//                        title = "Title 1",
+//                    ),
+//                ),
+//                toWatchList = listOf(
+//                    Movie().copy(
+//                        id = 1,
+//                        title = "Title 2",
+//                    ),
+//                ),
             ),
             onDeleteUser = {},
             onAddMember = {},
@@ -208,18 +207,18 @@ private fun GroupCardNotOwnerPreview() {
                     User(id = 2, email = "Email 2", language = "es", provider = "custom"),
                     User(id = 3, email = "Email 3", language = "es", provider = "custom"),
                 ),
-                watchedList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 1",
-                    ),
-                ),
-                toWatchList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 2",
-                    ),
-                ),
+//                watchedList = listOf(
+//                    Movie().copy(
+//                        id = 1,
+//                        title = "Title 1",
+//                    ),
+//                ),
+//                toWatchList = listOf(
+//                    Movie().copy(
+//                        id = 1,
+//                        title = "Title 2",
+//                    ),
+//                ),
             ),
             onDeleteUser = {},
             onAddMember = {},

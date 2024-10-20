@@ -1,12 +1,14 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize")
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.serialize)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.dagger.hilt)
+    alias(libs.plugins.ktlint.jlleitschuh)
 }
 
 android {
@@ -59,7 +61,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     packaging {
@@ -70,98 +72,99 @@ android {
 }
 
 dependencies {
-    // Androidx
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.activity:activity-compose:1.9.1")
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.8")
 
-    val androidxLifecycleComposeVersion = "2.8.4" // Crash with 2.8.1 -> no fucking idea why that happens!!
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$androidxLifecycleComposeVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleComposeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleComposeVersion")
+    // Androidx
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.activity.compose)
+    implementation(libs.compose.ui.text.google.fonts)
+
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewModel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Splash
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.core.splashscreen)
 
     // Swipe
-    implementation("me.saket.swipe:swipe:1.3.0")
+    implementation(libs.swipe)
 
     // Navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.hilt.navigation.compose)
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2024.08.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.compose.animation:animation")
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.runtime.livedata)
+    implementation(libs.compose.animation)
 
     // Google auth
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation(libs.play.services.auth)
 
     // Retrofit
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
+    implementation(libs.logging.interceptor)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.scalars)
 
     // Hilt
-    val hiltVersion = "2.52"
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
-    kspTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("io.github.dilrajsingh1997:compose-annotation:1.0.3")
-    ksp("io.github.dilrajsingh1997:compose-annotation-processor:1.0.6")
+    implementation(libs.gson)
+    implementation(libs.navigation.compose)
+    implementation(libs.compose.annotation)
+    ksp(libs.compose.annotation.processor)
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.firestore.ktx)
 
     // Timber
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.timber)
 
     // Coil
-    implementation("io.coil-kt:coil:2.7.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
 
     // Ktlint RuleSet
-    ktlintRuleset("io.nlopez.compose.rules:ktlint:0.4.10")
+    ktlintRuleset(libs.ktlint.ruleset)
+
+    testImplementation(libs.turbine)
 
     // Test
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
-    testImplementation("androidx.test:core-ktx:1.6.1")
-    testImplementation("androidx.test.ext:junit-ktx:1.2.1")
-    testImplementation("androidx.test:rules:1.6.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.coroutines.android)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.test.core.ktx)
+    testImplementation(libs.junit)
+    testImplementation(libs.test.rules)
 
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation(libs.mockk)
 
-    testImplementation("org.mockito:mockito-core:5.12.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
 
-    testImplementation("app.cash.turbine:turbine:1.1.0")
-
-    // Android Test
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.08.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Tests
+    testImplementation(libs.junit)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
 ktlint {

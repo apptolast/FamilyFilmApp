@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
+import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
@@ -24,12 +25,26 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface BackendApi {
+    ///////////////////////////////////////////////////////////////////////////
+    // New Backend
+    ///////////////////////////////////////////////////////////////////////////
+
+    @POST(ApiRoutes.LOGIN)
+    suspend fun loginUser(
+        @Body loginBody: LoginBody,
+    ): UserRemote
+
+    @POST(ApiRoutes.REGISTER)
+    suspend fun createUser(
+        @Body loginBody: LoginBody,
+    ): UserRemote
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Old Backend
+    ///////////////////////////////////////////////////////////////////////////
 
     @GET(ApiRoutes.ME)
     suspend fun me(): UserRemote
-
-    @POST(ApiRoutes.USER_CREATE)
-    suspend fun createUser(): UserRemote
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(): List<MovieRemote>

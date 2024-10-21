@@ -116,6 +116,7 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 Text(
                     text = stringResource(id = loginUiState.screenState.buttonText),
                     modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
         }

@@ -2,8 +2,11 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,29 +19,30 @@ import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
+import timber.log.Timber
 
 @Composable
 fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
-//    val userState by viewModel.userState.collectAsStateWithLifecycle()
-//
-//    LaunchedEffect(key1 = userState) {
-//        Timber.d("User state change: $userState")
-//        if (userState != null) {
-//            navController.navigate(Routes.Home.routes)
-//        } else {
-//            navController.popBackStack(
-//                Routes.Login.routes,
-//                false,
-//            )
-//        }
-//    }
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = userState) {
+        Timber.d("User state change: $userState")
+        if (userState != null) {
+            navController.navigate(Routes.Home.routes)
+        } else {
+            navController.popBackStack(
+                Routes.Login.routes,
+                false,
+            )
+        }
+    }
 
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = Routes.Home.routes,
+        startDestination = Routes.Login.routes,
     ) {
         composable(route = Routes.Login.routes) {
             LoginScreen(navController = navController)

@@ -2,11 +2,11 @@ package com.apptolast.familyfilmapp.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -32,19 +32,12 @@ class ProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            backendRepository.me().fold(
-                onSuccess = { user ->
-                    _state.update { oldState ->
-                        oldState.copy(
-                            userData = user,
-                            isLogged = true,
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    Timber.e(error, "Error getting user info")
-                },
-            )
+            _state.update { oldState ->
+                oldState.copy(
+                    userData = User().copy(email = firebaseAuth.currentUser?.email ?: ""),
+                    isLogged = true,
+                )
+            }
         }
     }
 

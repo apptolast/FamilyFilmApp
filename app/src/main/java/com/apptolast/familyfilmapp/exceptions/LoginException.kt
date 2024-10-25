@@ -11,6 +11,5 @@ sealed interface LoginException : CustomException {
         """.trimIndent(),
     ) : LoginException
 
-
     data class BackendRegister(override val error: String = "Backend register failed") : LoginException
 }

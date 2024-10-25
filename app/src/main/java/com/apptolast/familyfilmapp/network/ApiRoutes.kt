@@ -11,7 +11,6 @@ object ApiRoutes {
     // /////////////////////////////////////////////////////////////////////////
     // NEW
     // /////////////////////////////////////////////////////////////////////////
-    const val LOGIN = "auth/login"
     const val REGISTER = "auth/register"
     const val MOVIES = "moviesandseries/movies/popular"
     const val SERIES = "moviesandseries/series/popular"
@@ -21,7 +20,7 @@ object ApiRoutes {
     // /////////////////////////////////////////////////////////////////////////
     const val ME = "users/me"
 
-//    const val USER_CREATE = "users"
+    //    const val USER_CREATE = "users"
 //    const val MOVIES = "movie"
     const val GROUPS = "groups"
     const val CREATE_GROUP = "groups"

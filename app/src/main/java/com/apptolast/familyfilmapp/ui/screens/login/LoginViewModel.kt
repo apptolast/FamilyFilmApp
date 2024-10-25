@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.GenericException
+import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
 import com.apptolast.familyfilmapp.repositories.LocalRepository
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -82,6 +84,7 @@ class LoginViewModel @Inject constructor(
                 firebaseUser?.getIdToken(false)
                     ?.addOnSuccessListener { tokenResult ->
                         localRepository.setToken(tokenResult.token ?: "")
+                        backendRegister()
                     }
                     ?.addOnFailureListener { error ->
                         _loginState.update {
@@ -93,19 +96,37 @@ class LoginViewModel @Inject constructor(
             }
     }
 
+    private fun backendRegister() = viewModelScope.launch(dispatcherProvider.io()) {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            backendRepository.register().fold(
+                onSuccess = {
+                    Timber.d(it)
+                },
+                onFailure = {error->
+                    Timber.e(error, "Register in our backend failed")
+                    _loginState.update {
+                        it.copy(
+                            errorMessage = LoginException.BackendRegister(),
+                        )
+                    }
+                },
+            )
+        }
+    }
+
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
-            recoverPassUseCase(email).catch { error ->
-                _recoverPassState.update {
-                    it.copy(
-                        errorMessage = GenericException(error.message ?: "Recover Pass Error"),
-                    )
-                }
-            }.collectLatest { newLoginUIState ->
-                _recoverPassState.update {
-                    newLoginUIState
-                }
+        recoverPassUseCase(email).catch { error ->
+            _recoverPassState.update {
+                it.copy(
+                    errorMessage = GenericException(error.message ?: "Recover Pass Error"),
+                )
             }
+        }.collectLatest { newLoginUIState ->
+            _recoverPassState.update {
+                newLoginUIState
+            }
+        }
     }
 
     fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {

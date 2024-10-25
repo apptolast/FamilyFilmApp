@@ -4,18 +4,16 @@ import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
-import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
-import java.util.Locale
 import javax.inject.Inject
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
 
@@ -23,16 +21,8 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         backendApi.me().toDomain()
     }
 
-    override suspend fun login(email: String, pass: String): Result<User> = runCatching {
-        LoginBody(email, pass, Locale.getDefault().language).let { loginBody ->
-            backendApi.loginUser(loginBody).toDomain()
-        }
-    }
-
-    override suspend fun createAccount(email: String, pass: String): Result<User> = runCatching {
-        LoginBody(email, pass, Locale.getDefault().language).let { loginBody ->
-            backendApi.createUser(loginBody).toDomain()
-        }
+    override suspend fun register(): Result<String> = runCatching {
+        backendApi.createUser()
     }
 
     override suspend fun getMovies(page: Int): Result<List<Movie>> = runCatching {
@@ -120,8 +110,7 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 
 interface BackendRepository {
     suspend fun me(): Result<User>
-    suspend fun login(email: String, pass: String): Result<User>
-    suspend fun createAccount(email: String, pass: String): Result<User>
+    suspend fun register(): Result<String>
     suspend fun getMovies(page: Int): Result<List<Movie>>
 
     // suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>

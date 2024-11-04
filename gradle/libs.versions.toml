@@ -2,7 +2,7 @@
 activityCompose = "1.9.3"
 androidApplication = "8.7.1"
 androidxCoreKtx = "1.13.1"
-androidxLifecycleCompose = "2.8.6"
+androidxLifecycleCompose = "2.8.7"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"

@@ -10,12 +10,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,7 +23,7 @@ class NetworkModule {
 
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
-        "debug" -> "http://10.0.2.2:8080/familyfilmapp/api/"
+        "debug" -> "http://23.88.43.3:30706/familyfilmapp/api/"
         // "debug" -> "https://familyfilmappback-refactor-mio.onrender.com/"
         "staging" -> "https://familyfilmappback-refactor-mio.onrender.com/"
         "release" -> "https://familyfilmappback-refactor-mio.onrender.com/"

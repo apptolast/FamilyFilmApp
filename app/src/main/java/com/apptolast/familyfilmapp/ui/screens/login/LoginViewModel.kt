@@ -14,6 +14,7 @@ import com.apptolast.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -102,7 +102,7 @@ class LoginViewModel @Inject constructor(
                 onSuccess = {
                     Timber.d(it)
                 },
-                onFailure = {error->
+                onFailure = { error ->
                     Timber.e(error, "Register in our backend failed")
                     _loginState.update {
                         it.copy(
@@ -113,7 +113,6 @@ class LoginViewModel @Inject constructor(
             )
         }
     }
-
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
         recoverPassUseCase(email).catch { error ->

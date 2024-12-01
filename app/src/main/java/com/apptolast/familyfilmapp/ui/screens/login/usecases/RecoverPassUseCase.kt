@@ -6,11 +6,11 @@ import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.extensions.isEmailValid
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
 
 class RecoverPassUseCase @Inject constructor(private val firebaseRepository: FirebaseRepository) :
     BaseUseCase<String, Flow<RecoverPassState>>() {

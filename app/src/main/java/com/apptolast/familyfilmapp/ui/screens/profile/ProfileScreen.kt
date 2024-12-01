@@ -40,7 +40,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
 
-        ) { paddingValues ->
+    ) { paddingValues ->
         ProfileContent(
             state.userData,
             onClickLogOut = {
@@ -59,17 +59,13 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
 }
 
 @Composable
-fun ProfileContent(
-    user: User,
-    modifier: Modifier = Modifier,
-    onClickLogOut: () -> Unit = {},
-) {
+fun ProfileContent(user: User, modifier: Modifier = Modifier, onClickLogOut: () -> Unit = {}) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth(fraction = 0.8f)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -79,7 +75,6 @@ fun ProfileContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-
 //                    if (profileUiState.userData.photo.isNotBlank()) {
 //                        AsyncImage(
 //                            model = profileUiState.userData.photo,

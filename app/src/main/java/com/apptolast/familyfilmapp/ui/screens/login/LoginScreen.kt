@@ -47,10 +47,7 @@ import com.google.android.gms.tasks.Task
 import timber.log.Timber
 
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    viewModel: LoginViewModel = hiltViewModel(),
-) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.loginState.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassState.collectAsStateWithLifecycle()

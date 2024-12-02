@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.login.usecases
 
+import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.extensions.isEmailValid
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 
 class RecoverPassUseCase @Inject constructor(private val firebaseRepository: FirebaseRepository) :
-    com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassState>>() {
+    BaseUseCase<String, Flow<RecoverPassState>>() {
 
     override suspend fun execute(parameters: String): Flow<RecoverPassState> = channelFlow {
         send(

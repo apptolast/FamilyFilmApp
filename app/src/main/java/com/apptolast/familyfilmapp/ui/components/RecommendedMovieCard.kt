@@ -20,14 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.extensions.toDate
 import com.apptolast.familyfilmapp.model.local.Movie
@@ -35,7 +33,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import java.util.Calendar
 
 @Composable
-fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
+fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit = {}) {
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -45,11 +43,11 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            AsyncImage(
-                model = movie.posterPath, // FIXME: the url is not completed
-                contentDescription = movie.title,
-                contentScale = ContentScale.Inside,
-            )
+//            AsyncImage(
+//                model = movie.posterPath, // FIXME: the url is not completed
+//                contentDescription = movie.title,
+//                contentScale = ContentScale.Inside,
+//            )
             Column(
                 modifier = Modifier
                     .padding(10.dp)
@@ -110,7 +108,6 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                         modifier = Modifier
                             .width(200.dp)
                             .height(35.dp),
-
                     ) {
                         Text(text = stringResource(id = R.string.text_read_more))
                     }
@@ -120,7 +117,7 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = false)
 @Composable
 private fun RecommendedMovieCardPreview() {
     FamilyFilmAppTheme {
@@ -128,8 +125,11 @@ private fun RecommendedMovieCardPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
-            movie = Movie(title = "Movie Title"),
-            navigateToDetailsScreen = {},
+            movie = Movie(title = "Movie Title").copy(
+                overview = "Movie Overview",
+                releaseDate = "2022-01-01",
+                voteAverage = 7.5f,
+            ),
         )
     }
 }

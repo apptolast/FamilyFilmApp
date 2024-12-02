@@ -10,11 +10,11 @@ class AuthInterceptor @Inject constructor(private val localRepository: LocalRepo
     override fun intercept(chain: Interceptor.Chain): Response {
         chain.request().newBuilder().apply {
             header("Content-Type", "application/json")
-//            localRepository.getToken().let { token ->
-//                if (!token.isNullOrBlank()) {
-//                    header("Authorization", "Bearer $token")
-//                }
-//            }
+            localRepository.getToken().let { token ->
+                if (!token.isNullOrBlank()) {
+                    header("Authorization", "Bearer $token")
+                }
+            }
         }.also {
             return chain.proceed(it.build())
         }

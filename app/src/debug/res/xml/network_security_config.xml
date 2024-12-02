@@ -3,5 +3,6 @@
     <domain-config cleartextTrafficPermitted="true">
         <!-- This is the localhost in the emulator-->
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">23.88.43.3</domain>
     </domain-config>
 </network-security-config>

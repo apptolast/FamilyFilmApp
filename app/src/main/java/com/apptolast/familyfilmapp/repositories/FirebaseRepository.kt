@@ -19,8 +19,11 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
                     send(firebaseAuth.currentUser)
                 }
             }
-            .addOnFailureListener {
-                throw it
+            .addOnFailureListener { error ->
+                launch {
+                    @Suppress("UNREACHABLE_CODE")
+                    trySend(throw error)
+                }
             }
         awaitClose()
     }
@@ -32,8 +35,11 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
                     send(firebaseAuth.currentUser)
                 }
             }
-            .addOnFailureListener {
-                throw it
+            .addOnFailureListener { error ->
+                launch {
+                    @Suppress("UNREACHABLE_CODE")
+                    trySend(throw error)
+                }
             }
         awaitClose()
     }
@@ -55,11 +61,10 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
     }
 
     override fun getUser(): Flow<FirebaseUser?> = channelFlow {
-        firebaseAuth.addAuthStateListener {
-            launch {
-                send(it.currentUser)
+        firebaseAuth
+            .addAuthStateListener {
+                launch { send(it.currentUser) }
             }
-        }
         awaitClose()
     }
 

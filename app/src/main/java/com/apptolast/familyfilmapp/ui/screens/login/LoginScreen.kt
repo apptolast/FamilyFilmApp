@@ -102,18 +102,14 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         is LoginRegisterState.Register -> viewModel.register(email, pass)
                     }
                 },
-                onCLickRecoverPassword = {
-                    // TODO
-                },
                 onClickScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = {
                     startForResult.launch(
                         viewModel.googleSignInClient.signInIntent,
                     )
                 },
-                onRecoveryPassUpdate = {
-                    // TODO
-                },
+                onCLickRecoverPassword = viewModel::recoverPassword,
+                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             )
         }
     }
@@ -124,9 +120,9 @@ fun LoginContent(
     loginUiState: LoginUiState,
     recoverPassState: RecoverPassState,
     onClickLogin: (String, String) -> Unit,
-    onCLickRecoverPassword: (String) -> Unit,
     onClickGoogleButton: () -> Unit,
     onClickScreenState: () -> Unit,
+    onCLickRecoverPassword: (String) -> Unit,
     onRecoveryPassUpdate: (RecoverPassState) -> Unit,
 ) {
     Column(

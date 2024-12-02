@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
-import com.apptolast.familyfilmapp.model.remote.request.LoginBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
@@ -30,11 +29,8 @@ interface BackendApi {
     // New Backend
     // /////////////////////////////////////////////////////////////////////////
 
-    @POST(ApiRoutes.LOGIN)
-    suspend fun loginUser(@Body loginBody: LoginBody): UserRemote
-
     @POST(ApiRoutes.REGISTER)
-    suspend fun createUser(@Body loginBody: LoginBody): UserRemote
+    suspend fun createUser(): String
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<MovieRemote>

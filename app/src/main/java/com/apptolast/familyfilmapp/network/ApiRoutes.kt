@@ -38,7 +38,7 @@ object ApiRoutes {
 }
 
 object ApiRoutesParams {
-    const val GROUP_ID_PARAM = "groupId"
+    const val GROUP_ID_PARAM = "id"
     const val USER_ID_PARAM = "userId"
     const val MOVIE_ID_PARAM = "movieId"
     const val PAGE_MOVIES = "page"

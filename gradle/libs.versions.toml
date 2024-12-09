@@ -1,6 +1,6 @@
 [versions]
 activityCompose = "1.9.3"
-androidApplication = "8.7.2"
+androidApplication = "8.7.3"
 androidxCoreKtx = "1.15.0"
 androidxLifecycleCompose = "2.8.7"
 coil = "2.7.0"

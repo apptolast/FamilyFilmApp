@@ -174,6 +174,7 @@ class GroupViewModel @Inject constructor(
                     )
                 }
                 _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                getGroups()
             },
             onFailure = { error ->
                 Timber.e(error)
@@ -186,6 +187,8 @@ class GroupViewModel @Inject constructor(
                 _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
             },
         )
+
+
     }
 
     fun addMember(groupId: Int, email: String) = viewModelScope.launch {

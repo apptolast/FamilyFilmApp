@@ -72,9 +72,6 @@ interface BackendApi {
     @DELETE(ApiRoutes.REMOVE_MEMBER)
     suspend fun deleteMember(@Path(GROUP_ID_PARAM) groupId: Int, @Path(USER_ID_PARAM) userId: Int): List<GroupRemote>
 
-    @PATCH(ApiRoutes.ADD_MEMBER)
-    suspend fun addMemberGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body addMemberBody: AddMemberBody): AddMemberRemote
-
     @PATCH(ApiRoutes.REMOVE_MEMBER_FROM_GROUP)
     suspend fun removeMemberFromGroup(@Path(GROUP_ID_PARAM) groupId: Int, @Body removeMemberBody: RemoveMemberBody)
 

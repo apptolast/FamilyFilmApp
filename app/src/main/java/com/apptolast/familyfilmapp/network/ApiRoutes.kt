@@ -26,7 +26,7 @@ object ApiRoutes {
     const val CREATE_GROUP = "groups"
     const val REMOVE_GROUP = "groups/{$GROUP_ID_PARAM}"
     const val EDIT_GROUP_NAME = "groups/{$GROUP_ID_PARAM}"
-    const val ADD_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/user"
+    const val ADD_MEMBER = "$GROUPS/addUser/{$GROUP_ID_PARAM}"
     const val REMOVE_MEMBER = "$GROUPS/{$GROUP_ID_PARAM}/user/{$USER_ID_PARAM}"
     const val REMOVE_MEMBER_FROM_GROUP = "$GROUPS/{$GROUP_ID_PARAM}/removeMember"
     const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/ToWatch/{$MOVIE_ID_PARAM}"

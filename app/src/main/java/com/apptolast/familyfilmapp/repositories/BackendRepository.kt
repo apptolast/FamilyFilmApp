@@ -90,7 +90,7 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
     }
 
     override suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit> = kotlin.runCatching {
-        backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
+        //backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
     }
 
     override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {

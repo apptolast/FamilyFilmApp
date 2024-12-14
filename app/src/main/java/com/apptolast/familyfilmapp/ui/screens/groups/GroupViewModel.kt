@@ -8,15 +8,13 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -32,10 +30,30 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            awaitAll(
-                async { getGroups() },
-                async { me() },
-            )
+
+            repository.me().getOrNull()?.let { me ->
+                repository.getGroups().getOrNull()?.let { groups ->
+                    _backendState.update {
+                        it.copy(
+                            userOwner = me,
+                            groups = groups.filter { group -> me in group.users },
+                            isLoading = false,
+                            errorMessage = null,
+                        )
+                    }
+//                    _uiState.update {
+//                        it.copy(
+//                            selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
+//                        )
+//                    }
+                }
+            }
+
+
+//            awaitAll(
+//                async { getGroups() },
+//                async { me() },
+//            )
         }
     }
 
@@ -286,7 +304,7 @@ class GroupViewModel @Inject constructor(
     data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
-            selectedGroupIndex = -1,
+            selectedGroupIndex = 0,
         )
     }
 

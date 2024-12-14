@@ -270,7 +270,7 @@ fun GroupContent(
 
             GroupCard(
                 userOwner = userOwner,
-                group = currentSelectedGroup!!,
+                group = currentSelectedGroup,
                 modifier = Modifier.padding(vertical = 12.dp),
                 onChangeGroupName = {
                     onChangeGroupName(currentSelectedGroup)

@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.movie_details
 
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.GenericException
@@ -7,23 +7,23 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
-class SeenListUseCase @Inject constructor(private val repository: BackendRepository) :
-    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenUIState>>() {
+class WatchListUseCase @Inject constructor(private val repository: BackendRepository) :
+    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenViewModel.State>>() {
 
-    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenUIState> = channelFlow {
+    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenViewModel.State> = channelFlow {
         val (groupId, movieId) = parameters
 
         send(
-            DetailScreenUIState().copy(
+            DetailScreenViewModel.State().copy(
                 isLoading = true,
             ),
         )
 
-        repository.addMovieToSeenList(groupId, movieId).fold(
+        repository.addMovieToWatchList(groupId, movieId).fold(
             onSuccess = {
                 send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "Success Movie Added",
+                    DetailScreenViewModel.State().copy(
+//                        successMovieToWatchList = "Success Movie Added",
                         isLoading = false,
                         errorMessage = null,
                     ),
@@ -31,8 +31,8 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
             },
             onFailure = {
                 send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "",
+                    DetailScreenViewModel.State().copy(
+//                        successMovieToWatchList = "",
                         isLoading = false,
                         errorMessage = GenericException(
                             it.message ?: "Error",

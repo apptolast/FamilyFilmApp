@@ -167,9 +167,9 @@ private fun GroupCardOwnerPreview() {
                 ownerId = 1,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                    User().copy(id = 1, email = "Email 1", language = "es"),
+                    User().copy(id = 2, email = "Email 2", language = "es"),
+                    User().copy(id = 3, email = "Email 3", language = "es"),
                 ),
 //                watchedList = listOf(
 //                    Movie().copy(
@@ -203,9 +203,9 @@ private fun GroupCardNotOwnerPreview() {
                 ownerId = 2,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                     User().copy(id = 1, email = "Email 1", language = "es"),
+                     User().copy(id = 2, email = "Email 2", language = "es"),
+                     User().copy(id = 3, email = "Email 3", language = "es"),
                 ),
 //                watchedList = listOf(
 //                    Movie().copy(

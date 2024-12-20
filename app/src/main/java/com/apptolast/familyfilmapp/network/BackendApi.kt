@@ -4,9 +4,9 @@ import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
-import com.apptolast.familyfilmapp.model.remote.response.AddMemberRemote
 import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
+import com.apptolast.familyfilmapp.model.remote.response.MovieGroupStatusRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.PageRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
@@ -86,6 +86,11 @@ interface BackendApi {
         @Path(GROUP_ID_PARAM) groupId: Int,
         @Path(MOVIE_ID_PARAM) movieId: Int,
     ): List<GroupRemote>
+
+    @GET(ApiRoutes.DETAILS_MOVIE_DIALOG)
+    suspend fun getDetailsMovieDialog(
+        @Path(MOVIE_ID_PARAM) movieId: Int,
+    ): MovieGroupStatusRemote
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): List<GenreRemote>

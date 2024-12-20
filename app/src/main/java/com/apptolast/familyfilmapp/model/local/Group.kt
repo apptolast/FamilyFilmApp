@@ -18,7 +18,6 @@ data class Group(
     )
 }
 
-
 data class MovieSelectedByUsers(
     val usersId: List<Int>,
     val movieId: Int,

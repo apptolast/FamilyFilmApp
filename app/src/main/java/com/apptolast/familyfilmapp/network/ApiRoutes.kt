@@ -31,6 +31,8 @@ object ApiRoutes {
     const val REMOVE_MEMBER_FROM_GROUP = "$GROUPS/{$GROUP_ID_PARAM}/removeMember"
     const val ADD_MOVIE_TO_WATCHLIST = "$GROUPS/{$GROUP_ID_PARAM}/ToWatch/{$MOVIE_ID_PARAM}"
     const val ADD_MOVIE_TO_SEEN = "$GROUPS/{$GROUP_ID_PARAM}/ToWatched/{$MOVIE_ID_PARAM}"
+    const val DETAILS_MOVIE_DIALOG = "$GROUPS/movie/{$MOVIE_ID_PARAM}/status"
+
     const val MOVIES_CATALOGUE = "movies/catalogue/{$PAGE_MOVIES}"
     const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
     const val MOVIES_SEARCH_NAME = "movies/{$PAGE_MOVIES}/{$MOVIE_NAME}"

@@ -3,9 +3,8 @@ package com.apptolast.familyfilmapp.repositories
 import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieGroupStatus
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
-import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
@@ -14,6 +13,7 @@ import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
 import javax.inject.Inject
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
 
@@ -106,6 +106,11 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         kotlin.runCatching {
             backendApi.addMovieToSeenList(groupId, movieId)
         }
+
+    override suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus> =
+        kotlin.runCatching {
+            backendApi.getDetailsMovieDialog(movieId).toDomain()
+        }
 }
 
 interface BackendRepository {
@@ -126,4 +131,5 @@ interface BackendRepository {
     suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
+    suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus>
 }

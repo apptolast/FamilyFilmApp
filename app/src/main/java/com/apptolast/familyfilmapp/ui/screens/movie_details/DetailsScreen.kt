@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieStatus
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.screens.movie_details.DetailScreenViewModel.DialogType
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -57,12 +58,27 @@ fun DetailsScreenRoot(
     movie: Movie,
     viewModel: DetailScreenViewModel = hiltViewModel(),
 ) {
+//    val lifecycleOwner = LocalLifecycleOwner.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+//    DisposableEffect(lifecycleOwner) {
+//        val observer = LifecycleEventObserver { _, event ->
+//            if (event == Lifecycle.Event.ON_START) {
+//                viewModel.init(movie.id)
+//            }
+//        }
+//        lifecycleOwner.lifecycle.addObserver(observer)
+//        onDispose {
+//            lifecycleOwner.lifecycle.removeObserver(observer)
+//        }
+//    }
 
     DetailsScreen(
         state = state,
         movie = movie,
-        displayDialog = viewModel::displayDialog,
+        displayDialog = { dialogType ->
+            viewModel.displayDialog(movie.id, dialogType)
+        },
     )
 }
 
@@ -109,12 +125,20 @@ fun DetailsScreen(
                         state.dialogGroupList.forEach { group ->
                             Row {
                                 Checkbox(
-                                    checked = false,
+                                    checked = when (group.status) {
+                                        MovieStatus.NOT_IN_GROUP,
+                                        MovieStatus.WATCHED_BY_OTHER,
+                                        MovieStatus.TO_WATCH_BY_OTHER,
+                                            -> false
+
+                                        MovieStatus.TO_WATCH_BY_USER -> state.dialogType == DialogType.TO_SEE
+                                        MovieStatus.WATCHED_BY_USER -> state.dialogType == DialogType.SEEN
+                                    },
                                     onCheckedChange = {
                                     },
                                     modifier = Modifier.padding(end = 8.dp),
                                 )
-                                Text(text = group.second)
+                                Text(text = group.groupName)
                             }
                         }
                     }
@@ -254,7 +278,10 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
-            state = DetailScreenViewModel.State(),
+            state = DetailScreenViewModel.State().copy(
+                dialogType = DialogType.TO_SEE,
+                dialogGroupList = emptyList(),
+            ),
             movie = Movie(),
         )
     }

@@ -11,6 +11,7 @@ import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieGroupStatusRemote
 import com.apptolast.familyfilmapp.model.remote.response.MovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.PageRemote
+import com.apptolast.familyfilmapp.model.remote.response.TmdbMovieRemote
 import com.apptolast.familyfilmapp.model.remote.response.UserRemote
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_ID_PARAM
@@ -35,13 +36,13 @@ interface BackendApi {
     suspend fun createUser(): String
 
     @GET(ApiRoutes.MOVIES)
-    suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<MovieRemote>
+    suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<TmdbMovieRemote>
 
 
     @POST(ApiRoutes.MOVIES_BY_ID)
     suspend fun getMoviesByIds(
         @Body getMoviesByIdBody: GetMoviesByIdBody,
-    ): PageRemote<MovieRemote>
+    ): List<MovieRemote>
 
     // /////////////////////////////////////////////////////////////////////////
     // Old Backend
@@ -51,7 +52,7 @@ interface BackendApi {
     suspend fun me(): UserRemote
 
     @GET(ApiRoutes.MOVIES)
-    suspend fun getMovies(): List<MovieRemote>
+    suspend fun getMovies(): List<TmdbMovieRemote>
 
     @GET(ApiRoutes.GROUPS)
     suspend fun getGroups(): List<GroupRemote>
@@ -72,7 +73,10 @@ interface BackendApi {
 //    suspend fun getMoviesCatalogue(@Path(PAGE_MOVIES) page: Int): List<MovieCatalogueRemote>
 
     @GET(ApiRoutes.MOVIES_SEARCH_NAME)
-    suspend fun searchMovieByName(@Path(PAGE_MOVIES) page: Int, @Path(MOVIE_NAME) movieName: String): List<MovieRemote>
+    suspend fun searchMovieByName(
+        @Path(PAGE_MOVIES) page: Int,
+        @Path(MOVIE_NAME) movieName: String,
+    ): List<TmdbMovieRemote>
 
     @PUT(ApiRoutes.ADD_MEMBER)
     suspend fun addMember(@Path(GROUP_ID_PARAM) groupId: Int, @Body addMemberBody: AddMemberBody): List<GroupRemote>

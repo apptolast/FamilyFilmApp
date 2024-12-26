@@ -9,6 +9,8 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,50 +31,26 @@ class GroupViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            repository.me().getOrNull()?.let { me ->
-                repository.getGroups().getOrNull()?.let { groups ->
-                    _backendState.update {
-                        it.copy(
-                            userOwner = me,
-                            groups = groups.filter { group -> me in group.users },
-                            isLoading = false,
-                            errorMessage = null,
-                        )
-                    }
+    fun init() = viewModelScope.launch {
+        repository.me().getOrNull()?.let { me ->
+            repository.getGroups().getOrNull()?.let { groups ->
+                _backendState.update {
+                    it.copy(
+                        userOwner = me,
+                        groups = groups.filter { group -> me in group.users },
+                        isLoading = false,
+                        errorMessage = null,
+                    )
+                }
+
+                // Retrieve movies for the first group
+                if (groups.isNotEmpty()) {
+                    selectGroup(uiState.value.selectedGroupIndex)
                 }
             }
-
-
-            // FIXME: Move to change tab event (thin can't be in the init block, obviously)
-//            awaitAll(
-//                async {
-//                    repository.getMoviesByIds(backendState.value.moviesToWatch.map { it.id }).getOrNull()
-//                        ?.let { movies ->
-//                            _backendState.update {
-//                                it.copy(moviesToWatch = movies)
-//                            }
-//                        }
-//                },
-//                async {
-//                    repository.getMoviesByIds(backendState.value.moviesWatched.map { it.id }).getOrNull()
-//                        ?.let { movies ->
-//                            _backendState.update {
-//                                it.copy(moviesWatched = movies)
-//                            }
-//                        }
-//                },
-//            )
-//
-//            _backendState.update {
-//                it.copy(
-//                    isLoading = false,
-//                    errorMessage = null,
-//                )
-//            }
         }
     }
+
 
     private suspend fun getGroups() {
         _backendState.update { it.copy(isLoading = true) }
@@ -297,6 +275,32 @@ class GroupViewModel @Inject constructor(
     fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
 
     fun selectGroup(index: Int) = viewModelScope.launch {
+        awaitAll(
+            async {
+                repository.getMoviesByIds(backendState.value.groups[index].toWatch.map { it.movieId }).getOrNull()
+                    ?.let { movies ->
+                        _backendState.update {
+                            it.copy(moviesToWatch = movies)
+                        }
+                    }
+            },
+            async {
+                repository.getMoviesByIds(backendState.value.groups[index].watched.map { it.movieId }).getOrNull()
+                    ?.let { movies ->
+                        _backendState.update {
+                            it.copy(moviesWatched = movies)
+                        }
+                    }
+            },
+        )
+
+        _backendState.update {
+            it.copy(
+                isLoading = false,
+                errorMessage = null,
+            )
+        }
+
         _uiState.update {
             it.copy(selectedGroupIndex = index)
         }

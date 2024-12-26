@@ -55,29 +55,16 @@ fun DetailsScreenRoot(
     movie: Movie,
     viewModel: DetailScreenViewModel = hiltViewModel(),
 ) {
-//    val lifecycleOwner = LocalLifecycleOwner.current
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-//    DisposableEffect(lifecycleOwner) {
-//        val observer = LifecycleEventObserver { _, event ->
-//            if (event == Lifecycle.Event.ON_START) {
-//                viewModel.init(movie.id)
-//            }
-//        }
-//        lifecycleOwner.lifecycle.addObserver(observer)
-//        onDispose {
-//            lifecycleOwner.lifecycle.removeObserver(observer)
-//        }
-//    }
 
     DetailsScreen(
         state = state,
         movie = movie,
         displayDialog = { dialogType ->
-            viewModel.displayDialog(movie.id, dialogType)
+            viewModel.displayDialog(movie.tmdbId, dialogType)
         },
         updateGroup = { groupId, isChecked ->
-            viewModel.updateGroup(movie.id, groupId, isChecked)
+            viewModel.updateGroup(movie.tmdbId, groupId, isChecked)
         },
     )
 }

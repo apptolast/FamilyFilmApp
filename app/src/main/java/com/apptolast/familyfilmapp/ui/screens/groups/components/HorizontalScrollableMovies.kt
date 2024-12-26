@@ -2,8 +2,10 @@ package com.apptolast.familyfilmapp.ui.screens.groups.components
 
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
@@ -18,7 +20,11 @@ fun HorizontalScrollableMovies(
 ) {
     LazyRow(modifier = modifier) {
         items(movies) { movie ->
-            MovieItem(movie = movie, onClick = onMovieClick)
+            MovieItem(
+                movie = movie,
+                modifier = Modifier.clip(MaterialTheme.shapes.medium),
+                onClick = onMovieClick,
+            )
         }
     }
 }
@@ -31,9 +37,9 @@ private fun HorizontalScrollableMoviesPreview() {
         HorizontalScrollableMovies(
             movies =
             listOf(
-                Movie().copy(1, "Title 1", "Description 1"),
-                Movie().copy(2, "Title 2", "Description 2"),
-                Movie().copy(3, "Title 3", "Description 3"),
+                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
             ),
         )
     }

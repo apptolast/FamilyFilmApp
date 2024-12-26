@@ -24,6 +24,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,12 +36,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
@@ -53,9 +58,22 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    DisposableEffect(key1 = lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                viewModel.init()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(key1 = backendState.errorMessage) {
         if (backendState.errorMessage != null) {
@@ -118,6 +136,9 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                 },
                 onGroupSelect = { index ->
                     viewModel.selectGroup(index)
+                },
+                onMovieClick = { movie ->
+                    navController.navigate(DetailNavTypeDestination.getDestination(movie))
                 },
             )
 
@@ -216,12 +237,13 @@ fun GroupContent(
     moviesToWatch: List<Movie>,
     moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
-    onChangeGroupName: (Group) -> Unit,
-    onAddMemberClick: (Group) -> Unit,
-    onDeleteGroup: (Group) -> Unit,
-    onDeleteUser: (Group, User) -> Unit,
-    onGroupSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onChangeGroupName: (Group) -> Unit = {},
+    onAddMemberClick: (Group) -> Unit = {},
+    onDeleteGroup: (Group) -> Unit = {},
+    onDeleteUser: (Group, User) -> Unit = { _, _ -> },
+    onGroupSelect: (Int) -> Unit = {},
+    onMovieClick: (Movie) -> Unit = {},
 ) {
     if (groups.isEmpty() || selectedGroupIndex == -1) {
         Box(
@@ -297,11 +319,12 @@ fun GroupContent(
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
             )
             HorizontalScrollableMovies(
                 movies = moviesToWatch,
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                onMovieClick = onMovieClick,
             )
 
             // Movies watched
@@ -311,11 +334,12 @@ fun GroupContent(
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
             )
             HorizontalScrollableMovies(
                 movies = moviesWatched,
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                onMovieClick = onMovieClick,
             )
         }
     }
@@ -354,14 +378,14 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 3"),
             ),
             moviesToWatch = listOf(
-                Movie().copy(1, "Title 1", "Description 1"),
-                Movie().copy(2, "Title 2", "Description 2"),
-                Movie().copy(3, "Title 3", "Description 3"),
+                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
             ),
             moviesWatched = listOf(
-                Movie().copy(4, "Title 4", "Description 4"),
-                Movie().copy(5, "Title 5", "Description 5"),
-                Movie().copy(6, "Title 6", "Description 6"),
+                Movie().copy(id = 4, title = "Title 4", overview = "Description 4"),
+                Movie().copy(id = 5, title = "Title 5", overview = "Description 5"),
+                Movie().copy(id = 6, title = "Title 6", overview = "Description 6"),
             ),
             onChangeGroupName = {},
             onAddMemberClick = {},

@@ -32,7 +32,7 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
     }
 
     override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
-        backendApi.getMoviesByIds(GetMoviesByIdBody(ids)).results.map { it.toDomain() }
+        backendApi.getMoviesByIds(GetMoviesByIdBody(ids)).map { it.toDomain() }
     }
 
 //    override suspend fun loginUser(): Result<User> = kotlin.runCatching {
@@ -165,5 +165,4 @@ interface BackendRepository {
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus>
-
 }

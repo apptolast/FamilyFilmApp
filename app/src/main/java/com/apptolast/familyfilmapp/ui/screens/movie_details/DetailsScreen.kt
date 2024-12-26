@@ -1,10 +1,8 @@
 package com.apptolast.familyfilmapp.ui.screens.movie_details
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -41,15 +38,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.apptolast.familyfilmapp.model.local.GroupStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.MovieStatus
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
-import com.apptolast.familyfilmapp.ui.screens.movie_details.DetailScreenViewModel.DialogType
+import com.apptolast.familyfilmapp.ui.screens.movie_details.components.SelectGroupsDialog
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -79,15 +76,19 @@ fun DetailsScreenRoot(
         displayDialog = { dialogType ->
             viewModel.displayDialog(movie.id, dialogType)
         },
+        updateGroup = { groupId, isChecked ->
+            viewModel.updateGroup(movie.id, groupId, isChecked)
+        },
     )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DetailsScreen(
-    state: DetailScreenViewModel.State,
+    state: DetailScreenStateState,
     movie: Movie,
     displayDialog: (DialogType) -> Unit = { _ -> },
+    updateGroup: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
 
     val lazyListState = rememberLazyListState()
@@ -108,72 +109,15 @@ fun DetailsScreen(
         }
     }
 
-
     if (state.dialogType != DialogType.NONE) {
-        Dialog(
-            onDismissRequest = { displayDialog(DialogType.NONE) },
-            content = {
-                Column(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.large)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp),
-                ) {
-                    Text(text = "Select groups")
 
-                    FlowColumn {
-                        state.dialogGroupList.forEach { group ->
-                            Row {
-                                Checkbox(
-                                    checked = when (group.status) {
-                                        MovieStatus.NOT_IN_GROUP,
-                                        MovieStatus.WATCHED_BY_OTHER,
-                                        MovieStatus.TO_WATCH_BY_OTHER,
-                                            -> false
-
-                                        MovieStatus.TO_WATCH_BY_USER -> state.dialogType == DialogType.TO_SEE
-                                        MovieStatus.WATCHED_BY_USER -> state.dialogType == DialogType.SEEN
-                                    },
-                                    onCheckedChange = {
-                                    },
-                                    modifier = Modifier.padding(end = 8.dp),
-                                )
-                                Text(text = group.groupName)
-                            }
-                        }
-                    }
-//                    LazyColumn {
-//                        items(state.dialogGroupList) { groups ->
-//                            ListItem(
-//                                modifier = Modifier
-//                                    .padding(vertical = 8.dp),
-////                                    .clickable {
-////                                        alarmClicked(alarm)
-////                                    },
-//                                overlineContent = {
-//                                    Text(
-//                                        text = groups.second,
-//                                        style = MaterialTheme.typography.titleMedium.copy(
-//                                            fontWeight = FontWeight.SemiBold,
-//                                        ),
-//                                    )
-//                                },
-//                                headlineContent = { },
-//                                supportingContent = { },
-//
-//                                leadingContent = {
-//                                    Checkbox(
-//                                        checked = false,
-//                                        onCheckedChange = {
-//                                        },
-//                                        modifier = Modifier.padding(end = 8.dp),
-//                                    )
-//                                },
-//                            )
-//                        }
-//                    }
-                }
-            },
+        SelectGroupsDialog(
+            title = "Select groups",
+            groups = state.dialogGroupList,
+            dialogType = state.dialogType,
+            onCancel = { displayDialog(DialogType.NONE) },
+            onOk = { displayDialog(DialogType.NONE) },
+            onCheck = updateGroup,
         )
     }
 
@@ -255,6 +199,7 @@ fun DetailsScreen(
     }
 }
 
+
 @Composable
 private fun DetailsButtonContent(icon: ImageVector, text: String) {
     Row(
@@ -278,9 +223,15 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
-            state = DetailScreenViewModel.State().copy(
+            state = DetailScreenStateState().copy(
                 dialogType = DialogType.TO_SEE,
-                dialogGroupList = emptyList(),
+                dialogGroupList = listOf(
+                    GroupStatus(1, "Group 1", MovieStatus.TO_WATCH_BY_USER),
+                    GroupStatus(2, "Group 2", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(3, "Group 3", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(4, "Group 4", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(5, "Group 5", MovieStatus.WATCHED_BY_USER),
+                ),
             ),
             movie = Movie(),
         )

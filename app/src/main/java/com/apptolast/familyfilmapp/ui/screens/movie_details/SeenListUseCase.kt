@@ -3,18 +3,18 @@ package com.apptolast.familyfilmapp.ui.screens.movie_details
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import javax.inject.Inject
 
 class SeenListUseCase @Inject constructor(private val repository: BackendRepository) :
-    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenViewModel.State>>() {
+    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenStateState>>() {
 
-    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenViewModel.State> = channelFlow {
+    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenStateState> = channelFlow {
         val (groupId, movieId) = parameters
 
         send(
-            DetailScreenViewModel.State().copy(
+            DetailScreenStateState().copy(
                 isLoading = true,
             ),
         )
@@ -22,7 +22,7 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
         repository.addMovieToSeenList(groupId, movieId).fold(
             onSuccess = {
                 send(
-                    DetailScreenViewModel.State().copy(
+                    DetailScreenStateState().copy(
 //                        successMovieToWatchList = "Success Movie Added",
                         isLoading = false,
                         errorMessage = null,
@@ -31,7 +31,7 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
             },
             onFailure = {
                 send(
-                    DetailScreenViewModel.State().copy(
+                    DetailScreenStateState().copy(
 //                        successMovieToWatchList = "",
                         isLoading = false,
                         errorMessage = GenericException(

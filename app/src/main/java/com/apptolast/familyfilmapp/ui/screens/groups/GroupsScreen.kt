@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
@@ -44,6 +47,7 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
+import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -96,6 +100,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
             GroupContent(
                 userOwner = backendState.userOwner,
                 groups = backendState.groups,
+                moviesToWatch = backendState.moviesToWatch,
+                moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
                 modifier = Modifier.padding(paddingValues),
                 onChangeGroupName = { group ->
@@ -207,6 +213,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 fun GroupContent(
     userOwner: User,
     groups: List<Group>,
+    moviesToWatch: List<Movie>,
+    moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
     onChangeGroupName: (Group) -> Unit,
     onAddMemberClick: (Group) -> Unit,
@@ -236,8 +244,6 @@ fun GroupContent(
             // Group tabs
             ScrollableTabRow(
                 selectedTabIndex = selectedGroupIndex,
-//                containerColor = MaterialTheme.colorScheme.outlineVariant,
-//            edgePadding = 0.dp,
                 divider = {
                     VerticalDivider()
                 },
@@ -255,9 +261,9 @@ fun GroupContent(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 style = if (selectedGroupIndex == index) {
-                                    MaterialTheme.typography.titleSmall
-                                } else {
                                     MaterialTheme.typography.titleMedium
+                                } else {
+                                    MaterialTheme.typography.titleSmall
                                 },
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
@@ -266,8 +272,8 @@ fun GroupContent(
                 }
             }
 
+            // Group card
             val currentSelectedGroup = groups[selectedGroupIndex]
-
             GroupCard(
                 userOwner = userOwner,
                 group = currentSelectedGroup,
@@ -283,6 +289,34 @@ fun GroupContent(
                     onDeleteUser(currentSelectedGroup, user)
                 },
             )
+
+            // Movies to watch
+            Text(
+                "Movies to watch",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            )
+            HorizontalScrollableMovies(
+                movies = moviesToWatch,
+                modifier = Modifier.padding(12.dp),
+            )
+
+            // Movies watched
+            Text(
+                "Movies watched",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            )
+            HorizontalScrollableMovies(
+                movies = moviesWatched,
+                modifier = Modifier.padding(12.dp),
+            )
         }
     }
 }
@@ -295,6 +329,8 @@ private fun GroupContentEmptyPreview() {
         GroupContent(
             userOwner = User(),
             groups = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
             onChangeGroupName = {},
             onAddMemberClick = {},
             onDeleteGroup = {},
@@ -316,6 +352,16 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 1"),
                 Group().copy(name = "name 2"),
                 Group().copy(name = "name 3"),
+            ),
+            moviesToWatch = listOf(
+                Movie().copy(1, "Title 1", "Description 1"),
+                Movie().copy(2, "Title 2", "Description 2"),
+                Movie().copy(3, "Title 3", "Description 3"),
+            ),
+            moviesWatched = listOf(
+                Movie().copy(4, "Title 4", "Description 4"),
+                Movie().copy(5, "Title 5", "Description 5"),
+                Movie().copy(6, "Title 6", "Description 6"),
             ),
             onChangeGroupName = {},
             onAddMemberClick = {},

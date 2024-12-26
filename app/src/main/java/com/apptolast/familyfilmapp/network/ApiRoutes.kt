@@ -14,6 +14,7 @@ object ApiRoutes {
     const val REGISTER = "auth/register"
 
     const val MOVIES = "moviesandseries/movies/popular"
+    const val MOVIES_BY_ID = "movie/getAllMoviesFromIDS"
     const val SERIES = "moviesandseries/series/popular"
 
     const val GROUPS_DETAILS_MOVIE_DIALOG = "groups/movie/{$MOVIE_ID_PARAM}/status"

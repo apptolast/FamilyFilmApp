@@ -8,6 +8,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieToGroupBody
+import com.apptolast.familyfilmapp.model.remote.request.GetMoviesByIdBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
@@ -28,6 +29,10 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 
     override suspend fun getMovies(page: Int): Result<List<Movie>> = runCatching {
         backendApi.getMovies(page).results.map { it.toDomain() }
+    }
+
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
+        backendApi.getMoviesByIds(GetMoviesByIdBody(ids)).results.map { it.toDomain() }
     }
 
 //    override suspend fun loginUser(): Result<User> = kotlin.runCatching {
@@ -135,7 +140,17 @@ interface BackendRepository {
     suspend fun me(): Result<User>
     suspend fun register(): Result<String>
     suspend fun getMovies(page: Int): Result<List<Movie>>
+    suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
+    suspend fun addMovieToGroup(
+        movieId: Int,
+        groupId: Int,
+        dialogType: Boolean,
+        isChecked: Boolean,
+    ): Result<MovieGroupStatus>
 
+    ///////////////////////////////////////////////////////////////////////////
+    // OLD ENDPOINTS
+    ///////////////////////////////////////////////////////////////////////////
     // suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
     suspend fun searchMovieByName(page: Int, movieName: String): Result<List<Movie>>
     suspend fun getGroups(): Result<List<Group>>
@@ -150,10 +165,5 @@ interface BackendRepository {
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus>
-    suspend fun addMovieToGroup(
-        movieId: Int,
-        groupId: Int,
-        dialogType: Boolean,
-        isChecked: Boolean,
-    ): Result<MovieGroupStatus>
+
 }

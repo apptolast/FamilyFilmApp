@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.GroupException
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -30,7 +31,6 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-
             repository.me().getOrNull()?.let { me ->
                 repository.getGroups().getOrNull()?.let { groups ->
                     _backendState.update {
@@ -41,19 +41,36 @@ class GroupViewModel @Inject constructor(
                             errorMessage = null,
                         )
                     }
-//                    _uiState.update {
-//                        it.copy(
-//                            selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
-//                        )
-//                    }
                 }
             }
 
 
+            // FIXME: Move to change tab event (thin can't be in the init block, obviously)
 //            awaitAll(
-//                async { getGroups() },
-//                async { me() },
+//                async {
+//                    repository.getMoviesByIds(backendState.value.moviesToWatch.map { it.id }).getOrNull()
+//                        ?.let { movies ->
+//                            _backendState.update {
+//                                it.copy(moviesToWatch = movies)
+//                            }
+//                        }
+//                },
+//                async {
+//                    repository.getMoviesByIds(backendState.value.moviesWatched.map { it.id }).getOrNull()
+//                        ?.let { movies ->
+//                            _backendState.update {
+//                                it.copy(moviesWatched = movies)
+//                            }
+//                        }
+//                },
 //            )
+//
+//            _backendState.update {
+//                it.copy(
+//                    isLoading = false,
+//                    errorMessage = null,
+//                )
+//            }
         }
     }
 
@@ -290,12 +307,16 @@ class GroupViewModel @Inject constructor(
     data class BackendState(
         val userOwner: User,
         val groups: List<Group>,
+        val moviesToWatch: List<Movie>,
+        val moviesWatched: List<Movie>,
         val isLoading: Boolean,
         val errorMessage: String?,
     ) {
         constructor() : this(
             userOwner = User(),
             groups = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
             isLoading = false,
             errorMessage = null,
         )

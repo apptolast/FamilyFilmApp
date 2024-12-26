@@ -116,7 +116,6 @@ fun DetailsScreen(
             groups = state.dialogGroupList,
             dialogType = state.dialogType,
             onCancel = { displayDialog(DialogType.NONE) },
-            onOk = { displayDialog(DialogType.NONE) },
             onCheck = updateGroup,
         )
     }
@@ -174,14 +173,14 @@ fun DetailsScreen(
                             onClick = { displayDialog(DialogType.TO_SEE) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            DetailsButtonContent(icon = Icons.Default.Add, text = "To see")
+                            DetailsButtonContent(icon = Icons.Default.Add, text = "To Watch")
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         OutlinedButton(
                             onClick = { displayDialog(DialogType.SEEN) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            DetailsButtonContent(icon = Icons.Default.Visibility, text = "Seen")
+                            DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
                         }
                     }
                     Text(

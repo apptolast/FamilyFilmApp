@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.network
 import com.apptolast.familyfilmapp.model.remote.request.AddGroupBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieToGroupBody
+import com.apptolast.familyfilmapp.model.remote.request.GetMoviesByIdBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GenreRemote
@@ -35,6 +36,12 @@ interface BackendApi {
 
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<MovieRemote>
+
+
+    @POST(ApiRoutes.MOVIES_BY_ID)
+    suspend fun getMoviesByIds(
+        @Body getMoviesByIdBody: GetMoviesByIdBody,
+    ): PageRemote<MovieRemote>
 
     // /////////////////////////////////////////////////////////////////////////
     // Old Backend

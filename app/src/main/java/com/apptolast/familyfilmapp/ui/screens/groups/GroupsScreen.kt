@@ -1,13 +1,14 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -230,6 +231,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupContent(
     userOwner: User,
@@ -258,89 +260,103 @@ fun GroupContent(
             )
         }
     } else {
-        Column(
+        LazyColumn(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Group tabs
-            ScrollableTabRow(
-                selectedTabIndex = selectedGroupIndex,
-                divider = {
-                    VerticalDivider()
-                },
-            ) {
-                groups.forEachIndexed { index, group ->
-                    Tab(
-                        selected = selectedGroupIndex == index,
-                        onClick = { onGroupSelect(index) },
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
-                        text = {
-                            Text(
-                                text = group.name,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = if (selectedGroupIndex == index) {
-                                    MaterialTheme.typography.titleMedium
-                                } else {
-                                    MaterialTheme.typography.titleSmall
-                                },
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        },
-                    )
+            stickyHeader {
+                ScrollableTabRow(
+                    selectedTabIndex = selectedGroupIndex,
+                    divider = {
+                        VerticalDivider()
+                    },
+                ) {
+                    groups.forEachIndexed { index, group ->
+                        Tab(
+                            selected = selectedGroupIndex == index,
+                            onClick = { onGroupSelect(index) },
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
+                            text = {
+                                Text(
+                                    text = group.name,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = if (selectedGroupIndex == index) {
+                                        MaterialTheme.typography.titleMedium
+                                    } else {
+                                        MaterialTheme.typography.titleSmall
+                                    },
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
+                        )
+                    }
                 }
             }
 
             // Group card
-            val currentSelectedGroup = groups[selectedGroupIndex]
-            GroupCard(
-                userOwner = userOwner,
-                group = currentSelectedGroup,
-                modifier = Modifier.padding(vertical = 12.dp),
-                onChangeGroupName = {
-                    onChangeGroupName(currentSelectedGroup)
-                },
-                onAddMember = { onAddMemberClick(currentSelectedGroup) },
-                onDeleteGroup = {
-                    onDeleteGroup(currentSelectedGroup)
-                },
-                onDeleteUser = { user ->
-                    onDeleteUser(currentSelectedGroup, user)
-                },
-            )
+            item {
+                val currentSelectedGroup = groups[selectedGroupIndex]
+                GroupCard(
+                    userOwner = userOwner,
+                    group = currentSelectedGroup,
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    onChangeGroupName = {
+                        onChangeGroupName(currentSelectedGroup)
+                    },
+                    onAddMember = { onAddMemberClick(currentSelectedGroup) },
+                    onDeleteGroup = {
+                        onDeleteGroup(currentSelectedGroup)
+                    },
+                    onDeleteUser = { user ->
+                        onDeleteUser(currentSelectedGroup, user)
+                    },
+                )
+            }
 
             // Movies to watch
-            Text(
-                "Movies to watch",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
-            )
-            HorizontalScrollableMovies(
-                movies = moviesToWatch,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                onMovieClick = onMovieClick,
-            )
+            item {
+                Text(
+                    "Movies to watch",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+
+            item {
+                HorizontalScrollableMovies(
+                    movies = moviesToWatch,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onMovieClick = onMovieClick,
+                )
+            }
 
             // Movies watched
-            Text(
-                "Movies watched",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
-            )
-            HorizontalScrollableMovies(
-                movies = moviesWatched,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                onMovieClick = onMovieClick,
-            )
+            item {
+                Text(
+                    "Movies watched",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+
+            item {
+                HorizontalScrollableMovies(
+                    movies = moviesWatched,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onMovieClick = onMovieClick,
+                )
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens.movie_details
+package com.apptolast.familyfilmapp.ui.screens.movieDetails
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,15 +46,11 @@ import com.apptolast.familyfilmapp.model.local.GroupStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.MovieStatus
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
-import com.apptolast.familyfilmapp.ui.screens.movie_details.components.SelectGroupsDialog
+import com.apptolast.familyfilmapp.ui.screens.movieDetails.components.SelectGroupsDialog
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreenRoot(
-    navController: NavController,
-    movie: Movie,
-    viewModel: DetailScreenViewModel = hiltViewModel(),
-) {
+fun DetailsScreenRoot(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     DetailsScreen(
@@ -77,7 +73,6 @@ fun DetailsScreen(
     displayDialog: (DialogType) -> Unit = { _ -> },
     updateGroup: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
-
     val lazyListState = rememberLazyListState()
     val snackBarHostState = remember { SnackbarHostState() }
     var scrolledY = 0f
@@ -97,7 +92,6 @@ fun DetailsScreen(
     }
 
     if (state.dialogType != DialogType.NONE) {
-
         SelectGroupsDialog(
             title = "Select groups",
             groups = state.dialogGroupList,
@@ -184,7 +178,6 @@ fun DetailsScreen(
         }
     }
 }
-
 
 @Composable
 private fun DetailsButtonContent(icon: ImageVector, text: String) {

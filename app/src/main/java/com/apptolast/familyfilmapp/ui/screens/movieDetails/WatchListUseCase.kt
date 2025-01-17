@@ -1,11 +1,11 @@
-package com.apptolast.familyfilmapp.ui.screens.movie_details
+package com.apptolast.familyfilmapp.ui.screens.movieDetails
 
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.GenericException
 import com.apptolast.familyfilmapp.repositories.BackendRepository
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import javax.inject.Inject
 
 class WatchListUseCase @Inject constructor(private val repository: BackendRepository) :
     BaseUseCase<Pair<Int, Int>, Flow<DetailScreenStateState>>() {

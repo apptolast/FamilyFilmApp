@@ -41,7 +41,6 @@ object ApiRoutes {
     const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
     const val MOVIES_SEARCH_NAME = "movies/{$PAGE_MOVIES}/{$MOVIE_NAME}"
     const val GENRES = "genres"
-
 }
 
 object ApiRoutesParams {

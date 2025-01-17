@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens.movie_details
+package com.apptolast.familyfilmapp.ui.screens.movieDetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,20 +6,17 @@ import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.GroupStatus
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
-class DetailScreenViewModel @Inject constructor(
-    private val repository: BackendRepository,
-) : ViewModel() {
+class DetailScreenViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {
 
     val state: StateFlow<DetailScreenStateState>
-        field : MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())
-
+        field: MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())
 
     fun displayDialog(movieId: Int, dialogType: DialogType) = viewModelScope.launch {
         repository.getDetailsMovieDialog(movieId).getOrNull()?.let { movieGroupStatus ->

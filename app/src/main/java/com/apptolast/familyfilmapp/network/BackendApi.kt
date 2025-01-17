@@ -38,11 +38,8 @@ interface BackendApi {
     @GET(ApiRoutes.MOVIES)
     suspend fun getMovies(@Query(PAGE_MOVIES) page: Int): PageRemote<TmdbMovieRemote>
 
-
     @POST(ApiRoutes.MOVIES_BY_ID)
-    suspend fun getMoviesByIds(
-        @Body getMoviesByIdBody: GetMoviesByIdBody,
-    ): List<MovieRemote>
+    suspend fun getMoviesByIds(@Body getMoviesByIdBody: GetMoviesByIdBody): List<MovieRemote>
 
     // /////////////////////////////////////////////////////////////////////////
     // Old Backend
@@ -100,14 +97,10 @@ interface BackendApi {
     ): List<GroupRemote>
 
     @GET(ApiRoutes.GROUPS_DETAILS_MOVIE_DIALOG)
-    suspend fun getDetailsMovieDialog(
-        @Path(MOVIE_ID_PARAM) movieId: Int,
-    ): MovieGroupStatusRemote
+    suspend fun getDetailsMovieDialog(@Path(MOVIE_ID_PARAM) movieId: Int): MovieGroupStatusRemote
 
     @POST(ApiRoutes.GROUPS_ADD_MOVIE)
-    suspend fun addMovieToGroup(
-        @Body addMovieToGroup: AddMovieToGroupBody,
-    ): MovieGroupStatusRemote
+    suspend fun addMovieToGroup(@Body addMovieToGroup: AddMovieToGroupBody): MovieGroupStatusRemote
 
     @GET(ApiRoutes.GENRES)
     suspend fun getGenres(): List<GenreRemote>

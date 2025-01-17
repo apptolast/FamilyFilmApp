@@ -34,7 +34,7 @@ fun GroupRemote.toDomain() = Group(
     toWatch = toWatch?.map { it.toDomain() } ?: emptyList(),
 )
 
-data class  MovieSelectedByUsersRemote(
+data class MovieSelectedByUsersRemote(
 
     @SerializedName("usersId")
     val usersId: List<Int>? = null,

@@ -40,7 +40,7 @@ class LoginWithGoogleUseCase @Inject constructor(private val repository: Firebas
                         send(
                             LoginUiState().copy(
                                 screenState = LoginRegisterState.Register(),
-                                user =  User().copy(
+                                user = User().copy(
                                     id = -1,
                                     email = authResult.user?.email ?: "",
                                     language = "",

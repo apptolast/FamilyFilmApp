@@ -11,7 +11,6 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
-
 @Composable
 fun HorizontalScrollableMovies(
     movies: List<Movie>,
@@ -28,7 +27,6 @@ fun HorizontalScrollableMovies(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

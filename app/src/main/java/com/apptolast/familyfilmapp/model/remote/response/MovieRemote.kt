@@ -17,7 +17,6 @@ data class MovieRemote(
     @SerializedName("genreIds") val genresIds: List<Int>? = null,
 )
 
-
 fun MovieRemote.toDomain() = Movie(
     id = id ?: -1,
     tmdbId = tmdbId ?: -1,

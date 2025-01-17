@@ -5,6 +5,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.MovieGroupStatus
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.AddMovieToGroupBody
@@ -15,7 +16,6 @@ import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
 import javax.inject.Inject
-import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
 
@@ -96,7 +96,7 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
     }
 
     override suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit> = kotlin.runCatching {
-        //backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
+        // backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
     }
 
     override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {
@@ -113,27 +113,25 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
             backendApi.addMovieToSeenList(groupId, movieId)
         }
 
-    override suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus> =
-        kotlin.runCatching {
-            backendApi.getDetailsMovieDialog(movieId).toDomain()
-        }
+    override suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus> = kotlin.runCatching {
+        backendApi.getDetailsMovieDialog(movieId).toDomain()
+    }
 
     override suspend fun addMovieToGroup(
         movieId: Int,
         groupId: Int,
         dialogType: Boolean,
         isChecked: Boolean,
-    ): Result<MovieGroupStatus> =
-        kotlin.runCatching {
-            AddMovieToGroupBody(
-                movieId = movieId,
-                groupId = groupId,
-                toWatch = dialogType,
-                addMovie = isChecked,
-            ).let {
-                backendApi.addMovieToGroup(it).toDomain()
-            }
+    ): Result<MovieGroupStatus> = kotlin.runCatching {
+        AddMovieToGroupBody(
+            movieId = movieId,
+            groupId = groupId,
+            toWatch = dialogType,
+            addMovie = isChecked,
+        ).let {
+            backendApi.addMovieToGroup(it).toDomain()
         }
+    }
 }
 
 interface BackendRepository {
@@ -148,9 +146,9 @@ interface BackendRepository {
         isChecked: Boolean,
     ): Result<MovieGroupStatus>
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // OLD ENDPOINTS
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
     suspend fun searchMovieByName(page: Int, movieName: String): Result<List<Movie>>
     suspend fun getGroups(): Result<List<Group>>

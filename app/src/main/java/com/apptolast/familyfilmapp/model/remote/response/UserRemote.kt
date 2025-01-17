@@ -40,8 +40,8 @@ fun UserRemote.toDomain() = User(
     id = id ?: -1,
     email = email ?: "",
     language = language ?: "es",
-    seenMovies = seenMovies?.map{it.toDomain()} ?: emptyList(),
-    toSeeMovies = toSeeMovies?.map{it.toDomain()} ?: emptyList(),
+    seenMovies = seenMovies?.map { it.toDomain() } ?: emptyList(),
+    toSeeMovies = toSeeMovies?.map { it.toDomain() } ?: emptyList(),
     joinedGroupsIds = joinedGroupsIds ?: emptyList(),
 )
 

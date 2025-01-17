@@ -18,7 +18,4 @@ data class User(
     )
 }
 
-data class MovieName(
-    val id: Int,
-    val title: String,
-)
+data class MovieName(val id: Int, val title: String)

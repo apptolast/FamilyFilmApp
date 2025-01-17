@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens.movie_details.components
+package com.apptolast.familyfilmapp.ui.screens.movieDetails.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.apptolast.familyfilmapp.model.local.GroupStatus
 import com.apptolast.familyfilmapp.model.local.MovieStatus
-import com.apptolast.familyfilmapp.ui.screens.movie_details.DialogType
+import com.apptolast.familyfilmapp.ui.screens.movieDetails.DialogType
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @SuppressLint("MutableCollectionMutableState")
@@ -33,7 +33,6 @@ fun SelectGroupsDialog(
     onCancel: () -> Unit = {},
     onCheck: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
-
     Dialog(
         onDismissRequest = onCancel,
         content = {
@@ -62,7 +61,7 @@ fun SelectGroupsDialog(
                                     MovieStatus.NOT_IN_GROUP,
                                     MovieStatus.WATCHED_BY_OTHER,
                                     MovieStatus.TO_WATCH_BY_OTHER,
-                                        -> false
+                                    -> false
 
                                     MovieStatus.TO_WATCH_BY_USER -> dialogType == DialogType.TO_SEE
                                     MovieStatus.WATCHED_BY_USER -> dialogType == DialogType.SEEN
@@ -103,4 +102,3 @@ private fun SelectGroupsDialogPreview() {
         )
     }
 }
-

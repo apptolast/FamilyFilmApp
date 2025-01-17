@@ -18,10 +18,7 @@ data class Group(
     )
 }
 
-data class MovieSelectedByUsers(
-    val usersId: List<Int>,
-    val movieId: Int,
-) {
+data class MovieSelectedByUsers(val usersId: List<Int>, val movieId: Int) {
     constructor() : this(
         usersId = emptyList(),
         movieId = -1,

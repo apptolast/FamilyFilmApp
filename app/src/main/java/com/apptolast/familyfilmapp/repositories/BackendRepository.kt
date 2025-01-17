@@ -3,11 +3,13 @@ package com.apptolast.familyfilmapp.repositories
 import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieGroupStatus
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.mapper.AddGroupsMapper.toBody as addGroupToBody
-import com.apptolast.familyfilmapp.model.mapper.AddMemberMapper.toAddMemberBody
 import com.apptolast.familyfilmapp.model.mapper.GenreMapper.toDomain
 import com.apptolast.familyfilmapp.model.remote.request.AddMemberBody
+import com.apptolast.familyfilmapp.model.remote.request.AddMovieToGroupBody
+import com.apptolast.familyfilmapp.model.remote.request.GetMoviesByIdBody
 import com.apptolast.familyfilmapp.model.remote.request.RemoveMemberBody
 import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
@@ -27,6 +29,10 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 
     override suspend fun getMovies(page: Int): Result<List<Movie>> = runCatching {
         backendApi.getMovies(page).results.map { it.toDomain() }
+    }
+
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
+        backendApi.getMoviesByIds(GetMoviesByIdBody(ids)).map { it.toDomain() }
     }
 
 //    override suspend fun loginUser(): Result<User> = kotlin.runCatching {
@@ -90,7 +96,7 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
     }
 
     override suspend fun addMemberGroup(groupId: Int, emailUser: String): Result<Unit> = kotlin.runCatching {
-        backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
+        // backendApi.addMemberGroup(groupId, emailUser.toAddMemberBody())
     }
 
     override suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit> = kotlin.runCatching {
@@ -106,13 +112,43 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         kotlin.runCatching {
             backendApi.addMovieToSeenList(groupId, movieId)
         }
+
+    override suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus> = kotlin.runCatching {
+        backendApi.getDetailsMovieDialog(movieId).toDomain()
+    }
+
+    override suspend fun addMovieToGroup(
+        movieId: Int,
+        groupId: Int,
+        dialogType: Boolean,
+        isChecked: Boolean,
+    ): Result<MovieGroupStatus> = kotlin.runCatching {
+        AddMovieToGroupBody(
+            movieId = movieId,
+            groupId = groupId,
+            toWatch = dialogType,
+            addMovie = isChecked,
+        ).let {
+            backendApi.addMovieToGroup(it).toDomain()
+        }
+    }
 }
 
 interface BackendRepository {
     suspend fun me(): Result<User>
     suspend fun register(): Result<String>
     suspend fun getMovies(page: Int): Result<List<Movie>>
+    suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
+    suspend fun addMovieToGroup(
+        movieId: Int,
+        groupId: Int,
+        dialogType: Boolean,
+        isChecked: Boolean,
+    ): Result<MovieGroupStatus>
 
+    // /////////////////////////////////////////////////////////////////////////
+    // OLD ENDPOINTS
+    // /////////////////////////////////////////////////////////////////////////
     // suspend fun getMovies(page: Int): Result<List<MovieCatalogue>>
     suspend fun searchMovieByName(page: Int, movieName: String): Result<List<Movie>>
     suspend fun getGroups(): Result<List<Group>>
@@ -126,4 +162,5 @@ interface BackendRepository {
     suspend fun removeMemberGroup(groupId: Int, userId: Int): Result<Unit>
     suspend fun addMovieToWatchList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
     suspend fun addMovieToSeenList(groupId: Int, movieId: Int): Result<List<GroupRemote>>
+    suspend fun getDetailsMovieDialog(movieId: Int): Result<MovieGroupStatus>
 }

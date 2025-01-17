@@ -15,11 +15,10 @@ data class LoginUiState(
 
     constructor() : this(
         screenState = LoginRegisterState.Login(),
-        user = User(
+        user = User().copy(
             id = -1,
             email = "",
             language = "",
-            provider = "",
         ),
         emailErrorMessage = null,
         passErrorMessage = null,

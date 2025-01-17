@@ -4,12 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -37,7 +37,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupCard(
     userOwner: User,
@@ -104,8 +104,9 @@ fun GroupCard(
             }
 
             // List of users
-            LazyColumn {
-                items(group.users) { user ->
+            FlowColumn {
+//                items(group.users) { user ->
+                group.users.forEach { user ->
                     val swipeState = rememberSwipeToDismissBoxState()
 
                     when (swipeState.currentValue) {
@@ -167,9 +168,9 @@ private fun GroupCardOwnerPreview() {
                 ownerId = 1,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                    User().copy(id = 1, email = "Email 1", language = "es"),
+                    User().copy(id = 2, email = "Email 2", language = "es"),
+                    User().copy(id = 3, email = "Email 3", language = "es"),
                 ),
 //                watchedList = listOf(
 //                    Movie().copy(
@@ -203,9 +204,9 @@ private fun GroupCardNotOwnerPreview() {
                 ownerId = 2,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                    User().copy(id = 1, email = "Email 1", language = "es"),
+                    User().copy(id = 2, email = "Email 2", language = "es"),
+                    User().copy(id = 3, email = "Email 3", language = "es"),
                 ),
 //                watchedList = listOf(
 //                    Movie().copy(

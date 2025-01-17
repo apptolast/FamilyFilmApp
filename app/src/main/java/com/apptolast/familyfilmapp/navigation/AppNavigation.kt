@@ -12,10 +12,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
-import com.apptolast.familyfilmapp.ui.screens.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
+import com.apptolast.familyfilmapp.ui.screens.movieDetails.DetailsScreenRoot
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
@@ -69,7 +69,7 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
             arguments = DetailNavTypeDestination.argumentList,
         ) { backStackEntry ->
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
-            DetailsScreen(
+            DetailsScreenRoot(
                 navController = navController,
                 movie = movie,
             )

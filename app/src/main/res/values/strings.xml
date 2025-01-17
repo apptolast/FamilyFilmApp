@@ -30,8 +30,8 @@
     <string name="screen_title_login">Login</string>
 
     <!-- HOME-->
-    <string name="home_text_to_see">To see</string>
-    <string name="home_text_seen">Seen</string>
+    <string name="home_text_to_see">To Watch</string>
+    <string name="home_text_seen">Watched</string>
 
     <!-- GROUPS -->
     <string name="groups_text_create_group">Create Group</string>

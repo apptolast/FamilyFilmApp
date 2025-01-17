@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.GroupException
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -30,12 +31,23 @@ class GroupViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            awaitAll(
-                async { getGroups() },
-                async { me() },
-            )
+    fun init() = viewModelScope.launch {
+        repository.me().getOrNull()?.let { me ->
+            repository.getGroups().getOrNull()?.let { groups ->
+                _backendState.update {
+                    it.copy(
+                        userOwner = me,
+                        groups = groups.filter { group -> me in group.users },
+                        isLoading = false,
+                        errorMessage = null,
+                    )
+                }
+
+                // Retrieve movies for the first group
+                if (groups.isNotEmpty()) {
+                    selectGroup(uiState.value.selectedGroupIndex)
+                }
+            }
         }
     }
 
@@ -174,6 +186,7 @@ class GroupViewModel @Inject constructor(
                     )
                 }
                 _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+                getGroups()
             },
             onFailure = { error ->
                 Timber.e(error)
@@ -259,6 +272,32 @@ class GroupViewModel @Inject constructor(
     fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
 
     fun selectGroup(index: Int) = viewModelScope.launch {
+        awaitAll(
+            async {
+                repository.getMoviesByIds(backendState.value.groups[index].toWatch.map { it.movieId }).getOrNull()
+                    ?.let { movies ->
+                        _backendState.update {
+                            it.copy(moviesToWatch = movies)
+                        }
+                    }
+            },
+            async {
+                repository.getMoviesByIds(backendState.value.groups[index].watched.map { it.movieId }).getOrNull()
+                    ?.let { movies ->
+                        _backendState.update {
+                            it.copy(moviesWatched = movies)
+                        }
+                    }
+            },
+        )
+
+        _backendState.update {
+            it.copy(
+                isLoading = false,
+                errorMessage = null,
+            )
+        }
+
         _uiState.update {
             it.copy(selectedGroupIndex = index)
         }
@@ -269,12 +308,16 @@ class GroupViewModel @Inject constructor(
     data class BackendState(
         val userOwner: User,
         val groups: List<Group>,
+        val moviesToWatch: List<Movie>,
+        val moviesWatched: List<Movie>,
         val isLoading: Boolean,
         val errorMessage: String?,
     ) {
         constructor() : this(
             userOwner = User(),
             groups = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
             isLoading = false,
             errorMessage = null,
         )
@@ -283,7 +326,7 @@ class GroupViewModel @Inject constructor(
     data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
-            selectedGroupIndex = -1,
+            selectedGroupIndex = 0,
         )
     }
 

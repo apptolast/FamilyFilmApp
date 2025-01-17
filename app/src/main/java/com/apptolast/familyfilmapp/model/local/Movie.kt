@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Movie(
     val id: Int,
+    val tmdbId: Int,
     val title: String,
     val originalTitle: String,
     val adult: Boolean,
@@ -22,6 +23,7 @@ data class Movie(
 ) : Parcelable {
     constructor(title: String) : this(
         id = -1,
+        tmdbId = -1,
         title = title,
         originalTitle = "",
         adult = false,

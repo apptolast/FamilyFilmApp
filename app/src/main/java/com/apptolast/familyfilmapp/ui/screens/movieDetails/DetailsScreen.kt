@@ -1,7 +1,8 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.movieDetails
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,47 +41,45 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.apptolast.familyfilmapp.model.local.GroupStatus
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.MovieStatus
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
+import com.apptolast.familyfilmapp.ui.screens.movieDetails.components.SelectGroupsDialog
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
-    val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
+fun DetailsScreenRoot(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
+    DetailsScreen(
+        state = state,
+        movie = movie,
+        displayDialog = { dialogType ->
+            viewModel.displayDialog(movie.tmdbId, dialogType)
+        },
+        updateGroup = { groupId, isChecked ->
+            viewModel.updateGroup(movie.tmdbId, groupId, isChecked)
+        },
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun DetailsScreen(
+    state: DetailScreenStateState,
+    movie: Movie,
+    displayDialog: (DialogType) -> Unit = { _ -> },
+    updateGroup: (Int, Boolean) -> Unit = { _, _ -> },
+) {
     val lazyListState = rememberLazyListState()
     val snackBarHostState = remember { SnackbarHostState() }
     var scrolledY = 0f
     var previousOffset = 0
 
-    LaunchedEffect(
-        key1 = detailScreenUIState.successMovieToViewList,
-    ) {
-        if (detailScreenUIState.successMovieToViewList.isNotBlank()) {
-            snackBarHostState.showSnackbar(
-                detailScreenUIState.successMovieToViewList,
-                "Close",
-                true,
-                SnackbarDuration.Long,
-            )
-        }
-    }
-
-    LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
-        if (detailScreenUIState.successMovieToWatchList.isNotBlank()) {
-            snackBarHostState.showSnackbar(
-                detailScreenUIState.successMovieToWatchList,
-                "Close",
-                true,
-                SnackbarDuration.Long,
-            )
-        }
-    }
-
-    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
-        detailScreenUIState.errorMessage?.let {
+    LaunchedEffect(key1 = state.errorMessage?.error) {
+        state.errorMessage?.let {
             if (it.error.isNotBlank()) {
                 snackBarHostState.showSnackbar(
                     it.error,
@@ -90,6 +89,16 @@ fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailS
                 )
             }
         }
+    }
+
+    if (state.dialogType != DialogType.NONE) {
+        SelectGroupsDialog(
+            title = "Select groups",
+            groups = state.dialogGroupList,
+            dialogType = state.dialogType,
+            onCancel = { displayDialog(DialogType.NONE) },
+            onCheck = updateGroup,
+        )
     }
 
     Scaffold(
@@ -132,9 +141,8 @@ fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailS
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(text = "2023")
-                        Text(text = "1h 34min")
-                        Text(text = "+18")
+                        Text(text = movie.releaseDate)
+                        Text(text = if (movie.adult) "+18" else "")
                     }
                     Row(
                         modifier = Modifier
@@ -143,17 +151,17 @@ fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailS
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Button(
-                            onClick = { },
+                            onClick = { displayDialog(DialogType.TO_SEE) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            DetailsButtonContent(icon = Icons.Default.Add, text = "Add to see")
+                            DetailsButtonContent(icon = Icons.Default.Add, text = "To Watch")
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         OutlinedButton(
-                            onClick = { },
+                            onClick = { displayDialog(DialogType.SEEN) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            DetailsButtonContent(icon = Icons.Default.Visibility, text = "Don't seen")
+                            DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
                         }
                     }
                     Text(
@@ -194,9 +202,17 @@ private fun DetailsButtonContent(icon: ImageVector, text: String) {
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
-            navController = rememberNavController(),
+            state = DetailScreenStateState().copy(
+                dialogType = DialogType.TO_SEE,
+                dialogGroupList = listOf(
+                    GroupStatus(1, "Group 1", MovieStatus.TO_WATCH_BY_USER),
+                    GroupStatus(2, "Group 2", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(3, "Group 3", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(4, "Group 4", MovieStatus.WATCHED_BY_USER),
+                    GroupStatus(5, "Group 5", MovieStatus.WATCHED_BY_USER),
+                ),
+            ),
             movie = Movie(),
-            viewModel = hiltViewModel(),
         )
     }
 }

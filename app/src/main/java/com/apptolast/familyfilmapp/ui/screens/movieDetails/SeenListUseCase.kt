@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.movieDetails
 
 import com.apptolast.familyfilmapp.BaseUseCase
 import com.apptolast.familyfilmapp.exceptions.GenericException
@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
 class SeenListUseCase @Inject constructor(private val repository: BackendRepository) :
-    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenUIState>>() {
+    BaseUseCase<Pair<Int, Int>, Flow<DetailScreenStateState>>() {
 
-    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenUIState> = channelFlow {
+    override suspend fun execute(parameters: Pair<Int, Int>): Flow<DetailScreenStateState> = channelFlow {
         val (groupId, movieId) = parameters
 
         send(
-            DetailScreenUIState().copy(
+            DetailScreenStateState().copy(
                 isLoading = true,
             ),
         )
@@ -22,8 +22,8 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
         repository.addMovieToSeenList(groupId, movieId).fold(
             onSuccess = {
                 send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "Success Movie Added",
+                    DetailScreenStateState().copy(
+//                        successMovieToWatchList = "Success Movie Added",
                         isLoading = false,
                         errorMessage = null,
                     ),
@@ -31,8 +31,8 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
             },
             onFailure = {
                 send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "",
+                    DetailScreenStateState().copy(
+//                        successMovieToWatchList = "",
                         isLoading = false,
                         errorMessage = GenericException(
                             it.message ?: "Error",

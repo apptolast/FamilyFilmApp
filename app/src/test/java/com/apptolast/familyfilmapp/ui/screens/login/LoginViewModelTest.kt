@@ -60,6 +60,7 @@ class LoginViewModelTest {
             backendRepository,
             firebaseRepository,
             localRepository,
+            recoverPassUseCase,
             coroutineRule.testDispatcherProvider,
             googleSignInClient,
         )

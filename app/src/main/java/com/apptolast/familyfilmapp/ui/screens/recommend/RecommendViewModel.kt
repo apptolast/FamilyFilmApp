@@ -32,20 +32,20 @@ class RecommendViewModel @Inject constructor(private val repository: BackendRepo
     val recommendUIBackendState: LiveData<GenresBackendState> = _recommendUIBackendState
 
     init {
-        viewModelScope.launch {
-            _state.update { state ->
-                state.copy(
-                    movies = repository.getMovies(1).getOrElse {
-                        Timber.e(it)
-                        emptyList()
-                    },
-                )
-            }
-            _recommendUIBackendState.value = GenresBackendState(
-                genre = repository.getGenres().getOrElse {
-                    emptyList()
-                },
-            )
-        }
+//        viewModelScope.launch {
+//            _state.update { state ->
+//                state.copy(
+//                    movies = repository.getMovies(1).getOrElse {
+//                        Timber.e(it)
+//                        emptyList()
+//                    },
+//                )
+//            }
+//            _recommendUIBackendState.value = GenresBackendState(
+//                genre = repository.getGenres().getOrElse {
+//                    emptyList()
+//                },
+//            )
+//        }
     }
 }

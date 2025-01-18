@@ -35,16 +35,16 @@ class SearchViewModel @Inject constructor(private val repository: BackendReposit
     )
 
     init {
-        viewModelScope.launch {
-            _state.update { oldState ->
-                oldState.copy(
-                    movies = repository.getMovies(1).getOrElse {
-                        Timber.e(it)
-                        emptyList()
-                    },
-                )
-            }
-        }
+//        viewModelScope.launch {
+//            _state.update { oldState ->
+//                oldState.copy(
+//                    movies = repository.getMovies(1).getOrElse {
+//                        Timber.e(it)
+//                        emptyList()
+//                    },
+//                )
+//            }
+//        }
     }
 
     fun onSearchQueryChanged(query: String) = viewModelScope.launch {

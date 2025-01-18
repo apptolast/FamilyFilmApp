@@ -42,11 +42,11 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun GroupCard(
     userOwner: User,
     group: Group,
-    onChangeGroupName: () -> Unit,
-    onAddMember: () -> Unit,
-    onDeleteGroup: () -> Unit,
     modifier: Modifier = Modifier,
-    onDeleteUser: (User) -> Unit,
+    onChangeGroupName: () -> Unit = {},
+    onAddMember: () -> Unit = {},
+    onDeleteGroup: () -> Unit = {},
+    onDeleteUser: (User) -> Unit = {},
 ) {
     Card(
         modifier = modifier
@@ -185,10 +185,6 @@ private fun GroupCardOwnerPreview() {
 //                    ),
 //                ),
             ),
-            onDeleteUser = {},
-            onAddMember = {},
-            onDeleteGroup = {},
-            onChangeGroupName = {},
         )
     }
 }
@@ -221,10 +217,6 @@ private fun GroupCardNotOwnerPreview() {
 //                    ),
 //                ),
             ),
-            onDeleteUser = {},
-            onAddMember = {},
-            onDeleteGroup = {},
-            onChangeGroupName = {},
         )
     }
 }

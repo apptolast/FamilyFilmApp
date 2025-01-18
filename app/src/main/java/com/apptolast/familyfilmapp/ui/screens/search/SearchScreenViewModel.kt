@@ -26,17 +26,17 @@ class SearchScreenViewModel @Inject constructor(private val repository: BackendR
     )
 
     init {
-        viewModelScope.launch {
-            repository.getMovies(1).fold(
-                onSuccess = { movies ->
-                    _movies.update { movies }
-                },
-                onFailure = {
-                    // TODO
-                    Timber.e(it)
-                },
-            )
-        }
+//        viewModelScope.launch {
+//            repository.getMovies(1).fold(
+//                onSuccess = { movies ->
+//                    _movies.update { movies }
+//                },
+//                onFailure = {
+//                    // TODO
+//                    Timber.e(it)
+//                },
+//            )
+//        }
     }
 
 //    fun getListFilmFake(): List<Movie> = repository.generateFakeFilmData(20)

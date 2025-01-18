@@ -2,7 +2,11 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.apptolast.familyfilmapp.exceptions.HomeException
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,28 +29,27 @@ class HomeViewModel @Inject constructor(
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
+    private val _movies: MutableStateFlow<PagingData<Movie>> = MutableStateFlow(value = PagingData.empty())
+    val movies = _movies.asStateFlow()
+
     init {
-        getMovies()
+        viewModelScope.launch {
+            repository.getMovies()
+                .catch{ error ->
+                    Timber.e(error, "Error getting movies")
+                }
+                .distinctUntilChanged()
+                .cachedIn(viewModelScope)
+                .collect {
+                    _movies.value = it
+                }
+        }
     }
 
-    private fun getMovies(page: Int = 1) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.getMovies(page).fold(
-            onSuccess = { movies ->
-                _state.update { oldState ->
-                    oldState.copy(
-                        movies = movies,
-                    )
-                }
-            },
-            onFailure = { error ->
-                Timber.e(error)
-                _state.update { oldState ->
-                    oldState.copy(
-                        errorMessage = HomeException.MovieException(),
-                    )
-                }
-            },
-        )
+    fun searchMovieByName(string: String) {
+        _movies.update { oldState ->
+            oldState.filter { it.title.contains(string) }
+        }
     }
 
 //    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {

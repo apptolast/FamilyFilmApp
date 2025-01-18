@@ -1,5 +1,9 @@
 package com.apptolast.familyfilmapp.repositories
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
@@ -15,6 +19,8 @@ import com.apptolast.familyfilmapp.model.remote.request.UpdateGroupNameBody
 import com.apptolast.familyfilmapp.model.remote.response.GroupRemote
 import com.apptolast.familyfilmapp.model.remote.response.toDomain
 import com.apptolast.familyfilmapp.network.BackendApi
+import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendApi) : BackendRepository {
@@ -27,9 +33,10 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
         backendApi.createUser()
     }
 
-    override suspend fun getMovies(page: Int): Result<List<Movie>> = runCatching {
-        backendApi.getMovies(page).results.map { it.toDomain() }
-    }
+    override suspend fun getMovies(pageSize: Int): Flow<PagingData<Movie>> =  Pager(
+        config = PagingConfig(pageSize),
+        pagingSourceFactory = { MoviePagingSource(backendApi) },
+    ).flow
 
     override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
         backendApi.getMoviesByIds(GetMoviesByIdBody(ids)).map { it.toDomain() }
@@ -137,7 +144,8 @@ class BackendRepositoryImpl @Inject constructor(private val backendApi: BackendA
 interface BackendRepository {
     suspend fun me(): Result<User>
     suspend fun register(): Result<String>
-    suspend fun getMovies(page: Int): Result<List<Movie>>
+//    suspend fun getMovies(page: Int): Result<List<Movie>>
+    suspend fun getMovies(pageSize: Int = 10): Flow<PagingData<Movie>>
     suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
     suspend fun addMovieToGroup(
         movieId: Int,

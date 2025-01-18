@@ -5,13 +5,13 @@ import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Movie
 
 data class HomeState(
-    val movies: List<Movie>,
+    val filterMovies: List<Movie>,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
 
     constructor() : this(
-        movies = emptyList(),
+        filterMovies = emptyList(),
         isLoading = false,
         errorMessage = null,
     )

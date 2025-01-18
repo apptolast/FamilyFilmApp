@@ -2,15 +2,10 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
-import com.apptolast.familyfilmapp.exceptions.HomeException
-import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -29,26 +25,38 @@ class HomeViewModel @Inject constructor(
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
-    private val _movies: MutableStateFlow<PagingData<Movie>> = MutableStateFlow(value = PagingData.empty())
-    val movies = _movies.asStateFlow()
+//    private val _movies: MutableStateFlow<PagingData<Movie>> = MutableStateFlow(value = PagingData.empty())
+//    val movies = _movies.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            repository.getMovies()
-                .catch{ error ->
-                    Timber.e(error, "Error getting movies")
-                }
-                .distinctUntilChanged()
-                .cachedIn(viewModelScope)
-                .collect {
-                    _movies.value = it
-                }
+    val movies = repository.getMovies()
+        .catch { error ->
+            Timber.e(error, "Error getting movies")
         }
-    }
+        .distinctUntilChanged()
+        .cachedIn(viewModelScope)
 
-    fun searchMovieByName(string: String) {
-        _movies.update { oldState ->
-            oldState.filter { it.title.contains(string) }
+
+//    init {
+//        viewModelScope.launch {
+//            repository.getMovies()
+//                .catch{ error ->
+//                    Timber.e(error, "Error getting movies")
+//                }
+//                .distinctUntilChanged()
+//                .cachedIn(viewModelScope)
+//                .collect {
+//                    _movies.value = it
+//                }
+//        }
+//    }
+
+    fun searchMovieByName(filter: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        if (filter.isEmpty()) {
+            _state.update { it.copy(filterMovies = emptyList()) }
+        } else {
+            repository.searchMovieByName(filter).getOrNull()?.let { movies ->
+                _state.update { it.copy(filterMovies = movies) }
+            }
         }
     }
 

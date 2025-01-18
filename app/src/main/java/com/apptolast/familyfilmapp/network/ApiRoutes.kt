@@ -2,7 +2,7 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.GROUP_ID_PARAM
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_ID_PARAM
-import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_NAME
+import com.apptolast.familyfilmapp.network.ApiRoutesParams.MOVIE_FILTER
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import com.apptolast.familyfilmapp.network.ApiRoutesParams.USER_ID_PARAM
 
@@ -15,6 +15,7 @@ object ApiRoutes {
 
     const val MOVIES = "moviesandseries/movies/popular"
     const val MOVIES_BY_ID = "movie/getAllMoviesFromIDS"
+    const val MOVIES_SEARCH_NAME = "moviesandseries/search/{$MOVIE_FILTER}/{$PAGE_MOVIES}/"
     const val SERIES = "moviesandseries/series/popular"
 
     const val GROUPS_DETAILS_MOVIE_DIALOG = "groups/movie/{$MOVIE_ID_PARAM}/status"
@@ -39,7 +40,7 @@ object ApiRoutes {
 
     const val MOVIES_CATALOGUE = "movies/catalogue/{$PAGE_MOVIES}"
     const val MOVIES_RECOMMENDED = "movies/{$GROUP_ID_PARAM}/recommended"
-    const val MOVIES_SEARCH_NAME = "movies/{$PAGE_MOVIES}/{$MOVIE_NAME}"
+//    const val MOVIES_SEARCH_NAME = "movies/{$PAGE_MOVIES}/{$MOVIE_NAME}"
     const val GENRES = "genres"
 }
 
@@ -48,5 +49,5 @@ object ApiRoutesParams {
     const val USER_ID_PARAM = "userId"
     const val MOVIE_ID_PARAM = "movieId"
     const val PAGE_MOVIES = "page"
-    const val MOVIE_NAME = "name"
+    const val MOVIE_FILTER = "query"
 }

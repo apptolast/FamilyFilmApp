@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -58,11 +59,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     ) { paddingValues ->
         HomeContent(
             movies = movieItems,
+            filterMovies = state.filterMovies,
             modifier = Modifier.padding(paddingValues),
             onMovieClick = { movie ->
                 navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
-            searchMovieByNameBody = { filter->
+            searchMovieByNameBody = { filter ->
                 viewModel.searchMovieByName(filter)
             },
         )
@@ -72,6 +74,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 @Composable
 fun HomeContent(
     movies: LazyPagingItems<Movie>,
+    filterMovies: List<Movie>,
     modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit = {},
     searchMovieByNameBody: (String) -> Unit = {},
@@ -108,6 +111,7 @@ fun HomeContent(
 
         RowMovie(
             movies = movies,
+            filterMovies = filterMovies,
             modifier = Modifier.weight(1f),
             onMovieClick = onMovieClick,
         )
@@ -117,65 +121,81 @@ fun HomeContent(
 @Composable
 private fun RowMovie(
     movies: LazyPagingItems<Movie>,
+    filterMovies: List<Movie>,
     modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit = {},
 ) {
-
-    Column(modifier = modifier) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.padding(bottom = 15.dp),
-        ) {
-            items(movies.itemCount) { index ->
-                MovieItem(
-                    movie = movies[index]!!,
-                    onClick = onMovieClick,
-                )
+    if (filterMovies.isNotEmpty()) {
+        Column(modifier = modifier) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.padding(bottom = 15.dp),
+            ) {
+                items(filterMovies) { movie ->
+                    MovieItem(
+                        movie = movie,
+                        onClick = onMovieClick,
+                    )
+                }
             }
         }
+    } else {
+        Column(modifier = modifier) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.padding(bottom = 15.dp),
+            ) {
+                items(movies.itemCount) { index ->
+                    MovieItem(
+                        movie = movies[index]!!,
+                        onClick = onMovieClick,
+                    )
+                }
+            }
 
-        movies.apply {
-            when {
-                loadState.refresh is LoadState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = modifier.fillMaxSize(),
-                    ) {
+            movies.apply {
+                when {
+                    loadState.refresh is LoadState.Loading -> {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = modifier.fillMaxSize(),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(48.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+
+                    loadState.refresh is LoadState.Error -> {
+                        val error = movies.loadState.refresh as LoadState.Error
+
+                        ErrorMessage(
+                            modifier = Modifier,
+                            message = error.error.localizedMessage!!,
+                            onClickRetry = { retry() },
+                        )
+
+                    }
+
+                    loadState.append is LoadState.Loading -> {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .size(20.dp),
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-                }
 
-                loadState.refresh is LoadState.Error -> {
-                    val error = movies.loadState.refresh as LoadState.Error
-
-                    ErrorMessage(
-                        modifier = Modifier,
-                        message = error.error.localizedMessage!!,
-                        onClickRetry = { retry() },
-                    )
-
-                }
-
-                loadState.append is LoadState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .size(20.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-
-                loadState.append is LoadState.Error -> {
-                    val error = movies.loadState.append as LoadState.Error
-                    ErrorMessage(
-                        modifier = Modifier,
-                        message = error.error.localizedMessage!!,
-                        onClickRetry = { retry() },
-                    )
+                    loadState.append is LoadState.Error -> {
+                        val error = movies.loadState.append as LoadState.Error
+                        ErrorMessage(
+                            modifier = Modifier,
+                            message = error.error.localizedMessage!!,
+                            onClickRetry = { retry() },
+                        )
+                    }
                 }
             }
         }
@@ -227,6 +247,7 @@ private fun HomeContentPreview() {
                     ),
                 ),
             ).collectAsLazyPagingItems(),
+            filterMovies = emptyList(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )
@@ -253,6 +274,7 @@ private fun HomeContentLoadingPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
+            filterMovies = emptyList(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )
@@ -284,6 +306,7 @@ private fun HomeContentErrorPreview() {
                     ),
                 ),
             ).collectAsLazyPagingItems(),
+            filterMovies = emptyList(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

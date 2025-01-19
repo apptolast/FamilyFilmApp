@@ -71,11 +71,9 @@ class NetworkModule {
         .client(client)
         .build()
 
-
     @Provides
     @Singleton
     fun provideBackendApi(retrofit: Retrofit): BackendApi = retrofit.create(BackendApi::class.java)
-
 
     @Provides
     @Singleton

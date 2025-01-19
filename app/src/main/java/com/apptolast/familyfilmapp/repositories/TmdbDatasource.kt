@@ -8,12 +8,12 @@ class TmdbDatasourceImpl @Inject constructor(
     private val tmdbApi: TmdbApi,
 ) : TmdbDatasource {
 
-    override suspend fun getPopularMovies(): List<TmdbMovieRemote> =
-        tmdbApi.getPopularMovies().results
+    override suspend fun getPopularMovies(page: Int): List<TmdbMovieRemote> =
+        tmdbApi.getPopularMovies(page).results
 
 }
 
 interface TmdbDatasource {
 
-    suspend fun getPopularMovies(): List<TmdbMovieRemote>
+    suspend fun getPopularMovies(page: Int = 1): List<TmdbMovieRemote>
 }

@@ -1,21 +1,18 @@
 package com.apptolast.familyfilmapp.network.interceptors
 
-import javax.inject.Inject
+import com.apptolast.familyfilmapp.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor() : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-//        chain.request().newBuilder().apply {
-//            header("Content-Type", "application/json")
-//            localRepository.getToken().let { token ->
-//                if (!token.isNullOrBlank()) {
-//                    header("Authorization", "Bearer $token")
-//                }
-//            }
-//        }.also {
-        return chain.proceed(chain.request())
-//        }
+        chain.request().newBuilder().apply {
+            header("Content-Type", "application/json")
+            header("Authorization", "Bearer ${BuildConfig.TMDB_ACCESS_TOKEN}")
+        }.also {
+            return chain.proceed(it.build())
+        }
     }
 }

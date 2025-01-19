@@ -61,36 +61,36 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
                 )
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "${
-                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
-                        }",
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Left,
-                    )
-                    if (movie.voteAverage != 0f) {
-                        Text(
-                            text = "|",
-                            style = MaterialTheme.typography.labelSmall,
-                            textAlign = TextAlign.Left,
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Start",
-                            modifier = Modifier.height(12.dp),
-                        )
-                        Text(
-                            text = "${movie.voteAverage}",
-                            style = MaterialTheme.typography.labelSmall,
-                            textAlign = TextAlign.Left,
-                        )
-                    }
-                }
+//                Row(
+//                    modifier = Modifier.padding(vertical = 10.dp),
+//                    horizontalArrangement = Arrangement.Start,
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    Text(
+//                        text = "${
+//                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
+//                        }",
+//                        style = MaterialTheme.typography.labelSmall,
+//                        textAlign = TextAlign.Left,
+//                    )
+//                    if (movie.voteAverage != 0f) {
+//                        Text(
+//                            text = "|",
+//                            style = MaterialTheme.typography.labelSmall,
+//                            textAlign = TextAlign.Left,
+//                        )
+//                        Icon(
+//                            imageVector = Icons.Default.Star,
+//                            contentDescription = "Start",
+//                            modifier = Modifier.height(12.dp),
+//                        )
+//                        Text(
+//                            text = "${movie.voteAverage}",
+//                            style = MaterialTheme.typography.labelSmall,
+//                            textAlign = TextAlign.Left,
+//                        )
+//                    }
+//                }
                 Text(
                     text = movie.overview,
                     style = MaterialTheme.typography.bodySmall,

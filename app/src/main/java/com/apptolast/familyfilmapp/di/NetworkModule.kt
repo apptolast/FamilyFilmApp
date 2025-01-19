@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.di
 
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.network.BackendApi
+import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.interceptors.AuthInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -20,11 +21,12 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
+
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
-        "debug" -> "https://familyfilmappback-refactor-mio.onrender.com/"
-        "staging" -> "https://familyfilmappback-refactor-mio.onrender.com/"
-        "release" -> "https://familyfilmappback-refactor-mio.onrender.com/"
+        "debug" -> "https://api.themoviedb.org/3/"
+        "staging" -> "https://api.themoviedb.org/3/"
+        "release" -> "https://api.themoviedb.org/3/"
         else -> ""
     }
 
@@ -69,7 +71,13 @@ class NetworkModule {
         .client(client)
         .build()
 
+
     @Provides
     @Singleton
-    fun provideServiceApi(retrofit: Retrofit): BackendApi = retrofit.create(BackendApi::class.java)
+    fun provideBackendApi(retrofit: Retrofit): BackendApi = retrofit.create(BackendApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideTmdbApi(retrofit: Retrofit): TmdbApi = retrofit.create(TmdbApi::class.java)
 }

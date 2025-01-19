@@ -4,16 +4,16 @@ data class Group(
     val id: Int,
     val ownerId: Int,
     val name: String,
-    val watchedList: List<MovieCatalogue>,
-    val toWatchList: List<MovieCatalogue>,
     val users: List<User>,
-) {
+    val watchedList: List<Int>,
+    val toWatchList: List<Int>,
+){
     constructor() : this(
-        id = -1,
-        ownerId = -1,
+        id = 0,
+        ownerId = 0,
         name = "",
-        watchedList = emptyList<MovieCatalogue>(),
-        toWatchList = emptyList<MovieCatalogue>(),
-        users = emptyList<User>(),
+        users = emptyList(),
+        watchedList = emptyList(),
+        toWatchList = emptyList(),
     )
 }

@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -73,7 +72,7 @@ fun GroupCard(
                         .padding(3.dp),
                 )
 
-                if (group.ownerId == userOwner.id) {
+                if (group.ownerId.equals(userOwner.id)) {
                     IconButton(onClick = onChangeGroupName) {
                         Icon(
                             imageVector = Icons.Filled.ModeEditOutline,
@@ -91,7 +90,7 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (group.ownerId == userOwner.id) {
+                if (group.ownerId.equals(userOwner.id)) {
                     OutlinedButton(onClick = onAddMember) {
                         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                         Text(text = stringResource(id = R.string.groups_text_add_member))
@@ -162,28 +161,18 @@ fun GroupCard(
 private fun GroupCardOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User().copy(id = 1),
+            userOwner = User(),
             group = Group().copy(
                 id = 1,
                 ownerId = 1,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                    User().copy(email = "Email 1", language = "es"),
+                    User().copy(email = "Email 2", language = "es"),
+                    User().copy(email = "Email 3", language = "es"),
                 ),
-                watchedList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 1",
-                    ),
-                ),
-                toWatchList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 2",
-                    ),
-                ),
+                watchedList = listOf(1),
+                toWatchList = listOf(1),
             ),
             onDeleteUser = {},
             onAddMember = {},
@@ -198,28 +187,18 @@ private fun GroupCardOwnerPreview() {
 private fun GroupCardNotOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User().copy(id = 1),
+            userOwner = User(),
             group = Group().copy(
                 id = 1,
                 ownerId = 2,
                 name = "Name",
                 users = listOf(
-                    User(id = 1, email = "Email 1", language = "es", provider = "custom"),
-                    User(id = 2, email = "Email 2", language = "es", provider = "custom"),
-                    User(id = 3, email = "Email 3", language = "es", provider = "custom"),
+                    User().copy(email = "Email 1", language = "es"),
+                    User().copy(email = "Email 2", language = "es"),
+                    User().copy(email = "Email 3", language = "es"),
                 ),
-                watchedList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 1",
-                    ),
-                ),
-                toWatchList = listOf(
-                    MovieCatalogue().copy(
-                        id = 1,
-                        title = "Title 2",
-                    ),
-                ),
+                watchedList = listOf(1),
+                toWatchList = listOf(1),
             ),
             onDeleteUser = {},
             onAddMember = {},

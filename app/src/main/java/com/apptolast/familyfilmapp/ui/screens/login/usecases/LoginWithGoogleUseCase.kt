@@ -35,35 +35,35 @@ class LoginWithGoogleUseCase @Inject constructor(private val repository: Firebas
                 )
             }
             .collect { result ->
-                result.fold(
-                    onSuccess = { authResult ->
-                        send(
-                            LoginUiState().copy(
-                                screenState = LoginRegisterState.Register(),
-                                user = User(
-                                    id = -1,
-                                    email = authResult.user?.email ?: "",
-                                    language = "",
-                                    provider = "",
-                                ),
-                                isLogged = true,
-                                isLoading = false,
-                            ),
-                        )
-                    },
-                    onFailure = { exception ->
-                        send(
-                            LoginUiState().copy(
-                                screenState = LoginRegisterState.Login(),
-                                isLogged = false,
-                                isLoading = false,
-                                errorMessage = CustomException.GenericException(
-                                    exception.message ?: "Google Login Failure",
-                                ),
-                            ),
-                        )
-                    },
-                )
+//                result.fold(
+//                    onSuccess = { authResult ->
+//                        send(
+//                            LoginUiState().copy(
+//                                screenState = LoginRegisterState.Register(),
+//                                user = User(
+//                                    id = -1,
+//                                    email = authResult.user?.email ?: "",
+//                                    language = "",
+//                                    provider = "",
+//                                ),
+//                                isLogged = true,
+//                                isLoading = false,
+//                            ),
+//                        )
+//                    },
+//                    onFailure = { exception ->
+//                        send(
+//                            LoginUiState().copy(
+//                                screenState = LoginRegisterState.Login(),
+//                                isLogged = false,
+//                                isLoading = false,
+//                                errorMessage = CustomException.GenericException(
+//                                    exception.message ?: "Google Login Failure",
+//                                ),
+//                            ),
+//                        )
+//                    },
+//                )
             }
     }
 }

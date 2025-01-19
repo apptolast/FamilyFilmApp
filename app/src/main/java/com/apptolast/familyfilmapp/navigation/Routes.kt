@@ -8,7 +8,6 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Recommend
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.GroupsNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.HomeNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.LoginNavType
@@ -55,9 +54,9 @@ sealed class Routes(@StringRes val title: Int, val routes: String, val icon: Ima
         null,
     )
 
-    data object Details : Routes(
-        title = R.string.screen_title_details,
-        routes = DetailNavTypeDestination.route,
-        null,
-    )
+//    data object Details : Routes(
+//        title = R.string.screen_title_details,
+//        routes = DetailNavTypeDestination.route,
+//        null,
+//    )
 }

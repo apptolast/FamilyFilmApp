@@ -10,7 +10,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.ui.screens.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
@@ -64,16 +63,16 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
                 navController = navController,
             )
         }
-        composable(
-            route = Routes.Details.routes,
-            arguments = DetailNavTypeDestination.argumentList,
-        ) { backStackEntry ->
-            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
-            DetailsScreen(
-                navController = navController,
-                movie = movie,
-            )
-        }
+//        composable(
+//            route = Routes.Details.routes,
+//            arguments = DetailNavTypeDestination.argumentList,
+//        ) { backStackEntry ->
+//            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
+//            DetailsScreen(
+//                navController = navController,
+//                movie = movie,
+//            )
+//        }
         composable(
             route = Routes.Search.routes,
             arguments = SearchNavTypeDestination.argumentList,

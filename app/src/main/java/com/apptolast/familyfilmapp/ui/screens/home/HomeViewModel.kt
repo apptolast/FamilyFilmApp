@@ -29,42 +29,42 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.getMovies(1).fold(
-            onSuccess = { movies ->
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        movies = movies,
-                    )
-                }
-            },
-            onFailure = {
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = HomeException.MovieException(),
-                    )
-                }
-            },
-        )
+//        repository.getMovies(1).fold(
+//            onSuccess = { movies ->
+//                _homeUiState.update { oldState ->
+//                    oldState.copy(
+//                        movies = movies,
+//                    )
+//                }
+//            },
+//            onFailure = {
+//                _homeUiState.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = HomeException.MovieException(),
+//                    )
+//                }
+//            },
+//        )
     }
 
     fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.searchMovieByName(1, movieName).fold(
-            onSuccess = { movies ->
-                print("Movies : $movies")
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        movies = movies,
-                    )
-                }
-            },
-            onFailure = { error ->
-                Timber.e("Error: ${error.message}")
-                _homeUiState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = HomeException.MovieException(error.message!!),
-                    )
-                }
-            },
-        )
+//        repository.searchMovieByName(1, movieName).fold(
+//            onSuccess = { movies ->
+//                print("Movies : $movies")
+//                _homeUiState.update { oldState ->
+//                    oldState.copy(
+//                        movies = movies,
+//                    )
+//                }
+//            },
+//            onFailure = { error ->
+//                Timber.e("Error: ${error.message}")
+//                _homeUiState.update { oldState ->
+//                    oldState.copy(
+//                        errorMessage = HomeException.MovieException(error.message!!),
+//                    )
+//                }
+//            },
+//        )
     }
 }

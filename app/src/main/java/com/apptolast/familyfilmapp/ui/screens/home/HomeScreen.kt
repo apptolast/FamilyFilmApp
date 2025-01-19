@@ -31,8 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
-import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -46,8 +45,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         HomeContent(
             movies = stateUI.movies,
             modifier = Modifier.padding(paddingValues),
-            onMovieClick = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+            onMovieClick = {
+//                navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
             searchMovieByNameBody = viewModel::searchMovieByName,
         )
@@ -56,8 +55,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
 @Composable
 fun HomeContent(
-    movies: List<MovieCatalogue>,
-    onMovieClick: (MovieCatalogue) -> Unit,
+    movies: List<Movie>,
+    onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
 ) {
@@ -101,9 +100,9 @@ fun HomeContent(
 
 @Composable
 private fun RowMovie(
-    movies: List<MovieCatalogue>,
+    movies: List<Movie>,
     modifier: Modifier = Modifier,
-    onMovieClick: (MovieCatalogue) -> Unit = {},
+    onMovieClick: (Movie) -> Unit = {},
 ) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
@@ -126,13 +125,13 @@ private fun HomeContentPreview() {
     FamilyFilmAppTheme {
         HomeContent(
             movies = listOf(
-                MovieCatalogue().copy(
+                Movie().copy(
                     title = "Matrix",
-                    synopsis = """
+                    overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
                          una simulación creada por máquinas."
                     """.trimIndent(),
-                    image = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+                    posterPath = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                 ),
             ),
             onMovieClick = {},

@@ -19,27 +19,27 @@ class SeenListUseCase @Inject constructor(private val repository: BackendReposit
             ),
         )
 
-        repository.addMovieToSeenList(groupId, movieId).fold(
-            onSuccess = {
-                send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "Success Movie Added",
-                        isLoading = false,
-                        errorMessage = null,
-                    ),
-                )
-            },
-            onFailure = {
-                send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "",
-                        isLoading = false,
-                        errorMessage = CustomException.GenericException(
-                            it.message ?: "Error",
-                        ),
-                    ),
-                )
-            },
-        )
+//        repository.addMovieToSeenList(groupId, movieId).fold(
+//            onSuccess = {
+//                send(
+//                    DetailScreenUIState().copy(
+//                        successMovieToWatchList = "Success Movie Added",
+//                        isLoading = false,
+//                        errorMessage = null,
+//                    ),
+//                )
+//            },
+//            onFailure = {
+//                send(
+//                    DetailScreenUIState().copy(
+//                        successMovieToWatchList = "",
+//                        isLoading = false,
+//                        errorMessage = CustomException.GenericException(
+//                            it.message ?: "Error",
+//                        ),
+//                    ),
+//                )
+//            },
+//        )
     }
 }

@@ -30,23 +30,23 @@ class ProfileViewModel @Inject constructor(
         initialValue = ProfileUiState(),
     )
 
-    init {
-        viewModelScope.launch {
-            backendRepository.me().fold(
-                onSuccess = { user ->
-                    _state.update { oldState ->
-                        oldState.copy(
-                            userData = user,
-                            isLogged = true,
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    Timber.e(error, "Error getting user info")
-                },
-            )
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            backendRepository.me().fold(
+//                onSuccess = { user ->
+//                    _state.update { oldState ->
+//                        oldState.copy(
+//                            userData = user,
+//                            isLogged = true,
+//                        )
+//                    }
+//                },
+//                onFailure = { error ->
+//                    Timber.e(error, "Error getting user info")
+//                },
+//            )
+//        }
+//    }
 
     fun logOut() {
         firebaseAuth.signOut()

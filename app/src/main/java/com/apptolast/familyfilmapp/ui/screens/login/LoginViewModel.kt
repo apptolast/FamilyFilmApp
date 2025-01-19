@@ -101,24 +101,24 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun registerUserInBackend() = viewModelScope.launch(dispatcherProvider.io()) {
-        backendRepository.createUser().fold(
-            onSuccess = {
-                _loginState.update { loginState ->
-                    loginState.copy(
-                        isLogged = true,
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-            },
-            onFailure = { error ->
-                _loginState.update { loginState ->
-                    loginState.copy(
-                        errorMessage = GenericException(error.message ?: "Register user in our backend failed"),
-                    )
-                }
-            },
-        )
+//        backendRepository.createUser().fold(
+//            onSuccess = {
+//                _loginState.update { loginState ->
+//                    loginState.copy(
+//                        isLogged = true,
+//                        isLoading = false,
+//                        errorMessage = null,
+//                    )
+//                }
+//            },
+//            onFailure = { error ->
+//                _loginState.update { loginState ->
+//                    loginState.copy(
+//                        errorMessage = GenericException(error.message ?: "Register user in our backend failed"),
+//                    )
+//                }
+//            },
+//        )
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {

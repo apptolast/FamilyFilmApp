@@ -34,21 +34,20 @@ class SearchViewModel @Inject constructor(private val repository: BackendReposit
         initialValue = SearchScreenUI(),
     )
 
-    init {
-        viewModelScope.launch {
-            _state.update { oldState ->
-                oldState.copy(
-                    movies = repository.getMovies().getOrElse {
-                        Timber.e(it)
-                        emptyList()
-                    },
-                )
-            }
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            _state.update { oldState ->
+//                oldState.copy(
+//                    movies = repository.getMovies().getOrElse {
+//                        Timber.e(it)
+//                        emptyList()
+//                    },
+//                )
+//            }
+//        }
+//    }
 
-    // Método para actualizar el termino de busqueda de la UI
-
+    // Method to update the search term of the UI
     fun onSearchQueryChanged(query: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(

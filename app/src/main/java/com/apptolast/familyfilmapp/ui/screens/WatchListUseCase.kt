@@ -19,27 +19,27 @@ class WatchListUseCase @Inject constructor(private val repository: BackendReposi
             ),
         )
 
-        repository.addMovieToWatchList(groupId, movieId).fold(
-            onSuccess = {
-                send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "Success Movie Added",
-                        isLoading = false,
-                        errorMessage = null,
-                    ),
-                )
-            },
-            onFailure = {
-                send(
-                    DetailScreenUIState().copy(
-                        successMovieToWatchList = "",
-                        isLoading = false,
-                        errorMessage = CustomException.GenericException(
-                            it.message ?: "Error",
-                        ),
-                    ),
-                )
-            },
-        )
+//        repository.addMovieToWatchList(groupId, movieId).fold(
+//            onSuccess = {
+//                send(
+//                    DetailScreenUIState().copy(
+//                        successMovieToWatchList = "Success Movie Added",
+//                        isLoading = false,
+//                        errorMessage = null,
+//                    ),
+//                )
+//            },
+//            onFailure = {
+//                send(
+//                    DetailScreenUIState().copy(
+//                        successMovieToWatchList = "",
+//                        isLoading = false,
+//                        errorMessage = CustomException.GenericException(
+//                            it.message ?: "Error",
+//                        ),
+//                    ),
+//                )
+//            },
+//        )
     }
 }

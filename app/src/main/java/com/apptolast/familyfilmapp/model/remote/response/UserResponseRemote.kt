@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.model.remote.response
 
-import com.apptolast.familyfilmapp.model.local.User
 import com.google.gson.annotations.SerializedName
 
 data class UserResponseRemote(
@@ -15,12 +14,5 @@ data class UserResponseRemote(
 
     @SerializedName("provider")
     val provider: String? = null,
-
 )
 
-fun UserResponseRemote.toDomain() = User(
-    id = id ?: -1,
-    email = email ?: "",
-    language = language ?: "es",
-    provider = "",
-)

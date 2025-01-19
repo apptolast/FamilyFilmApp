@@ -15,4 +15,3 @@ data class UserResponseRemote(
     @SerializedName("provider")
     val provider: String? = null,
 )
-

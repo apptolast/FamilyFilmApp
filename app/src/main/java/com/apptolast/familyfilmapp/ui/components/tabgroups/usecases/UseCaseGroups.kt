@@ -1,13 +1,6 @@
 package com.apptolast.familyfilmapp.ui.components.tabgroups.usecases
 
-import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.repositories.BackendRepository
-import com.apptolast.familyfilmapp.ui.components.tabgroups.TabBackendState
-import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-
-//class UseCaseGroups @Inject constructor(private val repository: BackendRepository) :
+// class UseCaseGroups @Inject constructor(private val repository: BackendRepository) :
 //    com.apptolast.familyfilmapp.BaseUseCase<Unit, Flow<TabBackendState>>() {
 //    override suspend fun execute(parameters: Unit): Flow<TabBackendState> = channelFlow {
 //        send(
@@ -54,4 +47,4 @@ import kotlinx.coroutines.flow.channelFlow
 //            },
 //        )
 //    }
-//}
+// }

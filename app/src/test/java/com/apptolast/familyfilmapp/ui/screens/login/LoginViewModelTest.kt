@@ -2,17 +2,11 @@ package com.apptolast.familyfilmapp.ui.screens.login
 
 import app.cash.turbine.test
 import com.apptolast.familyfilmapp.MainDispatcherRule
-import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
-import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
-import com.apptolast.familyfilmapp.ui.screens.login.usecases.LoginWithGoogleUseCase
-import com.apptolast.familyfilmapp.ui.screens.login.usecases.RecoverPassUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -31,35 +25,15 @@ class LoginViewModelTest {
     internal var coroutineRule = MainDispatcherRule()
 
     @Mock
-    private lateinit var loginWithGoogleUseCase: LoginWithGoogleUseCase
-
-    @Mock
-    private lateinit var recoverPassUseCase: RecoverPassUseCase
-
-    @Mock
-    private lateinit var backendRepository: BackendRepository
-
-    @Mock
     private lateinit var firebaseRepository: FirebaseRepository
-
-    @Mock
-    private lateinit var localRepository: LocalRepository
-
-    @Mock
-    private lateinit var firebaseAuth: FirebaseAuth
 
     @Mock
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    @Mock
-    private lateinit var firebaseUser: FirebaseUser
-
     @Before
     fun setUp() = runTest(coroutineRule.testDispatcherProvider.io()) {
         viewModel = LoginViewModel(
-            backendRepository,
             firebaseRepository,
-            localRepository,
             coroutineRule.testDispatcherProvider,
             googleSignInClient,
         )

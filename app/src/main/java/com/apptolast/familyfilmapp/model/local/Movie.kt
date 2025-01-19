@@ -1,8 +1,8 @@
 package com.apptolast.familyfilmapp.model.local
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import java.util.Date
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Movie(

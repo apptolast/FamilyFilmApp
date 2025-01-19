@@ -47,11 +47,7 @@ import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun DetailsScreen(
-    navController: NavController,
-    movie: Movie,
-    viewModel: DetailScreenViewModel = hiltViewModel(),
-) {
+fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
     val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val lazyListState = rememberLazyListState()

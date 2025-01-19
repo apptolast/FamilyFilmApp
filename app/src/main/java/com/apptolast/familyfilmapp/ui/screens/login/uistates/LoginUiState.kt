@@ -1,11 +1,10 @@
 package com.apptolast.familyfilmapp.ui.screens.login.uistates
 
 import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.User
 
 data class LoginUiState(
     val screenState: LoginRegisterState,
-    val user: User,
+    val email: String,
     val emailErrorMessage: CustomException?,
     val passErrorMessage: CustomException?,
     val isLogged: Boolean,
@@ -15,10 +14,11 @@ data class LoginUiState(
 
     constructor() : this(
         screenState = LoginRegisterState.Login(),
-        user = User().copy(
-            email = "",
-            language = "",
-        ),
+        email = "",
+//        user = User().copy(
+//            email = "",
+//            language = "",
+//        ),
         emailErrorMessage = null,
         passErrorMessage = null,
         isLogged = false,

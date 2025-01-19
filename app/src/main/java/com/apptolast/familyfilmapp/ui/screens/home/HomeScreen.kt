@@ -99,11 +99,7 @@ fun HomeContent(
 }
 
 @Composable
-private fun RowMovie(
-    movies: List<Movie>,
-    modifier: Modifier = Modifier,
-    onMovieClick: (Movie) -> Unit = {},
-) {
+private fun RowMovie(movies: List<Movie>, modifier: Modifier = Modifier, onMovieClick: (Movie) -> Unit = {}) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),

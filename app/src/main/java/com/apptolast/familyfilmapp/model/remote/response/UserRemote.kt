@@ -16,4 +16,3 @@ data class UserRemote(
     @SerializedName("role")
     val provider: String? = null,
 )
-

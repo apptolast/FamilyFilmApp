@@ -7,7 +7,7 @@ data class Group(
     val users: List<User>,
     val watchedList: List<Int>,
     val toWatchList: List<Int>,
-){
+) {
     constructor() : this(
         id = 0,
         ownerId = 0,

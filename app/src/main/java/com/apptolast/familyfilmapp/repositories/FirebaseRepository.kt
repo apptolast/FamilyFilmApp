@@ -7,23 +7,42 @@ import com.google.firebase.auth.GoogleAuthProvider
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 
 class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseRepository {
 
-    override fun login(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                launch {
-                    send(firebaseAuth.currentUser)
+    override val userState: StateFlow<Result<FirebaseUser?>>
+        field: MutableStateFlow<Result<FirebaseUser?>> = MutableStateFlow(Result.success(null))
+
+    override fun login(email: String, password: String) {
+        try {
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                    userState.value = Result.success(firebaseAuth.currentUser)
                 }
-            }
-            .addOnFailureListener {
-                throw it
-            }
-        awaitClose()
+                .addOnFailureListener {
+                    userState.value = Result.success(null)
+                }
+        } catch (e: Exception) {
+            userState.value = Result.failure(e)
+        }
     }
+
+//    override fun login(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
+//        firebaseAuth.signInWithEmailAndPassword(email, password)
+//            .addOnSuccessListener {
+//                launch {
+//                    send(firebaseAuth.currentUser)
+//                }
+//            }
+//            .addOnFailureListener {
+//                throw it
+//            }
+//        awaitClose()
+//    }
 
     override fun register(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -84,7 +103,11 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
 }
 
 interface FirebaseRepository {
-    fun login(email: String, password: String): Flow<FirebaseUser?>
+    val userState: StateFlow<Result<FirebaseUser?>>
+
+    fun login(email: String, password: String)
+    //    fun login(email: String, password: String): Flow<FirebaseUser?>
+
     fun register(email: String, password: String): Flow<FirebaseUser?>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun getUser(): Flow<FirebaseUser?>

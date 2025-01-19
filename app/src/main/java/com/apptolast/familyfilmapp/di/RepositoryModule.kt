@@ -1,13 +1,10 @@
 package com.apptolast.familyfilmapp.di
 
-import com.apptolast.familyfilmapp.managers.SharedPreferenceManager
 import com.apptolast.familyfilmapp.network.BackendApi
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.repositories.BackendRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseRepositoryImpl
-import com.apptolast.familyfilmapp.repositories.LocalRepository
-import com.apptolast.familyfilmapp.repositories.LocalRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -23,9 +20,9 @@ object RepositoryModule {
     @Provides
     fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseRepository = FirebaseRepositoryImpl(firebaseAuth)
 
-    @Singleton
-    @Provides
-    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository = LocalRepositoryImpl(prefs)
+//    @Singleton
+//    @Provides
+//    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository = LocalRepositoryImpl(prefs)
 
     @Singleton
     @Provides

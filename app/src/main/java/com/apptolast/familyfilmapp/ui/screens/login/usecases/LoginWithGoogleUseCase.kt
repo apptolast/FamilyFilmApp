@@ -1,7 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.login.usecases
 
-import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
@@ -28,9 +26,9 @@ class LoginWithGoogleUseCase @Inject constructor(private val repository: Firebas
                         screenState = LoginRegisterState.Login(),
                         isLoading = false,
                         isLogged = false,
-                        errorMessage = CustomException.GenericException(
-                            exception.message ?: "Google Login Error",
-                        ),
+//                        errorMessage = CustomException.GenericException(
+//                            exception.message ?: "Google Login Error",
+//                        ),
                     ),
                 )
             }

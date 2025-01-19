@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {

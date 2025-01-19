@@ -29,9 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import java.util.Calendar
 

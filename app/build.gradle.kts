@@ -193,6 +193,13 @@ androidComponents.onVariants { variant ->
         file("$buildFile/generated/ksp/${variant.name}/kotlin"),
     )
 }
+
 ksp {
     arg("ignoreGenericArgs", "false")
+}
+
+kotlin {
+    sourceSets.configureEach {
+        languageSettings.enableLanguageFeature("ExplicitBackingFields")
+    }
 }

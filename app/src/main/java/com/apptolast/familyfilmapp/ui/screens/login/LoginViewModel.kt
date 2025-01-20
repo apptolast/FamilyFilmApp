@@ -3,7 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.CustomException.GenericException
-import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val firebaseRepository: FirebaseRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
     private val dispatcherProvider: DispatcherProvider,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
@@ -33,7 +33,7 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatcherProvider.io()) {
-            firebaseRepository.userState.collect { result ->
+            firebaseAuthRepository.userState.collect { result ->
 
                 result.fold(
                     onSuccess = { firebaseUser ->
@@ -66,10 +66,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun login(email: String, password: String) = firebaseRepository.login(email, password)
+    fun login(email: String, password: String) = firebaseAuthRepository.login(email, password)
 
     fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        firebaseRepository.register(email, password)
+        firebaseAuthRepository.register(email, password)
 //            .catch { error ->
 //                _loginState.update { loginState ->
 //                    loginState.copy(

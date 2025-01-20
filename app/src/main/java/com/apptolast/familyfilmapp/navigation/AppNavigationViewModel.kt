@@ -2,7 +2,7 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 
 @HiltViewModel
-class AppNavigationViewModel @Inject constructor(firebaseRepository: FirebaseRepository) : ViewModel() {
+class AppNavigationViewModel @Inject constructor(firebaseAuthRepository: FirebaseAuthRepository) : ViewModel() {
 
-    val userState = firebaseRepository.getUser()
+    val userState = firebaseAuthRepository.getUser()
         .catch {
             //  TODO: Handle error and notify to the user if needed
             Timber.e(it, "Error getting user state")

@@ -1,6 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.login.usecases
 
-import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import javax.inject.Inject
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 
-class LoginWithGoogleUseCase @Inject constructor(private val repository: FirebaseRepository) :
+class LoginWithGoogleUseCase @Inject constructor(private val repository: FirebaseAuthRepository) :
     com.apptolast.familyfilmapp.BaseUseCase<String, Flow<LoginUiState>>() {
 
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {

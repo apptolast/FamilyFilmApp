@@ -3,7 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login.usecases
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.extensions.isEmailValid
-import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 
-class RecoverPassUseCase @Inject constructor(private val firebaseRepository: FirebaseRepository) :
+class RecoverPassUseCase @Inject constructor(private val firebaseAuthRepository: FirebaseAuthRepository) :
     com.apptolast.familyfilmapp.BaseUseCase<String, Flow<RecoverPassState>>() {
 
     override suspend fun execute(parameters: String): Flow<RecoverPassState> = channelFlow {
@@ -37,7 +37,7 @@ class RecoverPassUseCase @Inject constructor(private val firebaseRepository: Fir
                     isLoading = true,
                 ),
             )
-            firebaseRepository.recoverPassword(parameters).catch { exception ->
+            firebaseAuthRepository.recoverPassword(parameters).catch { exception ->
                 send(
                     RecoverPassState().copy(
                         isDialogVisible = false,

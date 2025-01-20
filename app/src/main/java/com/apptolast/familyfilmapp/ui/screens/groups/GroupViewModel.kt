@@ -7,14 +7,11 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.BackendRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -22,24 +19,24 @@ class GroupViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _backendState = MutableStateFlow(BackendState())
-    val backendState: StateFlow<BackendState> = _backendState.asStateFlow()
+    val backendState: StateFlow<BackendState>
+        field: MutableStateFlow<BackendState> = MutableStateFlow(BackendState())
 
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<UiState>
+        field: MutableStateFlow<UiState> = MutableStateFlow(UiState())
 
-    init {
-        viewModelScope.launch {
-            awaitAll(
-                async { getGroups() },
-                async { me() },
-            )
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            awaitAll(
+//                async { getGroups() },
+//                async { me() },
+//            )
+//        }
+//    }
 
     private suspend fun getGroups() {
-        _backendState.update { it.copy(isLoading = true) }
-
+//        backendState.update { it.copy(isLoading = true) }
+//
 //        repository.getGroups().fold(
 //            onSuccess = { groups ->
 //                _backendState.update {
@@ -97,6 +94,8 @@ class GroupViewModel @Inject constructor(
     }
 
     fun createGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+
+
 //        _backendState.update { it.copy(isLoading = true) }
 //
 //        repository.addGroup(groupName).fold(
@@ -254,15 +253,15 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-    fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
+    fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }
 
     fun selectGroup(index: Int) = viewModelScope.launch {
-        _uiState.update {
+        uiState.update {
             it.copy(selectedGroupIndex = index)
         }
     }
 
-    fun clearErrorMessage() = _backendState.update { it.copy(errorMessage = null) }
+    fun clearErrorMessage() = backendState.update { it.copy(errorMessage = null) }
 
     data class BackendState(
         val userOwner: User,

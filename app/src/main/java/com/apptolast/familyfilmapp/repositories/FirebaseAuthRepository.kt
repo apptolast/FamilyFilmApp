@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 
-class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseRepository {
+class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseAuthRepository {
 
     override val userState: StateFlow<Result<FirebaseUser?>>
         field: MutableStateFlow<Result<FirebaseUser?>> = MutableStateFlow(Result.success(null))
@@ -30,19 +30,6 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
             userState.value = Result.failure(e)
         }
     }
-
-//    override fun login(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
-//        firebaseAuth.signInWithEmailAndPassword(email, password)
-//            .addOnSuccessListener {
-//                launch {
-//                    send(firebaseAuth.currentUser)
-//                }
-//            }
-//            .addOnFailureListener {
-//                throw it
-//            }
-//        awaitClose()
-//    }
 
     override fun register(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -102,7 +89,7 @@ class FirebaseRepositoryImpl @Inject constructor(private val firebaseAuth: Fireb
     }
 }
 
-interface FirebaseRepository {
+interface FirebaseAuthRepository {
     val userState: StateFlow<Result<FirebaseUser?>>
 
     fun login(email: String, password: String)

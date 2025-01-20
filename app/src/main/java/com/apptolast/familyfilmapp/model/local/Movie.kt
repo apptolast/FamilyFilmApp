@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.model.local
 
 import android.os.Parcelable
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
-import java.util.Date
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -41,13 +40,13 @@ data class Movie(
 
 fun TmdbMovieRemote.toDomain(): Movie = Movie(
     id = id,
-    title = title,
+    title = title ?: "",
     adult = adult,
 //    releaseDate = releaseDate,
-    overview = overview,
+    overview = overview ?: "",
 //    popularity = popularity,
 //    voteAverage = voteAverage,
 //    voteCount = voteCount,
 //    genres = genres.map { it.toDomain() },
-    posterPath = posterPath,
+    posterPath = posterPath ?: "",
 )

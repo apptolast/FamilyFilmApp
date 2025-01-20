@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -20,6 +21,9 @@ class RepositoryImpl @Inject constructor(
         pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
     ).flow
 
+    override suspend fun searchMovieByName(string: String): List<Movie> =
+        tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
+
 
 //    override suspend fun getPopularMovies(): List<Movie> =
 //        tmdbDatasource.getPopularMovies().map { it.toDomain() }
@@ -30,5 +34,6 @@ class RepositoryImpl @Inject constructor(
 interface Repository {
 
     fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
+    suspend fun searchMovieByName(string: String): List<Movie>
 
 }

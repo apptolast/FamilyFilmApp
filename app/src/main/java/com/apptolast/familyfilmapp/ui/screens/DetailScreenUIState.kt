@@ -17,8 +17,4 @@ data class DetailScreenUIState(
         isLoading = false,
         errorMessage = null,
     )
-
-    override fun copyWithLoading(isLoading: Boolean): BaseUiState {
-        TODO("Not yet implemented")
-    }
 }

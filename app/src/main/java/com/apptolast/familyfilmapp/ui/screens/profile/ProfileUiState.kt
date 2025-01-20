@@ -17,8 +17,4 @@ data class ProfileUiState(
         isLoading = false,
         errorMessage = null,
     )
-
-    override fun copyWithLoading(isLoading: Boolean): BaseUiState = this.copy(
-        isLoading = isLoading,
-    )
 }

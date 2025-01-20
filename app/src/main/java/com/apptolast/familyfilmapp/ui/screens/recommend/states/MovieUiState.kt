@@ -22,8 +22,4 @@ data class MovieUiState(
         isLoading = false,
         errorMessage = null,
     )
-
-    override fun copyWithLoading(isLoading: Boolean): BaseUiState = this.copy(
-        isLoading = isLoading,
-    )
 }

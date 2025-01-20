@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -60,6 +61,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     ) { paddingValues ->
         HomeContent(
             movies = movieItems,
+            filterMovies = stateUI.filterMovies,
             modifier = Modifier.padding(paddingValues),
             onMovieClick = {
 //                navController.navigate(DetailNavTypeDestination.getDestination(movie))
@@ -72,6 +74,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 @Composable
 fun HomeContent(
     movies: LazyPagingItems<Movie>,
+    filterMovies: List<Movie>,
     onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
@@ -108,6 +111,7 @@ fun HomeContent(
 
         RowMovie(
             movies = movies,
+            filterMovies = filterMovies,
             modifier = Modifier.weight(1f),
             onMovieClick = onMovieClick,
         )
@@ -117,6 +121,7 @@ fun HomeContent(
 @Composable
 private fun RowMovie(
     movies: LazyPagingItems<Movie>,
+    filterMovies: List<Movie>,
     modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit = {},
 ) {
@@ -124,15 +129,30 @@ private fun RowMovie(
     val context = LocalContext.current
 
     Box(modifier = modifier) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.padding(bottom = 15.dp),
-        ) {
-            items(movies.itemCount) { index ->
-                MovieItem(
-                    movie = movies[index]!!,
-                    onClick = onMovieClick,
-                )
+
+        if (filterMovies.isNotEmpty()) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.padding(bottom = 15.dp),
+            ) {
+                items(filterMovies) { movie ->
+                    MovieItem(
+                        movie = movie,
+                        onClick = onMovieClick,
+                    )
+                }
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.padding(bottom = 15.dp),
+            ) {
+                items(movies.itemCount) { index ->
+                    MovieItem(
+                        movie = movies[index]!!,
+                        onClick = onMovieClick,
+                    )
+                }
             }
         }
 
@@ -156,7 +176,7 @@ private fun RowMovie(
                     Toast.makeText(
                         context,
                         error.error.localizedMessage!!,
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
 
 //                    ErrorMessage(
@@ -192,7 +212,7 @@ private fun RowMovie(
                     Toast.makeText(
                         context,
                         error.error.localizedMessage!!,
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
 
 //                    ErrorMessage(
@@ -267,6 +287,7 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
+            filterMovies = emptyList(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

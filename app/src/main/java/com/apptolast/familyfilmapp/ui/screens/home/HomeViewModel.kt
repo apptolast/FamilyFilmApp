@@ -45,24 +45,13 @@ class HomeViewModel @Inject constructor(
 //        }
 //    }
 
-    fun searchMovieByName(movieName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-//        repository.searchMovieByName(1, movieName).fold(
-//            onSuccess = { movies ->
-//                print("Movies : $movies")
-//                _homeUiState.update { oldState ->
-//                    oldState.copy(
-//                        movies = movies,
-//                    )
-//                }
-//            },
-//            onFailure = { error ->
-//                Timber.e("Error: ${error.message}")
-//                _homeUiState.update { oldState ->
-//                    oldState.copy(
-//                        errorMessage = HomeException.MovieException(error.message!!),
-//                    )
-//                }
-//            },
-//        )
+    fun searchMovieByName(movieFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        if (movieFilter.isEmpty()) {
+            homeUiState.update { it.copy(filterMovies = emptyList()) }
+        } else {
+            repository.searchMovieByName(movieFilter).let { movies ->
+                homeUiState.update { it.copy(filterMovies = movies) }
+            }
+        }
     }
 }

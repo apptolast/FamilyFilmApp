@@ -46,6 +46,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.flow.flowOf
@@ -63,8 +64,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             movies = movieItems,
             filterMovies = stateUI.filterMovies,
             modifier = Modifier.padding(paddingValues),
-            onMovieClick = {
-//                navController.navigate(DetailNavTypeDestination.getDestination(movie))
+            onMovieClick = { movie ->
+                navController.navigate(DetailNavTypeDestination.getDestination(movie))
             },
             searchMovieByNameBody = viewModel::searchMovieByName,
         )

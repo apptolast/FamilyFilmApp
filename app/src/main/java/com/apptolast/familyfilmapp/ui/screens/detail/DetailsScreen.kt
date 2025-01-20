@@ -1,5 +1,6 @@
-package com.apptolast.familyfilmapp.ui.screens
+package com.apptolast.familyfilmapp.ui.screens.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -48,39 +50,13 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
-    val detailScreenUIState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val lazyListState = rememberLazyListState()
     val snackBarHostState = remember { SnackbarHostState() }
-    var scrolledY = 0f
-    var previousOffset = 0
 
-    LaunchedEffect(
-        key1 = detailScreenUIState.successMovieToViewList,
-    ) {
-        if (detailScreenUIState.successMovieToViewList.isNotBlank()) {
-            snackBarHostState.showSnackbar(
-                detailScreenUIState.successMovieToViewList,
-                "Close",
-                true,
-                SnackbarDuration.Long,
-            )
-        }
-    }
-
-    LaunchedEffect(key1 = detailScreenUIState.successMovieToWatchList) {
-        if (detailScreenUIState.successMovieToWatchList.isNotBlank()) {
-            snackBarHostState.showSnackbar(
-                detailScreenUIState.successMovieToWatchList,
-                "Close",
-                true,
-                SnackbarDuration.Long,
-            )
-        }
-    }
-
-    LaunchedEffect(key1 = detailScreenUIState.errorMessage?.error) {
-        detailScreenUIState.errorMessage?.let {
+    LaunchedEffect(key1 = state.errorMessage?.error) {
+        state.errorMessage?.let {
             if (it.error.isNotBlank()) {
                 snackBarHostState.showSnackbar(
                     it.error,
@@ -99,22 +75,19 @@ fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailS
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it),
+            horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState,
         ) {
             item {
                 AsyncImage(
                     model = "${BASE_URL}${movie.posterPath}",
                     contentDescription = null,
+                    clipToBounds = true,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5))
-                        .height(420.dp)
-                        .graphicsLayer {
-                            scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
-                            translationY = scrolledY * 0.5f
-                            previousOffset = lazyListState.firstVisibleItemScrollOffset
-                        },
-                    contentScale = ContentScale.Crop,
+                        .wrapContentWidth()
+                        .height(430.dp)
+                        .clip(MaterialTheme.shapes.large),
+                    contentScale = ContentScale.Fit,
                 )
                 Column(
                     modifier = Modifier.padding(18.dp),
@@ -132,9 +105,9 @@ fun DetailsScreen(navController: NavController, movie: Movie, viewModel: DetailS
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(text = "2023")
-                        Text(text = "1h 34min")
-                        Text(text = "+18")
+                        Text(text = movie.releaseDate)
+                        Text(text = "")
+                        Text(text = if (movie.adult) "+18" else "")
                     }
                     Row(
                         modifier = Modifier
@@ -195,7 +168,12 @@ private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsScreen(
             navController = rememberNavController(),
-            movie = Movie(),
+            movie = Movie().copy(
+                title = "Movie title",
+                posterPath = "/poster.jpg",
+                adult = true,
+                releaseDate = "2023-01-01",
+            ),
             viewModel = hiltViewModel(),
         )
     }

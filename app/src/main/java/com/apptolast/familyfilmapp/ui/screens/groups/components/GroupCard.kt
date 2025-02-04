@@ -163,8 +163,8 @@ private fun GroupCardOwnerPreview() {
         GroupCard(
             userOwner = User(),
             group = Group().copy(
-                id = 1,
-                ownerId = 1,
+                id = "1",
+                ownerId = "1",
                 name = "Name",
                 users = listOf(
                     User().copy(email = "Email 1", language = "es"),
@@ -189,8 +189,8 @@ private fun GroupCardNotOwnerPreview() {
         GroupCard(
             userOwner = User(),
             group = Group().copy(
-                id = 1,
-                ownerId = 2,
+                id = "1",
+                ownerId = "2",
                 name = "Name",
                 users = listOf(
                     User().copy(email = "Email 1", language = "es"),

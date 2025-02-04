@@ -52,6 +52,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val groups by viewModel.groups.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = backendState.errorMessage) {
         if (backendState.errorMessage != null) {
@@ -95,7 +96,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
         } else {
             GroupContent(
                 userOwner = backendState.userOwner,
-                groups = backendState.groups,
+                groups = groups,
                 selectedGroupIndex = uiState.selectedGroupIndex,
                 modifier = Modifier.padding(paddingValues),
                 onChangeGroupName = { group ->
@@ -136,7 +137,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     EmailFieldDialog(
                         title = stringResource(id = R.string.dialog_add_group_member_title),
                         onConfirm = { email ->
-                            viewModel.addMember(group.id, email)
+//                            viewModel.addMember(group.id, email)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -151,7 +152,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         title = stringResource(id = R.string.dialog_change_group_title),
                         description = stringResource(id = R.string.dialog_change_group_description),
                         onConfirm = { newGroupName ->
-                            viewModel.changeGroupName(group.id, newGroupName)
+//                            viewModel.changeGroupName(group.id, newGroupName)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -185,7 +186,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         confirmButtonText = stringResource(id = android.R.string.ok),
                         cancelButtonText = stringResource(id = android.R.string.cancel),
                         onConfirm = {
-                            viewModel.deleteMember(group.id, user.id)
+//                            viewModel.deleteMember(group.id, user.id)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)

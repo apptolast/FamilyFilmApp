@@ -1,3 +1,6 @@
 package com.apptolast.familyfilmapp.model.local
 
-data class SelectedMovie(val movieId: Int, val groupsIds: List<Int>)
+/**
+ * Movies selected by a user
+ */
+data class SelectedMovie(val movieId: Int, val groups: List<Group>)

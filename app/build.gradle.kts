@@ -150,6 +150,12 @@ dependencies {
     // Ktlint RuleSet
     ktlintRuleset(libs.ktlint.ruleset)
 
+    // Room
+//    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Turbine
     testImplementation(libs.turbine)
 
     // Test

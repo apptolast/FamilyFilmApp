@@ -8,9 +8,16 @@ import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.repositories.RepositoryImpl
-import com.apptolast.familyfilmapp.repositories.TmdbDatasource
-import com.apptolast.familyfilmapp.repositories.TmdbDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasourceImpl
+import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.user.UserDao
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +30,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository = FirebaseAuthRepositoryImpl(firebaseAuth)
+    fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository =
+        FirebaseAuthRepositoryImpl(firebaseAuth)
 
 //    @Singleton
 //    @Provides
@@ -33,10 +41,28 @@ object RepositoryModule {
     @Provides
     fun provideBackendRepository(backendApi: BackendApi): BackendRepository = BackendRepositoryImpl(backendApi)
 
+    @Provides
+    fun provideRepository(
+        firebaseAuth: FirebaseAuth,
+        roomDatasource: RoomDatasource,
+        firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
+        tmdbDatasource: TmdbDatasource,
+    ): Repository =
+        RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource)
 
     @Provides
-    fun provideRepository(tmdbDatasource: TmdbDatasource): Repository =
-        RepositoryImpl(tmdbDatasource)
+    fun provideRoomDatasource(
+        groupDao: GroupDao,
+        userDao: UserDao,
+    ): RoomDatasource =
+        RoomDatasourceImpl(groupDao, userDao)
+
+    @Provides
+    fun provideFirebaseDatabaseDatasource(
+        database: FirebaseFirestore,
+        roomDatasource: RoomDatasource,
+    ): FirebaseDatabaseDatasource =
+        FirebaseDatabaseDatasourceImpl(database, roomDatasource)
 
     @Provides
     fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource =

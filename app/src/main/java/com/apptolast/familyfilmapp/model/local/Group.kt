@@ -1,16 +1,16 @@
 package com.apptolast.familyfilmapp.model.local
 
 data class Group(
-    val id: Int,
-    val ownerId: Int,
+    val id: String,
+    val ownerId: String,
     val name: String,
     val users: List<User>,
-    val watchedList: List<Int>,
-    val toWatchList: List<Int>,
+    val watchedList: List<Int>, // List of movie ids
+    val toWatchList: List<Int>, // List of movie ids
 ) {
     constructor() : this(
-        id = 0,
-        ownerId = 0,
+        id = "",
+        ownerId = "",
         name = "",
         users = emptyList(),
         watchedList = emptyList(),

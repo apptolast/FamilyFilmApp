@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +25,12 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(userState) {
+        if (userState != null) {
+            viewModel.saveUser()
+        }
+    }
 
     NavHost(
         navController = navController,

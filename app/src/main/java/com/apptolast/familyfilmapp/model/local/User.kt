@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.model.local
 
 data class User(
     val id: String,
+    val groupIds: List<String>,
     val email: String,
     val language: String,
     val watched: List<SelectedMovie>,
@@ -9,6 +10,7 @@ data class User(
 ) {
     constructor() : this(
         id = "",
+        groupIds = emptyList<String>(),
         email = "",
         language = "",
         watched = emptyList(),

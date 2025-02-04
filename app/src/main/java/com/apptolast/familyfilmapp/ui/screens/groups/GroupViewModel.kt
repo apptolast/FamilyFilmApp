@@ -4,18 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.repositories.BackendRepository
+import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
-    private val repository: BackendRepository,
+    private val repository: Repository,
+    private val auth : FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
@@ -25,12 +29,22 @@ class GroupViewModel @Inject constructor(
     val uiState: StateFlow<UiState>
         field: MutableStateFlow<UiState> = MutableStateFlow(UiState())
 
+    val groups = repository.getMyGroups(auth.currentUser?.uid!!)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
 //    init {
 //        viewModelScope.launch {
-//            awaitAll(
-//                async { getGroups() },
-//                async { me() },
-//            )
+//            repository.getMyGroups(viewModelScope).collect { groups ->
+//                backendState.update { it.copy(groups = groups) }
+//            }
+////            awaitAll(
+////                async { getGroups() },
+////                async { me() },
+////            )
 //        }
 //    }
 
@@ -93,7 +107,8 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-    fun createGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+    fun createGroup(groupName: String)  {
+        repository.createGroup(viewModelScope, groupName)
 
 
 //        _backendState.update { it.copy(isLoading = true) }

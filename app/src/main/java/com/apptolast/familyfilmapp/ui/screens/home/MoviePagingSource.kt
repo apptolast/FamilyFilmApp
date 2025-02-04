@@ -6,7 +6,7 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.toDomain
-import com.apptolast.familyfilmapp.repositories.TmdbDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import retrofit2.HttpException
 import java.io.IOException
 

@@ -4,8 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
+import com.apptolast.familyfilmapp.room.converters.IntListConverter
+import com.apptolast.familyfilmapp.room.converters.StringListConverter
+import com.apptolast.familyfilmapp.room.converters.UserListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 
@@ -19,7 +23,14 @@ import com.apptolast.familyfilmapp.room.user.UserDao
     ],
     version = 1, exportSchema = false,
 )
-abstract class AppDatabase : RoomDatabase()  {
+@TypeConverters(
+    value = [
+        UserListConverter::class,
+        IntListConverter::class,
+        StringListConverter::class,
+    ],
+)
+abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun groupDao(): GroupDao
@@ -33,7 +44,8 @@ abstract class AppDatabase : RoomDatabase()  {
 
 
         // For Singleton instantiation
-        @Volatile private var instance: AppDatabase? = null
+        @Volatile
+        private var instance: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
             return instance ?: synchronized(this) {

@@ -8,10 +8,12 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupViewModel @Inject constructor(
     private val repository: Repository,
-    private val auth : FirebaseAuth,
+    private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
@@ -29,61 +31,38 @@ class GroupViewModel @Inject constructor(
     val uiState: StateFlow<UiState>
         field: MutableStateFlow<UiState> = MutableStateFlow(UiState())
 
-    val groups = repository.getMyGroups(auth.currentUser?.uid!!)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
-//    init {
-//        viewModelScope.launch {
-//            repository.getMyGroups(viewModelScope).collect { groups ->
-//                backendState.update { it.copy(groups = groups) }
-//            }
-////            awaitAll(
-////                async { getGroups() },
-////                async { me() },
-////            )
-//        }
-//    }
+    init {
+        viewModelScope.launch {
+            awaitAll(
+                async { getGroups() },
+                async { me() },
+            )
+        }
+    }
 
     private suspend fun getGroups() {
-//        backendState.update { it.copy(isLoading = true) }
-//
-//        repository.getGroups().fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-// //                            .sortedWith(
-// //                                compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
-// //                                    group.name
-// //                                },
-// //                            ),
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//
-//                _uiState.update {
-//                    it.copy(
-//                        selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
-//                    )
-//                }
-//            },
-//            onFailure = { error ->
-//                _backendState.update {
-//                    it.copy(
-//                        errorMessage = error.message,
-//                        isLoading = false,
-//                    )
-//                }
-//            },
-//        )
+        repository.getMyGroups(auth.currentUser?.uid!!).collectLatest { groups ->
+            backendState.update {
+                it.copy(
+                    groups = groups.sortedWith(
+                        compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
+                    ),
+                    isLoading = false,
+                    errorMessage = null,
+                )
+            }
+        }
     }
 
     private suspend fun me() {
+        val authUser = auth.currentUser ?: return
+        repository.getUserById(authUser.uid).first().let { user ->
+            backendState.update {
+                it.copy(
+                    currentUser = user,
+                )
+            }
+        }
 //        _backendState.update { it.copy(isLoading = true) }
 //        repository.me().fold(
 //            onSuccess = { user ->
@@ -107,7 +86,7 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-    fun createGroup(groupName: String)  {
+    fun createGroup(groupName: String) {
         repository.createGroup(viewModelScope, groupName)
 
 
@@ -173,7 +152,9 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-    fun changeGroupName(groupId: Int, newGroupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
+    fun changeGroupName(group: Group) {
+        repository.updateGroup(viewModelScope, group)
+
 //        _backendState.update { it.copy(isLoading = true) }
 //
 //        repository.updateGroupName(groupId, newGroupName).fold(
@@ -279,13 +260,13 @@ class GroupViewModel @Inject constructor(
     fun clearErrorMessage() = backendState.update { it.copy(errorMessage = null) }
 
     data class BackendState(
-        val userOwner: User,
+        val currentUser: User,
         val groups: List<Group>,
         val isLoading: Boolean,
         val errorMessage: String?,
     ) {
         constructor() : this(
-            userOwner = User(),
+            currentUser = User(),
             groups = emptyList(),
             isLoading = false,
             errorMessage = null,
@@ -295,7 +276,7 @@ class GroupViewModel @Inject constructor(
     data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,
-            selectedGroupIndex = -1,
+            selectedGroupIndex = 0,
         )
     }
 

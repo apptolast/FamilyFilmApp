@@ -52,7 +52,6 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val groups by viewModel.groups.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = backendState.errorMessage) {
         if (backendState.errorMessage != null) {
@@ -95,8 +94,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
             }
         } else {
             GroupContent(
-                userOwner = backendState.userOwner,
-                groups = groups,
+                userOwner = backendState.currentUser,
+                groups = backendState.groups,
                 selectedGroupIndex = uiState.selectedGroupIndex,
                 modifier = Modifier.padding(paddingValues),
                 onChangeGroupName = { group ->
@@ -152,7 +151,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         title = stringResource(id = R.string.dialog_change_group_title),
                         description = stringResource(id = R.string.dialog_change_group_description),
                         onConfirm = { newGroupName ->
-//                            viewModel.changeGroupName(group.id, newGroupName)
+                            viewModel.changeGroupName(group.copy(name = newGroupName))
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -216,7 +215,7 @@ fun GroupContent(
     onGroupSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (groups.isEmpty() || selectedGroupIndex == -1) {
+    if (groups.isEmpty() ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -237,8 +236,6 @@ fun GroupContent(
             // Group tabs
             ScrollableTabRow(
                 selectedTabIndex = selectedGroupIndex,
-//                containerColor = MaterialTheme.colorScheme.outlineVariant,
-//            edgePadding = 0.dp,
                 divider = {
                     VerticalDivider()
                 },
@@ -271,7 +268,7 @@ fun GroupContent(
 
             GroupCard(
                 userOwner = userOwner,
-                group = currentSelectedGroup!!,
+                group = currentSelectedGroup,
                 modifier = Modifier.padding(vertical = 12.dp),
                 onChangeGroupName = {
                     onChangeGroupName(currentSelectedGroup)

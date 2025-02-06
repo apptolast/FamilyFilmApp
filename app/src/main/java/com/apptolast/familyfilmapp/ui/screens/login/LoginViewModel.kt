@@ -3,7 +3,9 @@ package com.apptolast.familyfilmapp.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.CustomException.GenericException
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
@@ -11,33 +13,34 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
-    private val _loginState = MutableStateFlow(LoginUiState())
-    val loginState: StateFlow<LoginUiState> = _loginState.asStateFlow()
+    val loginState: StateFlow<LoginUiState>
+        field: MutableStateFlow<LoginUiState> = MutableStateFlow(LoginUiState())
 
-    private val _recoverPassState = MutableStateFlow(RecoverPassState())
-    val recoverPassState = _recoverPassState.asStateFlow()
+    val recoverPassState: StateFlow<RecoverPassState>
+        field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
     init {
         viewModelScope.launch(dispatcherProvider.io()) {
             firebaseAuthRepository.userState.collect { result ->
-
                 result.fold(
                     onSuccess = { firebaseUser ->
-                        _loginState.update {
+                        loginState.update {
                             it.copy(
                                 isLogged = firebaseUser != null,
                                 isLoading = false,
@@ -46,7 +49,7 @@ class LoginViewModel @Inject constructor(
                         }
                     },
                     onFailure = { error ->
-                        _loginState.update {
+                        loginState.update {
                             it.copy(
                                 errorMessage = GenericException(error.message ?: "Login Error"),
                             )
@@ -58,7 +61,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun changeScreenState() = viewModelScope.launch(dispatcherProvider.io()) {
-        _loginState.update {
+        loginState.update {
             when (it.screenState) {
                 is LoginRegisterState.Login -> it.copy(screenState = LoginRegisterState.Register())
                 is LoginRegisterState.Register -> it.copy(screenState = LoginRegisterState.Login())
@@ -69,7 +72,26 @@ class LoginViewModel @Inject constructor(
     fun login(email: String, password: String) = firebaseAuthRepository.login(email, password)
 
     fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        firebaseAuthRepository.register(email, password)
+        firebaseAuthRepository.register(email, password).first()?.let { firebaseUser ->
+            loginState.update {
+                it.copy(
+                    isLogged = true,
+                    isLoading = false,
+                    errorMessage = null,
+                    email = firebaseUser.email ?: "",
+                )
+            }
+
+            // Save the user in firestore database
+            repository.createUser(
+                viewModelScope = viewModelScope,
+                user = User().copy(
+                    id = firebaseUser.uid,
+                    email = firebaseUser.email ?: "",
+                    language = Locale.getDefault().language,
+                ),
+            )
+        }
 //            .catch { error ->
 //                _loginState.update { loginState ->
 //                    loginState.copy(
@@ -129,7 +151,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {
-        _recoverPassState.update { newRecoverPassState }
+        recoverPassState.update { newRecoverPassState }
     }
 
     fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {

@@ -7,22 +7,11 @@ import com.apptolast.familyfilmapp.model.local.SelectedMovie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
 
-//@Entity(tableName = USERS_TABLE_NAME)
-//data class UserTable(
-//    @PrimaryKey(autoGenerate = false)
-//    var userId: String,
-//    @Ignore val groupIds: HashSet<String>,
-//    val email: String,
-//    val language: String,
-////    @Ignore val watched: List<SelectedMovie>,
-////    @Ignore val toWatch: List<SelectedMovie>,
-//)
-
 @Entity(tableName = USERS_TABLE_NAME)
 data class UserTable(
     @PrimaryKey(autoGenerate = false)
     val userId: String,
-    @Ignore val groupIds: List<String>,
+    val groupIds: List<String>,
     var email: String,
     var language: String,
 //    @Ignore val watched: List<SelectedMovie>,

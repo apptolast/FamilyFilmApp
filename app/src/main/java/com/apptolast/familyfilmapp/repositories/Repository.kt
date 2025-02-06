@@ -8,18 +8,23 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.model.room.toGroup
+import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
+import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
@@ -45,38 +50,10 @@ class RepositoryImpl @Inject constructor(
     // Groups
     ///////////////////////////////////////////////////////////////////////////
     override fun getMyGroups(userId: String): Flow<List<Group>> {
-        return roomDatasource.getGroups()
-            .map { groupTableList ->
-                // Obtener la lista de users para cada grupo ya que groupTable.users esta Ignore
-
-                val groupUsers = roomDatasource.getus
-
-                groupTableList.filter { groupTable ->
-                    groupTable.users.any { user -> user.userId == userId }
-                }.map { it.toGroup() }
-
-            // Getting the groups where the user is part of the list of users
-            // But we need to populate de userList not retrieved from room,
-
-//            myGroupTableList.map { myGroupTable ->
-//                val users = mutableListOf<User>()
-//                myGroupTable.users.map {
-//                    roomDatasource.getUser(it.userId).first()?.toUser().let { user ->
-//                        if (user != null) {
-//                            users.add(user)
-//                        } else {
-//                            Timber.w("User not found in Room. Look for it in Firebase")
-//                        }
-//                    }
-//                }
-//            }
+        return roomDatasource.getGroups().map { groupsTable ->
+            groupsTable.map { it.toGroup() }
         }
     }
-
-
-//        roomDatasource.getGroupsById(getCurrentUser().id).flatMap {
-//            it.toG() }
-
 
     /**
      * Add new group into the database and store it in room database if successful.
@@ -86,25 +63,61 @@ class RepositoryImpl @Inject constructor(
      */
     override fun createGroup(viewModelScope: CoroutineScope, groupName: String) {
         viewModelScope.launch {
-            val currentUser = getCurrentUser()
-            firebaseDatabaseDatasource.createGroup(groupName, currentUser)
+            val currentUser = getUserById(firebaseAuth.currentUser!!.uid).first()
+            firebaseDatabaseDatasource.createGroup(groupName, currentUser) { groupAdded ->
+                // Update room with the new group after adding it to the database successfully
+                viewModelScope.launch {
+                    roomDatasource.insertGroup(groupAdded.toGroupTable())
+                }
+            }
+        }
+    }
 
-//            { newGroup ->
-//                viewModelScope.launch {
-//                    roomDatasource.insertGroup(newGroup.toGroupTable())
-//                }
-//            }
+    override fun updateGroup(viewModelScope: CoroutineScope, group: Group) {
+        firebaseDatabaseDatasource.updateGroup(group) {
+            viewModelScope.launch {
+                roomDatasource.updateGroup(group.toGroupTable())
+            }
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////
-// Users
-///////////////////////////////////////////////////////////////////////////
-    override suspend fun getCurrentUser(): User =
-        roomDatasource.getUser(firebaseAuth.currentUser?.uid!!).first()!!.toUser()
+    // Users
+    ///////////////////////////////////////////////////////////////////////////
+    override suspend fun createUser(viewModelScope: CoroutineScope, user: User) {
+        firebaseDatabaseDatasource.createUser(
+            user = user,
+            success = {
+                Timber.d("User created in firestore database")
+                viewModelScope.launch {
+                    roomDatasource.insertUser(user.toUserTable())
+                    Timber.d("User created in room database")
+                }
+            },
+            failure = { ex -> Timber.e(ex) },
+        )
+    }
 
+//    override suspend fun getCurrentUser(): User =
+//        roomDatasource.getUser(firebaseAuth.currentUser?.uid!!).first()!!.toUser()
+
+    override suspend fun getUserById(userId: String): Flow<User> {
+        val user = roomDatasource.getUser(userId).first()?.toUser()
+
+        // If user is null, look for the user in firestore database.
+        return if (user != null) {
+            flowOf(user)
+        } else {
+            callbackFlow<User> {
+                val callback: (User?) -> Unit = { user ->
+                    trySend(user!!)
+                }
+                firebaseDatabaseDatasource.getUserById(userId, callback)
+                awaitClose { }
+            }
+        }
+    }
 }
-
 
 interface Repository {
 
@@ -115,8 +128,12 @@ interface Repository {
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>
     fun createGroup(viewModelScope: CoroutineScope, groupName: String)
+    fun updateGroup(viewModelScope: CoroutineScope, group: Group)
 
     // Users
-    suspend fun getCurrentUser(): User
+    suspend fun createUser(viewModelScope: CoroutineScope, user: User)
+
+    //    suspend fun getCurrentUser(): User
+    suspend fun getUserById(string: String): Flow<User>
 
 }

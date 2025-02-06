@@ -38,7 +38,6 @@ abstract class GroupDao {
         insert(group.toGroupTable())
     }
 
-
     @Query("SELECT * from $GROUPS_TABLE_NAME")
     abstract fun getGroups(): Flow<List<GroupTable>>
 

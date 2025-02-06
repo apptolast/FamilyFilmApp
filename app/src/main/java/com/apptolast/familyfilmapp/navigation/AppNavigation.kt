@@ -26,11 +26,11 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(userState) {
-        if (userState != null) {
-            viewModel.saveUser()
-        }
-    }
+//    LaunchedEffect(userState) {
+//        if (userState != null) {
+//            viewModel.saveUser()
+//        }
+//    }
 
     NavHost(
         navController = navController,

@@ -1,8 +1,8 @@
 package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUPS_TABLE_NAME
 
@@ -12,17 +12,17 @@ data class GroupTable(
     val groupId: String,
     var ownerId: String,
     var name: String,
-    @Ignore val users: List<UserTable>,
-//    @Ignore val watchedList: List<Int>, // List of movie ids
-//    @Ignore val toWatchList: List<Int>, // List of movie ids
+    val users: List<UserTable>,
+    val watchedList: List<Int>, // List of movie ids
+    val toWatchList: List<Int>, // List of movie ids
 ) {
     constructor(groupId: String) : this(
         groupId = groupId,
         ownerId = "",
         name = "",
         users = emptyList<UserTable>(),
-//        watchedList = emptyList<Int>(),
-//        toWatchList = emptyList<Int>(),
+        watchedList = emptyList<Int>(),
+        toWatchList = emptyList<Int>(),
     )
 }
 
@@ -31,11 +31,11 @@ fun Group.toGroupTable() = GroupTable(
     ownerId = ownerId,
     name = name,
     users = users.map { it.toUserTable() },
-//    watchedList = watchedList,
-//    toWatchList = toWatchList,
+    watchedList = watchedList,
+    toWatchList = toWatchList,
 )
 
-fun GroupTable.toGroup(/*users:List<User>*/) = Group(
+fun GroupTable.toGroup() = Group(
     id = groupId,
     ownerId = ownerId,
     name = name,

@@ -72,7 +72,7 @@ fun GroupCard(
                         .padding(3.dp),
                 )
 
-                if (group.ownerId.equals(userOwner.id)) {
+                if (group.ownerId == userOwner.id) {
                     IconButton(onClick = onChangeGroupName) {
                         Icon(
                             imageVector = Icons.Filled.ModeEditOutline,

@@ -32,18 +32,18 @@ class AppNavigationViewModel @Inject constructor(
             initialValue = null,
         )
 
-    fun saveUser() {
-        viewModelScope.launch {
-            userState.firstOrNull()?.let {
-                roomDatasource.insertUser(
-                    UserTable(
-                        userId = it.uid,
-                        email = it.displayName ?: "",
-                        language = Locale.current.language,
-                        groupIds = emptyList()
-                    ),
-                )
-            }
-        }
-    }
+//    fun saveUser() {
+//        viewModelScope.launch {
+//            userState.firstOrNull()?.let {
+//                roomDatasource.insertUser(
+//                    UserTable(
+//                        userId = it.uid,
+//                        email = it.email ?: "",
+//                        language = Locale.current.language,
+//                        groupIds = emptyList()
+//                    ),
+//                )
+//            }
+//        }
+//    }
 }

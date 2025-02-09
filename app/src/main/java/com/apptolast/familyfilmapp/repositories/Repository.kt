@@ -81,6 +81,70 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
+    override fun deleteGroup(viewModelScope: CoroutineScope, group: Group) {
+        firebaseDatabaseDatasource.deleteGroup(group) {
+            viewModelScope.launch {
+                roomDatasource.deleteGroup(group.toGroupTable())
+            }
+        }
+    }
+
+    override fun addMember(viewModelScope: CoroutineScope, group: Group, email: String) {
+        // check if it the user is already added in group's users list
+        val userAlreadyAdded = email in group.users.map { it.email }
+
+        viewModelScope.launch {
+            // If not, include the user in the group and update the group in both databases
+            if (!userAlreadyAdded) {
+                var user: User? = null
+
+                // First, try to get the cache user from room
+                roomDatasource.getUserByEmail(email).first()?.toUser().let { retrieveUser ->
+                    Timber.d("User from room: $this")
+                    user = retrieveUser
+
+                    if (retrieveUser == null) {
+                        // If user is null, retrieve the user from firestore and cache it in room for future use
+                        firebaseDatabaseDatasource.getUserByEmail(email) { retrieveUser ->
+                            Timber.d("User from firestore: $retrieveUser")
+                            user = retrieveUser
+
+                            viewModelScope.launch {
+                                retrieveUser?.toUserTable()?.let {
+                                    roomDatasource.insertUser(it)
+                                    Timber.d("User inserted in room")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(user == null) {
+                    // TODO: Notify that the user do not exist in the app and cannot be added
+                    return@launch
+                }
+
+                // Update group with the retrieved user
+                val updateGroup = group.copy(
+                    users = group.users.toMutableList().apply {
+                        add(user!!)
+                    },
+                )
+
+                firebaseDatabaseDatasource.updateGroup(updateGroup) {
+                    Timber.d("Group updated in firestore")
+                    viewModelScope.launch {
+                        roomDatasource.updateGroup(updateGroup.toGroupTable())
+                        Timber.d("Group updated in room")
+                    }
+                }
+            } else {
+                // TODO: Notify that the user is already in the group
+                val a = 1
+            }
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Users
     ///////////////////////////////////////////////////////////////////////////
@@ -129,6 +193,8 @@ interface Repository {
     fun getMyGroups(userId: String): Flow<List<Group>>
     fun createGroup(viewModelScope: CoroutineScope, groupName: String)
     fun updateGroup(viewModelScope: CoroutineScope, group: Group)
+    fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
+    fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
 
     // Users
     suspend fun createUser(viewModelScope: CoroutineScope, user: User)

@@ -120,68 +120,36 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-    fun deleteGroup(group: Group) = viewModelScope.launch(dispatcherProvider.io()) {
-//        _backendState.update { it.copy(isLoading = true) }
-//
-//        repository.deleteGroup(group.id).fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-//                        errorMessage = null,
-//                        isLoading = false,
-//                    )
-//                }
-//                _uiState.update {
-//                    it.copy(
-//                        showDialog = GroupScreenDialogs.None,
-//                        selectedGroupIndex = it.selectedGroupIndex.dec(),
-//                    )
-//                }
-//            },
-//            onFailure = {
-//                Timber.e(it)
-//                _backendState.update { oldState ->
-//                    oldState.copy(
-//                        errorMessage = GroupException.DeleteGroup().value,
-//                        isLoading = false,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//        )
+
+    fun changeGroupName(group: Group) = repository.updateGroup(viewModelScope, group)
+
+    fun deleteGroup(group: Group) {
+        uiState.update {
+            it.copy(
+                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+                    0,
+                    Int.MAX_VALUE,
+                ),
+            )
+        }
+        repository.deleteGroup(viewModelScope, group)
     }
 
-    fun changeGroupName(group: Group) {
-        repository.updateGroup(viewModelScope, group)
+//    fun addMember(groupId: String, email: String)  {
+//        uiState.update {
+//            it.copy(
+//                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+//                    0,
+//                    Int.MAX_VALUE,
+//                ),
+//            )
+//        }
+//        repository.deleteGroup(viewModelScope, group)
+//    }
 
-//        _backendState.update { it.copy(isLoading = true) }
-//
-//        repository.updateGroupName(groupId, newGroupName).fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//            onFailure = { error ->
-//                Timber.e(error)
-//                _backendState.update { oldState ->
-//                    oldState.copy(
-//                        errorMessage = GroupException.UpdateGroupName().value,
-//                        isLoading = false,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//        )
-    }
 
-    fun addMember(groupId: Int, email: String) = viewModelScope.launch {
+    fun addMember(group: Group, email: String) {
+        repository.addMember(viewModelScope, group, email)
 //        _backendState.update { it.copy(isLoading = true) }
 //        repository.addMember(groupId, email).fold(
 //            onSuccess = { groups ->

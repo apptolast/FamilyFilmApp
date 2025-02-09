@@ -83,6 +83,24 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
+    override fun getUserByEmail(email: String, success: (User?) -> Unit) {
+        usersCollection
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.documents.isNotEmpty()) {
+                    val snapshot = document.documents.first()
+                    Timber.d("DocumentSnapshot data: $snapshot.data")
+                    success(snapshot.toObject(User::class.java))
+                } else {
+                    Timber.d("No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Timber.e(exception)
+            }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Groups
     ///////////////////////////////////////////////////////////////////////////
@@ -111,9 +129,25 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     }
 
     override fun updateGroup(group: Group, success: (Void?) -> Unit) {
+
+        // Update the timestamp field with the value from the server
+        val updates = mapOf(
+            "name" to group.name,
+            "users" to group.users,
+            "watchedList" to group.watchedList,
+            "toWatchList" to group.toWatchList,
+        )
+
         groupsCollection
             .document(group.id)
-            .update(mapOf("name" to group.name))
+            .update(updates)
+            .addOnSuccessListener(success)
+    }
+
+    override fun deleteGroup(group: Group, success: (Void?) -> Unit) {
+        groupsCollection
+            .document(group.id)
+            .delete()
             .addOnSuccessListener(success)
     }
 
@@ -128,10 +162,12 @@ interface FirebaseDatabaseDatasource {
     ///////////////////////////////////////////////////////////////////////////
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String, success: (User?) -> Unit)
+    fun getUserByEmail(email: String, success: (User?) -> Unit)
 
     ///////////////////////////////////////////////////////////////////////////
     // Groups
     ///////////////////////////////////////////////////////////////////////////
     fun createGroup(groupName: String, user: User, success: (Group) -> Unit)
     fun updateGroup(group: Group, success: (Void?) -> Unit)
+    fun deleteGroup(group: Group, success: (Void?) -> Unit)
 }

@@ -136,7 +136,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     EmailFieldDialog(
                         title = stringResource(id = R.string.dialog_add_group_member_title),
                         onConfirm = { email ->
-//                            viewModel.addMember(group.id, email)
+                            viewModel.addMember(group, email)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -166,12 +166,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         description = stringResource(R.string.dialog_delete_group_description),
                         confirmButtonText = stringResource(id = android.R.string.ok),
                         cancelButtonText = stringResource(id = android.R.string.cancel),
-                        onConfirm = {
-                            viewModel.deleteGroup(group)
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
+                        onConfirm = { viewModel.deleteGroup(group) },
+                        onDismiss = { viewModel.showDialog(GroupScreenDialogs.None) },
                     )
                 }
 
@@ -208,14 +204,14 @@ fun GroupContent(
     userOwner: User,
     groups: List<Group>,
     selectedGroupIndex: Int,
-    onChangeGroupName: (Group) -> Unit,
-    onAddMemberClick: (Group) -> Unit,
-    onDeleteGroup: (Group) -> Unit,
-    onDeleteUser: (Group, User) -> Unit,
-    onGroupSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onChangeGroupName: (Group) -> Unit = {},
+    onAddMemberClick: (Group) -> Unit = {},
+    onDeleteGroup: (Group) -> Unit = {},
+    onDeleteUser: (Group, User) -> Unit = { _, _ -> },
+    onGroupSelect: (Int) -> Unit = {},
 ) {
-    if (groups.isEmpty() ) {
+    if (groups.isEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -273,7 +269,9 @@ fun GroupContent(
                 onChangeGroupName = {
                     onChangeGroupName(currentSelectedGroup)
                 },
-                onAddMember = { onAddMemberClick(currentSelectedGroup) },
+                onAddMember = {
+                    onAddMemberClick(currentSelectedGroup)
+                },
                 onDeleteGroup = {
                     onDeleteGroup(currentSelectedGroup)
                 },
@@ -315,11 +313,6 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 2"),
                 Group().copy(name = "name 3"),
             ),
-            onChangeGroupName = {},
-            onAddMemberClick = {},
-            onDeleteGroup = {},
-            onDeleteUser = { _, _ -> },
-            onGroupSelect = {},
             selectedGroupIndex = 0,
         )
     }

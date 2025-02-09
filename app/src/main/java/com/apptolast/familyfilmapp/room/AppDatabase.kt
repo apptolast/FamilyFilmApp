@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
+import com.apptolast.familyfilmapp.room.converters.GroupListConverter
 import com.apptolast.familyfilmapp.room.converters.IntListConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.converters.UserListConverter

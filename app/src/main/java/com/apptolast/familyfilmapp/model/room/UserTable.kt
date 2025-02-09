@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.apptolast.familyfilmapp.model.local.SelectedMovie
 import com.apptolast.familyfilmapp.model.local.User
@@ -19,9 +18,9 @@ data class UserTable(
 ) {
     constructor(userId: String) : this(
         userId = userId,
-        groupIds = emptyList(),
         email = "",
         language = "",
+        groupIds = emptyList(),
 //        watched = emptyList(),
 //        toWatch = emptyList(),
     )
@@ -29,20 +28,18 @@ data class UserTable(
 
 fun UserTable.toUser() = User(
     id = userId,
-    groupIds = groupIds,
     email = email,
     language = language,
+    groupIds = groupIds,
     watched = emptyList<SelectedMovie>(),
     toWatch = emptyList<SelectedMovie>(),
-//    watched = watched,
-//    toWatch = toWatch,
 )
 
 fun User.toUserTable() = UserTable(
     userId = id,
-    groupIds = groupIds,
     email = email,
     language = language,
+    groupIds = groupIds,
 //    watched = watched,
 //    toWatch = toWatch,
 )

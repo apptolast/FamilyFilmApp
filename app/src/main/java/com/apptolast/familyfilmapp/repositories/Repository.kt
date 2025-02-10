@@ -119,7 +119,7 @@ class RepositoryImpl @Inject constructor(
                     }
                 }
 
-                if(user == null) {
+                if (user == null) {
                     // TODO: Notify that the user do not exist in the app and cannot be added
                     return@launch
                 }
@@ -145,61 +145,78 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Users
-    ///////////////////////////////////////////////////////////////////////////
-    override suspend fun createUser(viewModelScope: CoroutineScope, user: User) {
-        firebaseDatabaseDatasource.createUser(
-            user = user,
-            success = {
-                Timber.d("User created in firestore database")
-                viewModelScope.launch {
-                    roomDatasource.insertUser(user.toUserTable())
-                    Timber.d("User created in room database")
-                }
+    override fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User) {
+        // Delete user from group
+        val updateGroup = group.copy(
+            users = group.users.toMutableList().apply {
+                remove(user)
             },
-            failure = { ex -> Timber.e(ex) },
         )
+
+        //Update group in firebase
+        firebaseDatabaseDatasource.updateGroup(updateGroup) {
+            // if success delete user from room
+            viewModelScope.launch {
+                roomDatasource.updateGroup(updateGroup.toGroupTable())
+            }
+        }
     }
+        ///////////////////////////////////////////////////////////////////////////
+        // Users
+        ///////////////////////////////////////////////////////////////////////////
+        override suspend fun createUser(viewModelScope: CoroutineScope, user: User) {
+            firebaseDatabaseDatasource.createUser(
+                user = user,
+                success = {
+                    Timber.d("User created in firestore database")
+                    viewModelScope.launch {
+                        roomDatasource.insertUser(user.toUserTable())
+                        Timber.d("User created in room database")
+                    }
+                },
+                failure = { ex -> Timber.e(ex) },
+            )
+        }
 
 //    override suspend fun getCurrentUser(): User =
 //        roomDatasource.getUser(firebaseAuth.currentUser?.uid!!).first()!!.toUser()
 
-    override suspend fun getUserById(userId: String): Flow<User> {
-        val user = roomDatasource.getUser(userId).first()?.toUser()
+        override suspend fun getUserById(userId: String): Flow<User> {
+            val user = roomDatasource.getUser(userId).first()?.toUser()
 
-        // If user is null, look for the user in firestore database.
-        return if (user != null) {
-            flowOf(user)
-        } else {
-            callbackFlow<User> {
-                val callback: (User?) -> Unit = { user ->
-                    trySend(user!!)
+            // If user is null, look for the user in firestore database.
+            return if (user != null) {
+                flowOf(user)
+            } else {
+                callbackFlow<User> {
+                    val callback: (User?) -> Unit = { user ->
+                        trySend(user!!)
+                    }
+                    firebaseDatabaseDatasource.getUserById(userId, callback)
+                    awaitClose { }
                 }
-                firebaseDatabaseDatasource.getUserById(userId, callback)
-                awaitClose { }
             }
         }
     }
-}
 
-interface Repository {
+    interface Repository {
 
-    // Movies
-    fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
-    suspend fun searchMovieByName(string: String): List<Movie>
+        // Movies
+        fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
+        suspend fun searchMovieByName(string: String): List<Movie>
 
-    // Groups
-    fun getMyGroups(userId: String): Flow<List<Group>>
-    fun createGroup(viewModelScope: CoroutineScope, groupName: String)
-    fun updateGroup(viewModelScope: CoroutineScope, group: Group)
-    fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
-    fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
+        // Groups
+        fun getMyGroups(userId: String): Flow<List<Group>>
+        fun createGroup(viewModelScope: CoroutineScope, groupName: String)
+        fun updateGroup(viewModelScope: CoroutineScope, group: Group)
+        fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
+        fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
+        fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User)
 
-    // Users
-    suspend fun createUser(viewModelScope: CoroutineScope, user: User)
+        // Users
+        suspend fun createUser(viewModelScope: CoroutineScope, user: User)
 
-    //    suspend fun getCurrentUser(): User
-    suspend fun getUserById(string: String): Flow<User>
+        //    suspend fun getCurrentUser(): User
+        suspend fun getUserById(string: String): Flow<User>
 
-}
+    }

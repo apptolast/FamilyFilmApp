@@ -19,9 +19,11 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +54,19 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+//    val swipeState = rememberSwipeToDismissBoxState(
+//        confirmValueChange = {
+//            when (it) {
+//                SwipeToDismissBoxValue.EndToStart -> {
+//                    onDeleteUser(user)
+//                    true
+//                }
+//
+//                else -> false
+//            }
+//        },
+//    )
 
     LaunchedEffect(key1 = backendState.errorMessage) {
         if (backendState.errorMessage != null) {
@@ -108,7 +123,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     viewModel.showDialog(GroupScreenDialogs.DeleteGroup(group))
                 },
                 onDeleteUser = { group, user ->
-                    viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
+//                    viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
+                    viewModel.deleteMember(group, user)
                 },
                 onGroupSelect = { index ->
                     viewModel.selectGroup(index)
@@ -176,12 +192,12 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     val user = (uiState.showDialog as GroupScreenDialogs.DeleteMember).user
 
                     BasicDialog(
-                        title = stringResource(R.string.dialog_delete_group_title),
-                        description = stringResource(R.string.dialog_delete_group_description),
+                        title = stringResource(R.string.dialog_delete_member_title),
+                        description = stringResource(R.string.dialog_delete_member_description),
                         confirmButtonText = stringResource(id = android.R.string.ok),
                         cancelButtonText = stringResource(id = android.R.string.cancel),
                         onConfirm = {
-//                            viewModel.deleteMember(group.id, user.id)
+                            viewModel.deleteMember(group, user)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)

@@ -148,74 +148,11 @@ class GroupViewModel @Inject constructor(
 //    }
 
 
-    fun addMember(group: Group, email: String) {
+    fun addMember(group: Group, email: String) =
         repository.addMember(viewModelScope, group, email)
-//        _backendState.update { it.copy(isLoading = true) }
-//        repository.addMember(groupId, email).fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//            onFailure = { error ->
-//                Timber.e(error)
-//
-//                when (error) {
-//                    is retrofit2.HttpException -> {
-//                        when (error.code()) {
-//                            404 -> "User not found"
-//                            500 -> "Server Error"
-//                            else -> "Error adding member to group"
-//                        }
-//                    }
-//
-//                    else -> {
-//                        GroupException.AddMember().value
-//                    }
-//                }.let { errorMessage ->
-//                    _backendState.update { oldState ->
-//                        oldState.copy(
-//                            errorMessage = errorMessage,
-//                            isLoading = false,
-//                        )
-//                    }
-//                    _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//                }
-//            },
-//        )
-    }
 
-    fun deleteMember(groupId: Int, userId: String) = viewModelScope.launch {
-//        _backendState.update { it.copy(isLoading = true) }
-//
-//        repository.deleteMember(groupId, userId).fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//            onFailure = { error ->
-//                Timber.e(error)
-//                _backendState.update { oldState ->
-//                    oldState.copy(
-//                        errorMessage = GroupException.DeleteUser().value,
-//                        isLoading = false,
-//                    )
-//                }
-//                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-//            },
-//        )
-    }
+    fun deleteMember(group: Group, user: User) =
+        repository.deleteMember(viewModelScope, group, user)
 
     fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }
 

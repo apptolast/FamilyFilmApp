@@ -1,8 +1,9 @@
 package com.apptolast.familyfilmapp.ui.screens.groups.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -48,6 +50,7 @@ fun GroupCard(
     modifier: Modifier = Modifier,
     onDeleteUser: (User) -> Unit,
 ) {
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -106,25 +109,46 @@ fun GroupCard(
             // List of users
             LazyColumn {
                 items(group.users) { user ->
-                    val swipeState = rememberSwipeToDismissBoxState()
 
-                    when (swipeState.currentValue) {
-                        SwipeToDismissBoxValue.EndToStart -> {
-                            onDeleteUser(user)
-                        }
+                    val swipeState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            when (it) {
+                                SwipeToDismissBoxValue.EndToStart -> {
+                                    onDeleteUser(user)
+                                    true
+                                }
 
-                        else -> {
-                            /* no-op */
-                        }
-                    }
+                                else -> false
+                            }
+                        },
+                    )
 
                     SwipeToDismissBox(
                         state = swipeState,
                         enableDismissFromEndToStart = true,
                         enableDismissFromStartToEnd = false,
                         backgroundContent = {
-                            Box(
-                                contentAlignment = Alignment.CenterEnd,
+//                            Box(
+//                                contentAlignment = Alignment.CenterEnd,
+//                                modifier = Modifier
+//                                    .fillMaxSize()
+//                                    .padding(8.dp)
+//                                    .background(
+//                                        color = MaterialTheme.colorScheme.error,
+//                                        shape = MaterialTheme.shapes.medium,
+//                                    ),
+//                            ) {
+//                                Icon(
+//                                    modifier = Modifier
+//                                        .padding(8.dp)
+//                                        .minimumInteractiveComponentSize(),
+//                                    imageVector = Icons.Outlined.Delete,
+//                                    tint = MaterialTheme.colorScheme.onError,
+//                                    contentDescription = null,
+//                                )
+//                            }
+
+                            Row(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(8.dp)
@@ -132,16 +156,25 @@ fun GroupCard(
                                         color = MaterialTheme.colorScheme.error,
                                         shape = MaterialTheme.shapes.medium,
                                     ),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .minimumInteractiveComponentSize(),
-                                    imageVector = Icons.Outlined.Delete,
-                                    tint = MaterialTheme.colorScheme.onError,
-                                    contentDescription = null,
-                                )
+                                // Delete action on swipe from end to start
+                                AnimatedVisibility(
+                                    visible = swipeState.targetValue == SwipeToDismissBoxValue.EndToStart,
+                                    enter = fadeIn(),
+                                ) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .minimumInteractiveComponentSize(),
+                                        imageVector = Icons.Outlined.Delete,
+                                        tint = MaterialTheme.colorScheme.onError,
+                                        contentDescription = null,
+                                    )
+                                }
                             }
+
                         },
                         content = {
                             GroupMemberCard(

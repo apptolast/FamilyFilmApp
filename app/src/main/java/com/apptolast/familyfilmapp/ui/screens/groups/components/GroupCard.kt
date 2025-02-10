@@ -23,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -44,26 +43,26 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun GroupCard(
     userOwner: User,
     group: Group,
-    onChangeGroupName: () -> Unit,
-    onAddMember: () -> Unit,
-    onDeleteGroup: () -> Unit,
     modifier: Modifier = Modifier,
-    onDeleteUser: (User) -> Unit,
+    onChangeGroupName: () -> Unit = {},
+    onAddMember: () -> Unit = {},
+    onDeleteGroup: () -> Unit = {},
+    onDeleteUser: (User) -> Unit = {},
 ) {
-
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
     ) {
         Column(
-            modifier = Modifier
-                .padding(8.dp),
+            modifier = Modifier.padding(8.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -72,7 +71,7 @@ fun GroupCard(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .weight(1f) // Assign weight to text
-                        .padding(3.dp),
+                        .padding(top = if (group.ownerId == userOwner.id) 0.dp else 10.dp),
                 )
 
                 if (group.ownerId == userOwner.id) {
@@ -174,7 +173,6 @@ fun GroupCard(
                                     )
                                 }
                             }
-
                         },
                         content = {
                             GroupMemberCard(
@@ -220,7 +218,7 @@ private fun GroupCardOwnerPreview() {
 private fun GroupCardNotOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User(),
+            userOwner = User().copy(id = "2"),
             group = Group().copy(
                 id = "1",
                 ownerId = "2",
@@ -233,10 +231,6 @@ private fun GroupCardNotOwnerPreview() {
                 watchedList = listOf(1),
                 toWatchList = listOf(1),
             ),
-            onDeleteUser = {},
-            onAddMember = {},
-            onDeleteGroup = {},
-            onChangeGroupName = {},
         )
     }
 }

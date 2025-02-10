@@ -30,5 +30,3 @@ interface TmdbApi {
         const val SEARCH_MOVIE = "search/movie"
     }
 }
-
-

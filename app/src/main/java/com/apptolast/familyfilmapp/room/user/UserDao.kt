@@ -30,5 +30,4 @@ interface UserDao {
 
     @Update
     suspend fun update(user: UserTable)
-
 }

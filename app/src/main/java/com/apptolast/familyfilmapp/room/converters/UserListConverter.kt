@@ -6,14 +6,10 @@ import com.google.gson.Gson
 
 class UserListConverter {
 
+    @TypeConverter
+    fun userListToJson(users: List<UserTable>): String = Gson().toJson(users)
 
     @TypeConverter
-    fun userListToJson(users: List<UserTable>): String {
-        return Gson().toJson(users)
-    }
-
-    @TypeConverter
-    fun toUserList(usersString: String): List<UserTable> {
-        return Gson().fromJson(usersString, Array<UserTable>::class.java).toList()
-    }
+    fun toUserList(usersString: String): List<UserTable> =
+        Gson().fromJson(usersString, Array<UserTable>::class.java).toList()
 }

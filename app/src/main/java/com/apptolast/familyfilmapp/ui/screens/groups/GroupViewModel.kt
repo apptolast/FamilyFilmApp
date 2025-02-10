@@ -2,12 +2,14 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.extensions.updateModificationDate
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -89,7 +90,6 @@ class GroupViewModel @Inject constructor(
     fun createGroup(groupName: String) {
         repository.createGroup(viewModelScope, groupName)
 
-
 //        _backendState.update { it.copy(isLoading = true) }
 //
 //        repository.addGroup(groupName).fold(
@@ -120,8 +120,7 @@ class GroupViewModel @Inject constructor(
 //        )
     }
 
-
-    fun changeGroupName(group: Group) = repository.updateGroup(viewModelScope, group)
+    fun changeGroupName(group: Group) = repository.updateGroup(viewModelScope, group.updateModificationDate())
 
     fun deleteGroup(group: Group) {
         uiState.update {
@@ -132,27 +131,14 @@ class GroupViewModel @Inject constructor(
                 ),
             )
         }
-        repository.deleteGroup(viewModelScope, group)
+        repository.deleteGroup(viewModelScope, group.updateModificationDate())
     }
 
-//    fun addMember(groupId: String, email: String)  {
-//        uiState.update {
-//            it.copy(
-//                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
-//                    0,
-//                    Int.MAX_VALUE,
-//                ),
-//            )
-//        }
-//        repository.deleteGroup(viewModelScope, group)
-//    }
-
-
     fun addMember(group: Group, email: String) =
-        repository.addMember(viewModelScope, group, email)
+        repository.addMember(viewModelScope, group.updateModificationDate(), email)
 
     fun deleteMember(group: Group, user: User) =
-        repository.deleteMember(viewModelScope, group, user)
+        repository.deleteMember(viewModelScope, group.updateModificationDate(), user)
 
     fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }
 

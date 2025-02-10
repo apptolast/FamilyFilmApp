@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.repositories
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.apptolast.familyfilmapp.extensions.updateModificationDate
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
@@ -13,19 +14,21 @@ import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl.Companion.MINIMUM_UPDATE_TIME
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.google.firebase.auth.FirebaseAuth
+import java.util.Calendar
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -34,9 +37,9 @@ class RepositoryImpl @Inject constructor(
     private val tmdbDatasource: TmdbDatasource,
 ) : Repository {
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Movies
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = Pager(
         config = PagingConfig(pageSize),
         pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
@@ -45,13 +48,27 @@ class RepositoryImpl @Inject constructor(
     override suspend fun searchMovieByName(string: String): List<Movie> =
         tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
 
-
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Groups
-    ///////////////////////////////////////////////////////////////////////////
-    override fun getMyGroups(userId: String): Flow<List<Group>> {
-        return roomDatasource.getGroups().map { groupsTable ->
-            groupsTable.map { it.toGroup() }
+    // /////////////////////////////////////////////////////////////////////////
+    override fun getMyGroups(userId: String): Flow<List<Group>> = flow {
+        val groups = roomDatasource.getGroups().first()
+        val needsUpdate = groups.any {
+            val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
+            timeDiff > MINIMUM_UPDATE_TIME
+        }
+
+        if (needsUpdate) {
+            // Update room's groups from firebase
+            val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
+
+            firebaseGroups.filterNotNull().forEach { group ->
+                roomDatasource.updateGroup(group.updateModificationDate().toGroupTable())
+            }
+            emit(firebaseGroups.filterNotNull())
+        } else {
+            val myGroups = groups.filter { group -> userId in group.users.map { it.userId } }.map { it.toGroup() }
+            emit(myGroups)
         }
     }
 
@@ -153,7 +170,7 @@ class RepositoryImpl @Inject constructor(
             },
         )
 
-        //Update group in firebase
+        // Update group in firebase
         firebaseDatabaseDatasource.updateGroup(updateGroup) {
             // if success delete user from room
             viewModelScope.launch {
@@ -161,62 +178,57 @@ class RepositoryImpl @Inject constructor(
             }
         }
     }
-        ///////////////////////////////////////////////////////////////////////////
-        // Users
-        ///////////////////////////////////////////////////////////////////////////
-        override suspend fun createUser(viewModelScope: CoroutineScope, user: User) {
-            firebaseDatabaseDatasource.createUser(
-                user = user,
-                success = {
-                    Timber.d("User created in firestore database")
-                    viewModelScope.launch {
-                        roomDatasource.insertUser(user.toUserTable())
-                        Timber.d("User created in room database")
-                    }
-                },
-                failure = { ex -> Timber.e(ex) },
-            )
-        }
 
-//    override suspend fun getCurrentUser(): User =
-//        roomDatasource.getUser(firebaseAuth.currentUser?.uid!!).first()!!.toUser()
-
-        override suspend fun getUserById(userId: String): Flow<User> {
-            val user = roomDatasource.getUser(userId).first()?.toUser()
-
-            // If user is null, look for the user in firestore database.
-            return if (user != null) {
-                flowOf(user)
-            } else {
-                callbackFlow<User> {
-                    val callback: (User?) -> Unit = { user ->
-                        trySend(user!!)
-                    }
-                    firebaseDatabaseDatasource.getUserById(userId, callback)
-                    awaitClose { }
+    // /////////////////////////////////////////////////////////////////////////
+// Users
+// /////////////////////////////////////////////////////////////////////////
+    override suspend fun createUser(viewModelScope: CoroutineScope, user: User) {
+        firebaseDatabaseDatasource.createUser(
+            user = user,
+            success = {
+                Timber.d("User created in firestore database")
+                viewModelScope.launch {
+                    roomDatasource.insertUser(user.toUserTable())
+                    Timber.d("User created in room database")
                 }
+            },
+            failure = { ex -> Timber.e(ex) },
+        )
+    }
+
+    override suspend fun getUserById(userId: String): Flow<User> {
+        val user = roomDatasource.getUser(userId).first()?.toUser()
+
+        // If user is null, look for the user in firestore database.
+        return if (user != null) {
+            flowOf(user)
+        } else {
+            callbackFlow<User> {
+                val callback: (User?) -> Unit = { user ->
+                    trySend(user!!)
+                }
+                firebaseDatabaseDatasource.getUserById(userId, callback)
+                awaitClose { }
             }
         }
     }
+}
 
-    interface Repository {
+interface Repository {
 
-        // Movies
-        fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
-        suspend fun searchMovieByName(string: String): List<Movie>
+    // Movies
+    fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
+    suspend fun searchMovieByName(string: String): List<Movie>
 
-        // Groups
-        fun getMyGroups(userId: String): Flow<List<Group>>
-        fun createGroup(viewModelScope: CoroutineScope, groupName: String)
-        fun updateGroup(viewModelScope: CoroutineScope, group: Group)
-        fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
-        fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
-        fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User)
+    // Groups
+    fun getMyGroups(userId: String): Flow<List<Group>>
+    fun createGroup(viewModelScope: CoroutineScope, groupName: String)
+    fun updateGroup(viewModelScope: CoroutineScope, group: Group)
+    fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
+    fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
+    fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User)
 
-        // Users
-        suspend fun createUser(viewModelScope: CoroutineScope, user: User)
-
-        //    suspend fun getCurrentUser(): User
-        suspend fun getUserById(string: String): Flow<User>
-
-    }
+    // Users
+    suspend fun createUser(viewModelScope: CoroutineScope, user: User)
+    suspend fun getUserById(string: String): Flow<User>
+}

@@ -4,10 +4,15 @@ import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.DelicateCoroutinesApi
-import timber.log.Timber
+import com.google.firebase.firestore.QuerySnapshot
+import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import timber.log.Timber
 
 @OptIn(DelicateCoroutinesApi::class)
 class FirebaseDatabaseDatasourceImpl @Inject constructor(
@@ -55,9 +60,9 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 //        }
 //    }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Users
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
         usersCollection
             .document(user.id)
@@ -101,9 +106,33 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Groups
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
+    override fun getMyGroups(userId: String): Flow<List<Group?>> = callbackFlow {
+        val listener: (QuerySnapshot?) -> Unit = { querySnapshot ->
+            if (querySnapshot?.documents?.isEmpty() == false) {
+                val groups = querySnapshot.documents.filterNotNull().filter {
+                    val group = it.toObject(Group::class.java)
+                    group?.users?.map { it.id }?.contains(userId) == true
+                }.map {
+                    it.toObject(Group::class.java)
+                }.filterNotNull()
+
+                trySend(groups)
+            } else {
+                Timber.d("No such document")
+                trySend(emptyList())
+            }
+        }
+
+        groupsCollection
+            .get()
+            .addOnSuccessListener(listener)
+
+        awaitClose {}
+    }
+
     /**
      * To add a group to the database, we needed to know the user who will create it.
      * Also we add it to the list of users of the group.
@@ -115,6 +144,9 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             ownerId = user.id,
             name = groupName,
             users = listOf(user),
+            watchedList = emptyList(),
+            toWatchList = emptyList(),
+            lastUpdated = Calendar.getInstance().time,
         )
         groupsCollection
             .document(uuid)
@@ -129,13 +161,13 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     }
 
     override fun updateGroup(group: Group, success: (Void?) -> Unit) {
-
         // Update the timestamp field with the value from the server
         val updates = mapOf(
             "name" to group.name,
             "users" to group.users,
             "watchedList" to group.watchedList,
             "toWatchList" to group.toWatchList,
+            "lastUpdated" to group.lastUpdated,
         )
 
         groupsCollection
@@ -157,16 +189,17 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 }
 
 interface FirebaseDatabaseDatasource {
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Users
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String, success: (User?) -> Unit)
     fun getUserByEmail(email: String, success: (User?) -> Unit)
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Groups
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
+    fun getMyGroups(userId: String): Flow<List<Group?>>
     fun createGroup(groupName: String, user: User, success: (Group) -> Unit)
     fun updateGroup(group: Group, success: (Void?) -> Unit)
     fun deleteGroup(group: Group, success: (Void?) -> Unit)

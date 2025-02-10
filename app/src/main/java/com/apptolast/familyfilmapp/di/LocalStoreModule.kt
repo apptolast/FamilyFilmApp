@@ -29,15 +29,11 @@ class LocalStoreModule {
 
     @Singleton
     @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
-        AppDatabase.getInstance(context)
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase = AppDatabase.getInstance(context)
 
     @Provides
-    fun providePlantDao(appDatabase: AppDatabase): GroupDao =
-        appDatabase.groupDao()
+    fun providePlantDao(appDatabase: AppDatabase): GroupDao = appDatabase.groupDao()
 
     @Provides
-    fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao =
-        appDatabase.userDao()
-
+    fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
 }

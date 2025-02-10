@@ -199,3 +199,4 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio,android,firebase,gradle
 
 /.java-version
+/app/schemas/

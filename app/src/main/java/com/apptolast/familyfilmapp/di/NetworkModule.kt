@@ -21,7 +21,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
-
     @Provides
     fun provideBaseUrl(): String = when (BuildConfig.BUILD_TYPE) {
         "debug" -> "https://api.themoviedb.org/3/"

@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
-
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movieItems: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
 
@@ -126,11 +125,9 @@ private fun RowMovie(
     modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit = {},
 ) {
-
     val context = LocalContext.current
 
     Box(modifier = modifier) {
-
         if (filterMovies.isNotEmpty()) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -162,7 +159,7 @@ private fun RowMovie(
                 loadState.refresh is LoadState.Loading -> {
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(48.dp),
@@ -190,7 +187,7 @@ private fun RowMovie(
                 loadState.append is LoadState.Loading -> {
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(48.dp),
@@ -225,25 +222,10 @@ private fun RowMovie(
             }
         }
     }
-
-
-//    Column(modifier = modifier) {
-//        LazyVerticalGrid(
-//            columns = GridCells.Fixed(3),
-//            modifier = Modifier.padding(bottom = 15.dp),
-//        ) {
-//            items(movies) { movie ->
-//                MovieItem(
-//                    movie = movie,
-//                    onClick = onMovieClick,
-//                )
-//            }
-//        }
-//    }
 }
 
 @Composable
-fun ErrorMessage(message: String, modifier: Modifier = Modifier, onClickRetry: () -> Unit) {
+fun ErrorMessage(message: String, modifier: Modifier = Modifier, onClickRetry: () -> Unit = {}) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -281,7 +263,7 @@ private fun HomeContentPreview() {
                             overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
                          una simulación creada por máquinas."
-                    """.trimIndent(),
+                            """.trimIndent(),
                             posterPath = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                         ),
                     ),

@@ -4,14 +4,13 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseAuthRepository {
 
@@ -89,9 +88,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         awaitClose()
     }
 
-    override fun getUserId(): String? =
-        firebaseAuth.currentUser?.uid
-
+    override fun getUserId(): String? = firebaseAuth.currentUser?.uid
 }
 
 interface FirebaseAuthRepository {

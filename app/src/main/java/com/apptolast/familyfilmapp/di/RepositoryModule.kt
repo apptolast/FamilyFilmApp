@@ -47,24 +47,18 @@ object RepositoryModule {
         roomDatasource: RoomDatasource,
         firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
         tmdbDatasource: TmdbDatasource,
-    ): Repository =
-        RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource)
+    ): Repository = RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource)
 
     @Provides
-    fun provideRoomDatasource(
-        groupDao: GroupDao,
-        userDao: UserDao,
-    ): RoomDatasource =
+    fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =
         RoomDatasourceImpl(groupDao, userDao)
 
     @Provides
     fun provideFirebaseDatabaseDatasource(
         database: FirebaseFirestore,
         roomDatasource: RoomDatasource,
-    ): FirebaseDatabaseDatasource =
-        FirebaseDatabaseDatasourceImpl(database, roomDatasource)
+    ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource)
 
     @Provides
-    fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource =
-        TmdbDatasourceImpl(tmdbApi)
+    fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)
 }

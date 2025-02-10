@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login
 import app.cash.turbine.test
 import com.apptolast.familyfilmapp.MainDispatcherRule
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -25,6 +26,9 @@ class LoginViewModelTest {
     internal var coroutineRule = MainDispatcherRule()
 
     @Mock
+    private lateinit var repository: Repository
+
+    @Mock
     private lateinit var firebaseAuthRepository: FirebaseAuthRepository
 
     @Mock
@@ -34,6 +38,7 @@ class LoginViewModelTest {
     fun setUp() = runTest(coroutineRule.testDispatcherProvider.io()) {
         viewModel = LoginViewModel(
             firebaseAuthRepository,
+            repository,
             coroutineRule.testDispatcherProvider,
             googleSignInClient,
         )

@@ -37,7 +37,6 @@ data class Movie(
     )
 }
 
-
 fun TmdbMovieRemote.toDomain(): Movie = Movie(
     id = id,
     title = title ?: "",

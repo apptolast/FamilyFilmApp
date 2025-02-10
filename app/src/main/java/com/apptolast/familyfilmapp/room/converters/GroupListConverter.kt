@@ -7,12 +7,9 @@ import com.google.gson.Gson
 class GroupListConverter {
 
     @TypeConverter
-    fun groupListToJson(groups: List<GroupTable>): String {
-        return Gson().toJson(groups)
-    }
+    fun groupListToJson(groups: List<GroupTable>): String = Gson().toJson(groups)
 
     @TypeConverter
-    fun toGroupList(groupsString: String): List<GroupTable> {
-        return Gson().fromJson(groupsString, Array<GroupTable>::class.java).toList()
-    }
+    fun toGroupList(groupsString: String): List<GroupTable> =
+        Gson().fromJson(groupsString, Array<GroupTable>::class.java).toList()
 }

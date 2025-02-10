@@ -33,7 +33,6 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -58,12 +57,8 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
 }
 
 @Composable
-fun ProfileContent(
-    state: ProfileUiState,
-    modifier: Modifier = Modifier,
-    onClickLogOut: () -> Unit = {},
-) {
-    var filedSpacer = 12.dp
+fun ProfileContent(state: ProfileUiState, modifier: Modifier = Modifier, onClickLogOut: () -> Unit = {}) {
+    var filedSpacer = 16.dp
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card(
@@ -91,7 +86,10 @@ fun ProfileContent(
                 Spacer(modifier = Modifier.height(filedSpacer))
 
                 Button(onClick = { onClickLogOut() }) {
-                    Text(text = "Logout")
+                    Text(
+                        text = "Logout",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                     Spacer(modifier = Modifier.width(filedSpacer))
                     Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
                 }
@@ -99,7 +97,10 @@ fun ProfileContent(
                 Spacer(modifier = Modifier.height(filedSpacer))
 
                 Button(onClick = { onClickLogOut() }) {
-                    Text(text = "Delete User")
+                    Text(
+                        text = "Delete User",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 }
@@ -107,7 +108,6 @@ fun ProfileContent(
         }
     }
 }
-
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable

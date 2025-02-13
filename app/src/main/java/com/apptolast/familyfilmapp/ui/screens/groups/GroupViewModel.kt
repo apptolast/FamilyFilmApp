@@ -42,7 +42,7 @@ class GroupViewModel @Inject constructor(
     }
 
     private suspend fun getGroups() {
-        repository.getMyGroups(auth.currentUser?.uid!!).collectLatest { groups ->
+        repository.getMyGroups(auth.currentUser?.uid!!).collect { groups ->
             backendState.update {
                 it.copy(
                     groups = groups.sortedWith(

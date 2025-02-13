@@ -11,6 +11,7 @@ import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.converters.DateConverter
 import com.apptolast.familyfilmapp.room.converters.IntListConverter
+import com.apptolast.familyfilmapp.room.converters.SelectedMovieListConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.converters.UserListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
@@ -24,7 +25,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         UserTable::class,
         GroupTable::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(
@@ -33,6 +34,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         IntListConverter::class,
         StringListConverter::class,
         DateConverter::class,
+        SelectedMovieListConverter::class,
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -58,7 +60,12 @@ abstract class AppDatabase : RoomDatabase() {
         // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
         private fun buildDatabase(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, APP_DATABASE_NAME)
-                .addMigrations(*arrayOf(MIGRATION_1_2))
+                .addMigrations(
+                    *arrayOf(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                    ),
+                )
                 .build()
 
         // /////////////////////////////////////////////////////////////////////////
@@ -67,6 +74,36 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE $GROUPS_TABLE_NAME ADD COLUMN lastUpdated INTEGER NULL")
+            }
+        }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 1. Crear la nueva tabla sin 'groupIds'
+                database.execSQL(
+                    """
+            CREATE TABLE users_table_new (
+                userId TEXT PRIMARY KEY NOT NULL,
+                email TEXT NOT NULL,
+                language TEXT NOT NULL,
+                watched TEXT NOT NULL DEFAULT '[]',
+                toWatch TEXT NOT NULL DEFAULT '[]'
+            )
+            """.trimIndent(),
+                )
+
+                // 2. Copiar datos de la tabla antigua a la nueva, excluyendo 'groupIds'
+                database.execSQL(
+                    """
+            INSERT INTO users_table_new (userId, email, language, watched, toWatch)
+            SELECT userId, email, language, '[]', '[]' FROM users_table
+            """.trimIndent(),
+                )
+
+                // 3. Eliminar la tabla antigua
+                database.execSQL("DROP TABLE users_table")
+
+                // 4. Renombrar la nueva tabla a la original
+                database.execSQL("ALTER TABLE users_table_new RENAME TO users_table")
             }
         }
     }

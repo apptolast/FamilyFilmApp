@@ -8,6 +8,8 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
+import com.apptolast.familyfilmapp.model.remote.firebase.toGroup
+import com.apptolast.familyfilmapp.model.remote.firebase.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toGroup
 import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
@@ -18,8 +20,6 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl.C
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.google.firebase.auth.FirebaseAuth
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -62,10 +64,10 @@ class RepositoryImpl @Inject constructor(
             // Update room's groups from firebase
             val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
 
-            firebaseGroups.filterNotNull().forEach { group ->
-                roomDatasource.updateGroup(group.updateModificationDate().toGroupTable())
+            firebaseGroups.filterNotNull().forEach { groupFirebase ->
+                roomDatasource.updateGroup(groupFirebase.updateModificationDate().toGroupTable(this@RepositoryImpl))
             }
-            emit(firebaseGroups.filterNotNull())
+            emit(firebaseGroups.filterNotNull().map { it.toGroup(this@RepositoryImpl) })
         } else {
             val myGroups = groups.filter { group -> userId in group.users.map { it.userId } }.map { it.toGroup() }
             emit(myGroups)
@@ -84,7 +86,7 @@ class RepositoryImpl @Inject constructor(
             firebaseDatabaseDatasource.createGroup(groupName, currentUser) { groupAdded ->
                 // Update room with the new group after adding it to the database successfully
                 viewModelScope.launch {
-                    roomDatasource.insertGroup(groupAdded.toGroupTable())
+                    roomDatasource.insertGroup(groupAdded.toGroupTable(this@RepositoryImpl))
                 }
             }
         }
@@ -156,8 +158,7 @@ class RepositoryImpl @Inject constructor(
                     }
                 }
             } else {
-                // TODO: Notify that the user is already in the group
-                val a = 1
+                Timber.w("TODO: Notify that the user is already in the group")
             }
         }
     }
@@ -212,6 +213,14 @@ class RepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override fun updateUser(viewModelScope: CoroutineScope, user: User) {
+        firebaseDatabaseDatasource.updateUser(user) {
+            viewModelScope.launch {
+                roomDatasource.updateUser(user.toUserTable())
+            }
+        }
+    }
 }
 
 interface Repository {
@@ -231,4 +240,5 @@ interface Repository {
     // Users
     suspend fun createUser(viewModelScope: CoroutineScope, user: User)
     suspend fun getUserById(string: String): Flow<User>
+    fun updateUser(viewModelScope: CoroutineScope, user: User)
 }

@@ -78,10 +78,10 @@ fun ProfileContent(state: ProfileUiState, modifier: Modifier = Modifier, onClick
                     modifier = Modifier.height(filedSpacer),
                 )
 
-                Text(
-                    text = "${state.userData.groupIds.size} Groups",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+//                Text(
+//                    text = "${state.userData.groupIds.size} Groups",
+//                    style = MaterialTheme.typography.titleMedium,
+//                )
 
                 Spacer(modifier = Modifier.height(filedSpacer))
 
@@ -117,7 +117,7 @@ private fun ProfileScreenPreview() {
             state = ProfileUiState().copy(
                 userData = User().copy(
                     email = "test@test.com",
-                    groupIds = listOf("id1", "id2"),
+//                    groupIds = listOf("id1", "id2"),
                 ),
             ),
         )

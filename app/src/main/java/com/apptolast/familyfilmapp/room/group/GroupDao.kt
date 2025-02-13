@@ -27,11 +27,12 @@ abstract class GroupDao {
     @Transaction
     open suspend fun insertGroupWithUsers(group: Group) {
         val users = group.users.map { user ->
-            user.toUserTable().copy(
-                groupIds = user.groupIds.toMutableList().also {
-                    it.add(group.id)
-                }.distinct(),
-            )
+            user.toUserTable()
+//                .copy(
+//                    groupIds = user.groupIds.toMutableList().also {
+//                        it.add(group.id)
+//                    }.distinct(),
+//                )
         }
 
         insertUserList(users)

@@ -24,8 +24,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -53,24 +54,33 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    override fun getMyGroups(userId: String): Flow<List<Group>> = flow {
-        val groups = roomDatasource.getGroups().first()
-        val needsUpdate = groups.any {
-            val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
-            timeDiff > MINIMUM_UPDATE_TIME
-        }
-
-        if (needsUpdate) {
-            // Update room's groups from firebase
-            val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
-
-            firebaseGroups.filterNotNull().forEach { groupFirebase ->
-                roomDatasource.updateGroup(groupFirebase.updateModificationDate().toGroupTable(this@RepositoryImpl))
+    override fun getMyGroups(userId: String): Flow<List<Group>> = channelFlow {
+        roomDatasource.getGroups().collectLatest { groups ->
+            val needsUpdate = groups.any {
+                val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
+                timeDiff > MINIMUM_UPDATE_TIME
             }
-            emit(firebaseGroups.filterNotNull().map { it.toGroup(this@RepositoryImpl) })
-        } else {
-            val myGroups = groups.filter { group -> userId in group.users.map { it.userId } }.map { it.toGroup() }
-            emit(myGroups)
+
+            if (needsUpdate) {
+                launch {
+                    // Update room's groups from firebase
+                    val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
+
+                    firebaseGroups.filterNotNull().forEach { groupFirebase ->
+                        roomDatasource.updateGroup(
+                            groupFirebase.updateModificationDate().toGroupTable(this@RepositoryImpl),
+                        )
+                    }
+                    send(firebaseGroups.filterNotNull().map { it.toGroup(this@RepositoryImpl) })
+
+                }
+            } else {
+                launch {
+                    val myGroups =
+                        groups.filter { group -> userId in group.users.map { it.userId } }.map { it.toGroup() }
+                    send(myGroups)
+                }
+            }
         }
     }
 

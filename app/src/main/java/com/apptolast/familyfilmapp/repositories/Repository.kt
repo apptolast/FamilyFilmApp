@@ -27,11 +27,14 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import kotlin.collections.mutableListOf
 
 class RepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -65,24 +68,63 @@ class RepositoryImpl @Inject constructor(
                 launch {
                     // Update room's groups from firebase
                     val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
+                    val groups = mutableListOf<Group>()
 
                     firebaseGroups.filterNotNull().forEach { groupFirebase ->
-                        roomDatasource.updateGroup(
-                            groupFirebase.updateModificationDate().toGroupTable(this@RepositoryImpl),
-                        )
-                    }
-                    send(firebaseGroups.filterNotNull().map { it.toGroup(this@RepositoryImpl) })
 
+                        val users = groupFirebase.users.map { userId ->
+                            getUserById(userId).first()
+                        }
+                        val group = groupFirebase.toGroup().copy(users = users)
+
+                        roomDatasource.updateGroup(
+                            group.updateModificationDate().toGroupTable(),
+                        )
+                        groups.add(group)
+                    }
+                    send(groups)
                 }
             } else {
                 launch {
-                    val myGroups =
-                        groups.filter { group -> userId in group.users.map { it.userId } }.map { it.toGroup() }
-                    send(myGroups)
+                    send(groups.map { it.toGroup() })
                 }
             }
         }
     }
+//    override fun getMyGroups(userId: String): Flow<List<Group>> = channelFlow {
+//        roomDatasource.getGroups().collectLatest { groups ->
+//            val needsUpdate = groups.any {
+//                val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
+//                timeDiff > MINIMUM_UPDATE_TIME
+//            }
+//
+//            if (needsUpdate) {
+//                launch {
+//                    // Update room's groups from firebase
+//                    val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
+//                    val groups = mutableListOf<Group>()
+//
+//                    firebaseGroups.filterNotNull().forEach { groupFirebase ->
+//
+//                        val users = groupFirebase.users.map { userId ->
+//                            getUserById(userId).first()
+//                        }
+//                        val group = groupFirebase.toGroup().copy(users = users)
+//
+//                        roomDatasource.updateGroup(
+//                            group.updateModificationDate().toGroupTable(),
+//                        )
+//                        groups.add(group)
+//                    }
+//                    send(groups)
+//                }
+//            } else {
+//                launch {
+//                    send(groups.map { it.toGroup() })
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Add new group into the database and store it in room database if successful.
@@ -90,13 +132,14 @@ class RepositoryImpl @Inject constructor(
      * @param viewModelScope The scope where the operation will be executed.
      * @param groupName The name of the group to be created.
      */
-    override fun createGroup(viewModelScope: CoroutineScope, groupName: String) {
+    override fun createGroup(viewModelScope: CoroutineScope, groupName: String, success: () -> Unit) {
         viewModelScope.launch {
             val currentUser = getUserById(firebaseAuth.currentUser!!.uid).first()
             firebaseDatabaseDatasource.createGroup(groupName, currentUser) { groupAdded ->
                 // Update room with the new group after adding it to the database successfully
                 viewModelScope.launch {
                     roomDatasource.insertGroup(groupAdded.toGroupTable(this@RepositoryImpl))
+                    success.invoke()
                 }
             }
         }
@@ -110,10 +153,11 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override fun deleteGroup(viewModelScope: CoroutineScope, group: Group) {
+    override fun deleteGroup(viewModelScope: CoroutineScope, group: Group, success: () -> Unit  ) {
         firebaseDatabaseDatasource.deleteGroup(group) {
             viewModelScope.launch {
                 roomDatasource.deleteGroup(group.toGroupTable())
+                success.invoke()
             }
         }
     }
@@ -207,22 +251,25 @@ class RepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getUserById(userId: String): Flow<User> {
-        val user = roomDatasource.getUser(userId).first()?.toUser()
+    override fun getUserById(userId: String): Flow<User> =
+        roomDatasource.getUser(userId).map { userTable ->
 
-        // If user is null, look for the user in firestore database.
-        return if (user != null) {
-            flowOf(user)
-        } else {
-            callbackFlow<User> {
-                val callback: (User?) -> Unit = { user ->
-                    trySend(user!!)
+            val user = userTable?.toUser()
+
+            // If user is null, look for the user in firestore database.
+            (if (user != null) {
+                user
+            } else {
+                callbackFlow<User> {
+                    val callback: (User?) -> Unit = { user ->
+                        trySend(user!!)
+                    }
+                    firebaseDatabaseDatasource.getUserById(userId, callback)
+                    awaitClose { }
                 }
-                firebaseDatabaseDatasource.getUserById(userId, callback)
-                awaitClose { }
-            }
+            }) as User
         }
-    }
+
 
     override fun updateUser(viewModelScope: CoroutineScope, user: User) {
         firebaseDatabaseDatasource.updateUser(user) {
@@ -241,14 +288,14 @@ interface Repository {
 
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>
-    fun createGroup(viewModelScope: CoroutineScope, groupName: String)
+    fun createGroup(viewModelScope: CoroutineScope, groupName: String, success: () -> Unit)
     fun updateGroup(viewModelScope: CoroutineScope, group: Group)
-    fun deleteGroup(viewModelScope: CoroutineScope, group: Group)
+    fun deleteGroup(viewModelScope: CoroutineScope, group: Group, success: () -> Unit)
     fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
     fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User)
 
     // Users
     suspend fun createUser(viewModelScope: CoroutineScope, user: User)
-    suspend fun getUserById(string: String): Flow<User>
+    fun getUserById(string: String): Flow<User>
     fun updateUser(viewModelScope: CoroutineScope, user: User)
 }

@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.model.remote.firebase
 
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -16,7 +17,7 @@ data class GroupFirebase(
     val watchedList: List<Int>, // List of movie ids
     val toWatchList: List<Int>, // List of movie ids
     val lastUpdated: Date?,
-){
+) {
     constructor() : this(
         id = "",
         ownerId = "",
@@ -40,13 +41,11 @@ suspend fun GroupFirebase.toGroupTable(repository: Repository) = GroupTable(
     lastUpdated = lastUpdated,
 )
 
-suspend fun GroupFirebase.toGroup(repository: Repository) = Group(
+fun GroupFirebase.toGroup() = Group(
     id = id,
     ownerId = ownerId,
     name = name,
-    users = users.map { userId ->
-        repository.getUserById(userId).single()
-    },
+    users = emptyList<User>(), // Fetch users from repository in a later step
     watchedList = watchedList,
     toWatchList = toWatchList,
     lastUpdated = lastUpdated,

@@ -117,7 +117,6 @@ private fun ProfileScreenPreview() {
             state = ProfileUiState().copy(
                 userData = User().copy(
                     email = "test@test.com",
-//                    groupIds = listOf("id1", "id2"),
                 ),
             ),
         )

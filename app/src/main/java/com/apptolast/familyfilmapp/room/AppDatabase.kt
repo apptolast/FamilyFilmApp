@@ -78,7 +78,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // 1. Crear la nueva tabla sin 'groupIds'
+                // 1. Create the new table without 'groupIds'
                 database.execSQL(
                     """
             CREATE TABLE users_table_new (
@@ -91,7 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
             """.trimIndent(),
                 )
 
-                // 2. Copiar datos de la tabla antigua a la nueva, excluyendo 'groupIds'
+                // 2. Copy old data table in the new one excluding 'groupIds'
                 database.execSQL(
                     """
             INSERT INTO users_table_new (userId, email, language, watched, toWatch)
@@ -99,10 +99,10 @@ abstract class AppDatabase : RoomDatabase() {
             """.trimIndent(),
                 )
 
-                // 3. Eliminar la tabla antigua
+                // 3. Delete the old table
                 database.execSQL("DROP TABLE users_table")
 
-                // 4. Renombrar la nueva tabla a la original
+                // 4. Rename the new table with the original one
                 database.execSQL("ALTER TABLE users_table_new RENAME TO users_table")
             }
         }

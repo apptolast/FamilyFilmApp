@@ -27,19 +27,4 @@ class AppNavigationViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = null,
         )
-
-//    fun saveUser() {
-//        viewModelScope.launch {
-//            userState.firstOrNull()?.let {
-//                roomDatasource.insertUser(
-//                    UserTable(
-//                        userId = it.uid,
-//                        email = it.email ?: "",
-//                        language = Locale.current.language,
-//                        groupIds = emptyList()
-//                    ),
-//                )
-//            }
-//        }
-//    }
 }

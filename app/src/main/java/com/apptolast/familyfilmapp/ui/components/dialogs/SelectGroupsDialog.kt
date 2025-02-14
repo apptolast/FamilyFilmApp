@@ -49,7 +49,7 @@ fun SelectGroupsDialog(
                     Text(
                         text = title,
                         modifier = Modifier.padding(vertical = 8.dp),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleSmall,
                     )
                 }
 
@@ -61,17 +61,26 @@ fun SelectGroupsDialog(
                             Checkbox(
                                 checked = when (dialogType) {
                                     DialogType.ToWatch -> {
-                                        val movieInUserList = user.toWatch.any { it.movieId == movieId }
-                                        val groupInMovie =
-                                            user.toWatch.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
-                                        movieInUserList && groupInMovie
+
+                                        // Para saber cuando hay que hacer check:
+                                        // El usuario tiene que tener la pelicula en la lista de toWatch
+                                        // y el grupo seleccionado tiene que estar en towWatch.groups
+                                        user.toWatch.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+
+                                        // old version
+//                                        val movieInUserList = user.toWatch.any { it.movieId == movieId }
+//                                        val movieInGroup =
+//                                            user.toWatch.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+//                                        movieInUserList && movieInGroup
                                     }
 
                                     DialogType.Watched -> {
-                                        val movieInUserList = user.watched.any { it.movieId == movieId }
-                                        val groupInMovie =
-                                            user.watched.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
-                                        movieInUserList && groupInMovie
+                                        user.watched.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+
+//                                        val movieInUserList = user.watched.any { it.movieId == movieId }
+//                                        val groupInMovie =
+//                                            user.watched.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+//                                        movieInUserList && groupInMovie
                                     }
 
                                     else -> false
@@ -83,7 +92,7 @@ fun SelectGroupsDialog(
                             )
                             Text(
                                 text = group.name,
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleSmall,
                                 modifier = Modifier
                                     .padding(end = 8.dp)
                                     .wrapContentHeight(Alignment.CenterVertically),

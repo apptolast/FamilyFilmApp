@@ -10,7 +10,6 @@ import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
 data class UserTable(
     @PrimaryKey(autoGenerate = false)
     val userId: String,
-//    val groupIds: List<String>,
     var email: String,
     var language: String,
     val watched: List<SelectedMovie>,
@@ -20,7 +19,6 @@ data class UserTable(
         userId = userId,
         email = "",
         language = "",
-//        groupIds = emptyList(),
         watched = emptyList(),
         toWatch = emptyList(),
     )
@@ -30,16 +28,14 @@ fun UserTable.toUser() = User(
     id = userId,
     email = email,
     language = language,
-//    groupIds = groupIds,
-    watched = emptyList<SelectedMovie>(),
-    toWatch = emptyList<SelectedMovie>(),
+    watched = watched,
+    toWatch = toWatch,
 )
 
 fun User.toUserTable() = UserTable(
     userId = id,
     email = email,
     language = language,
-//    groupIds = groupIds,
     watched = watched,
     toWatch = toWatch,
 )

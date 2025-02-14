@@ -6,24 +6,21 @@ import com.apptolast.familyfilmapp.extensions.updateModificationDate
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
-import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
     private val repository: Repository,
     private val auth: FirebaseAuth,
-    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     val backendState: StateFlow<BackendState>
@@ -34,15 +31,21 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            awaitAll(
-                async { getGroups() },
-                async { me() },
-            )
+            backendState.update { it.copy(isLoading = true) }
+
+            me()
+            getGroups()
+
+//            awaitAll(
+//                async { getGroups() },
+//                async { me() },
+//            )
+            backendState.update { it.copy(isLoading = false) }
         }
     }
 
     private suspend fun getGroups() {
-        repository.getMyGroups(auth.currentUser?.uid!!).collectLatest { groups ->
+        repository.getMyGroups(auth.currentUser?.uid!!).first().let { groups ->
             backendState.update {
                 it.copy(
                     groups = groups.sortedWith(
@@ -64,60 +67,16 @@ class GroupViewModel @Inject constructor(
                 )
             }
         }
-//        _backendState.update { it.copy(isLoading = true) }
-//        repository.me().fold(
-//            onSuccess = { user ->
-//                _backendState.update {
-//                    it.copy(
-//                        userOwner = user,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//            },
-//            onFailure = { error ->
-//                Timber.e(error, "Error getting user info")
-//                _backendState.update {
-//                    it.copy(
-//                        isLoading = false,
-//                        errorMessage = error.message,
-//                    )
-//                }
-//            },
-//        )
     }
 
-    fun createGroup(groupName: String) {
-        repository.createGroup(viewModelScope, groupName)
-
-//        _backendState.update { it.copy(isLoading = true) }
-//
-//        repository.addGroup(groupName).fold(
-//            onSuccess = { groups ->
-//                _backendState.update {
-//                    it.copy(
-//                        groups = groups,
-//                        errorMessage = null,
-//                        isLoading = false,
-//                    )
-//                }
-//                _uiState.update {
-//                    it.copy(
-//                        showDialog = GroupScreenDialogs.None,
-//                        selectedGroupIndex = it.selectedGroupIndex.inc(),
-//                    )
-//                }
-//            },
-//            onFailure = {
-//                Timber.e(it)
-//                _backendState.update { oldState ->
-//                    oldState.copy(
-//                        errorMessage = GroupException.AddGroup().value,
-//                        isLoading = false,
-//                    )
-//                }
-//            },
-//        )
+    fun createGroup(groupName: String) = repository.createGroup(viewModelScope, groupName) {
+        viewModelScope.launch {
+            // Find the position of this new group in the ordered list of groups and update the selectedGroupIndex
+            getGroups()
+            delay(50) // wait for the UI to be updated before look for the new item
+            val index = backendState.value.groups.indexOfFirst { it.name == groupName }
+            uiState.update { it.copy(selectedGroupIndex = index) }
+        }
     }
 
     fun changeGroupName(group: Group) = repository.updateGroup(viewModelScope, group.updateModificationDate())
@@ -131,14 +90,20 @@ class GroupViewModel @Inject constructor(
                 ),
             )
         }
-        repository.deleteGroup(viewModelScope, group.updateModificationDate())
+        repository.deleteGroup(viewModelScope, group.updateModificationDate()) {
+            viewModelScope.launch { getGroups() }
+        }
     }
 
-    fun addMember(group: Group, email: String) =
+    fun addMember(group: Group, email: String) = viewModelScope.launch {
         repository.addMember(viewModelScope, group.updateModificationDate(), email)
+        getGroups()
+    }
 
-    fun deleteMember(group: Group, user: User) =
+    fun deleteMember(group: Group, user: User) = viewModelScope.launch {
         repository.deleteMember(viewModelScope, group.updateModificationDate(), user)
+        getGroups()
+    }
 
     fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }
 

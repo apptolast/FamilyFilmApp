@@ -56,7 +56,6 @@ interface RoomDatasource {
     /**
      * Insert group in the data source
      */
-//    suspend fun insertGroupWithUsers(groupWithUsers: GroupWithUsers): Boolean
     suspend fun insertGroup(item: GroupTable)
 
     /**

@@ -12,6 +12,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,17 +27,18 @@ class DetailScreenViewModel @Inject constructor(
     val state: StateFlow<DetailScreenStateState>
         field: MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())
 
-
     init {
         viewModelScope.launch {
             awaitAll(
                 async {
-                    repository.getMyGroups(auth.uid!!).single().sortedBy { it.name }.let { groups ->
-                        state.update { it.copy(groups = groups) }
+                    repository.getMyGroups(auth.uid!!).collectLatest {
+                        it.sortedBy { it.name }.let { groups ->
+                            state.update { it.copy(groups = groups) }
+                        }
                     }
                 },
                 async {
-                    repository.getUserById(auth.uid!!).single().let { user ->
+                    repository.getUserById(auth.uid!!).collectLatest { user ->
                         state.update { it.copy(user = user) }
                     }
                 },

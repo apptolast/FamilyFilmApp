@@ -89,7 +89,7 @@ fun DetailsScreen(
     if (state.dialogType != DialogType.NONE) {
         SelectGroupsDialog(
             movieId = movie.id,
-            title = "Select groups",
+            title = "Select groups - ${state.dialogType.name}",
             user = state.user,
             groups = state.groups,
             dialogType = state.dialogType,

@@ -4,7 +4,6 @@ data class User(
     val id: String,
     val email: String,
     val language: String,
-//    val groupIds: List<String>,
     val watched: List<SelectedMovie>,
     val toWatch: List<SelectedMovie>,
 ) {
@@ -12,7 +11,6 @@ data class User(
         id = "",
         email = "",
         language = "",
-//        groupIds = emptyList<String>(),
         watched = emptyList(),
         toWatch = emptyList(),
     )

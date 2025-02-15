@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.di
 
+import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.network.BackendApi
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.repositories.BackendRepository
@@ -22,6 +23,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Module
@@ -47,7 +49,9 @@ object RepositoryModule {
         roomDatasource: RoomDatasource,
         firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
         tmdbDatasource: TmdbDatasource,
-    ): Repository = RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource)
+        workManager: WorkManager,
+    ): Repository =
+        RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
 
     @Provides
     fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =
@@ -57,7 +61,8 @@ object RepositoryModule {
     fun provideFirebaseDatabaseDatasource(
         database: FirebaseFirestore,
         roomDatasource: RoomDatasource,
-    ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource)
+        coroutineScope: CoroutineScope,
+    ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource, coroutineScope)
 
     @Provides
     fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)

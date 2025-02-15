@@ -3,13 +3,16 @@ package com.apptolast.familyfilmapp.repositories.datasources
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.remote.firebase.GroupFirebase
+import com.apptolast.familyfilmapp.model.room.toGroupTable
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
 import java.util.UUID
@@ -19,6 +22,7 @@ import javax.inject.Inject
 class FirebaseDatabaseDatasourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val roomDatasource: RoomDatasource,
+    private val coroutineScope: CoroutineScope, // Inject CoroutineScope
 ) : FirebaseDatabaseDatasource {
 
     val rootDatabase = database.collection(DB_ROOT_COLLECTION).document(BuildConfig.BUILD_TYPE)
@@ -26,40 +30,9 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     val groupsCollection = rootDatabase.collection("groups")
     val moviesCollection = rootDatabase.collection("movies")
 
-//    init {
-//
-//        // Everytime there is any change change in the database, update room
-//        groupsCollection.addSnapshotListener { snapshots, e ->
-//            if (e != null) {
-//                Timber.e(e, "Listen failed.")
-//                return@addSnapshotListener
-//            }
-//
-//            GlobalScope.launch(Dispatchers.IO) {
-//                for (docChange in snapshots!!.documentChanges) {
-//                    when (docChange.type) {
-//                        DocumentChange.Type.ADDED -> {
-//                            Timber.d("Document added: ${docChange.document.data}")
-//                            val group = docChange.document.toObject(Group::class.java)
-//                            roomDatasource.insertGroup(group.toGroupTable())
-//                        }
-//
-//                        DocumentChange.Type.MODIFIED -> {
-//                            Timber.d("Document updated: ${docChange.document.data}")
-//                            val group = docChange.document.toObject(Group::class.java)
-//                            roomDatasource.updateGroup(group.toGroupTable())
-//                        }
-//
-//                        DocumentChange.Type.REMOVED -> {
-//                            Timber.d("Document deleted: ${docChange.document.id}")
-//                            val group = docChange.document.toObject(Group::class.java)
-//                            roomDatasource.deleteGroup(group.toGroupTable())
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    init {
+        setupGroupChangeListener()
+    }
 
     // /////////////////////////////////////////////////////////////////////////
     // Users
@@ -122,78 +95,166 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    override fun getMyGroups(userId: String): Flow<List<GroupFirebase?>> = callbackFlow {
-        val listener: (QuerySnapshot?) -> Unit = { querySnapshot ->
-            if (querySnapshot?.documents?.isEmpty() == false) {
-                val groups = querySnapshot.documents.filterNotNull().filter {
-                    val group = it.toObject(GroupFirebase::class.java)
-                    group?.users?.contains(userId) == true
-                }.map {
-                    it.toObject(GroupFirebase::class.java)
-                }.filterNotNull()
 
-                trySend(groups)
-            } else {
-                Timber.d("No such document")
-                trySend(emptyList())
+    private fun setupGroupChangeListener() {
+        groupsCollection.addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Timber.e(e, "Listen failed.")
+                return@addSnapshotListener
+            }
+
+            coroutineScope.launch(Dispatchers.IO) { // Use injected CoroutineScope
+                for (docChange in snapshots!!.documentChanges) {
+                    val group = docChange.document.toObject(Group::class.java)
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+                            Timber.d("Group added or modified: ${group.name}")
+                            roomDatasource.insertGroup(group.toGroupTable()) // Assume that insertGroup does a REPLACE
+                        }
+
+                        DocumentChange.Type.REMOVED -> {
+                            Timber.d("Group deleted: ${group.name}")
+                            roomDatasource.deleteGroup(group.toGroupTable())
+                        }
+                    }
+                }
             }
         }
+    }
 
-        groupsCollection
-            .get()
-            .addOnSuccessListener(listener)
+    override fun getMyGroups(userId: String): Flow<List<Group>> = callbackFlow {
+        val listenerRegistration = groupsCollection
+            .whereArrayContains("users", userId) // Assuming 'users' is an array of userIds
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Timber.e(error, "Error getting groups for user")
+                    close(error)
+                    return@addSnapshotListener
+                }
 
-        awaitClose {}
+                if (snapshot != null) {
+                    val groups = snapshot.documents.mapNotNull { document ->
+                        document.toObject(Group::class.java)
+                    }
+                    trySend(groups)
+                }
+            }
+
+        awaitClose {
+            listenerRegistration.remove()
+        }
     }
 
     /**
      * To add a group to the database, we needed to know the user who will create it.
      * Also we add it to the list of users of the group.
      */
-    override fun createGroup(groupName: String, user: User, success: (GroupFirebase) -> Unit) {
+
+    override fun createGroup(groupName: String, user: User, success: (Group) -> Unit) {
         val uuid = UUID.randomUUID().toString()
-        val groupFirebase = GroupFirebase().copy(
+        val group = Group().copy(
             id = uuid,
             ownerId = user.id,
             name = groupName,
-            users = listOf(user.id),
-            watchedList = emptyList(),
-            toWatchList = emptyList(),
-            lastUpdated = Calendar.getInstance().time,
+            users = listOf(user), // Store user IDs, not the entire User object
+            lastUpdated = Calendar.getInstance().time, // Set the initial lastUpdated timestamp
         )
+
         groupsCollection
             .document(uuid)
-            .set(groupFirebase)
+            .set(group)
             .addOnSuccessListener {
                 Timber.d("Group created")
-                success(groupFirebase)
+                success(group)
             }
             .addOnFailureListener { e ->
                 Timber.e(e, "Error creating the group")
             }
     }
 
-    override fun updateGroup(group: Group, success: (Void?) -> Unit) {
-        // Update fields
-        val updates = mapOf(
-            "name" to group.name,
-            "users" to group.users.map{it.id},
-            "watchedList" to group.watchedList,
-            "toWatchList" to group.toWatchList,
-            "lastUpdated" to group.lastUpdated,
-        )
-
-        groupsCollection
-            .document(group.id)
-            .update(updates)
-            .addOnSuccessListener(success)
+    override fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
+        groupsCollection.document(group.id)
+            .set(group)
+            .addOnSuccessListener {
+                Timber.d("Group updated: ${group.name}")
+                success()
+            }
+            .addOnFailureListener { e ->
+                Timber.e(e, "Error updating group: ${group.name}")
+                failure(e)
+            }
     }
 
-    override fun deleteGroup(group: Group, success: (Void?) -> Unit) {
-        groupsCollection
-            .document(group.id)
+
+    override fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
+        groupsCollection.document(group.id)
             .delete()
-            .addOnSuccessListener(success)
+            .addOnSuccessListener {
+                Timber.d("Group deleted: ${group.name}")
+                success()
+            }
+            .addOnFailureListener { e ->
+                Timber.e(e, "Error deleting group: ${group.name}")
+                failure(e)
+            }
+    }
+
+    override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) {
+        usersCollection.whereEqualTo("email", email).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    failure(IllegalArgumentException("User with email $email not found"))
+                    return@addOnSuccessListener
+                }
+
+                val user = querySnapshot.documents[0].toObject(User::class.java)
+                if (user == null) {
+                    failure(NullPointerException("Failed to convert document to User object"))
+                    return@addOnSuccessListener
+                }
+
+                val updatedUsers = group.users.toMutableList()
+                if (user.id !in updatedUsers.map { it.id }) {
+//                if (!updatedUsers.contains(user.id)) {
+                    updatedUsers.add(user)
+
+                    val updatedGroup = group.copy(users = updatedUsers, lastUpdated = Calendar.getInstance().time)
+
+                    groupsCollection.document(group.id)
+                        .set(updatedGroup)
+                        .addOnSuccessListener {
+                            success()
+                        }
+                        .addOnFailureListener { e ->
+                            failure(e)
+                        }
+                } else {
+                    failure(IllegalArgumentException("User with email $email is already a member of this group"))
+                }
+            }
+            .addOnFailureListener { e ->
+                failure(e)
+            }
+    }
+
+    override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
+        val updatedUsers = group.users.toMutableList()
+//        if (updatedUsers.contains(user.id)) {
+        if (user.id in updatedUsers.map { it.id }) {
+            updatedUsers.remove(user)
+            val updatedGroup = group.copy(users = updatedUsers, lastUpdated = Calendar.getInstance().time)
+
+            groupsCollection.document(group.id)
+                .set(updatedGroup)
+                .addOnSuccessListener {
+                    success()
+                }
+                .addOnFailureListener { e ->
+                    failure(e)
+                }
+        } else {
+            failure(IllegalArgumentException("User with id ${user.id} is not a member of this group"))
+        }
     }
 
     companion object {
@@ -213,8 +274,10 @@ interface FirebaseDatabaseDatasource {
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    fun getMyGroups(userId: String): Flow<List<GroupFirebase?>>
-    fun createGroup(groupName: String, user: User, success: (GroupFirebase) -> Unit)
-    fun updateGroup(group: Group, success: (Void?) -> Unit)
-    fun deleteGroup(group: Group, success: (Void?) -> Unit)
+    fun getMyGroups(userId: String): Flow<List<Group>>
+    fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
+    fun createGroup(groupName: String, user: User, success: (Group) -> Unit)
+    fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
+    fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
+    fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit)
 }

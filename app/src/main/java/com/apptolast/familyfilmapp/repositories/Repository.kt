@@ -3,44 +3,37 @@ package com.apptolast.familyfilmapp.repositories
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.apptolast.familyfilmapp.extensions.updateModificationDate
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
-import com.apptolast.familyfilmapp.model.remote.firebase.toGroup
-import com.apptolast.familyfilmapp.model.remote.firebase.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toGroup
-import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
-import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl.Companion.MINIMUM_UPDATE_TIME
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
+import com.apptolast.familyfilmapp.workers.SyncWorker
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Calendar
 import javax.inject.Inject
-import kotlin.collections.mutableListOf
 
 class RepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val roomDatasource: RoomDatasource,
     private val firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
     private val tmdbDatasource: TmdbDatasource,
+    private val workManager: WorkManager,
 ) : Repository {
 
     // /////////////////////////////////////////////////////////////////////////
@@ -57,74 +50,14 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    override fun getMyGroups(userId: String): Flow<List<Group>> = channelFlow {
-        roomDatasource.getGroups().collectLatest { groups ->
-            val needsUpdate = groups.any {
-                val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
-                timeDiff > MINIMUM_UPDATE_TIME
-            }
-
-            if (needsUpdate) {
-                launch {
-                    // Update room's groups from firebase
-                    val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
-                    val groups = mutableListOf<Group>()
-
-                    firebaseGroups.filterNotNull().forEach { groupFirebase ->
-
-                        val users = groupFirebase.users.map { userId ->
-                            getUserById(userId).first()
-                        }
-                        val group = groupFirebase.toGroup().copy(users = users)
-
-                        roomDatasource.updateGroup(
-                            group.updateModificationDate().toGroupTable(),
-                        )
-                        groups.add(group)
-                    }
-                    send(groups)
-                }
-            } else {
-                launch {
-                    send(groups.map { it.toGroup() })
-                }
-            }
+    override fun getMyGroups(userId: String): Flow<List<Group>> {
+//        return roomDatasource.getGroups().map { groupTables ->
+//            groupTables.map { it.toGroup() }
+//        }
+        return roomDatasource.getMyGroups(userId).map { groupTables ->
+            groupTables.map { it.toGroup() }
         }
     }
-//    override fun getMyGroups(userId: String): Flow<List<Group>> = channelFlow {
-//        roomDatasource.getGroups().collectLatest { groups ->
-//            val needsUpdate = groups.any {
-//                val timeDiff = Calendar.getInstance().time.time - (it.lastUpdated?.time ?: 0)
-//                timeDiff > MINIMUM_UPDATE_TIME
-//            }
-//
-//            if (needsUpdate) {
-//                launch {
-//                    // Update room's groups from firebase
-//                    val firebaseGroups = firebaseDatabaseDatasource.getMyGroups(userId).first()
-//                    val groups = mutableListOf<Group>()
-//
-//                    firebaseGroups.filterNotNull().forEach { groupFirebase ->
-//
-//                        val users = groupFirebase.users.map { userId ->
-//                            getUserById(userId).first()
-//                        }
-//                        val group = groupFirebase.toGroup().copy(users = users)
-//
-//                        roomDatasource.updateGroup(
-//                            group.updateModificationDate().toGroupTable(),
-//                        )
-//                        groups.add(group)
-//                    }
-//                    send(groups)
-//                }
-//            } else {
-//                launch {
-//                    send(groups.map { it.toGroup() })
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Add new group into the database and store it in room database if successful.
@@ -132,107 +65,63 @@ class RepositoryImpl @Inject constructor(
      * @param viewModelScope The scope where the operation will be executed.
      * @param groupName The name of the group to be created.
      */
-    override fun createGroup(viewModelScope: CoroutineScope, groupName: String, success: () -> Unit) {
+    override fun createGroup(viewModelScope: CoroutineScope, groupName: String) {
         viewModelScope.launch {
-            val currentUser = getUserById(firebaseAuth.currentUser!!.uid).first()
+            val currentUser = getCurrentUser()
             firebaseDatabaseDatasource.createGroup(groupName, currentUser) { groupAdded ->
-                // Update room with the new group after adding it to the database successfully
-                viewModelScope.launch {
-                    roomDatasource.insertGroup(groupAdded.toGroupTable(this@RepositoryImpl))
-                    success.invoke()
-                }
+                enqueueSyncWork()
             }
         }
     }
 
     override fun updateGroup(viewModelScope: CoroutineScope, group: Group) {
-        firebaseDatabaseDatasource.updateGroup(group) {
-            viewModelScope.launch {
-                roomDatasource.updateGroup(group.toGroupTable())
-            }
+        viewModelScope.launch {
+            firebaseDatabaseDatasource.updateGroup(
+                group,
+                success = { enqueueSyncWork() },
+                failure = { Timber.e(it, "Error updating group") },
+            )
         }
     }
 
-    override fun deleteGroup(viewModelScope: CoroutineScope, group: Group, success: () -> Unit  ) {
-        firebaseDatabaseDatasource.deleteGroup(group) {
-            viewModelScope.launch {
-                roomDatasource.deleteGroup(group.toGroupTable())
-                success.invoke()
-            }
-        }
+    override fun deleteGroup(viewModelScope: CoroutineScope, group: Group, onFinally: () -> Unit) {
+        viewModelScope.launch {
+            firebaseDatabaseDatasource.deleteGroup(
+                group,
+                success = { enqueueSyncWork() },
+                failure = { Timber.e(it, "Error deleting group") },
+            )
+        }.invokeOnCompletion { onFinally() }
     }
 
     override fun addMember(viewModelScope: CoroutineScope, group: Group, email: String) {
-        // check if it the user is already added in group's users list
-        val userAlreadyAdded = email in group.users.map { it.email }
-
         viewModelScope.launch {
-            // If not, include the user in the group and update the group in both databases
-            if (!userAlreadyAdded) {
-                var user: User? = null
-
-                // First, try to get the cache user from room
-                roomDatasource.getUserByEmail(email).first()?.toUser().let { retrieveUser ->
-                    Timber.d("User from room: $this")
-                    user = retrieveUser
-
-                    if (retrieveUser == null) {
-                        // If user is null, retrieve the user from firestore and cache it in room for future use
-                        firebaseDatabaseDatasource.getUserByEmail(email) { retrieveUser ->
-                            Timber.d("User from firestore: $retrieveUser")
-                            user = retrieveUser
-
-                            viewModelScope.launch {
-                                retrieveUser?.toUserTable()?.let {
-                                    roomDatasource.insertUser(it)
-                                    Timber.d("User inserted in room")
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (user == null) {
-                    // TODO: Notify that the user do not exist in the app and cannot be added
-                    return@launch
-                }
-
-                // Update group with the retrieved user
-                val updateGroup = group.copy(
-                    users = group.users.toMutableList().apply {
-                        add(user!!)
-                    },
-                )
-
-                firebaseDatabaseDatasource.updateGroup(updateGroup) {
-                    Timber.d("Group updated in firestore")
-                    viewModelScope.launch {
-                        roomDatasource.updateGroup(updateGroup.toGroupTable())
-                        Timber.d("Group updated in room")
-                    }
-                }
-            } else {
-                Timber.w("TODO: Notify that the user is already in the group")
-            }
+            firebaseDatabaseDatasource.addMember(
+                group, email,
+                success = { enqueueSyncWork() },
+                failure = { Timber.e(it, "Error adding member to group") },
+            )
         }
     }
 
     override fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User) {
-        // Delete user from group
-        val updateGroup = group.copy(
-            users = group.users.toMutableList().apply {
-                remove(user)
-            },
-        )
-
-        // Update group in firebase
-        firebaseDatabaseDatasource.updateGroup(updateGroup) {
-            // if success delete user from room
-            viewModelScope.launch {
-                roomDatasource.updateGroup(updateGroup.toGroupTable())
-            }
+        viewModelScope.launch {
+            firebaseDatabaseDatasource.deleteMember(
+                group, user,
+                success = { enqueueSyncWork() },
+                failure = { Timber.e(it, "Error deleting member from group") },
+            )
         }
     }
+
+    private fun enqueueSyncWork() {
+        val syncWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
+        workManager.enqueue(syncWorkRequest)
+    }
+
+    private suspend fun getCurrentUser(): User =
+        roomDatasource.getUser(firebaseAuth.currentUser?.uid!!).first()!!.toUser()
+
 
     // /////////////////////////////////////////////////////////////////////////
 // Users
@@ -278,6 +167,8 @@ class RepositoryImpl @Inject constructor(
             }
         }
     }
+
+
 }
 
 interface Repository {
@@ -288,9 +179,9 @@ interface Repository {
 
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>
-    fun createGroup(viewModelScope: CoroutineScope, groupName: String, success: () -> Unit)
+    fun createGroup(viewModelScope: CoroutineScope, groupName: String)
     fun updateGroup(viewModelScope: CoroutineScope, group: Group)
-    fun deleteGroup(viewModelScope: CoroutineScope, group: Group, success: () -> Unit)
+    fun deleteGroup(viewModelScope: CoroutineScope, group: Group, onFinally: () -> Unit)
     fun addMember(viewModelScope: CoroutineScope, group: Group, email: String)
     fun deleteMember(viewModelScope: CoroutineScope, group: Group, user: User)
 

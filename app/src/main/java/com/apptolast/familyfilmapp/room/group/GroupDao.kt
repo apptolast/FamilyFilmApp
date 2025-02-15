@@ -5,8 +5,11 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQueryBuilder
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
@@ -34,6 +37,17 @@ abstract class GroupDao {
 
     @Query("SELECT * from $GROUPS_TABLE_NAME")
     abstract fun getGroups(): Flow<List<GroupTable>>
+
+    @RawQuery(observedEntities = [GroupTable::class])
+    abstract fun getMyGroups(query: SupportSQLiteQuery): Flow<List<GroupTable>>
+
+    fun getMyGroups(userId: String): Flow<List<GroupTable>> {
+        val query = SupportSQLiteQueryBuilder.builder(GROUPS_TABLE_NAME)
+            .columns(arrayOf("*"))
+            .selection("users LIKE '%' || ? || '%'", arrayOf(userId))
+            .create()
+        return getMyGroups(query)
+    }
 
     @Query("SELECT * from $GROUPS_TABLE_NAME WHERE groupId = :id")
     abstract fun getGroup(id: String): Flow<GroupTable>

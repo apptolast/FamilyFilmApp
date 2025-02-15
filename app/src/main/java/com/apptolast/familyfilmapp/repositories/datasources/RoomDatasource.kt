@@ -4,21 +4,20 @@ import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.user.UserDao
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, private val userDao: UserDao) :
-    RoomDatasource {
+class RoomDatasourceImpl @Inject constructor(
+    private val groupDao: GroupDao,
+    private val userDao: UserDao,
+) : RoomDatasource {
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
     override fun getGroups(): Flow<List<GroupTable>> = groupDao.getGroups()
+    override fun getMyGroups(userId:String): Flow<List<GroupTable>> = groupDao.getMyGroups(userId)
     override fun getGroupById(id: String): Flow<GroupTable> = groupDao.getGroup(id)
-
-//    override suspend fun insertGroupWithUsers(groupWithUsers: GroupWithUsers) =
-//        groupDao.insertGroupWithUsers(groupWithUsers)
-
     override suspend fun insertGroup(group: GroupTable) = groupDao.insert(group)
     override suspend fun updateGroup(group: GroupTable) = groupDao.update(group)
     override suspend fun deleteGroup(group: GroupTable) = groupDao.delete(group)
@@ -44,9 +43,14 @@ interface RoomDatasource {
     // Groups
     // /////////////////////////////////////////////////////////////////////////
     /**
-     * Retrieve all the groups from the the given data source.
+     * Retrieve all the groups from the given data source.
      */
     fun getGroups(): Flow<List<GroupTable>>
+
+    /**
+     * Retrieve all the groups from the given userId.
+     */
+    fun getMyGroups(userId: String): Flow<List<GroupTable>>
 
     /**
      * Retrieve groups from the given data source that matches with the [id].
@@ -56,17 +60,17 @@ interface RoomDatasource {
     /**
      * Insert group in the data source
      */
-    suspend fun insertGroup(item: GroupTable)
+    suspend fun insertGroup(group: GroupTable)
 
     /**
      * Delete group from the data source
      */
-    suspend fun deleteGroup(item: GroupTable)
+    suspend fun deleteGroup(group: GroupTable)
 
     /**
      * Update group in the data source
      */
-    suspend fun updateGroup(item: GroupTable)
+    suspend fun updateGroup(group: GroupTable)
 
     // /////////////////////////////////////////////////////////////////////////
     // Users
@@ -102,5 +106,3 @@ interface RoomDatasource {
      */
     suspend fun updateUser(user: UserTable)
 }
-
-// https://stackoverflow.com/questions/44667160/android-room-insert-relation-entities-using-room

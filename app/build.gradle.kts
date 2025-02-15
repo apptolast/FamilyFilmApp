@@ -129,7 +129,9 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.hilt.work.manager)
     ksp(libs.hilt.android.compiler)
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
     kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments
@@ -156,9 +158,11 @@ dependencies {
     ktlintRuleset(libs.ktlint.ruleset)
 
     // Room
-//    implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Turbine
     testImplementation(libs.turbine)

@@ -1,14 +1,14 @@
 [versions]
 activityCompose = "1.10.0"
-androidApplication = "8.8.0"
+androidApplication = "8.8.1"
 androidxCoreKtx = "1.15.0"
 androidxLifecycleCompose = "2.8.7"
-androidxPagingVersion = "3.3.5"
+androidxPagingVersion = "3.3.6"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
-composeBom = "2025.01.01"
-composeUiTextGoogleFonts = "1.7.7"
+composeBom = "2025.02.00"
+composeUiTextGoogleFonts = "1.7.8"
 coreSplashscreen = "1.0.1"
 coroutines = "1.9.0"
 espressoCore = "3.6.1"
@@ -18,6 +18,7 @@ googleServices = "4.4.2"
 gson = "2.11.0"
 hiltNavigationCompose = "1.2.0"
 hiltVersion = "2.55"
+hiltCompiler = "1.2.0"
 junit = "4.13.2"
 junitJupiter = "5.11.3"
 kotlin = "2.1.0"
@@ -29,7 +30,7 @@ mockitoCore = "5.14.2"
 mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
 mockk = "1.13.13"
-navigationCompose = "2.8.6"
+navigationCompose = "2.8.7"
 playServicesAuth = "21.3.0"
 retrofit = "2.11.0"
 roomVersion = "2.6.1"
@@ -39,6 +40,7 @@ testRules = "1.6.1"
 timber = "5.0.1"
 truth = "1.4.4"
 turbine = "1.2.0"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -51,6 +53,7 @@ androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
 #androidx-room-runtime = { group = "androidx.room", name="room-runtime", version.ref = "roomVersion" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 compose-annotation = { group = "io.github.dilrajsingh1997", name = "compose-annotation", version.ref = "composeAnnotation" }
@@ -80,6 +83,7 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
+hilt-work-manager = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltCompiler" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }

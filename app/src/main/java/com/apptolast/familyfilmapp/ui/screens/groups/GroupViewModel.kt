@@ -2,15 +2,17 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.extensions.updateModificationDate
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,78 +33,64 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            backendState.update { it.copy(isLoading = true) }
-
-            me()
-            getGroups()
-
-//            awaitAll(
-//                async { getGroups() },
-//                async { me() },
-//            )
-            backendState.update { it.copy(isLoading = false) }
+//            backendState.update { it.copy(isLoading = true) }
+            awaitAll(
+                async { getGroups() },
+                async { me() },
+            )
+//            backendState.update { it.copy(isLoading = false) }
         }
     }
 
     private suspend fun getGroups() {
-        repository.getMyGroups(auth.currentUser?.uid!!).first().let { groups ->
-            backendState.update {
-                it.copy(
-                    groups = groups.sortedWith(
-                        compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
-                    ),
-                    isLoading = false,
-                    errorMessage = null,
-                )
+        repository.getMyGroups(auth.currentUser?.uid!!)
+            .catch { error ->
+                backendState.update {
+                    it.copy(errorMessage = error.message)
+                }
             }
-        }
+            .first().let { groups ->
+                backendState.update {
+                    it.copy(
+                        groups = groups.sortedWith(
+                            compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
+                        ),
+                        errorMessage = null,
+                    )
+                }
+            }
     }
 
     private suspend fun me() {
         val authUser = auth.currentUser ?: return
-        repository.getUserById(authUser.uid).first().let { user ->
+
+        repository.getUserById(authUser.uid).collectLatest { user ->
             backendState.update {
-                it.copy(
-                    currentUser = user,
-                )
+                it.copy(currentUser = user)
             }
         }
     }
 
-    fun createGroup(groupName: String) = repository.createGroup(viewModelScope, groupName) {
-        viewModelScope.launch {
-            // Find the position of this new group in the ordered list of groups and update the selectedGroupIndex
-            getGroups()
-            delay(50) // wait for the UI to be updated before look for the new item
-            val index = backendState.value.groups.indexOfFirst { it.name == groupName }
-            uiState.update { it.copy(selectedGroupIndex = index) }
-        }
+    fun createGroup(groupName: String) {
+        repository.createGroup(viewModelScope, groupName)
     }
 
-    fun changeGroupName(group: Group) = repository.updateGroup(viewModelScope, group.updateModificationDate())
+    fun changeGroupName(group: Group) {
+        repository.updateGroup(viewModelScope, group)
+    }
 
     fun deleteGroup(group: Group) {
-        uiState.update {
-            it.copy(
-                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
-                    0,
-                    Int.MAX_VALUE,
-                ),
-            )
-        }
-        repository.deleteGroup(viewModelScope, group.updateModificationDate()) {
+        repository.deleteGroup(viewModelScope, group) {
             viewModelScope.launch { getGroups() }
         }
     }
 
-    fun addMember(group: Group, email: String) = viewModelScope.launch {
-        repository.addMember(viewModelScope, group.updateModificationDate(), email)
-        getGroups()
+    fun addMember(group: Group, email: String) {
+        repository.addMember(viewModelScope, group, email)
     }
 
-    fun deleteMember(group: Group, user: User) = viewModelScope.launch {
-        repository.deleteMember(viewModelScope, group.updateModificationDate(), user)
-        getGroups()
+    fun deleteMember(group: Group, user: User) {
+        repository.deleteMember(viewModelScope, group, user)
     }
 
     fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }

@@ -16,11 +16,11 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.apptolast.familyfilmapp.workers.SyncWorker
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
-import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val roomDatasource: RoomDatasource,
@@ -43,11 +43,10 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    override fun getMyGroups(userId: String): Flow<List<Group>> {
-        return roomDatasource.getMyGroups(userId).map { groupTables ->
+    override fun getMyGroups(userId: String): Flow<List<Group>> =
+        roomDatasource.getMyGroups(userId).map { groupTables ->
             groupTables.map { it.toGroup() }
         }
-    }
 
     /**
      * Add new group into the database and store it in room database if successful.
@@ -74,7 +73,8 @@ class RepositoryImpl @Inject constructor(
 
     override fun deleteMember(group: Group, user: User) {
         firebaseDatabaseDatasource.deleteMember(
-            group, user,
+            group,
+            user,
             success = { enqueueSyncWork() },
             failure = { Timber.e(it, "Error deleting member from group") },
         )
@@ -99,9 +99,7 @@ class RepositoryImpl @Inject constructor(
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override fun updateUser(user: User) =
-        firebaseDatabaseDatasource.updateUser(user)
-
+    override fun updateUser(user: User) = firebaseDatabaseDatasource.updateUser(user)
 }
 
 interface Repository {

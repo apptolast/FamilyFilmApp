@@ -33,7 +33,7 @@ fun SelectGroupsDialog(
     dialogType: DialogType,
     modifier: Modifier = Modifier,
     onCancel: () -> Unit = {},
-    onCheck: (Group, Boolean,) -> Unit = { _, _ -> },
+    onCheck: (Group, Boolean) -> Unit = { _, _ -> },
 ) {
     Dialog(
         onDismissRequest = onCancel,
@@ -61,11 +61,13 @@ fun SelectGroupsDialog(
                             Checkbox(
                                 checked = when (dialogType) {
                                     DialogType.ToWatch -> {
-
                                         // Para saber cuando hay que hacer check:
                                         // El usuario tiene que tener la pelicula en la lista de toWatch
                                         // y el grupo seleccionado tiene que estar en towWatch.groups
-                                        user.toWatch.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+                                        user.toWatch
+                                            .find { it.movieId == movieId }
+                                            ?.groups
+                                            ?.any { it.id == group.id } == true
 
                                         // old version
 //                                        val movieInUserList = user.toWatch.any { it.movieId == movieId }
@@ -75,7 +77,10 @@ fun SelectGroupsDialog(
                                     }
 
                                     DialogType.Watched -> {
-                                        user.watched.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
+                                        user.watched
+                                            .find { it.movieId == movieId }
+                                            ?.groups
+                                            ?.any { it.id == group.id } == true
 
 //                                        val movieInUserList = user.watched.any { it.movieId == movieId }
 //                                        val groupInMovie =

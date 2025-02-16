@@ -62,7 +62,6 @@ fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewM
     )
 }
 
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DetailsScreen(
@@ -71,7 +70,6 @@ fun DetailsScreen(
     displayDialog: (DialogType) -> Unit = { _ -> },
     updateGroup: (Group, Boolean) -> Unit = { _, _ -> },
 ) {
-
     val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(

@@ -14,6 +14,8 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -21,8 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
-import javax.inject.Inject
+import timber.log.Timber
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -77,7 +78,7 @@ class LoginViewModel @Inject constructor(
     fun register(email: String, password: String) = viewModelScope.launch {
         firebaseAuthRepository.register(email, password)
             .catch {
-
+                Timber.e(it)
             }
             .filterNotNull()
             .collectLatest { firebaseUser ->
@@ -148,13 +149,12 @@ class LoginViewModel @Inject constructor(
         recoverPassState.update { newRecoverPassState }
     }
 
-    fun handleGoogleSignInResult(account: GoogleSignInAccount) =
-        viewModelScope.launch(dispatcherProvider.io()) {
+    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
 //            loginWithGoogleUseCase(account.idToken!!).let { result ->
 //                result.collectLatest { newLoginUIState ->
 //                    // User Login into our backend before update the UI state
 //                    backendLogin(newLoginUIState)
 //                }
 //            }
-        }
+    }
 }

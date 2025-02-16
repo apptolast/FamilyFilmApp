@@ -7,6 +7,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,18 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-
 
 @HiltViewModel
-class GroupViewModel @Inject constructor(
-    private val repository: Repository,
-    private val auth: FirebaseAuth,
-) : ViewModel() {
+class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
+    ViewModel() {
 
     val backendState: StateFlow<BackendState>
         field: MutableStateFlow<BackendState> = MutableStateFlow(BackendState())
@@ -35,12 +31,10 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-//            backendState.update { it.copy(isLoading = true) }
             awaitAll(
                 async { getGroups() },
                 async { me() },
             )
-//            backendState.update { it.copy(isLoading = false) }
         }
     }
 

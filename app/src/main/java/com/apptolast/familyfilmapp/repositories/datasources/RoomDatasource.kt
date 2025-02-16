@@ -4,19 +4,17 @@ import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.user.UserDao
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
-class RoomDatasourceImpl @Inject constructor(
-    private val groupDao: GroupDao,
-    private val userDao: UserDao,
-) : RoomDatasource {
+class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, private val userDao: UserDao) :
+    RoomDatasource {
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
     override fun getGroups(): Flow<List<GroupTable>> = groupDao.getGroups()
-    override fun getMyGroups(userId:String): Flow<List<GroupTable>> = groupDao.getMyGroups(userId)
+    override fun getMyGroups(userId: String): Flow<List<GroupTable>> = groupDao.getMyGroups(userId)
     override fun getGroupById(id: String): Flow<GroupTable> = groupDao.getGroup(id)
     override suspend fun insertGroup(group: GroupTable) = groupDao.insert(group)
     override suspend fun updateGroup(group: GroupTable) = groupDao.update(group)

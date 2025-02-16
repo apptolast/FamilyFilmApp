@@ -26,7 +26,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
-fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onClick: (Movie) -> Unit) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onClick: (Movie) -> Unit = {}) {
     Box(
         modifier = modifier
             .width(IntrinsicSize.Max)
@@ -79,7 +79,6 @@ private fun HomeItemPreview() {
                 title = "title",
                 posterPath = "https:///600x400/000/fff",
             ),
-            onClick = {},
         )
     }
 }

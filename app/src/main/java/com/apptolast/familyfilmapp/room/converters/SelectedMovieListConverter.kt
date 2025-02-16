@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.room.converters
 
 import androidx.room.TypeConverter
 import com.apptolast.familyfilmapp.model.local.SelectedMovie
-import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.google.gson.Gson
 
 class SelectedMovieListConverter {

@@ -88,7 +88,7 @@ abstract class AppDatabase : RoomDatabase() {
                 watched TEXT NOT NULL DEFAULT '[]',
                 toWatch TEXT NOT NULL DEFAULT '[]'
             )
-            """.trimIndent(),
+                    """.trimIndent(),
                 )
 
                 // 2. Copy old data table in the new one excluding 'groupIds'
@@ -96,7 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
                     """
             INSERT INTO users_table_new (userId, email, language, watched, toWatch)
             SELECT userId, email, language, '[]', '[]' FROM users_table
-            """.trimIndent(),
+                    """.trimIndent(),
                 )
 
                 // 3. Delete the old table

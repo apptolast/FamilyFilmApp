@@ -23,8 +23,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -45,8 +45,7 @@ object RepositoryModule {
         firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
         tmdbDatasource: TmdbDatasource,
         workManager: WorkManager,
-    ): Repository =
-        RepositoryImpl(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
+    ): Repository = RepositoryImpl(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
 
     @Provides
     fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =

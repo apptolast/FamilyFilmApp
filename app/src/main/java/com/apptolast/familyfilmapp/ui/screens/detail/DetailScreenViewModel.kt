@@ -13,7 +13,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,7 +64,7 @@ class DetailScreenViewModel @Inject constructor(
                 updateMovieList(state.value.user.watched, movieId, group, isChecked)
             } else state.value.user.watched).distinct(),
         )
-        repository.updateUser(viewModelScope, updatedUser)
+        repository.updateUser(updatedUser)
 
         // Update group by adding or removing the movie from its lists
         val updatedGroup = group.copy(
@@ -80,7 +79,13 @@ class DetailScreenViewModel @Inject constructor(
                 if (isChecked) group.toWatchList + movieId else group.toWatchList - movieId
             } else group.toWatchList).distinct(),
         )
-        repository.updateGroup(viewModelScope, updatedGroup)
+
+        repository.updateGroup(
+            group = updatedGroup,
+            success = {},
+            failure = { error ->
+            },
+        )
     }
 
     private fun updateMovieList(

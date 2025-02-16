@@ -16,6 +16,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
+/**
+ * This Worker is not used in the code anymore as the firestore database listeners for changes are implemented
+ * in the FirebaseDatabaseDatasourceImpl class. There is no need to get the room sync in a worker but this class
+ * is kept for reference on how to implement a worker with Hilt.
+ */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
     @Assisted context: Context,

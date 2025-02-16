@@ -17,6 +17,12 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
     override val userState: StateFlow<Result<FirebaseUser?>>
         field: MutableStateFlow<Result<FirebaseUser?>> = MutableStateFlow(Result.success(null))
 
+    /**
+     * Login a user with email and password in firebase authentication.
+     *
+     * @param email The email of the user.
+     * @param password The password of the user.
+     */
     override fun login(email: String, password: String) {
         try {
             firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -31,6 +37,12 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         }
     }
 
+    /**
+     * Register a new user with email and password in firebase authentication.
+     *
+     * @param email The email of the user.
+     * @param password The password of the user.
+     */
     override fun register(email: String, password: String): Flow<FirebaseUser?> = channelFlow {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {

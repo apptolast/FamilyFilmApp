@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -49,7 +51,8 @@ class GroupViewModel @Inject constructor(
                     it.copy(errorMessage = error.message)
                 }
             }
-            .first().let { groups ->
+            .collectLatest { groups ->
+                Timber.d("GroupViewModel - Collect room change")
                 backendState.update {
                     it.copy(
                         groups = groups.sortedWith(
@@ -71,26 +74,63 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun createGroup(groupName: String) {
-        repository.createGroup(viewModelScope, groupName)
+    fun createGroup(groupName: String) = viewModelScope.launch {
+        val currentUser = repository.getUserById(auth.currentUser?.uid!!).first()
+        repository.createGroup(
+            groupName = groupName,
+            user = currentUser,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error creating the group ")
+                backendState.update { it.copy(errorMessage = error.message) }
+            },
+        )
     }
 
     fun changeGroupName(group: Group) {
-        repository.updateGroup(viewModelScope, group)
+        repository.updateGroup(
+            group = group,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error updating group name")
+                backendState.update { it.copy(errorMessage = error.message) }
+            },
+        )
     }
 
     fun deleteGroup(group: Group) {
-        repository.deleteGroup(viewModelScope, group) {
-            viewModelScope.launch { getGroups() }
+        uiState.update {
+            it.copy(
+                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+                    0,
+                    Int.MAX_VALUE,
+                ),
+            )
         }
+        repository.deleteGroup(
+            group = group,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error deleting group")
+                backendState.update { it.copy(errorMessage = error.message) }
+            },
+        )
     }
 
     fun addMember(group: Group, email: String) {
-        repository.addMember(viewModelScope, group, email)
+        repository.addMember(
+            group = group,
+            email = email,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error adding member to group")
+                backendState.update { it.copy(errorMessage = error.message) }
+            },
+        )
     }
 
     fun deleteMember(group: Group, user: User) {
-        repository.deleteMember(viewModelScope, group, user)
+        repository.deleteMember(group, user)
     }
 
     fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }

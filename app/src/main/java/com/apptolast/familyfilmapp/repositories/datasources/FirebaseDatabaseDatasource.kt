@@ -4,6 +4,7 @@ import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.room.toGroupTable
+import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -31,12 +32,44 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     val moviesCollection = rootDatabase.collection("movies")
 
     init {
+        setupUserChangeListener()
         setupGroupChangeListener()
     }
 
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
+    private fun setupUserChangeListener() {
+        usersCollection.addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Timber.e(e, "Listen failed.")
+                return@addSnapshotListener
+            }
+
+            coroutineScope.launch(Dispatchers.IO) { // Use injected CoroutineScope
+                for (docChange in snapshots!!.documentChanges) {
+                    val user = docChange.document.toObject(User::class.java)
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED -> {
+                            Timber.d("User added: ${user.email}")
+                            roomDatasource.insertUser(user.toUserTable()) // Assume that insertGroup does a REPLACE
+                        }
+
+                        DocumentChange.Type.MODIFIED -> {
+                            Timber.d("User updated: ${user.email}")
+                            roomDatasource.updateUser(user.toUserTable()) // Assume that insertGroup does a REPLACE
+                        }
+
+                        DocumentChange.Type.REMOVED -> {
+                            Timber.d("User deleted: ${user.email}")
+                            roomDatasource.deleteUser(user.toUserTable())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
         usersCollection
             .document(user.id)
@@ -80,7 +113,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
-    override fun updateUser(user: User, success: (Void?) -> Unit) {
+    override fun updateUser(user: User) {
         // Update fields
         val updates = mapOf(
             "email" to user.email,
@@ -89,13 +122,17 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             "toWatch" to user.toWatch,
         )
 
-        usersCollection.document(user.id).update(updates).addOnSuccessListener(success)
+        usersCollection
+            .document(user.id)
+            .update(updates)
+            .addOnFailureListener {
+                Timber.e(it, "Error updating user in firestore")
+            }
     }
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-
     private fun setupGroupChangeListener() {
         groupsCollection.addSnapshotListener { snapshots, e ->
             if (e != null) {
@@ -107,9 +144,14 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
                 for (docChange in snapshots!!.documentChanges) {
                     val group = docChange.document.toObject(Group::class.java)
                     when (docChange.type) {
-                        DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                            Timber.d("Group added or modified: ${group.name}")
+                        DocumentChange.Type.ADDED -> {
+                            Timber.d("Group added: ${group.name}")
                             roomDatasource.insertGroup(group.toGroupTable()) // Assume that insertGroup does a REPLACE
+                        }
+
+                        DocumentChange.Type.MODIFIED -> {
+                            Timber.d("Group updated: ${group.name}")
+                            roomDatasource.updateGroup(group.toGroupTable()) // Assume that insertGroup does a REPLACE
                         }
 
                         DocumentChange.Type.REMOVED -> {
@@ -149,8 +191,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
      * To add a group to the database, we needed to know the user who will create it.
      * Also we add it to the list of users of the group.
      */
-
-    override fun createGroup(groupName: String, user: User, success: (Group) -> Unit) {
+    override fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit) {
         val uuid = UUID.randomUUID().toString()
         val group = Group().copy(
             id = uuid,
@@ -169,12 +210,23 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
             .addOnFailureListener { e ->
                 Timber.e(e, "Error creating the group")
+                failure(e)
             }
     }
 
     override fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
-        groupsCollection.document(group.id)
-            .set(group)
+        val updateGroup = mapOf(
+            "name" to group.name,
+            "ownerId" to group.ownerId,
+            "users" to group.users,
+            "watchedList" to group.watchedList,
+            "toWatchList" to group.toWatchList, // Store user IDs, not the entire User object
+            "lastUpdated" to Calendar.getInstance().time, // Set the initial lastUpdated timestamp
+        )
+
+        groupsCollection
+            .document(group.id)
+            .update(updateGroup)
             .addOnSuccessListener {
                 Timber.d("Group updated: ${group.name}")
                 success()
@@ -184,7 +236,6 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
                 failure(e)
             }
     }
-
 
     override fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
         groupsCollection.document(group.id)
@@ -214,20 +265,20 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
                 }
 
                 val updatedUsers = group.users.toMutableList()
+                // If the email is not found in the group's user list, add it
                 if (user.id !in updatedUsers.map { it.id }) {
-//                if (!updatedUsers.contains(user.id)) {
                     updatedUsers.add(user)
 
-                    val updatedGroup = group.copy(users = updatedUsers, lastUpdated = Calendar.getInstance().time)
+                    val updatedGroup = group.copy(
+                        users = updatedUsers,
+                        lastUpdated = Calendar.getInstance().time,
+                    )
 
-                    groupsCollection.document(group.id)
-                        .set(updatedGroup)
-                        .addOnSuccessListener {
-                            success()
-                        }
-                        .addOnFailureListener { e ->
-                            failure(e)
-                        }
+                    this@FirebaseDatabaseDatasourceImpl.updateGroup(
+                        group = updatedGroup,
+                        success = success,
+                        failure = failure,
+                    )
                 } else {
                     failure(IllegalArgumentException("User with email $email is already a member of this group"))
                 }
@@ -239,19 +290,20 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
         val updatedUsers = group.users.toMutableList()
-//        if (updatedUsers.contains(user.id)) {
+
         if (user.id in updatedUsers.map { it.id }) {
             updatedUsers.remove(user)
-            val updatedGroup = group.copy(users = updatedUsers, lastUpdated = Calendar.getInstance().time)
 
-            groupsCollection.document(group.id)
-                .set(updatedGroup)
-                .addOnSuccessListener {
-                    success()
-                }
-                .addOnFailureListener { e ->
-                    failure(e)
-                }
+            val updatedGroup = group.copy(
+                users = updatedUsers,
+                lastUpdated = Calendar.getInstance().time,
+            )
+
+            this@FirebaseDatabaseDatasourceImpl.updateGroup(
+                group = updatedGroup,
+                success = success,
+                failure = failure,
+            )
         } else {
             failure(IllegalArgumentException("User with id ${user.id} is not a member of this group"))
         }
@@ -269,14 +321,14 @@ interface FirebaseDatabaseDatasource {
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String, success: (User?) -> Unit)
     fun getUserByEmail(email: String, success: (User?) -> Unit)
-    fun updateUser(user: User, success: (Void?) -> Unit)
+    fun updateUser(user: User)
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
     fun getMyGroups(userId: String): Flow<List<Group>>
     fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
-    fun createGroup(groupName: String, user: User, success: (Group) -> Unit)
+    fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit)
     fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
     fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
     fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit)

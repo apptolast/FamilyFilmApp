@@ -12,4 +12,6 @@ sealed class LoginException(message: String) : CustomException(message) {
     ) : LoginException(value)
 
     data class BackendLogin(val value: String = "Backend login failed") : LoginException(value)
+
+    data class Register(val value: String = "Register failed") : LoginException(value)
 }

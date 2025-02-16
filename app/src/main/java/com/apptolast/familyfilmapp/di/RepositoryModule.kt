@@ -35,23 +35,18 @@ object RepositoryModule {
     fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository =
         FirebaseAuthRepositoryImpl(firebaseAuth)
 
-//    @Singleton
-//    @Provides
-//    fun provideLocalRepository(prefs: SharedPreferenceManager): LocalRepository = LocalRepositoryImpl(prefs)
-
     @Singleton
     @Provides
     fun provideBackendRepository(backendApi: BackendApi): BackendRepository = BackendRepositoryImpl(backendApi)
 
     @Provides
     fun provideRepository(
-        firebaseAuth: FirebaseAuth,
         roomDatasource: RoomDatasource,
         firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
         tmdbDatasource: TmdbDatasource,
         workManager: WorkManager,
     ): Repository =
-        RepositoryImpl(firebaseAuth, roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
+        RepositoryImpl(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
 
     @Provides
     fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =

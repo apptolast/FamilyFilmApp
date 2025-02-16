@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +47,9 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
@@ -53,28 +57,13 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-//    val swipeState = rememberSwipeToDismissBoxState(
-//        confirmValueChange = {
-//            when (it) {
-//                SwipeToDismissBoxValue.EndToStart -> {
-//                    onDeleteUser(user)
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        },
-//    )
+    if (!backendState.errorMessage.isNullOrBlank()) {
+        Toast.makeText(
+            LocalContext.current,
+            backendState.errorMessage,
+            Toast.LENGTH_SHORT,
+        ).show()
 
-    LaunchedEffect(key1 = backendState.errorMessage) {
-        if (backendState.errorMessage != null) {
-            snackBarHostState.showSnackbar(
-                message = backendState.errorMessage!!,
-                actionLabel = null,
-                withDismissAction = false,
-                duration = SnackbarDuration.Short,
-            )
-        }
         viewModel.clearErrorMessage()
     }
 
@@ -183,24 +172,6 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         onDismiss = { viewModel.showDialog(GroupScreenDialogs.None) },
                     )
                 }
-
-//                is GroupScreenDialogs.DeleteMember -> {
-//                    val group = (uiState.showDialog as GroupScreenDialogs.DeleteMember).group
-//                    val user = (uiState.showDialog as GroupScreenDialogs.DeleteMember).user
-//
-//                    BasicDialog(
-//                        title = stringResource(R.string.dialog_delete_member_title),
-//                        description = stringResource(R.string.dialog_delete_member_description),
-//                        confirmButtonText = stringResource(id = android.R.string.ok),
-//                        cancelButtonText = stringResource(id = android.R.string.cancel),
-//                        onConfirm = {
-//                            viewModel.deleteMember(group, user)
-//                        },
-//                        onDismiss = {
-//                            viewModel.showDialog(GroupScreenDialogs.None)
-//                        },
-//                    )
-//                }
 
                 GroupScreenDialogs.None -> {
                     /* no-op */

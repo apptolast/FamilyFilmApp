@@ -49,7 +49,7 @@ class HomeViewModel @Inject constructor(
         if (movieFilter.isEmpty()) {
             homeUiState.update { it.copy(filterMovies = emptyList()) }
         } else {
-            repository.searchMovieByName(movieFilter).let { movies ->
+            repository.searchTmdbMovieByName(movieFilter).let { movies ->
                 homeUiState.update { it.copy(filterMovies = movies) }
             }
         }

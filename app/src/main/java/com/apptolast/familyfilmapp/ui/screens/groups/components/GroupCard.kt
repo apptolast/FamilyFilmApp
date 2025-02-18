@@ -5,6 +5,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +40,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupCard(
     userOwner: User,
@@ -106,8 +108,8 @@ fun GroupCard(
             }
 
             // List of users
-            LazyColumn {
-                items(group.users) { user ->
+            FlowColumn {
+                group.users.forEach { user ->
 
                     val swipeState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {

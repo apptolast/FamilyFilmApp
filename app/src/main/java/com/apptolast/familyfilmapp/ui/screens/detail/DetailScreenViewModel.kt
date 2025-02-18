@@ -83,6 +83,17 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
         )
     }
 
+    /**
+     * Updates the user's toWatch and watched lists based on the movieId, group, and isChecked status.
+     * This function ensures that a movie can only exist in one list at a time (either toWatch or watched).
+     *
+     * @param currentUser The current user.
+     * @param movieId The ID of the movie being updated.
+     * @param group The group associated with the movie.
+     * @param isChecked Whether the movie is being added or removed from the list.
+     * @param dialogType The type of dialog (ToWatch or Watched) indicating which list is being directly modified.
+     * @return A Pair containing the updated toWatch list and the updated watched list.
+     */
     private fun updateUserMovieLists(
         currentUser: User,
         movieId: Int,
@@ -123,6 +134,15 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
         return Pair(removeMovieFromToWatch, removeMovieFromWatched)
     }
 
+    /**
+     * Updates the group's watchedList and toWatchList based on the movieId and isChecked status.
+     *
+     * @param group The group to update.
+     * @param movieId The ID of the movie being updated.
+     * @param isChecked Whether to add or remove the movie from the list.
+     * @param dialogType The type of dialog (ToWatch or Watched) indicating which list is being directly modified.
+     * @return The updated Group object.
+     */
     private fun updateGroupMovieLists(
         group: Group,
         movieId: Int,
@@ -146,6 +166,12 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
         )
     }
 
+    /**
+     * Persists the updated user and group to the database.
+     *
+     * @param updatedUser The updated User object.
+     * @param updatedGroup The updated Group object.
+     */
     private fun persistChanges(updatedUser: User, updatedGroup: Group) {
         repository.updateUser(updatedUser) {
             repository.updateGroup(
@@ -156,6 +182,16 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
         }
     }
 
+    /**
+     * Updates a movie list (either toWatch or watched) by either adding or removing
+     * a group ID to the movie's list of groups.
+     *
+     * @param movieList The list of movies to update.
+     * @param movieId The ID of the movie to update.
+     * @param group The group to add or remove.
+     * @param isChecked Whether to add or remove the group.
+     * @return The updated movie list.
+     */
     private fun updateMovieList(
         movieList: List<SelectedMovie>,
         movieId: Int,

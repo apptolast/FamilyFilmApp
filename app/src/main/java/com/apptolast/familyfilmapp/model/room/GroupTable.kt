@@ -43,7 +43,7 @@ fun GroupTable.toGroup() = Group(
     ownerId = ownerId,
     name = name,
     users = users.map { it.toUser() },
-    watchedList = emptyList<Int>(),
-    toWatchList = emptyList<Int>(),
+    watchedList = watchedList,
+    toWatchList = toWatchList,
     lastUpdated = lastUpdated,
 )

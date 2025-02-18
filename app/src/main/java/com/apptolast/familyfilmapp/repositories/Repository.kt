@@ -16,11 +16,11 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.apptolast.familyfilmapp.workers.SyncWorker
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val roomDatasource: RoomDatasource,
@@ -37,8 +37,14 @@ class RepositoryImpl @Inject constructor(
         pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
     ).flow
 
-    override suspend fun searchMovieByName(string: String): List<Movie> =
+    override suspend fun searchTmdbMovieByName(string: String): List<Movie> =
         tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
+
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
+        ids.map {
+            tmdbDatasource.searchMovieById(it).toDomain()
+        }
+    }
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
@@ -100,14 +106,16 @@ class RepositoryImpl @Inject constructor(
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
     override fun updateUser(user: User, success: (Void?) -> Unit) =
-        firebaseDatabaseDatasource.updateUser(user,success)
+        firebaseDatabaseDatasource.updateUser(user, success)
 }
 
 interface Repository {
 
     // Movies
     fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
-    suspend fun searchMovieByName(string: String): List<Movie>
+    suspend fun searchTmdbMovieByName(string: String): List<Movie>
+    suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
+
 
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>

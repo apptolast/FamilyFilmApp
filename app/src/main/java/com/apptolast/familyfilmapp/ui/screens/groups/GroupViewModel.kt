@@ -3,21 +3,23 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
@@ -39,7 +41,9 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     private suspend fun getGroups() {
-        repository.getMyGroups(auth.currentUser?.uid!!)
+        repository.getMyGroups(auth.currentUser?.uid!!).combine(uiState) { groups, uiState ->
+            groups
+        }
             .catch { error ->
                 backendState.update {
                     it.copy(errorMessage = error.message)
@@ -47,14 +51,44 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             }
             .collectLatest { groups ->
                 Timber.d("GroupViewModel - Collect room change")
+
+                Timber.d("GroupViewModel - Groups: ${groups[uiState.value.selectedGroupIndex]}")
+
+                val moviesToWatch = repository
+                    .getMoviesByIds(groups[uiState.value.selectedGroupIndex].toWatchList)
+                    .getOrNull()
+
+                val moviesWatched = repository
+                    .getMoviesByIds(groups[uiState.value.selectedGroupIndex].watchedList)
+                    .getOrNull()
+
                 backendState.update {
                     it.copy(
-                        groups = groups.sortedWith(
-                            compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
-                        ),
+                        groups = groups,
+//                            .sortedWith(
+//                                compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
+//                            ),
+                        moviesToWatch = moviesToWatch ?: emptyList(),
+                        moviesWatched = moviesWatched ?: emptyList(),
                         errorMessage = null,
                     )
                 }
+
+//                repository.getMoviesByIds(groups[uiState.value.selectedGroupIndex].toWatchList)
+//                    .getOrNull()
+//                    ?.let { movies ->
+//                        backendState.update {
+//                            it.copy(moviesToWatch = movies)
+//                        }
+//                    }
+//
+//                repository.getMoviesByIds(groups[uiState.value.selectedGroupIndex].watchedList)
+//                    .getOrNull()
+//                    ?.let { movies ->
+//                        backendState.update {
+//                            it.copy(moviesWatched = movies)
+//                        }
+//                    }
             }
     }
 
@@ -140,12 +174,16 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     data class BackendState(
         val currentUser: User,
         val groups: List<Group>,
+        val moviesToWatch: List<Movie>,
+        val moviesWatched: List<Movie>,
         val isLoading: Boolean,
         val errorMessage: String?,
     ) {
         constructor() : this(
             currentUser = User(),
             groups = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
             isLoading = false,
             errorMessage = null,
         )
@@ -163,7 +201,6 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         data class DeleteGroup(val group: Group) : GroupScreenDialogs
         data class ChangeGroupName(val group: Group) : GroupScreenDialogs
         data class AddMember(val group: Group) : GroupScreenDialogs
-        data class DeleteMember(val group: Group, val user: User) : GroupScreenDialogs
         data object None : GroupScreenDialogs
     }
 }

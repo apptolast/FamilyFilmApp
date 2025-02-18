@@ -61,19 +61,13 @@ fun SelectGroupsDialog(
                             Checkbox(
                                 checked = when (dialogType) {
                                     DialogType.ToWatch -> {
-                                        // Para saber cuando hay que hacer check:
-                                        // El usuario tiene que tener la pelicula en la lista de toWatch
-                                        // y el grupo seleccionado tiene que estar en towWatch.groups
+                                        // To know when to perform the check:
+                                        // The user must have the movie in the "toWatch" list
+                                        // and the selected group must be in "toWatch.groups"
                                         user.toWatch
                                             .find { it.movieId == movieId }
                                             ?.groupsIds
                                             ?.any { it == group.id } == true
-
-                                        // old version
-//                                        val movieInUserList = user.toWatch.any { it.movieId == movieId }
-//                                        val movieInGroup =
-//                                            user.toWatch.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
-//                                        movieInUserList && movieInGroup
                                     }
 
                                     DialogType.Watched -> {
@@ -81,11 +75,6 @@ fun SelectGroupsDialog(
                                             .find { it.movieId == movieId }
                                             ?.groupsIds
                                             ?.any { it == group.id } == true
-
-//                                        val movieInUserList = user.watched.any { it.movieId == movieId }
-//                                        val groupInMovie =
-//                                            user.watched.find { it.movieId == movieId }?.groups?.any { it.id == group.id } == true
-//                                        movieInUserList && groupInMovie
                                     }
 
                                     else -> false

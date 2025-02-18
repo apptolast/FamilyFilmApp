@@ -99,7 +99,8 @@ class RepositoryImpl @Inject constructor(
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override fun updateUser(user: User) = firebaseDatabaseDatasource.updateUser(user)
+    override fun updateUser(user: User, success: (Void?) -> Unit) =
+        firebaseDatabaseDatasource.updateUser(user,success)
 }
 
 interface Repository {
@@ -119,5 +120,5 @@ interface Repository {
     // Users
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(string: String): Flow<User>
-    fun updateUser(user: User)
+    fun updateUser(user: User, success: (Void?) -> Unit)
 }

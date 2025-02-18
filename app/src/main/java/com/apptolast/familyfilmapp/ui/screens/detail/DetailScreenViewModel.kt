@@ -8,7 +8,6 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class DetailScreenViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
@@ -54,51 +55,44 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
     fun updateMovieGroup(movieId: Int, group: Group, isChecked: Boolean) {
         // Update User
         val updatedUser = state.value.user.copy(
-            toWatch = (
-                if (state.value.dialogType == DialogType.ToWatch) {
-                    updateMovieList(state.value.user.toWatch, movieId, group, isChecked)
-                } else {
-                    state.value.user.toWatch.distinct()
-                }
-                ),
-            watched = (
-                if (state.value.dialogType == DialogType.Watched) {
-                    updateMovieList(state.value.user.watched, movieId, group, isChecked)
-                } else {
-                    state.value.user.watched
-                }
-                ).distinct(),
+            toWatch = (if (state.value.dialogType == DialogType.ToWatch) {
+                updateMovieList(state.value.user.toWatch, movieId, group, isChecked)
+            } else {
+                state.value.user.toWatch.distinct()
+            }).distinct(),
+            watched = (if (state.value.dialogType == DialogType.Watched) {
+                updateMovieList(state.value.user.watched, movieId, group, isChecked)
+            } else {
+                state.value.user.watched
+            }).distinct(),
         )
-        repository.updateUser(updatedUser)
 
-        // Update group by adding or removing the movie from its lists
-        val updatedGroup = group.copy(
-            // update "updatedUser" in the group list user
-            users = group.users.map { user ->
-                if (user.id == auth.uid) updatedUser else user
-            },
-            watchedList = (
-                if (state.value.dialogType == DialogType.Watched) {
+        repository.updateUser(updatedUser) {
+
+            // Update group by adding or removing the movie from its lists
+            val updatedGroup = group.copy(
+                // update "updatedUser" in the group list user
+                users = group.users.map { user ->
+                    if (user.id == auth.uid) updatedUser else user
+                },
+                watchedList = (if (state.value.dialogType == DialogType.Watched) {
                     if (isChecked) group.watchedList + movieId else group.watchedList - movieId
                 } else {
                     group.watchedList
-                }
-                ).distinct(),
-            toWatchList = (
-                if (state.value.dialogType == DialogType.ToWatch) {
+                }).distinct(),
+                toWatchList = (if (state.value.dialogType == DialogType.ToWatch) {
                     if (isChecked) group.toWatchList + movieId else group.toWatchList - movieId
                 } else {
                     group.toWatchList
-                }
-                ).distinct(),
-        )
+                }).distinct(),
+            )
 
-        repository.updateGroup(
-            group = updatedGroup,
-            success = {},
-            failure = { error ->
-            },
-        )
+            repository.updateGroup(
+                group = updatedGroup,
+                success = {},
+                failure = { Timber.e(it) },
+            )
+        }
     }
 
     private fun updateMovieList(
@@ -107,24 +101,26 @@ class DetailScreenViewModel @Inject constructor(private val repository: Reposito
         group: Group,
         isChecked: Boolean,
     ): List<SelectedMovie> {
-        val updatedMovie = movieList.find { it.movieId == movieId }
+        val existingMovie = movieList.firstOrNull { it.movieId == movieId }
 
-        return if (updatedMovie != null) {
+        return if (existingMovie != null) {
+//            var updatedGroups = existingMovie.groups.toMutableSet()
+
             val updatedGroups = if (isChecked) {
-                updatedMovie.groups + group
+                existingMovie.groupsIds.toMutableSet().apply { add(group.id) }
             } else {
-                updatedMovie.groups - group
+                existingMovie.groupsIds.toMutableSet().apply { remove(group.id) }
             }
+
             movieList.map { movie ->
                 if (movie.movieId == movieId) {
-                    movie.copy(groups = updatedGroups)
+                    movie.copy(groupsIds = updatedGroups.toList()) // Convert back to List
                 } else {
                     movie
                 }
             }
         } else {
-            val newMovie = SelectedMovie(movieId, listOf(group))
-            movieList + newMovie
+            movieList + SelectedMovie(movieId, listOf(group.id))
         }
     }
 }
@@ -146,3 +142,4 @@ enum class DialogType {
     ToWatch,
     NONE,
 }
+

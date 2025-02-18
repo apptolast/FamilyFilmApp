@@ -114,18 +114,19 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
-    override fun updateUser(user: User) {
+    override fun updateUser(user: User, success: (Void?) -> Unit) {
         // Update fields
         val updates = mapOf(
             "email" to user.email,
             "language" to user.language,
-            "watched" to user.watched,
             "toWatch" to user.toWatch,
+            "watched" to user.watched,
         )
 
         usersCollection
             .document(user.id)
             .update(updates)
+            .addOnSuccessListener(success)
             .addOnFailureListener {
                 Timber.e(it, "Error updating user in firestore")
             }
@@ -323,7 +324,7 @@ interface FirebaseDatabaseDatasource {
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String, success: (User?) -> Unit)
     fun getUserByEmail(email: String, success: (User?) -> Unit)
-    fun updateUser(user: User)
+    fun updateUser(user: User, success: (Void?) -> Unit)
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

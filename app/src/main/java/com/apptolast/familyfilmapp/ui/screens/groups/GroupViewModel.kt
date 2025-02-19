@@ -8,8 +8,10 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -19,7 +21,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
@@ -49,33 +50,29 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
                     it.copy(errorMessage = error.message)
                 }
             }
-            .collectLatest { groups ->
+            .collectLatest {
                 Timber.d("GroupViewModel - Collect room change")
+                val groups = it.sort()
 
                 if (groups.isNotEmpty()) {
+                    val selectedGroup = groups.getOrNull(uiState.value.selectedGroupIndex)
+                    val moviesToWatchIds = selectedGroup?.users?.flatMap { user ->
+                        user.toWatch.filter { movie ->
+                            selectedGroup.id in movie.groupsIds
+                        }.map { it.movieId }
+                    }?.distinct() ?: emptyList()
 
-                    val moviesToWatch = repository
-                        .getMoviesByIds(
-                            groups[uiState.value.selectedGroupIndex].users.map {
-                                it.toWatch.map { it.movieId }
-                            }.flatten().distinct(),
-                        )
-                        .getOrNull()
+                    val moviesToWatch = repository.getMoviesByIds(moviesToWatchIds).getOrNull()
 
-                    val moviesWatched = repository
-                        .getMoviesByIds(
-                            groups[uiState.value.selectedGroupIndex].users.map {
-                                it.watched.map { it.movieId }
-                            }.flatten().distinct(),
-                        )
-                        .getOrNull()
+                    val moviesWatched = repository.getMoviesByIds(
+                        groups.getOrNull(uiState.value.selectedGroupIndex)?.users?.flatMap {
+                            it.watched.map { it.movieId }
+                        }?.distinct() ?: emptyList(),
+                    ).getOrNull()
 
                     backendState.update {
                         it.copy(
-                            groups = groups,
-//                            .sortedWith(
-//                                compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
-//                            ),
+                            groups = groups, /*.sort(),*/
                             moviesToWatch = moviesToWatch ?: emptyList(),
                             moviesWatched = moviesWatched ?: emptyList(),
                             errorMessage = null,
@@ -100,7 +97,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.createGroup(
             groupName = groupName,
             user = currentUser,
-            success = { },
+            success = {
+                viewModelScope.launch {
+                    delay(50)
+                    val pos = backendState.value.groups.indexOfFirst { it.name == groupName }
+                    uiState.update { it.copy(selectedGroupIndex = pos) }
+                }
+            },
             failure = { error ->
                 Timber.e(error, "Error creating the group ")
                 backendState.update { it.copy(errorMessage = error.message) }
@@ -120,17 +123,18 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     fun deleteGroup(group: Group) {
-        uiState.update {
-            it.copy(
-                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
-                    0,
-                    Int.MAX_VALUE,
-                ),
-            )
-        }
         repository.deleteGroup(
             group = group,
-            success = { },
+            success = {
+                uiState.update {
+                    it.copy(
+                        selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+                            0,
+                            Int.MAX_VALUE,
+                        ),
+                    )
+                }
+            },
             failure = { error ->
                 Timber.e(error, "Error deleting group")
                 backendState.update { it.copy(errorMessage = error.message) }
@@ -163,6 +167,10 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     fun clearErrorMessage() = backendState.update { it.copy(errorMessage = null) }
+
+    private fun List<Group>.sort() = sortedWith(
+        compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
+    )
 
     data class BackendState(
         val currentUser: User,

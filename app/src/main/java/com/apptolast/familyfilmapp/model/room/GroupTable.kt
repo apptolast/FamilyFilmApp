@@ -13,8 +13,6 @@ data class GroupTable(
     var ownerId: String,
     var name: String,
     val users: List<UserTable>,
-//    val watchedList: List<Int>, // List of movie ids
-//    val toWatchList: List<Int>, // List of movie ids
     val lastUpdated: Date?,
 ) {
     constructor(groupId: String) : this(
@@ -22,8 +20,6 @@ data class GroupTable(
         ownerId = "",
         name = "",
         users = emptyList<UserTable>(),
-//        watchedList = emptyList<Int>(),
-//        toWatchList = emptyList<Int>(),
         lastUpdated = null,
     )
 }
@@ -33,8 +29,6 @@ fun Group.toGroupTable() = GroupTable(
     ownerId = ownerId,
     name = name,
     users = users.map { it.toUserTable() },
-//    watchedList = watchedList,
-//    toWatchList = toWatchList,
     lastUpdated = lastUpdated,
 )
 
@@ -43,7 +37,5 @@ fun GroupTable.toGroup() = Group(
     ownerId = ownerId,
     name = name,
     users = users.map { it.toUser() },
-//    watchedList = watchedList,
-//    toWatchList = toWatchList,
     lastUpdated = lastUpdated,
 )

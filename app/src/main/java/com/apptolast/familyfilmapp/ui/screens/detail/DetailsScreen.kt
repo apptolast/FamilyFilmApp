@@ -101,11 +101,7 @@ fun DetailsScreen(
 }
 
 @Composable
-fun DetailsContent(
-    movie: Movie,
-    modifier: Modifier = Modifier,
-    displayDialog: (DialogType) -> Unit = { _ -> },
-) {
+fun DetailsContent(movie: Movie, modifier: Modifier = Modifier, displayDialog: (DialogType) -> Unit = { _ -> }) {
     val lazyListState = rememberLazyListState()
 
     LazyColumn(

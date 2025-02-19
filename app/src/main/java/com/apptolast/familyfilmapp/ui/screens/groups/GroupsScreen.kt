@@ -226,7 +226,6 @@ fun GroupContent(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             // Group tabs
             stickyHeader {
                 ScrollableTabRow(

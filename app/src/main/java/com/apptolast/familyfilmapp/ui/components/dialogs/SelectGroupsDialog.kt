@@ -61,24 +61,62 @@ fun SelectGroupsDialog(
                             Checkbox(
                                 checked = when (dialogType) {
                                     DialogType.ToWatch -> {
+
+                                        // Para que sea check, la pelicula tiene que estar en la lista "toWatch"
+                                        // del usuario (user.toWatch) del usuario y que el grupo coincida con el del grupo
+                                        // seleccionado (group.id)
+                                        user.toWatch.any { selectedMovie ->
+                                            selectedMovie.movieId == movieId &&
+                                               selectedMovie.groupsIds.contains(group.id)
+                                        }
+
+
+
+//                                        user.toWatch.any { selectedMovie ->
+//                                            selectedMovie.movieId == movieId &&
+//                                                selectedMovie.groupsIds.contains(group.id)
+//                                        }
+
+
                                         // To know when to perform the check:
                                         // The user must have the movie in the "toWatch" list
                                         // and the selected group must be in "toWatch.groups"
-                                        user.toWatch
-                                            .find { it.movieId == movieId }
-                                            ?.groupsIds
-                                            ?.any { it == group.id } == true
+//                                        user.toWatch
+//                                            .find { it.movieId == movieId }
+//                                            ?.groupsIds
+//                                            ?.any { it == group.id } == true
                                     }
 
                                     DialogType.Watched -> {
-                                        user.watched
-                                            .find { it.movieId == movieId }
-                                            ?.groupsIds
-                                            ?.any { it == group.id } == true
+                                        user.watched.any { selectedMovie ->
+                                            selectedMovie.movieId == movieId && selectedMovie.groupsIds.contains(group.id)
+                                        }
+
+//                                        user.watched
+//                                            .find { it.movieId == movieId }
+//                                            ?.groupsIds
+//                                            ?.any { it == group.id } == true
                                     }
 
                                     else -> false
                                 },
+
+//                                checked = when (dialogType) {
+//                                    DialogType.ToWatch -> {
+//                                        user.toWatch.any { selectedMovie ->
+//                                            selectedMovie.movieId == movieId && selectedMovie.groupsIds.contains(group.id)
+//                                        }
+//                                    }
+//
+//                                    DialogType.Watched -> {
+//                                        user.watched.any { selectedMovie ->
+//                                            selectedMovie.movieId == movieId && selectedMovie.groupsIds.contains(group.id)
+//                                        }
+//                                    }
+//
+//                                    else -> false
+//                                },
+
                                 onCheckedChange = { isChecked ->
                                     onCheck(group, isChecked)
                                 },

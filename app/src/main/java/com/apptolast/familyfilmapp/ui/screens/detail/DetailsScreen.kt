@@ -78,7 +78,6 @@ fun DetailsScreen(
 
         DetailsContent(
             movie = movie,
-            dialogType = state.dialogType,
             modifier = Modifier.padding(paddingValues),
             displayDialog = displayDialog,
         )
@@ -104,7 +103,6 @@ fun DetailsScreen(
 @Composable
 fun DetailsContent(
     movie: Movie,
-    dialogType: DialogType,
     modifier: Modifier = Modifier,
     displayDialog: (DialogType) -> Unit = { _ -> },
 ) {
@@ -122,6 +120,7 @@ fun DetailsContent(
                 clipToBounds = true,
                 modifier = Modifier
                     .wrapContentWidth()
+                    .padding(16.dp)
                     .height(430.dp)
                     .clip(MaterialTheme.shapes.large),
                 contentScale = ContentScale.Fit,
@@ -209,7 +208,6 @@ private fun DetailsScreenPreview() {
                 adult = true,
                 releaseDate = "2023-01-01",
             ),
-            dialogType = DialogType.NONE,
         )
     }
 }

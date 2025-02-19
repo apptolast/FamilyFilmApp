@@ -25,7 +25,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         UserTable::class,
         GroupTable::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(
@@ -64,6 +64,7 @@ abstract class AppDatabase : RoomDatabase() {
                     *arrayOf(
                         MIGRATION_1_2,
                         MIGRATION_2_3,
+                        MIGRATION_3_4,
                     ),
                 )
                 .build()
@@ -104,6 +105,36 @@ abstract class AppDatabase : RoomDatabase() {
 
                 // 4. Rename the new table with the original one
                 database.execSQL("ALTER TABLE users_table_new RENAME TO users_table")
+            }
+        }
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 1. Create a temporary table with the new schema (without watchedList and toWatchList)
+                database.execSQL(
+                    """
+            CREATE TABLE groups_table_new (
+                groupId TEXT NOT NULL PRIMARY KEY,
+                name TEXT NOT NULL,
+                ownerId TEXT NOT NULL,
+                users TEXT NOT NULL,
+                lastUpdated INTEGER
+            )
+            """.trimIndent(),
+                )
+
+                // 2. Copy data from the old table to the new table, excluding watchedList and toWatchList
+                database.execSQL(
+                    """
+            INSERT INTO groups_table_new (groupId, name, ownerId, users, lastUpdated)
+            SELECT groupId, name, ownerId, users, lastUpdated FROM $GROUPS_TABLE_NAME
+            """.trimIndent(),
+                )
+
+                // 3. Drop the old table
+                database.execSQL("DROP TABLE $GROUPS_TABLE_NAME")
+
+                // 4. Rename the new table to the original table name
+                database.execSQL("ALTER TABLE groups_table_new RENAME TO $GROUPS_TABLE_NAME")
             }
         }
     }

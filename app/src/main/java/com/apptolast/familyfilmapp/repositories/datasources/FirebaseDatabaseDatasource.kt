@@ -222,8 +222,8 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             "name" to group.name,
             "ownerId" to group.ownerId,
             "users" to group.users,
-            "watchedList" to group.watchedList,
-            "toWatchList" to group.toWatchList, // Store user IDs, not the entire User object
+//            "watchedList" to group.watchedList,
+//            "toWatchList" to group.toWatchList, // Store user IDs, not the entire User object
             "lastUpdated" to Calendar.getInstance().time, // Set the initial lastUpdated timestamp
         )
 

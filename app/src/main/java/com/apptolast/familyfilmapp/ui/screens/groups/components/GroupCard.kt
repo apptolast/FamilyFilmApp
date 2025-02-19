@@ -204,8 +204,8 @@ private fun GroupCardOwnerPreview() {
                     User().copy(email = "Email 2", language = "es"),
                     User().copy(email = "Email 3", language = "es"),
                 ),
-                watchedList = listOf(1),
-                toWatchList = listOf(1),
+//                watchedList = listOf(1),
+//                toWatchList = listOf(1),
             ),
             onDeleteUser = {},
             onAddMember = {},
@@ -230,8 +230,8 @@ private fun GroupCardNotOwnerPreview() {
                     User().copy(email = "Email 2", language = "es"),
                     User().copy(email = "Email 3", language = "es"),
                 ),
-                watchedList = listOf(1),
-                toWatchList = listOf(1),
+//                watchedList = listOf(1),
+//                toWatchList = listOf(1),
             ),
         )
     }

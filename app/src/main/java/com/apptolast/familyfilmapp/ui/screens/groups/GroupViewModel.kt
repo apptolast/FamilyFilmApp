@@ -52,43 +52,36 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             .collectLatest { groups ->
                 Timber.d("GroupViewModel - Collect room change")
 
-                Timber.d("GroupViewModel - Groups: ${groups[uiState.value.selectedGroupIndex]}")
+                if (groups.isNotEmpty()) {
 
-                val moviesToWatch = repository
-                    .getMoviesByIds(groups[uiState.value.selectedGroupIndex].toWatchList)
-                    .getOrNull()
+                    val moviesToWatch = repository
+                        .getMoviesByIds(
+                            groups[uiState.value.selectedGroupIndex].users.map {
+                                it.toWatch.map { it.movieId }
+                            }.flatten().distinct(),
+                        )
+                        .getOrNull()
 
-                val moviesWatched = repository
-                    .getMoviesByIds(groups[uiState.value.selectedGroupIndex].watchedList)
-                    .getOrNull()
+                    val moviesWatched = repository
+                        .getMoviesByIds(
+                            groups[uiState.value.selectedGroupIndex].users.map {
+                                it.watched.map { it.movieId }
+                            }.flatten().distinct(),
+                        )
+                        .getOrNull()
 
-                backendState.update {
-                    it.copy(
-                        groups = groups,
+                    backendState.update {
+                        it.copy(
+                            groups = groups,
 //                            .sortedWith(
 //                                compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
 //                            ),
-                        moviesToWatch = moviesToWatch ?: emptyList(),
-                        moviesWatched = moviesWatched ?: emptyList(),
-                        errorMessage = null,
-                    )
+                            moviesToWatch = moviesToWatch ?: emptyList(),
+                            moviesWatched = moviesWatched ?: emptyList(),
+                            errorMessage = null,
+                        )
+                    }
                 }
-
-//                repository.getMoviesByIds(groups[uiState.value.selectedGroupIndex].toWatchList)
-//                    .getOrNull()
-//                    ?.let { movies ->
-//                        backendState.update {
-//                            it.copy(moviesToWatch = movies)
-//                        }
-//                    }
-//
-//                repository.getMoviesByIds(groups[uiState.value.selectedGroupIndex].watchedList)
-//                    .getOrNull()
-//                    ?.let { movies ->
-//                        backendState.update {
-//                            it.copy(moviesWatched = movies)
-//                        }
-//                    }
             }
     }
 

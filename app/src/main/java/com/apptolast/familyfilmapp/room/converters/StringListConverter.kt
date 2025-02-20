@@ -6,9 +6,6 @@ import javax.inject.Inject
 
 class StringListConverter {
 
-    @Inject
-    lateinit var gson: Gson
-
     @TypeConverter
     fun intListToJson(stringList: List<String>): String = Gson().toJson(stringList)
 

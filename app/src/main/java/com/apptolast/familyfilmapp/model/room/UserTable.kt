@@ -2,9 +2,12 @@ package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.apptolast.familyfilmapp.model.local.SelectedMovie
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
+import com.apptolast.familyfilmapp.room.converters.MapStatusConverter
+import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
 
 @Entity(tableName = USERS_TABLE_NAME)
 data class UserTable(
@@ -12,15 +15,14 @@ data class UserTable(
     val userId: String,
     var email: String,
     var language: String,
-    val watched: List<SelectedMovie>,
-    val toWatch: List<SelectedMovie>,
+    @TypeConverters(MapStatusConverter::class)
+    val statusMovies: Map<String, MovieStatus>,
 ) {
     constructor(userId: String) : this(
         userId = userId,
         email = "",
         language = "",
-        watched = emptyList(),
-        toWatch = emptyList(),
+        statusMovies = mapOf(),
     )
 }
 
@@ -28,14 +30,12 @@ fun UserTable.toUser() = User(
     id = userId,
     email = email,
     language = language,
-    watched = watched,
-    toWatch = toWatch,
+    statusMovies = statusMovies,
 )
 
 fun User.toUserTable() = UserTable(
     userId = id,
     email = email,
     language = language,
-    watched = watched,
-    toWatch = toWatch,
+    statusMovies = statusMovies,
 )

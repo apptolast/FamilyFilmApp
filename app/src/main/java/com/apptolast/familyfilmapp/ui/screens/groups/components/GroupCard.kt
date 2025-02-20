@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.groups.components
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
@@ -11,8 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -32,6 +31,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,18 +39,22 @@ import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlin.collections.listOf
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupCard(
     userOwner: User,
     group: Group,
+    groupUsers: List<User>,
     modifier: Modifier = Modifier,
     onChangeGroupName: () -> Unit = {},
     onAddMember: () -> Unit = {},
     onDeleteGroup: () -> Unit = {},
     onDeleteUser: (User) -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -109,14 +113,19 @@ fun GroupCard(
 
             // List of users
             FlowColumn {
-                group.users.forEach { user ->
+                groupUsers.forEach { user ->
 
                     val swipeState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
                             when (it) {
                                 SwipeToDismissBoxValue.EndToStart -> {
-                                    onDeleteUser(user)
-                                    true
+                                    if (group.ownerId != user.id) {
+                                        onDeleteUser(user)
+                                        true
+                                    } else {
+                                        Toast.makeText(context, "Delete the group", Toast.LENGTH_SHORT).show()
+                                        false
+                                    }
                                 }
 
                                 else -> false
@@ -126,7 +135,7 @@ fun GroupCard(
 
                     SwipeToDismissBox(
                         state = swipeState,
-                        enableDismissFromEndToStart = true,
+                        enableDismissFromEndToStart = userOwner.id == group.ownerId,
                         enableDismissFromStartToEnd = false,
                         backgroundContent = {
 //                            Box(
@@ -194,23 +203,22 @@ fun GroupCard(
 private fun GroupCardOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User(),
+            userOwner = User().copy(id = "1"),
             group = Group().copy(
                 id = "1",
                 ownerId = "1",
                 name = "Name",
                 users = listOf(
-                    User().copy(email = "Email 1", language = "es"),
-                    User().copy(email = "Email 2", language = "es"),
-                    User().copy(email = "Email 3", language = "es"),
+                    "user 1",
+                    "user 2",
+                    "user 3",
                 ),
-//                watchedList = listOf(1),
-//                toWatchList = listOf(1),
             ),
-            onDeleteUser = {},
-            onAddMember = {},
-            onDeleteGroup = {},
-            onChangeGroupName = {},
+            groupUsers = listOf(
+                User().copy(id = "1", email = "a@a.com"),
+                User().copy(id = "2", email = "b@b.com"),
+                User().copy(id = "3", email = "c@c.com"),
+            ),
         )
     }
 }
@@ -226,12 +234,15 @@ private fun GroupCardNotOwnerPreview() {
                 ownerId = "2",
                 name = "Name",
                 users = listOf(
-                    User().copy(email = "Email 1", language = "es"),
-                    User().copy(email = "Email 2", language = "es"),
-                    User().copy(email = "Email 3", language = "es"),
+                    "1",
+                    "2",
+                    "3",
                 ),
-//                watchedList = listOf(1),
-//                toWatchList = listOf(1),
+            ),
+            groupUsers = listOf(
+                User().copy(id = "1", email = "a@a.com"),
+                User().copy(id = "2", email = "b@b.com"),
+                User().copy(id = "3", email = "c@c.com"),
             ),
         )
     }

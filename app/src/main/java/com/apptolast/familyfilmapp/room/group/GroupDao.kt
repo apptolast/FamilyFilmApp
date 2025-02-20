@@ -27,13 +27,13 @@ abstract class GroupDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertUserList(user: List<UserTable>)
 
-    @Transaction
-    open suspend fun insertGroupWithUsers(group: Group) {
-        val users = group.users.map { it.toUserTable() }
-
-        insertUserList(users)
-        insert(group.toGroupTable())
-    }
+//    @Transaction
+//    open suspend fun insertGroupWithUsers(group: Group) {
+//        val users = group.users
+//
+//        insertUserList(users)
+//        insert(group.toGroupTable())
+//    }
 
     @Query("SELECT * from $GROUPS_TABLE_NAME")
     abstract fun getGroups(): Flow<List<GroupTable>>

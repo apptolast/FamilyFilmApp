@@ -7,9 +7,6 @@ import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Calendar
-import java.util.UUID
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +15,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import java.util.UUID
+import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class FirebaseDatabaseDatasourceImpl @Inject constructor(
@@ -119,8 +119,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
         val updates = mapOf(
             "email" to user.email,
             "language" to user.language,
-            "toWatch" to user.toWatch,
-            "watched" to user.watched,
+            "statusMovies" to user.statusMovies,
         )
 
         usersCollection
@@ -200,7 +199,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             id = uuid,
             ownerId = user.id,
             name = groupName,
-            users = listOf(user), // Store user IDs, not the entire User object
+            users = listOf(user.id), // Store user IDs, not the entire User object
             lastUpdated = Calendar.getInstance().time, // Set the initial lastUpdated timestamp
         )
 
@@ -267,8 +266,8 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
                 val updatedUsers = group.users.toMutableList()
                 // If the email is not found in the group's user list, add it
-                if (user.id !in updatedUsers.map { it.id }) {
-                    updatedUsers.add(user)
+                if (user.id !in updatedUsers) {
+                    updatedUsers.add(user.id)
 
                     val updatedGroup = group.copy(
                         users = updatedUsers,
@@ -290,24 +289,20 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     }
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        val updatedUsers = group.users.toMutableList()
-
-        if (user.id in updatedUsers.map { it.id }) {
-            updatedUsers.remove(user)
-
-            val updatedGroup = group.copy(
-                users = updatedUsers,
-                lastUpdated = Calendar.getInstance().time,
-            )
-
-            this@FirebaseDatabaseDatasourceImpl.updateGroup(
-                group = updatedGroup,
-                success = success,
-                failure = failure,
-            )
-        } else {
-            failure(IllegalArgumentException("User with id ${user.id} is not a member of this group"))
+        val updatedUsers = group.users.toMutableList().apply {
+            remove(user.id)
         }
+
+        val updatedGroup = group.copy(
+            users = updatedUsers,
+            lastUpdated = Calendar.getInstance().time,
+        )
+
+        this@FirebaseDatabaseDatasourceImpl.updateGroup(
+            group = updatedGroup,
+            success = success,
+            failure = failure,
+        )
     }
 
     companion object {

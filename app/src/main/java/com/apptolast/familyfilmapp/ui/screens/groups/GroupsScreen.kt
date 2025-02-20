@@ -61,10 +61,10 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (!backendState.errorMessage.isNullOrBlank()) {
+    if (!uiState.errorMessage.isNullOrBlank()) {
         Toast.makeText(
             LocalContext.current,
-            backendState.errorMessage,
+            uiState.errorMessage,
             Toast.LENGTH_SHORT,
         ).show()
 
@@ -91,7 +91,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
 
-        if (backendState.isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -102,6 +102,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
             GroupContent(
                 userOwner = backendState.currentUser,
                 groups = backendState.groups,
+                groupUsers = backendState.groupUsers,
                 moviesToWatch = backendState.moviesToWatch,
                 moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
@@ -197,6 +198,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 fun GroupContent(
     userOwner: User,
     groups: List<Group>,
+    groupUsers: List<User>,
     moviesToWatch: List<Movie>,
     moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
@@ -265,6 +267,7 @@ fun GroupContent(
                 GroupCard(
                     userOwner = userOwner,
                     group = currentSelectedGroup,
+                    groupUsers = groupUsers,
                     modifier = Modifier.padding(vertical = 12.dp),
                     onChangeGroupName = { onChangeGroupName(currentSelectedGroup) },
                     onAddMember = { onAddMemberClick(currentSelectedGroup) },
@@ -324,6 +327,7 @@ private fun GroupContentEmptyPreview() {
         GroupContent(
             userOwner = User(),
             groups = emptyList(),
+            groupUsers = emptyList(),
             moviesToWatch = emptyList(),
             moviesWatched = emptyList(),
             onChangeGroupName = {},
@@ -347,6 +351,9 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 1"),
                 Group().copy(name = "name 2"),
                 Group().copy(name = "name 3"),
+            ),
+            groupUsers = listOf(
+                User().copy(id = "1", email = "a@a.com"),
             ),
             moviesToWatch = listOf(
                 Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),

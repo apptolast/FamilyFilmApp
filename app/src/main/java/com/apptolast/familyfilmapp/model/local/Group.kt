@@ -6,7 +6,7 @@ data class Group(
     val id: String,
     val ownerId: String,
     val name: String,
-    val users: List<User>,
+    val users: List<String>,
     val lastUpdated: Date?,
 ) {
     constructor() : this(

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,11 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.ui.components.dialogs.SelectGroupsDialog
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import java.lang.ProcessBuilder.Redirect.to
 
 @Composable
 fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
@@ -51,14 +52,17 @@ fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewM
     DetailsScreen(
         movie = movie,
         state = state,
-        displayDialog = viewModel::displayDialog,
-        updateGroup = { group, isChecked ->
-            viewModel.updateMovieGroup(
-                movieId = movie.id,
-                group = group,
-                isChecked = isChecked,
-            )
+        onStatusChange = { status ->
+            viewModel.updateMovieStatus(movie, status)
         },
+//        displayDialog = viewModel::displayDialog,
+//        updateGroup = { group, isChecked ->
+//            viewModel.updateMovieGroup(
+//                movieId = movie.id,
+//                group = group,
+//                isChecked = isChecked,
+//            )
+//        },
     )
 }
 
@@ -67,8 +71,7 @@ fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewM
 fun DetailsScreen(
     movie: Movie,
     state: DetailScreenStateState,
-    displayDialog: (DialogType) -> Unit = { _ -> },
-    updateGroup: (Group, Boolean) -> Unit = { _, _ -> },
+    onStatusChange: (MovieStatus) -> Unit = { },
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -78,30 +81,20 @@ fun DetailsScreen(
 
         DetailsContent(
             movie = movie,
-            modifier = Modifier.padding(paddingValues),
-            displayDialog = displayDialog,
-        )
-    }
-
-    if (state.dialogType != DialogType.NONE) {
-        SelectGroupsDialog(
-            movieId = movie.id,
-            title = "Select groups - ${state.dialogType.name}",
             user = state.user,
-            groups = state.groups,
-            dialogType = state.dialogType,
-            onCancel = {
-                displayDialog(DialogType.NONE)
-            },
-            onCheck = { group, isChecked ->
-                updateGroup(group, isChecked)
-            },
+            modifier = Modifier.padding(paddingValues),
+            onStatusChange = onStatusChange,
         )
     }
 }
 
 @Composable
-fun DetailsContent(movie: Movie, modifier: Modifier = Modifier, displayDialog: (DialogType) -> Unit = { _ -> }) {
+fun DetailsContent(
+    movie: Movie,
+    user: User,
+    modifier: Modifier = Modifier,
+    onStatusChange: (MovieStatus) -> Unit = { },
+) {
     val lazyListState = rememberLazyListState()
 
     LazyColumn(
@@ -147,19 +140,40 @@ fun DetailsContent(movie: Movie, modifier: Modifier = Modifier, displayDialog: (
                         .padding(vertical = 10.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Button(
-                        onClick = { displayDialog(DialogType.ToWatch) },
+
+                    CustomStatusButton(
+                        text = "To Watch",
+                        icon = Icons.Default.Add,
+                        isSelected = user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch,
                         modifier = Modifier.weight(1f),
-                    ) {
-                        DetailsButtonContent(icon = Icons.Default.Add, text = "To Watch")
-                    }
+                        onClick = { onStatusChange(MovieStatus.ToWatch) },
+                    )
+
                     Spacer(modifier = Modifier.width(14.dp))
-                    OutlinedButton(
-                        onClick = { displayDialog(DialogType.Watched) },
+
+                    CustomStatusButton(
+                        text = "Watched",
+                        icon = Icons.Default.Visibility,
+                        isSelected = user.statusMovies[movie.id.toString()] == MovieStatus.Watched,
                         modifier = Modifier.weight(1f),
-                    ) {
-                        DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
-                    }
+                        onClick = { onStatusChange(MovieStatus.Watched) },
+                    )
+
+//                    Button(
+//                        onClick = { displayDialog(MovieStatus.ToWatch) },
+//                        modifier = Modifier.weight(1f),
+//                    ) {
+//                        DetailsButtonContent(icon = Icons.Default.Add, text = "To Watch")
+//                    }
+//                    Spacer(modifier = Modifier.width(14.dp))
+//                    OutlinedButton(
+//                        onClick = { displayDialog(MovieStatus.Watched) },
+//                        modifier = Modifier.weight(1f),
+//                    ) {
+//                        DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
+//                    }
+
+
                 }
                 Text(
                     text = "Description",
@@ -176,33 +190,101 @@ fun DetailsContent(movie: Movie, modifier: Modifier = Modifier, displayDialog: (
 }
 
 @Composable
-private fun DetailsButtonContent(icon: ImageVector, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 3.dp),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.padding(end = 6.dp),
+fun CustomStatusButton(
+    text: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+
+    val content: @Composable RowScope.() -> Unit = {
+        DetailsButtonContent(icon = icon, text = text)
+    }
+
+    if (isSelected) {
+        Button(
+            onClick = onClick,
+            modifier = modifier,
+            content = content,
         )
-        Text(text = text)
+    } else {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier,
+            content = content,
+        )
     }
 }
 
-@Preview(
-    showSystemUi = true,
-    showBackground = true,
-)
+@Composable
+private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String, selected: Boolean = false) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.padding(end = 6.dp),
+    )
+    Text(text = text)
+}
+
+@Preview(showSystemUi = true, showBackground = true)
 @Composable
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
         DetailsContent(
             movie = Movie().copy(
+                id = 1,
                 title = "Movie title",
                 posterPath = "/poster.jpg",
                 adult = true,
                 releaseDate = "2023-01-01",
+            ),
+            user = User().copy(
+                id = "1",
+                email = "a@a.com",
+                statusMovies = mapOf(),
+            ),
+        )
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+private fun DetailsScreenToWatchPreview() {
+    FamilyFilmAppTheme {
+        DetailsContent(
+            movie = Movie().copy(
+                id = 1,
+                title = "Movie title",
+                posterPath = "/poster.jpg",
+                adult = true,
+                releaseDate = "2023-01-01",
+            ),
+            user = User().copy(
+                id = "1",
+                email = "a@a.com",
+                statusMovies = mapOf("1" to MovieStatus.ToWatch),
+            ),
+        )
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+private fun DetailsScreenWatchedPreview() {
+    FamilyFilmAppTheme {
+        DetailsContent(
+            movie = Movie().copy(
+                id = 1,
+                title = "Movie title",
+                posterPath = "/poster.jpg",
+                adult = true,
+                releaseDate = "2023-01-01",
+            ),
+            user = User().copy(
+                id = "1",
+                email = "a@a.com",
+                statusMovies = mapOf("1" to MovieStatus.Watched),
             ),
         )
     }

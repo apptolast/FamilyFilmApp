@@ -12,14 +12,14 @@ data class GroupTable(
     val groupId: String,
     var ownerId: String,
     var name: String,
-    val users: List<UserTable>,
+    val users: List<String>,
     val lastUpdated: Date?,
 ) {
     constructor(groupId: String) : this(
         groupId = groupId,
         ownerId = "",
         name = "",
-        users = emptyList<UserTable>(),
+        users = emptyList(),
         lastUpdated = null,
     )
 }
@@ -28,7 +28,7 @@ fun Group.toGroupTable() = GroupTable(
     groupId = id,
     ownerId = ownerId,
     name = name,
-    users = users.map { it.toUserTable() },
+    users = users,
     lastUpdated = lastUpdated,
 )
 
@@ -36,6 +36,6 @@ fun GroupTable.toGroup() = Group(
     id = groupId,
     ownerId = ownerId,
     name = name,
-    users = users.map { it.toUser() },
+    users = users,
     lastUpdated = lastUpdated,
 )

@@ -2,288 +2,229 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.exceptions.GroupException
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.repositories.BackendRepository
-import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class GroupViewModel @Inject constructor(
-    private val repository: BackendRepository,
-    private val dispatcherProvider: DispatcherProvider,
-) : ViewModel() {
+class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
+    ViewModel() {
 
-    private val _backendState = MutableStateFlow(BackendState())
-    val backendState: StateFlow<BackendState> = _backendState.asStateFlow()
+    val backendState: StateFlow<BackendState>
+        field: MutableStateFlow<BackendState> = MutableStateFlow(BackendState())
 
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<UiState>
+        field: MutableStateFlow<UiState> = MutableStateFlow(UiState())
 
     init {
-        viewModelScope.launch {
-            awaitAll(
-                async { getGroups() },
-                async { me() },
-            )
+        refreshUi()
+    }
+
+    fun refreshUi() = viewModelScope.launch {
+        combine(
+            uiState,
+            repository.getUserById(auth.currentUser!!.uid),
+            repository.getMyGroups(auth.currentUser!!.uid),
+        ) { uiState, currentUser, groups ->
+
+            if (groups.isEmpty()) return@combine arrayOf<Any>(false)
+
+            try {
+                groups[uiState.selectedGroupIndex]
+            } catch (e: Exception) {
+                this@GroupViewModel.uiState.update {
+                    it.copy(
+                        selectedGroupIndex = uiState.selectedGroupIndex.coerceIn(
+                            0,
+                            groups.size - 1,
+                        ),
+                    )
+                }
+                return@combine arrayOf<Any>(false)
+            }
+
+            // Get all users from the group
+            val groupUsers = mutableListOf<User>()
+            groups[uiState.selectedGroupIndex].users.map {
+                repository.getUserById(it).firstOrNull()?.let { user ->
+                    groupUsers.add(user)
+                }
+            }
+
+            // Get all movies from the group
+            val toWatch = mutableListOf<Movie>()
+            val watched = mutableListOf<Movie>()
+
+            groupUsers
+                .flatMap { user ->
+                    user.statusMovies.filterValues { it == MovieStatus.ToWatch }.keys
+                }
+                .distinct()
+                .let { movieIds ->
+                    repository.getMoviesByIds(movieIds.map { it.toInt() })
+                        .onSuccess { movies -> toWatch.addAll(movies) }
+                        .onFailure { error -> Timber.e(error, "Error getting toWatch movies by ids") }
+                }
+
+            groupUsers
+                .flatMap { user ->
+                    user.statusMovies.filterValues { it == MovieStatus.Watched }.keys
+                }
+                .distinct()
+                .let { movieIds ->
+                    repository.getMoviesByIds(movieIds.map { it.toInt() })
+                        .onSuccess { movies -> watched.addAll(movies) }
+                        .onFailure { error -> Timber.e(error, "Error getting toWatch movies by ids") }
+                }
+
+            arrayOf<Any>(currentUser, groups, groupUsers, toWatch, watched)
+        }.catch {
+            Timber.e(it, "Error refreshing UI")
+        }.collectLatest {
+            if (it.any { it == false }) return@collectLatest
+
+            val currentUser = it[0] as User
+            val groups = it[1] as List<Group>
+            val groupUsers = it[2] as List<User>
+            val toWatch = it[3] as List<Movie>
+            val watched = it[4] as List<Movie>
+
+            // Update everything at once
+            backendState.update {
+                it.copy(
+                    currentUser = currentUser,
+                    groups = groups,
+                    groupUsers = groupUsers,
+                    moviesToWatch = toWatch,
+                    moviesWatched = watched,
+                )
+            }
         }
     }
 
-    private suspend fun getGroups() {
-        _backendState.update { it.copy(isLoading = true) }
-
-        repository.getGroups().fold(
-            onSuccess = { groups ->
-                _backendState.update {
-                    it.copy(
-                        groups = groups,
-//                            .sortedWith(
-//                                compareBy(String.CASE_INSENSITIVE_ORDER) { group ->
-//                                    group.name
-//                                },
-//                            ),
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-
-                _uiState.update {
-                    it.copy(
-                        selectedGroupIndex = if (groups.isEmpty()) -1 else 0,
-                    )
+    fun createGroup(groupName: String) = viewModelScope.launch {
+        val currentUser = repository.getUserById(auth.currentUser?.uid!!).first()
+        repository.createGroup(
+            groupName = groupName,
+            user = currentUser,
+            success = {
+                viewModelScope.launch {
+                    delay(50)
+                    val pos = backendState.value.groups.indexOfFirst { it.name == groupName }
+                    uiState.update { it.copy(selectedGroupIndex = pos) }
                 }
             },
-            onFailure = { error ->
-                _backendState.update {
-                    it.copy(
-                        errorMessage = error.message,
-                        isLoading = false,
-                    )
-                }
+            failure = { error ->
+                Timber.e(error, "Error creating the group ")
+                uiState.update { it.copy(errorMessage = error.message) }
             },
         )
     }
 
-    private suspend fun me() {
-        _backendState.update { it.copy(isLoading = true) }
-        repository.me().fold(
-            onSuccess = { user ->
-                _backendState.update {
-                    it.copy(
-                        userOwner = user,
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-            },
-            onFailure = { error ->
-                Timber.e(error, "Error getting user info")
-                _backendState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = error.message,
-                    )
-                }
+    fun changeGroupName(group: Group) {
+        repository.updateGroup(
+            group = group,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error updating group name")
+                uiState.update { it.copy(errorMessage = error.message) }
             },
         )
     }
 
-    fun createGroup(groupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        _backendState.update { it.copy(isLoading = true) }
-
-        repository.addGroup(groupName).fold(
-            onSuccess = { groups ->
-                _backendState.update {
+    fun deleteGroup(group: Group) {
+        repository.deleteGroup(
+            group = group,
+            success = {
+                uiState.update {
                     it.copy(
-                        groups = groups,
-                        errorMessage = null,
-                        isLoading = false,
-                    )
-                }
-                _uiState.update {
-                    it.copy(
-                        showDialog = GroupScreenDialogs.None,
-                        selectedGroupIndex = it.selectedGroupIndex.inc(),
+                        selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+                            0,
+                            Int.MAX_VALUE,
+                        ),
                     )
                 }
             },
-            onFailure = {
-                Timber.e(it)
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = GroupException.AddGroup().value,
-                        isLoading = false,
-                    )
-                }
+            failure = { error ->
+                Timber.e(error, "Error deleting group")
+                uiState.update { it.copy(errorMessage = error.message) }
             },
         )
     }
 
-    fun deleteGroup(group: Group) = viewModelScope.launch(dispatcherProvider.io()) {
-        _backendState.update { it.copy(isLoading = true) }
-
-        repository.deleteGroup(group.id).fold(
-            onSuccess = { groups ->
-                _backendState.update {
-                    it.copy(
-                        groups = groups,
-                        errorMessage = null,
-                        isLoading = false,
-                    )
-                }
-                _uiState.update {
-                    it.copy(
-                        showDialog = GroupScreenDialogs.None,
-                        selectedGroupIndex = it.selectedGroupIndex.dec(),
-                    )
-                }
-            },
-            onFailure = {
-                Timber.e(it)
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = GroupException.DeleteGroup().value,
-                        isLoading = false,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
+    fun addMember(group: Group, email: String) {
+        repository.addMember(
+            group = group,
+            email = email,
+            success = { },
+            failure = { error ->
+                Timber.e(error, "Error adding member to group")
+                uiState.update { it.copy(errorMessage = error.message) }
             },
         )
     }
 
-    fun changeGroupName(groupId: Int, newGroupName: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        _backendState.update { it.copy(isLoading = true) }
-
-        repository.updateGroupName(groupId, newGroupName).fold(
-            onSuccess = { groups ->
-                _backendState.update {
-                    it.copy(
-                        groups = groups,
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-            },
-            onFailure = { error ->
-                Timber.e(error)
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = GroupException.UpdateGroupName().value,
-                        isLoading = false,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-            },
-        )
+    fun deleteMember(group: Group, userId: User) {
+        repository.deleteMember(group, userId)
     }
 
-    fun addMember(groupId: Int, email: String) = viewModelScope.launch {
-        _backendState.update { it.copy(isLoading = true) }
-        repository.addMember(groupId, email).fold(
-            onSuccess = { groups ->
-                _backendState.update {
-                    it.copy(
-                        groups = groups,
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-            },
-            onFailure = { error ->
-                Timber.e(error)
-
-                when (error) {
-                    is retrofit2.HttpException -> {
-                        when (error.code()) {
-                            404 -> "User not found"
-                            500 -> "Server Error"
-                            else -> "Error adding member to group"
-                        }
-                    }
-
-                    else -> {
-                        GroupException.AddMember().value
-                    }
-                }.let { errorMessage ->
-                    _backendState.update { oldState ->
-                        oldState.copy(
-                            errorMessage = errorMessage,
-                            isLoading = false,
-                        )
-                    }
-                    _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-                }
-            },
-        )
-    }
-
-    fun deleteMember(groupId: Int, userId: Int) = viewModelScope.launch {
-        _backendState.update { it.copy(isLoading = true) }
-
-        repository.deleteMember(groupId, userId).fold(
-            onSuccess = { groups ->
-                _backendState.update {
-                    it.copy(
-                        groups = groups,
-                        isLoading = false,
-                        errorMessage = null,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-            },
-            onFailure = { error ->
-                Timber.e(error)
-                _backendState.update { oldState ->
-                    oldState.copy(
-                        errorMessage = GroupException.DeleteUser().value,
-                        isLoading = false,
-                    )
-                }
-                _uiState.update { it.copy(showDialog = GroupScreenDialogs.None) }
-            },
-        )
-    }
-
-    fun showDialog(dialog: GroupScreenDialogs) = _uiState.update { it.copy(showDialog = dialog) }
+    fun showDialog(dialog: GroupScreenDialogs) = uiState.update { it.copy(showDialog = dialog) }
 
     fun selectGroup(index: Int) = viewModelScope.launch {
-        _uiState.update {
+        uiState.update {
             it.copy(selectedGroupIndex = index)
         }
     }
 
-    fun clearErrorMessage() = _backendState.update { it.copy(errorMessage = null) }
+    fun clearErrorMessage() = uiState.update { it.copy(errorMessage = null) }
+
+    private fun List<Group>.sort() = sortedWith(
+        compareBy(String.CASE_INSENSITIVE_ORDER) { group -> group.name },
+    )
 
     data class BackendState(
-        val userOwner: User,
+        val currentUser: User,
         val groups: List<Group>,
+        val groupUsers: List<User>,
+        val moviesToWatch: List<Movie>,
+        val moviesWatched: List<Movie>,
+    ) {
+        constructor() : this(
+            currentUser = User(),
+            groups = emptyList(),
+            groupUsers = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
+        )
+    }
+
+    data class UiState(
+        val showDialog: GroupScreenDialogs,
+        val selectedGroupIndex: Int,
         val isLoading: Boolean,
         val errorMessage: String?,
     ) {
         constructor() : this(
-            userOwner = User(),
-            groups = emptyList(),
+            showDialog = GroupScreenDialogs.None,
+            selectedGroupIndex = 0,
             isLoading = false,
             errorMessage = null,
-        )
-    }
-
-    data class UiState(val showDialog: GroupScreenDialogs, val selectedGroupIndex: Int) {
-        constructor() : this(
-            showDialog = GroupScreenDialogs.None,
-            selectedGroupIndex = -1,
         )
     }
 
@@ -292,7 +233,6 @@ class GroupViewModel @Inject constructor(
         data class DeleteGroup(val group: Group) : GroupScreenDialogs
         data class ChangeGroupName(val group: Group) : GroupScreenDialogs
         data class AddMember(val group: Group) : GroupScreenDialogs
-        data class DeleteMember(val group: Group, val user: User) : GroupScreenDialogs
         data object None : GroupScreenDialogs
     }
 }

@@ -2,49 +2,37 @@ package com.apptolast.familyfilmapp.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.repositories.BackendRepository
+import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val backendRepository: BackendRepository,
+    private val repository: Repository,
     private val firebaseAuth: FirebaseAuth,
     private val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ProfileUiState())
-    val state: StateFlow<ProfileUiState> = _state.asStateFlow().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = ProfileUiState(),
-    )
+    val state: StateFlow<ProfileUiState>
+        field: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState())
 
     init {
         viewModelScope.launch {
-            backendRepository.me().fold(
-                onSuccess = { user ->
-                    _state.update { oldState ->
-                        oldState.copy(
-                            userData = user,
-                            isLogged = true,
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    Timber.e(error, "Error getting user info")
-                },
-            )
+            repository.getUserById(firebaseAuth.currentUser!!.uid).first().let { user ->
+                state.update {
+                    it.copy(
+                        userData = user,
+                        isLogged = true,
+                    )
+                }
+            }
         }
     }
 

@@ -1,19 +1,19 @@
 package com.apptolast.familyfilmapp.model.local
 
+import java.util.Date
+
 data class Group(
-    val id: Int,
-    val ownerId: Int,
+    val id: String,
+    val ownerId: String,
     val name: String,
-    val watchedList: List<MovieCatalogue>,
-    val toWatchList: List<MovieCatalogue>,
-    val users: List<User>,
+    val users: List<String>,
+    val lastUpdated: Date?,
 ) {
     constructor() : this(
-        id = -1,
-        ownerId = -1,
+        id = "",
+        ownerId = "",
         name = "",
-        watchedList = emptyList<MovieCatalogue>(),
-        toWatchList = emptyList<MovieCatalogue>(),
-        users = emptyList<User>(),
+        users = emptyList(),
+        lastUpdated = null,
     )
 }

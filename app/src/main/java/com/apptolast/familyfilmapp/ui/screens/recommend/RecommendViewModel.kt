@@ -14,9 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class RecommendViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {
@@ -31,21 +28,21 @@ class RecommendViewModel @Inject constructor(private val repository: BackendRepo
     private val _recommendUIBackendState = MutableLiveData(GenresBackendState())
     val recommendUIBackendState: LiveData<GenresBackendState> = _recommendUIBackendState
 
-    init {
-        viewModelScope.launch {
-            _state.update { state ->
-                state.copy(
-                    movies = repository.getMovies().getOrElse {
-                        Timber.e(it)
-                        emptyList()
-                    },
-                )
-            }
-            _recommendUIBackendState.value = GenresBackendState(
-                genre = repository.getGenres().getOrElse {
-                    emptyList()
-                },
-            )
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            _state.update { state ->
+//                state.copy(
+//                    movies = repository.getMovies().getOrElse {
+//                        Timber.e(it)
+//                        emptyList()
+//                    },
+//                )
+//            }
+//            _recommendUIBackendState.value = GenresBackendState(
+//                genre = repository.getGenres().getOrElse {
+//                    emptyList()
+//                },
+//            )
+//        }
+//    }
 }

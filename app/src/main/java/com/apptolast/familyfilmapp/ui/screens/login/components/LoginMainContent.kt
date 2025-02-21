@@ -34,13 +34,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.exceptions.LoginException
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Unit) {
-    var email by rememberSaveable { mutableStateOf(loginUiState.user.email) }
+    var email by rememberSaveable { mutableStateOf(loginUiState.email) }
     var pass by rememberSaveable { mutableStateOf("") }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
@@ -76,10 +75,10 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
-                isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
-                supportingText = {
-                    SupportingErrorText(loginUiState.emailErrorMessage?.error)
-                },
+//                isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
+//                supportingText = {
+//                    SupportingErrorText(loginUiState.emailErrorMessage?.error)
+//                },
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -101,10 +100,10 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 shape = RoundedCornerShape(25.dp),
-                isError = !loginUiState.passErrorMessage?.error.isNullOrBlank(),
-                supportingText = {
-                    SupportingErrorText(loginUiState.passErrorMessage?.error)
-                },
+//                isError = !loginUiState.passErrorMessage?.error.isNullOrBlank(),
+//                supportingText = {
+//                    SupportingErrorText(loginUiState.passErrorMessage?.error)
+//                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -147,15 +146,15 @@ private fun CardLoginMainPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun CardLoginMainErrorPreview() {
-    FamilyFilmAppTheme {
-        LoginMainContent(
-            loginUiState = LoginUiState().copy(
-                emailErrorMessage = LoginException.EmailInvalidFormat(),
-            ),
-            onClick = { _, _ -> },
-        )
-    }
-}
+// @Preview(showBackground = true)
+// @Composable
+// private fun CardLoginMainErrorPreview() {
+//    FamilyFilmAppTheme {
+//        LoginMainContent(
+//            loginUiState = LoginUiState().copy(
+//                emailErrorMessage = LoginException.EmailInvalidFormat(),
+//            ),
+//            onClick = { _, _ -> },
+//        )
+//    }
+// }

@@ -1,12 +1,15 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,19 +19,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,15 +40,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
+import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
@@ -53,15 +61,13 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = backendState.errorMessage) {
-        if (backendState.errorMessage != null) {
-            snackBarHostState.showSnackbar(
-                message = backendState.errorMessage!!,
-                actionLabel = null,
-                withDismissAction = false,
-                duration = SnackbarDuration.Short,
-            )
-        }
+    if (!uiState.errorMessage.isNullOrBlank()) {
+        Toast.makeText(
+            LocalContext.current,
+            uiState.errorMessage,
+            Toast.LENGTH_SHORT,
+        ).show()
+
         viewModel.clearErrorMessage()
     }
 
@@ -85,7 +91,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
 
-        if (backendState.isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -94,8 +100,11 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
             }
         } else {
             GroupContent(
-                userOwner = backendState.userOwner,
+                userOwner = backendState.currentUser,
                 groups = backendState.groups,
+                groupUsers = backendState.groupUsers,
+                moviesToWatch = backendState.moviesToWatch,
+                moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
                 modifier = Modifier.padding(paddingValues),
                 onChangeGroupName = { group ->
@@ -108,10 +117,13 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     viewModel.showDialog(GroupScreenDialogs.DeleteGroup(group))
                 },
                 onDeleteUser = { group, user ->
-                    viewModel.showDialog(GroupScreenDialogs.DeleteMember(group, user))
+                    viewModel.deleteMember(group, user)
                 },
                 onGroupSelect = { index ->
                     viewModel.selectGroup(index)
+                },
+                onMovieClick = { movie ->
+                    navController.navigate(DetailNavTypeDestination.getDestination(movie))
                 },
             )
 
@@ -136,7 +148,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     EmailFieldDialog(
                         title = stringResource(id = R.string.dialog_add_group_member_title),
                         onConfirm = { email ->
-                            viewModel.addMember(group.id, email)
+                            viewModel.addMember(group, email)
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -151,7 +163,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         title = stringResource(id = R.string.dialog_change_group_title),
                         description = stringResource(id = R.string.dialog_change_group_description),
                         onConfirm = { newGroupName ->
-                            viewModel.changeGroupName(group.id, newGroupName)
+                            viewModel.changeGroupName(group.copy(name = newGroupName))
                         },
                         onDismiss = {
                             viewModel.showDialog(GroupScreenDialogs.None)
@@ -166,30 +178,8 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                         description = stringResource(R.string.dialog_delete_group_description),
                         confirmButtonText = stringResource(id = android.R.string.ok),
                         cancelButtonText = stringResource(id = android.R.string.cancel),
-                        onConfirm = {
-                            viewModel.deleteGroup(group)
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
-                    )
-                }
-
-                is GroupScreenDialogs.DeleteMember -> {
-                    val group = (uiState.showDialog as GroupScreenDialogs.DeleteMember).group
-                    val user = (uiState.showDialog as GroupScreenDialogs.DeleteMember).user
-
-                    BasicDialog(
-                        title = stringResource(R.string.dialog_delete_group_title),
-                        description = stringResource(R.string.dialog_delete_group_description),
-                        confirmButtonText = stringResource(id = android.R.string.ok),
-                        cancelButtonText = stringResource(id = android.R.string.cancel),
-                        onConfirm = {
-                            viewModel.deleteMember(group.id, user.id)
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
+                        onConfirm = { viewModel.deleteGroup(group) },
+                        onDismiss = { viewModel.showDialog(GroupScreenDialogs.None) },
                     )
                 }
 
@@ -203,19 +193,24 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupContent(
     userOwner: User,
     groups: List<Group>,
+    groupUsers: List<User>,
+    moviesToWatch: List<Movie>,
+    moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
-    onChangeGroupName: (Group) -> Unit,
-    onAddMemberClick: (Group) -> Unit,
-    onDeleteGroup: (Group) -> Unit,
-    onDeleteUser: (Group, User) -> Unit,
-    onGroupSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onChangeGroupName: (Group) -> Unit = {},
+    onAddMemberClick: (Group) -> Unit = {},
+    onDeleteGroup: (Group) -> Unit = {},
+    onDeleteUser: (Group, User) -> Unit = { _, _ -> },
+    onGroupSelect: (Int) -> Unit = {},
+    onMovieClick: (Movie) -> Unit = {},
 ) {
-    if (groups.isEmpty() || selectedGroupIndex == -1) {
+    if (groups.isEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -228,61 +223,98 @@ fun GroupContent(
             )
         }
     } else {
-        Column(
+        LazyColumn(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Group tabs
-            ScrollableTabRow(
-                selectedTabIndex = selectedGroupIndex,
-//                containerColor = MaterialTheme.colorScheme.outlineVariant,
-//            edgePadding = 0.dp,
-                divider = {
-                    VerticalDivider()
-                },
-            ) {
-                groups.forEachIndexed { index, group ->
-                    Tab(
-                        selected = selectedGroupIndex == index,
-                        onClick = { onGroupSelect(index) },
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
-                        text = {
-                            Text(
-                                text = group.name,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = if (selectedGroupIndex == index) {
-                                    MaterialTheme.typography.titleSmall
-                                } else {
-                                    MaterialTheme.typography.titleMedium
-                                },
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        },
-                    )
+            stickyHeader {
+                ScrollableTabRow(
+                    selectedTabIndex = selectedGroupIndex,
+                    divider = {
+                        VerticalDivider()
+                    },
+                ) {
+                    groups.forEachIndexed { index, group ->
+                        Tab(
+                            selected = selectedGroupIndex == index,
+                            onClick = { onGroupSelect(index) },
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
+                            text = {
+                                Text(
+                                    text = group.name,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = if (selectedGroupIndex == index) {
+                                        MaterialTheme.typography.titleMedium
+                                    } else {
+                                        MaterialTheme.typography.titleSmall
+                                    },
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
+                        )
+                    }
                 }
             }
 
-            val currentSelectedGroup = groups[selectedGroupIndex]
+            // Group card
+            item {
+                val currentSelectedGroup = groups[selectedGroupIndex]
+                GroupCard(
+                    userOwner = userOwner,
+                    group = currentSelectedGroup,
+                    groupUsers = groupUsers,
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    onChangeGroupName = { onChangeGroupName(currentSelectedGroup) },
+                    onAddMember = { onAddMemberClick(currentSelectedGroup) },
+                    onDeleteGroup = { onDeleteGroup(currentSelectedGroup) },
+                    onDeleteUser = { user -> onDeleteUser(currentSelectedGroup, user) },
+                )
+            }
 
-            GroupCard(
-                userOwner = userOwner,
-                group = currentSelectedGroup!!,
-                modifier = Modifier.padding(vertical = 12.dp),
-                onChangeGroupName = {
-                    onChangeGroupName(currentSelectedGroup)
-                },
-                onAddMember = { onAddMemberClick(currentSelectedGroup) },
-                onDeleteGroup = {
-                    onDeleteGroup(currentSelectedGroup)
-                },
-                onDeleteUser = { user ->
-                    onDeleteUser(currentSelectedGroup, user)
-                },
-            )
+            // Movies to watch
+            item {
+                Text(
+                    "Movies to watch",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+
+            item {
+                HorizontalScrollableMovies(
+                    movies = moviesToWatch,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onMovieClick = onMovieClick,
+                )
+            }
+
+            // Movies watched
+            item {
+                Text(
+                    "Movies watched",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+
+            item {
+                HorizontalScrollableMovies(
+                    movies = moviesWatched,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onMovieClick = onMovieClick,
+                )
+            }
         }
     }
 }
@@ -295,6 +327,9 @@ private fun GroupContentEmptyPreview() {
         GroupContent(
             userOwner = User(),
             groups = emptyList(),
+            groupUsers = emptyList(),
+            moviesToWatch = emptyList(),
+            moviesWatched = emptyList(),
             onChangeGroupName = {},
             onAddMemberClick = {},
             onDeleteGroup = {},
@@ -317,11 +352,19 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 2"),
                 Group().copy(name = "name 3"),
             ),
-            onChangeGroupName = {},
-            onAddMemberClick = {},
-            onDeleteGroup = {},
-            onDeleteUser = { _, _ -> },
-            onGroupSelect = {},
+            groupUsers = listOf(
+                User().copy(id = "1", email = "a@a.com"),
+            ),
+            moviesToWatch = listOf(
+                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
+            ),
+            moviesWatched = listOf(
+                Movie().copy(id = 4, title = "Title 4", overview = "Description 4"),
+                Movie().copy(id = 5, title = "Title 5", overview = "Description 5"),
+                Movie().copy(id = 6, title = "Title 6", overview = "Description 6"),
+            ),
             selectedGroupIndex = 0,
         )
     }

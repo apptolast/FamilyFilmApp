@@ -9,18 +9,19 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.dagger.hilt)
     alias(libs.plugins.ktlint.jlleitschuh)
+    alias(libs.plugins.room)
 }
 
 android {
     namespace = "com.apptolast.familyfilmapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 2
-        versionName = "0.2.0"
+        versionName = "0.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -33,6 +34,11 @@ android {
                 "WEB_ID_CLIENT",
                 "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
             )
+            buildConfigField(
+                "String",
+                "TMDB_ACCESS_TOKEN",
+                "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
+            )
         }
 
         getByName("release") {
@@ -42,6 +48,11 @@ android {
                 "String",
                 "WEB_ID_CLIENT",
                 "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
+            )
+            buildConfigField(
+                "String",
+                "TMDB_ACCESS_TOKEN",
+                "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
             )
         }
     }
@@ -69,6 +80,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -81,6 +96,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewModel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.paging.compose)
 
     // Splash
     implementation(libs.core.splashscreen)
@@ -113,7 +129,9 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.hilt.work.manager)
     ksp(libs.hilt.android.compiler)
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
     kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments
@@ -139,6 +157,14 @@ dependencies {
     // Ktlint RuleSet
     ktlintRuleset(libs.ktlint.ruleset)
 
+    // Room
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // Turbine
     testImplementation(libs.turbine)
 
     // Test
@@ -193,6 +219,13 @@ androidComponents.onVariants { variant ->
         file("$buildFile/generated/ksp/${variant.name}/kotlin"),
     )
 }
+
 ksp {
     arg("ignoreGenericArgs", "false")
+}
+
+kotlin {
+    sourceSets.configureEach {
+        languageSettings.enableLanguageFeature("ExplicitBackingFields")
+    }
 }

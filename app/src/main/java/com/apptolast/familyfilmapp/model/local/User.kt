@@ -1,10 +1,17 @@
 package com.apptolast.familyfilmapp.model.local
 
-data class User(val id: Int, val email: String, val language: String, val provider: String) {
+import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
+
+data class User(
+    val id: String,
+    val email: String,
+    val language: String,
+    val statusMovies: Map<String, MovieStatus>, // Map with key-value pair: MovieId, Status
+) {
     constructor() : this(
-        id = -1,
+        id = "",
         email = "",
         language = "",
-        provider = "",
+        statusMovies = mapOf(),
     )
 }

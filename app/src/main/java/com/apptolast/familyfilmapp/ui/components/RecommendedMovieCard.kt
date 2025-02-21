@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,37 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Genre
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
-import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import java.util.Calendar
-
-@Composable
-fun RecommendedMovieCard(
-    movie: MovieCatalogue,
-    modifier: Modifier = Modifier,
-    navigateToDetailsScreen: (Movie) -> Unit,
-) {
-    Movie(
-        id = movie.id,
-        title = movie.title,
-        isAdult = movie.adult,
-        genres = movie.genres.map { Genre().copy(name = it) },
-        image = "$BASE_URL${movie.image}",
-        synopsis = movie.synopsis,
-        voteAverage = movie.voteAverage,
-        voteCount = movie.ratingValue.toInt(),
-        releaseDate = movie.releaseDate,
-    ).let {
-        RecommendedMovieCard(
-            movie = it,
-            modifier = modifier,
-            navigateToDetailsScreen = navigateToDetailsScreen,
-        )
-    }
-}
 
 @Composable
 fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
@@ -73,7 +41,7 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             AsyncImage(
-                model = movie.image,
+                model = movie.posterPath,
                 contentDescription = movie.title,
                 contentScale = ContentScale.Inside,
             )
@@ -89,38 +57,38 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
                 )
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "${
-                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
-                        }",
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Left,
-                    )
-                    if (movie.voteAverage != 0f) {
-                        Text(
-                            text = "|",
-                            style = MaterialTheme.typography.labelSmall,
-                            textAlign = TextAlign.Left,
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Start",
-                            modifier = Modifier.height(12.dp),
-                        )
-                        Text(
-                            text = "${movie.voteAverage}",
-                            style = MaterialTheme.typography.labelSmall,
-                            textAlign = TextAlign.Left,
-                        )
-                    }
-                }
+//                Row(
+//                    modifier = Modifier.padding(vertical = 10.dp),
+//                    horizontalArrangement = Arrangement.Start,
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    Text(
+//                        text = "${
+//                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
+//                        }",
+//                        style = MaterialTheme.typography.labelSmall,
+//                        textAlign = TextAlign.Left,
+//                    )
+//                    if (movie.voteAverage != 0f) {
+//                        Text(
+//                            text = "|",
+//                            style = MaterialTheme.typography.labelSmall,
+//                            textAlign = TextAlign.Left,
+//                        )
+//                        Icon(
+//                            imageVector = Icons.Default.Star,
+//                            contentDescription = "Start",
+//                            modifier = Modifier.height(12.dp),
+//                        )
+//                        Text(
+//                            text = "${movie.voteAverage}",
+//                            style = MaterialTheme.typography.labelSmall,
+//                            textAlign = TextAlign.Left,
+//                        )
+//                    }
+//                }
                 Text(
-                    text = movie.synopsis,
+                    text = movie.overview,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -156,7 +124,7 @@ private fun RecommendedMovieCardPreview() {
                 .height(200.dp),
             movie = Movie(
                 title = "Movie Title",
-                image = "https://image.tmdb.org/t/p/original/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
+                posterPath = "https://image.tmdb.org/t/p/original/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
             ),
             navigateToDetailsScreen = {},
         )

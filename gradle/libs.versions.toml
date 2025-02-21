@@ -1,42 +1,46 @@
 [versions]
-activityCompose = "1.9.3"
-androidApplication = "8.7.1"
-androidxCoreKtx = "1.13.1"
-androidxLifecycleCompose = "2.8.6"
+activityCompose = "1.10.0"
+androidApplication = "8.7.3"
+androidxCoreKtx = "1.15.0"
+androidxLifecycleCompose = "2.8.7"
+androidxPagingVersion = "3.3.6"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
-composeBom = "2024.10.00"
-composeUiTextGoogleFonts = "1.7.4"
+composeBom = "2025.02.00"
+composeUiTextGoogleFonts = "1.7.8"
 coreSplashscreen = "1.0.1"
-coroutines = "1.8.1"
+coroutines = "1.9.0"
 espressoCore = "3.6.1"
-firebaseBom = "33.4.0"
-firebaseCrashlytics = "3.0.2"
+firebaseBom = "33.9.0"
+firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.2"
-gson = "2.11.0"
+gson = "2.12.1"
 hiltNavigationCompose = "1.2.0"
-hiltVersion = "2.52"
+hiltVersion = "2.55"
+hiltCompiler = "1.2.0"
 junit = "4.13.2"
-junitJupiter = "5.11.0"
-kotlin = "2.0.20"
-ktlint = "0.4.10"
-ktlintJlleitschuh = "12.1.1"
-ksp = "2.0.20-1.0.25"
+junitJupiter = "5.11.3"
+kotlin = "2.1.10"
+ktlint = "0.4.22"
+ktlintJlleitschuh = "12.1.2"
+ksp = "2.1.10-1.0.30"
 loggingInterceptor = "4.12.0"
-mockitoCore = "5.14.1"
+mockitoCore = "5.14.2"
 mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
-mockk = "1.13.12"
-navigationCompose = "2.8.3"
-playServicesAuth = "21.2.0"
+mockk = "1.13.13"
+navigationCompose = "2.8.7"
+playServicesAuth = "21.3.0"
 retrofit = "2.11.0"
+roomVersion = "2.6.1"
 swipe = "1.3.0"
 testCoreKtx = "1.6.1"
 testRules = "1.6.1"
 timber = "5.0.1"
 truth = "1.4.4"
-turbine = "1.1.0"
+turbine = "1.2.0"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -45,6 +49,11 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPagingVersion" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
+#androidx-room-runtime = { group = "androidx.room", name="room-runtime", version.ref = "roomVersion" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 compose-annotation = { group = "io.github.dilrajsingh1997", name = "compose-annotation", version.ref = "composeAnnotation" }
@@ -72,8 +81,9 @@ firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-cra
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
+hilt-work-manager = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltCompiler" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
@@ -104,3 +114,4 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref =
 kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint-jlleitschuh = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintJlleitschuh" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "roomVersion" }

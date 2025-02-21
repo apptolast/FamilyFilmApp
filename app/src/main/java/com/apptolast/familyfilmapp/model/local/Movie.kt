@@ -1,33 +1,51 @@
 package com.apptolast.familyfilmapp.model.local
 
 import android.os.Parcelable
-import java.util.Calendar
-import java.util.Date
+import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Movie(
     val id: Int,
     val title: String,
-    val isAdult: Boolean,
-    val genres: List<Genre>,
-    val image: String,
-    val synopsis: String,
-    val voteAverage: Float,
-    val voteCount: Int,
-    val releaseDate: Date,
+    val adult: Boolean,
+    val releaseDate: String,
+    val overview: String,
+//    val popularity: Float,
+//    val voteAverage: Float,
+//    val voteCount: Int,
+//    val genres: List<Genre>,
+    val posterPath: String,
 ) : Parcelable {
-    constructor(image: String, title: String) : this(
-        id = -1,
-        title = title,
-        isAdult = true,
-        genres = emptyList<Genre>(),
-        image = image,
-        synopsis = "",
-        voteAverage = 0f,
-        voteCount = 0,
-        releaseDate = Calendar.getInstance().time,
-    )
 
-    constructor() : this("", "")
+    constructor() : this(title = "", posterPath = "")
+
+    constructor(
+        title: String,
+        posterPath: String,
+    ) : this(
+        id = 0,
+        title = title,
+        adult = false,
+        releaseDate = "",
+        overview = "",
+//        popularity = 0f,
+//        voteAverage = 0f,
+//        voteCount = 0,
+//        genres = emptyList(),
+        posterPath = posterPath,
+    )
 }
+
+fun TmdbMovieRemote.toDomain(): Movie = Movie(
+    id = id,
+    title = title ?: "",
+    adult = adult,
+    releaseDate = releaseDate ?: "",
+    overview = overview ?: "",
+//    popularity = popularity,
+//    voteAverage = voteAverage,
+//    voteCount = voteCount,
+//    genres = genres.map { it.toDomain() },
+    posterPath = posterPath ?: "",
+)

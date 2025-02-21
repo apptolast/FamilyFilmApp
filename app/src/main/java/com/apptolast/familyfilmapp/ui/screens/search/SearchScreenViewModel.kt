@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {
@@ -25,19 +22,19 @@ class SearchScreenViewModel @Inject constructor(private val repository: BackendR
         initialValue = emptyList(),
     )
 
-    init {
-        viewModelScope.launch {
-            repository.getMovies().fold(
-                onSuccess = { movies ->
-                    _movies.update { movies }
-                },
-                onFailure = {
-                    // TODO
-                    Timber.e(it)
-                },
-            )
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            repository.getMovies().fold(
+//                onSuccess = { movies ->
+//                    _movies.update { movies }
+//                },
+//                onFailure = {
+//                    // TODO
+//                    Timber.e(it)
+//                },
+//            )
+//        }
+//    }
 
 //    fun getListFilmFake(): List<Movie> = repository.generateFakeFilmData(20)
 }

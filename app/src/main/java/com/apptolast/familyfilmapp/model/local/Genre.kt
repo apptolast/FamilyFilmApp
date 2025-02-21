@@ -4,9 +4,4 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Genre(val id: Int, val name: String) : Parcelable {
-    constructor() : this(
-        id = -1,
-        name = "",
-    )
-}
+data class Genre(val id: Int, val name: String) : Parcelable

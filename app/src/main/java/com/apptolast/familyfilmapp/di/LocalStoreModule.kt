@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.apptolast.familyfilmapp.managers.SharedPreferenceManager
 import com.apptolast.familyfilmapp.managers.SharedPreferenceManager.Companion.SHARED_PREFERENCES_FILE_NAME
+import com.apptolast.familyfilmapp.room.AppDatabase
+import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.user.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,4 +26,14 @@ class LocalStoreModule {
     @Provides
     @Singleton
     fun provideSharedPreferencesManager(prefs: SharedPreferences) = SharedPreferenceManager(prefs)
+
+    @Singleton
+    @Provides
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase = AppDatabase.getInstance(context)
+
+    @Provides
+    fun providePlantDao(appDatabase: AppDatabase): GroupDao = appDatabase.groupDao()
+
+    @Provides
+    fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
 }

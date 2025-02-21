@@ -1,9 +1,6 @@
 package com.apptolast.familyfilmapp.model.remote.response
 
-import com.apptolast.familyfilmapp.extensions.toDate
-import com.apptolast.familyfilmapp.model.local.MovieCatalogue
 import com.google.gson.annotations.SerializedName
-import java.util.Date
 
 data class MovieCatalogueRemote(
 
@@ -33,16 +30,4 @@ data class MovieCatalogueRemote(
 
     @SerializedName("genres")
     val genres: List<String>? = null,
-)
-
-fun MovieCatalogueRemote.toDomain() = MovieCatalogue(
-    id = id ?: -1,
-    title = title ?: "",
-    synopsis = synopsis ?: "",
-    image = image ?: "",
-    adult = adult ?: false,
-    releaseDate = releaseDate?.toDate("yyyy-MM-dd") ?: Date(),
-    voteAverage = ratingAverage ?: 0f,
-    ratingValue = ratingValue ?: 0f,
-    genres = genres ?: emptyList(),
 )

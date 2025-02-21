@@ -2,26 +2,22 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apptolast.familyfilmapp.repositories.FirebaseRepository
-import com.apptolast.familyfilmapp.repositories.LocalRepository
-import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
 class AppNavigationViewModel @Inject constructor(
-    firebaseRepository: FirebaseRepository,
-    localRepository: LocalRepository,
-    private val dispatcherProvider: DispatcherProvider,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val roomDatasource: RoomDatasource,
 ) : ViewModel() {
 
-    val userState = firebaseRepository.getUser()
+    val userState = firebaseAuthRepository.getUser()
         .catch {
             //  TODO: Handle error and notify to the user if needed
             Timber.e(it, "Error getting user state")
@@ -30,13 +26,5 @@ class AppNavigationViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = null,
-        ).also {
-            viewModelScope.launch {
-                it.collectLatest { user ->
-                    user?.getIdToken(false)?.addOnSuccessListener {
-                        localRepository.setToken(it.token ?: "")
-                    }
-                }
-            }
-        }
+        )
 }

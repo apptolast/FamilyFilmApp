@@ -9,6 +9,7 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
@@ -94,11 +94,9 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
                 }
 
             arrayOf<Any>(currentUser, groups, groupUsers, toWatch, watched)
-
         }.catch {
             Timber.e(it, "Error refreshing UI")
         }.collectLatest {
-
             if (it.any { it == false }) return@collectLatest
 
             val currentUser = it[0] as User

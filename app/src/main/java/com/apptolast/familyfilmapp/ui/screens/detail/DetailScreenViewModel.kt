@@ -16,10 +16,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailScreenViewModel @Inject constructor(
-    private val repository: Repository,
-    private val auth: FirebaseAuth,
-) : ViewModel() {
+class DetailScreenViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
+    ViewModel() {
+
     val state: StateFlow<DetailScreenStateState>
         field: MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())
 
@@ -37,17 +36,15 @@ class DetailScreenViewModel @Inject constructor(
 
         repository.updateUser(
             state.value.user.copy(
-                statusMovies = currentStatusMovies.toMap()
-            )
+                statusMovies = currentStatusMovies.toMap(),
+            ),
         ) {
             Timber.d("Movie status updated")
         }
     }
 }
 
-data class DetailScreenStateState(
-    val user: User,
-) {
+data class DetailScreenStateState(val user: User) {
     constructor() : this(
         user = User(),
     )

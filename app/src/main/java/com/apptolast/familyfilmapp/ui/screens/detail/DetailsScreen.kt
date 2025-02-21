@@ -68,11 +68,7 @@ fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewM
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DetailsScreen(
-    movie: Movie,
-    state: DetailScreenStateState,
-    onStatusChange: (MovieStatus) -> Unit = { },
-) {
+fun DetailsScreen(movie: Movie, state: DetailScreenStateState, onStatusChange: (MovieStatus) -> Unit = { }) {
     val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -140,7 +136,6 @@ fun DetailsContent(
                         .padding(vertical = 10.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-
                     CustomStatusButton(
                         text = "To Watch",
                         icon = Icons.Default.Add,
@@ -172,8 +167,6 @@ fun DetailsContent(
 //                    ) {
 //                        DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
 //                    }
-
-
                 }
                 Text(
                     text = "Description",
@@ -197,7 +190,6 @@ fun CustomStatusButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-
     val content: @Composable RowScope.() -> Unit = {
         DetailsButtonContent(icon = icon, text = text)
     }

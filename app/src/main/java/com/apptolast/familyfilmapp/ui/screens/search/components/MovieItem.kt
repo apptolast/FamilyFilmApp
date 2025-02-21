@@ -19,11 +19,13 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScreen: (Movie) -> Unit = {}) {
     Row(
-        modifier = modifier.padding(12.dp).clickable {
-            onNavigateDetailScreen(movie)
-        },
+        modifier = modifier
+            .padding(12.dp)
+            .clickable {
+                onNavigateDetailScreen(movie)
+            },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
@@ -33,7 +35,6 @@ fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onNavigateDetailScree
                 .size(width = 180.dp, height = 118.dp)
                 .clip(shape = RoundedCornerShape(10.dp)),
             contentScale = ContentScale.Crop,
-
         )
         Text(
             text = movie.title,

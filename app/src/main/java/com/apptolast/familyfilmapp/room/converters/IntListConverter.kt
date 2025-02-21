@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.room.converters
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import javax.inject.Inject
 
 class IntListConverter {
 

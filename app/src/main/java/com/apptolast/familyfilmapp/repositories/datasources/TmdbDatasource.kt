@@ -11,9 +11,7 @@ class TmdbDatasourceImpl @Inject constructor(private val tmdbApi: TmdbApi) : Tmd
     override suspend fun searchMovieByName(string: String): List<TmdbMovieRemote> =
         tmdbApi.searchMovieByName(string).results
 
-    override suspend fun searchMovieById(movieId: Int): TmdbMovieRemote =
-        tmdbApi.searchMovieById(movieId)
-
+    override suspend fun searchMovieById(movieId: Int): TmdbMovieRemote = tmdbApi.searchMovieById(movieId)
 }
 
 interface TmdbDatasource {

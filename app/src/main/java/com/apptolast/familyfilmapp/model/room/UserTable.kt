@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME

@@ -6,15 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
-import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
-import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
-import com.apptolast.familyfilmapp.model.room.toGroupTable
-import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUPS_TABLE_NAME
 import kotlinx.coroutines.flow.Flow
 

@@ -89,7 +89,7 @@ jobs:
 
       # https://github.com/marketplace/actions/firebase-app-distribution
       - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.2.2
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}

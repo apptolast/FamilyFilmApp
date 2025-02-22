@@ -80,9 +80,8 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON }}
           packageName: com.apptolast.familyfilmapp
-          releaseFile: app/build/outputs/bundle/globalRelease/app-global-release.aab
+          releaseFile: app/build/outputs/bundle/release/app-release.aab
           track: internal
-          userFraction: 0.99
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
         continue-on-error: true
@@ -92,6 +91,6 @@ jobs:
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
-          token: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
-          groups: Developers
-          file: app/build/outputs/apk/global/debug/app-debug.apk
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
+          groups: devs
+          file: app/build/outputs/apk/release/app-release.apk

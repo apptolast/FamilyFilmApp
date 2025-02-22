@@ -80,8 +80,9 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON }}
           packageName: com.apptolast.familyfilmapp
-          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
+          status: completed
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
         continue-on-error: true
@@ -93,4 +94,5 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
           groups: devs
-          file: app/build/outputs/apk/release/app-release.apk
+          file: app/build/outputs/apk/debug/app-debug.apk
+#          file: app/release/app-release.apk

@@ -1,21 +1,26 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
+import android.content.Context
+import android.util.Log
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.CustomException.GenericException
 import com.apptolast.familyfilmapp.exceptions.LoginException.Register
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
-import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.BackendRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseRepository
+import com.apptolast.familyfilmapp.repositories.LocalRepository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Locale
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -24,12 +29,22 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val repository: Repository,
+    private val credentialManager: CredentialManager,
+    private val credentialRequest: GetCredentialRequest,
+//    private val loginEmailPassUseCase: LoginEmailPassUseCase,
+//    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
+//    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
+//    private val registerUseCase: RegisterUseCase,
     private val dispatcherProvider: DispatcherProvider,
+//    private val backendRepository: BackendRepository,
+//    private val firebaseAuth: FirebaseAuth,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -102,7 +117,9 @@ class LoginViewModel @Inject constructor(
                     failure = { error ->
                         loginState.update {
                             it.copy(
-                                errorMessage = Register(error.message ?: "Register user in our backend failed"),
+                                errorMessage = Register(
+                                    error.message ?: "Register user in our backend failed"
+                                ),
                             )
                         }
                     },
@@ -149,12 +166,46 @@ class LoginViewModel @Inject constructor(
         recoverPassState.update { newRecoverPassState }
     }
 
-    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
-//            loginWithGoogleUseCase(account.idToken!!).let { result ->
-//                result.collectLatest { newLoginUIState ->
-//                    // User Login into our backend before update the UI state
-//                    backendLogin(newLoginUIState)
-//                }
-//            }
+    fun handleSignIn(context: Context) = viewModelScope.launch {
+        // Handle the successfully returned credential.
+
+
+        try {
+            // Código para iniciar el intento de autenticación
+            val credentialResponse = credentialManager.getCredential(
+                request = credentialRequest,
+                context = context,
+            )
+
+            val credential = credentialResponse.credential
+
+            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                try {
+                    // Use googleIdTokenCredential and extract id to validate and
+                    // authenticate on your server.
+                    val googleIdTokenCredential = GoogleIdTokenCredential
+                        .createFrom(credential.data)
+
+                    loginWithGoogleUseCase(googleIdTokenCredential.idToken).let { result ->
+                        result.collectLatest { newLoginUIState ->
+                            _loginState.update {
+                                newLoginUIState
+                            }
+                        }
+                    }
+                } catch (e: GoogleIdTokenParsingException) {
+                    Log.e("TAG", "Received an invalid google id token response", e)
+                }
+            } else {
+                // Catch any unrecognized custom credential type here.
+                Log.e("TAG", "Unexpected type of credential")
+            }
+        } catch (e: GetCredentialCancellationException) {
+            Log.e("AuthError", e.message, e)
+        } catch (e: Exception) {
+            Log.e("AuthError", "Error inesperado durante la autenticación.", e)
+        }
+
+
     }
 }

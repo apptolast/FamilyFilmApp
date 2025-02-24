@@ -1,10 +1,10 @@
 package com.apptolast.familyfilmapp.di
 
 import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import com.apptolast.familyfilmapp.BuildConfig
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,18 +18,20 @@ object GoogleSignInModule {
 
     @Singleton
     @Provides
-    fun provideGoogleSignOptions(): GoogleSignInOptions =
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestIdToken(BuildConfig.WEB_ID_CLIENT)
-            .requestId()
-            .requestProfile()
+    fun signInWithGoogleOption(): GetSignInWithGoogleOption =
+        GetSignInWithGoogleOption.Builder(BuildConfig.WEB_ID_CLIENT)
             .build()
 
     @Singleton
     @Provides
-    fun provideGoogleSignInClient(
-        @ApplicationContext context: Context,
-        googleSignInOptions: GoogleSignInOptions,
-    ): GoogleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions)
+    fun credentialManager(@ApplicationContext context: Context): CredentialManager =
+        CredentialManager.create(context)
+
+    @Singleton
+    @Provides
+    fun credentialRequest(
+        signInWithGoogleOption: GetSignInWithGoogleOption
+    ): GetCredentialRequest = GetCredentialRequest.Builder()
+        .addCredentialOption(signInWithGoogleOption)
+        .build()
 }

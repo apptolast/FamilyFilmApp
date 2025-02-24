@@ -1,9 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,16 +44,13 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.Constants
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
-import timber.log.Timber
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.loginState.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged) {
@@ -78,20 +72,6 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         }
     }
 
-    val startForResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val intent = result.data
-                if (intent != null) {
-                    val task: Task<GoogleSignInAccount> =
-                        GoogleSignIn.getSignedInAccountFromIntent(intent)
-//                    viewModel.handleGoogleSignInResult(task.result as GoogleSignInAccount)
-                }
-            } else {
-                Timber.d("$result")
-            }
-        }
-
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         Box(
             modifier = Modifier
@@ -112,11 +92,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                     // TODO
                 },
                 onClickScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = {
-                    startForResult.launch(
-                        viewModel.googleSignInClient.signInIntent,
-                    )
-                },
+                onClickGoogleButton = { viewModel.handleSignIn(context = context) },
                 onRecoveryPassUpdate = {
                     // TODO
                 },

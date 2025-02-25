@@ -78,10 +78,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
 
-    Scaffold(
-        contentColor = MaterialTheme.colorScheme.onBackground,
-
-        ) { innerPadding ->
+    Scaffold { innerPadding ->
         MovieAppLoginContent(
             email = email,
             password = password,
@@ -115,7 +112,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             }
 
             is AuthState.Error -> {
-                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_LONG).show()
             }
 
             AuthState.Loading -> {
@@ -166,7 +163,6 @@ fun MovieAppLoginContent(
 
     // Select a random image at the start of the composition
     val randomImageId = remember { imageList[Random.nextInt(imageList.size)] }
-
 
     // Background Image with random movie theme
     Image(

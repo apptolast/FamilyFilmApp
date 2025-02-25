@@ -11,8 +11,13 @@ import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,7 +48,7 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.getUser().collect { user ->
-                authState.value = if (user != null) {
+                authState.value = if (user != null && user.isEmailVerified) {
                     AuthState.Authenticated(user)
                 } else {
                     AuthState.Unauthenticated
@@ -83,43 +88,50 @@ class AuthViewModel @Inject constructor(
                 is LoginRegisterState.Register -> LoginRegisterState.Login()
             }
         }
+
+        authState.update { AuthState.Unauthenticated }
     }
 
-    fun login(email: String, password: String) = authRepository.login(email, password)
+    fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        authRepository.login(email, password)
+            .catch { error ->
+                authState.update {
+                    AuthState.Error(error.message ?: "Login Error")
+                }
+            }.collect { result ->
+                result
+                    .onSuccess { user ->
+                        authState.update {
+                            AuthState.Authenticated(user!!)
+                        }
+                    }
+                    .onFailure { error ->
+                        authState.update {
+                            AuthState.Error(error.message ?: "Login Error")
+                        }
+                    }
+            }
+    }
 
     fun register(email: String, password: String) = viewModelScope.launch {
-//        firebaseAuthRepository.register(email, password)
-//            .catch {
-//                Timber.e(it)
-//            }
-//            .filterNotNull()
-//            .collectLatest { firebaseUser ->
-//                loginState.update {
-//                    it.copy(
-//                        isLogged = true,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                        email = firebaseUser.email ?: "",
-//                    )
-//                }
-//
-//                // Save the user in firestore database
-//                repository.createUser(
-//                    user = User().copy(
-//                        id = firebaseUser.uid,
-//                        email = firebaseUser.email ?: "",
-//                        language = Locale.getDefault().language,
-//                    ),
-//                    success = {},
-//                    failure = { error ->
-//                        loginState.update {
-//                            it.copy(
-//                                errorMessage = Register(error.message ?: "Register user in our backend failed"),
-//                            )
-//                        }
-//                    },
-//                )
-//            }
+        authRepository.register(email, password)
+            .catch {
+                Timber.e(it)
+            }
+            .filterNotNull()
+            .collectLatest { result ->
+
+                result
+                    .onSuccess {
+                        authState.update { AuthState.Unauthenticated }
+                        screenState.update { LoginRegisterState.Login() }
+                    }
+                    .onFailure { error ->
+                        authState.update {
+                            AuthState.Error(error.message ?: "Login Error")
+                        }
+                    }
+            }
     }
 
 //    private fun registerUserInBackend() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -174,7 +186,7 @@ class AuthViewModel @Inject constructor(
 
 sealed interface AuthState {
     object Loading : AuthState
-    data class Authenticated(val user: FirebaseUser) : AuthState
     object Unauthenticated : AuthState
-    data class Error(val message: String) : AuthState
+    data class Authenticated(val user: FirebaseUser) : AuthState
+    data class Error(val message: String, val id: UUID = UUID.randomUUID()) : AuthState
 }

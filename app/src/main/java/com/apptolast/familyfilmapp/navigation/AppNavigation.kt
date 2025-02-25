@@ -25,16 +25,10 @@ fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-//    LaunchedEffect(userState) {
-//        if (userState != null) {
-//            viewModel.saveUser()
-//        }
-//    }
-
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = if (userState != null) {
+        startDestination = if (userState != null && userState!!.isEmailVerified) {
             Routes.Home.routes
         } else {
             Routes.Login.routes

@@ -1,11 +1,13 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,12 +16,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,7 +40,7 @@ import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.Constants
@@ -48,42 +48,46 @@ import com.apptolast.familyfilmapp.utils.Constants
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val loginUiState by viewModel.loginState.collectAsStateWithLifecycle()
+    val state by viewModel.loginState.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = loginUiState) {
-        if (loginUiState.isLogged) {
-            navController.navigate(Routes.Home.routes) {
-                popUpTo(Routes.Login.routes) { inclusive = true }
-                launchSingleTop = true
-            }
+    if (state.isLogged && state.isEmailVerified) {
+        navController.navigate(Routes.Home.routes) {
+            popUpTo(Routes.Login.routes) { inclusive = true }
+            launchSingleTop = true
         }
     }
 
-    if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(loginUiState.errorMessage) {
-            snackBarHostState.showSnackbar(
-                loginUiState.errorMessage!!.error,
-                "Close",
-                true,
-                SnackbarDuration.Long,
-            )
-        }
+    if (!state.errorMessage?.error.isNullOrBlank()) {
+        Toast.makeText(context, state.errorMessage!!.error, Toast.LENGTH_SHORT).show()
+        viewModel.clearErrorMessages()
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
+    if (!state.emailErrorMessage?.error.isNullOrBlank()) {
+        Toast.makeText(context, state.emailErrorMessage!!.error, Toast.LENGTH_SHORT).show()
+        viewModel.clearErrorMessages()
+    }
+
+    if (!state.passErrorMessage?.error.isNullOrBlank()) {
+        Toast.makeText(context, state.passErrorMessage!!.error, Toast.LENGTH_SHORT).show()
+        viewModel.clearErrorMessages()
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .consumeWindowInsets(innerPadding),
             contentAlignment = Alignment.Center,
         ) {
             LoginContent(
-                loginUiState = loginUiState,
+                state = state,
                 recoverPassState = recoverPassUIState,
                 onClickLogin = { email, pass ->
-                    when (loginUiState.screenState) {
+                    when (state.screenState) {
                         is LoginRegisterState.Login -> viewModel.login(email, pass)
                         is LoginRegisterState.Register -> viewModel.register(email, pass)
                     }
@@ -103,7 +107,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
 @Composable
 fun LoginContent(
-    loginUiState: LoginUiState,
+    state: LoginState,
     recoverPassState: RecoverPassState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
@@ -116,7 +120,7 @@ fun LoginContent(
             .fillMaxSize()
             .padding(24.dp)
             .alpha(
-                when (loginUiState.isLoading) {
+                when (state.isLoading) {
                     true -> 0.4f
                     false -> 1f
                 },
@@ -124,7 +128,7 @@ fun LoginContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         LoginMainContent(
-            loginUiState = loginUiState,
+            loginState = state,
             onClick = onClickLogin,
         )
 
@@ -134,13 +138,13 @@ fun LoginContent(
                 .clickable { onClickScreenState() },
         ) {
             Text(
-                text = stringResource(loginUiState.screenState.accountText),
+                text = stringResource(state.screenState.accountText),
                 modifier = Modifier.padding(end = 4.dp),
             )
 
             // TODO: Create Typography for this text.
             Text(
-                text = stringResource(loginUiState.screenState.signText),
+                text = stringResource(state.screenState.signText),
                 color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.Bold,
             )
@@ -181,7 +185,7 @@ fun LoginContent(
         }
     }
 
-    if (loginUiState.isLoading) {
+    if (state.isLoading) {
         CircularProgressIndicator(
             modifier = Modifier.testTag(Constants.CIRCULAR_PROGRESS_INDICATOR),
         )
@@ -207,7 +211,7 @@ fun LoginContent(
 private fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         LoginContent(
-            loginUiState = LoginUiState(),
+            state = LoginState(),
             recoverPassState = RecoverPassState(),
             onClickLogin = { _, _ -> },
             onCLickRecoverPassword = {},

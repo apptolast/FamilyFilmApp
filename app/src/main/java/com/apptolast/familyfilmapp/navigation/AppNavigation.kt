@@ -18,23 +18,20 @@ import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
+import com.google.firebase.auth.FirebaseUser
 
 @Composable
 fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
-
-//    LaunchedEffect(userState) {
-//        if (userState != null) {
-//            viewModel.saveUser()
-//        }
-//    }
+    val user: FirebaseUser? = userState?.first
+    val isEmailVerified: Boolean? = userState?.second
 
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = if (userState != null) {
+        startDestination = if (user != null && isEmailVerified == true) {
             Routes.Home.routes
         } else {
             Routes.Login.routes

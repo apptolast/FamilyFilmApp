@@ -34,12 +34,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Unit) {
-    var email by rememberSaveable { mutableStateOf(loginUiState.email) }
+fun LoginMainContent(loginState: LoginState, onClick: (String, String) -> Unit) {
+    var email by rememberSaveable(key = loginState.email) { mutableStateOf(loginState.email) }
     var pass by rememberSaveable { mutableStateOf("") }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
 
@@ -113,7 +113,7 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = stringResource(id = loginUiState.screenState.buttonText),
+                    text = stringResource(id = loginState.screenState.buttonText),
                     modifier = Modifier.padding(4.dp),
                 )
             }
@@ -140,7 +140,7 @@ fun SupportingErrorText(errorMessage: String?) {
 private fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
-            loginUiState = LoginUiState(),
+            loginState = LoginState(),
             onClick = { _, _ -> },
         )
     }

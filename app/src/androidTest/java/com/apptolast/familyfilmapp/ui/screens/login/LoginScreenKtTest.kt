@@ -3,7 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.login
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.Constants
@@ -20,7 +20,7 @@ class LoginScreenKtTest {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 LoginContent(
-                    loginUiState = LoginUiState().copy(isLoading = true),
+                    state = LoginState().copy(isLoading = true),
                     recoverPassState = RecoverPassState(),
                     onClickLogin = { _, _ -> },
                     onCLickRecoverPassword = {},
@@ -39,7 +39,7 @@ class LoginScreenKtTest {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 LoginContent(
-                    loginUiState = LoginUiState().copy(isLoading = false),
+                    state = LoginState().copy(isLoading = false),
                     recoverPassState = RecoverPassState(),
                     onClickLogin = { _, _ -> },
                     onCLickRecoverPassword = {},

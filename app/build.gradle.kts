@@ -119,9 +119,9 @@ dependencies {
     implementation(libs.compose.animation)
 
     //Credential Manager
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Google auth
     implementation(libs.play.services.auth)
@@ -136,7 +136,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.work.manager)
     ksp(libs.hilt.android.compiler)
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    ksp(libs.androidx.hilt.compiler)
     kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments

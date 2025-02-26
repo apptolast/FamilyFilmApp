@@ -47,7 +47,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
      * @param email The email of the user.
      * @param password The password of the user.
      */
-    override fun register(email: String, password: String): Flow<Result<Unit>> =
+    override fun register(email: String, password: String): Flow<Result<FirebaseUser?>> =
         callbackFlow {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -57,7 +57,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
                         user?.sendEmailVerification()?.addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 launch {
-                                    send(Result.success(Unit))
+                                    send(Result.success(user))
                                     send(Result.failure(Throwable(message = "Verification email sent")))
                                 }
                             } else {
@@ -143,7 +143,7 @@ interface FirebaseAuthRepository {
 //    val userState: StateFlow<Result<FirebaseUser?>>
 
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
-    fun register(email: String, password: String): Flow<Result<Unit>>
+    fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun getUser(): Flow<FirebaseUser?>
     fun recoverPassword(email: String): Flow<Result<Boolean>>

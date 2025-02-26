@@ -18,17 +18,22 @@ import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
+import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
 
 @Composable
-fun AppNavigation(viewModel: AppNavigationViewModel = hiltViewModel()) {
+fun AppNavigation(
+//    viewModel: AppNavigationViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+) {
     val navController = rememberNavController()
 
-    val userState by viewModel.userState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
-        startDestination = if (userState != null && userState!!.isEmailVerified) {
+        startDestination = if (authState is AuthState.Authenticated) {
             Routes.Home.routes
         } else {
             Routes.Login.routes

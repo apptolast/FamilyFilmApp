@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.ui.shared_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 
@@ -29,7 +31,7 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
-        field: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Loading)
+        field: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Unauthenticated)
 
     val screenState: StateFlow<LoginRegisterState>
         field: MutableStateFlow<LoginRegisterState> = MutableStateFlow(LoginRegisterState.Login())
@@ -45,40 +47,23 @@ class AuthViewModel @Inject constructor(
 //        field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
     init {
-
         viewModelScope.launch {
-            authRepository.getUser().collect { user ->
-                authState.value = if (user != null && user.isEmailVerified) {
-                    AuthState.Authenticated(user)
-                } else {
-                    AuthState.Unauthenticated
+            authRepository.getUser()
+                .catch { error ->
+                    Timber.e(error, "Error getting user")
+                    authState.update { AuthState.Error(error.message ?: "Error getting the user") }
                 }
-            }
+                .filterNotNull()
+                .collectLatest { user ->
+                    if (user.isEmailVerified) {
+                        AuthState.Authenticated(user)
+                    } else {
+                        AuthState.Unauthenticated
+                    }.let {
+                        authState.update { it }
+                    }
+                }
         }
-
-
-//        viewModelScope.launch(dispatcherProvider.io()) {
-//            firebaseAuthRepository.userState.collect { result ->
-//                result.fold(
-//                    onSuccess = { firebaseUser ->
-//                        loginState.update {
-//                            it.copy(
-//                                isLogged = firebaseUser != null,
-//                                isLoading = false,
-//                                email = firebaseUser?.email ?: "",
-//                            )
-//                        }
-//                    },
-//                    onFailure = { error ->
-//                        loginState.update {
-//                            it.copy(
-//                                errorMessage = GenericException(error.message ?: "Login Error"),
-//                            )
-//                        }
-//                    },
-//                )
-//            }
-//        }
     }
 
     fun changeScreenState() {
@@ -93,6 +78,8 @@ class AuthViewModel @Inject constructor(
     }
 
     fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        authState.update { AuthState.Loading }
+
         authRepository.login(email, password)
             .catch { error ->
                 authState.update {
@@ -114,15 +101,18 @@ class AuthViewModel @Inject constructor(
     }
 
     fun register(email: String, password: String) = viewModelScope.launch {
+        authState.update { AuthState.Loading }
         authRepository.register(email, password)
             .catch {
                 Timber.e(it)
             }
             .filterNotNull()
             .collectLatest { result ->
-
                 result
-                    .onSuccess {
+                    .onSuccess { user ->
+                        if (user == null) return@collectLatest
+
+                        createNewUser(user)
                         authState.update { AuthState.Unauthenticated }
                         screenState.update { LoginRegisterState.Login() }
                     }
@@ -133,27 +123,6 @@ class AuthViewModel @Inject constructor(
                     }
             }
     }
-
-//    private fun registerUserInBackend() = viewModelScope.launch(dispatcherProvider.io()) {
-//        backendRepository.createUser().fold(
-//            onSuccess = {
-//                _loginState.update { loginState ->
-//                    loginState.copy(
-//                        isLogged = true,
-//                        isLoading = false,
-//                        errorMessage = null,
-//                    )
-//                }
-//            },
-//            onFailure = { error ->
-//                _loginState.update { loginState ->
-//                    loginState.copy(
-//                        errorMessage = GenericException(error.message ?: "Register user in our backend failed"),
-//                    )
-//                }
-//            },
-//        )
-//    }
 
 //    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
 //            recoverPassUseCase(email).catch { error ->
@@ -181,6 +150,21 @@ class AuthViewModel @Inject constructor(
 //                }
 //            }
 //    }
+
+
+    fun createNewUser(user: FirebaseUser) {
+        repository.createUser(
+            User().copy(
+                id = user.uid,
+                email = user.email ?: "",
+                language = Locale.getDefault().language,
+            ),
+            success = {},
+            failure = { error ->
+                Timber.e(error)
+            },
+        )
+    }
 }
 
 

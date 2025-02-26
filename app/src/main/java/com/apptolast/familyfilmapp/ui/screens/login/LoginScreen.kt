@@ -117,7 +117,9 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
 
             AuthState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 180.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()

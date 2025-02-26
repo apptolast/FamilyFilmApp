@@ -13,9 +13,6 @@ import javax.inject.Inject
 class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) :
     FirebaseAuthRepository {
 
-//    override val userState: StateFlow<Result<FirebaseUser?>>
-//        field: MutableStateFlow<Result<FirebaseUser?>> = MutableStateFlow(Result.success(null))
-
     /**
      * Login a user with email and password in firebase authentication.
      *
@@ -74,6 +71,9 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
             awaitClose()
         }
 
+    override fun logOut() = firebaseAuth.signOut()
+
+
     override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
@@ -118,35 +118,43 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         awaitClose()
     }
 
-    override fun checkEmailVerification(): Flow<Result<Boolean>> = callbackFlow {
-        val user = FirebaseAuth.getInstance().currentUser
-        user?.reload()?.addOnCompleteListener { task ->
-            launch {
-                if (task.isSuccessful) {
-                    if (user.isEmailVerified) {
-                        // Grant access, the email is verified
-                        send(Result.success(user.isEmailVerified))
-                    } else {
-                        // The email is not verified, show a message or restrict access
-                        send(Result.failure(Throwable(message = "Email not verified")))
-                    }
-                }
-            }
+//    override fun checkEmailVerification(): Flow<Result<Boolean>> = callbackFlow {
+//        val user = FirebaseAuth.getInstance().currentUser
+//        user?.reload()?.addOnCompleteListener { task ->
+//            launch {
+//                if (task.isSuccessful) {
+//                    if (user.isEmailVerified) {
+//                        // Grant access, the email is verified
+//                        send(Result.success(user.isEmailVerified))
+//                    } else {
+//                        // The email is not verified, show a message or restrict access
+//                        send(Result.failure(Throwable(message = "Email not verified")))
+//                    }
+//                }
+//            }
+//        }
+//        awaitClose()
+//    }
+
+    override fun getUserId(): String? = firebaseAuth.currentUser?.uid
+
+    override fun authChangeListener(): Flow<Result<FirebaseUser?>> = callbackFlow {
+        firebaseAuth.addAuthStateListener {
+            launch { send(Result.success(it.currentUser)) }
         }
         awaitClose()
     }
-
-    override fun getUserId(): String? = firebaseAuth.currentUser?.uid
 }
 
 interface FirebaseAuthRepository {
-//    val userState: StateFlow<Result<FirebaseUser?>>
-
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
+    fun logOut()
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun getUser(): Flow<FirebaseUser?>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
-    fun checkEmailVerification(): Flow<Result<Boolean>>
+
+    //    fun checkEmailVerification(): Flow<Result<Boolean>>
     fun getUserId(): String?
+    fun authChangeListener(): Flow<Result<FirebaseUser?>>
 }

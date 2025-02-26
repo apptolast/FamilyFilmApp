@@ -42,27 +42,48 @@ class AuthViewModel @Inject constructor(
     val password: StateFlow<String>
         field: MutableStateFlow<String> = MutableStateFlow("")
 
-
 //    val recoverPassState: StateFlow<RecoverPassState>
 //        field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
     init {
         viewModelScope.launch {
-            authRepository.getUser()
+//            authRepository.getUser()
+//                .catch { error ->
+//                    Timber.e(error, "Error getting user")
+//                    authState.update { AuthState.Error(error.message ?: "Error getting the user") }
+//                }
+//                .filterNotNull()
+//                .collectLatest { user ->
+//                    if (user.isEmailVerified) {
+//                        AuthState.Authenticated(user)
+//                    } else {
+//                        AuthState.Unauthenticated
+//                    }.let { newState ->
+//                        authState.update { newState }
+//                    }
+//                }
+
+            authRepository.authChangeListener()
                 .catch { error ->
-                    Timber.e(error, "Error getting user")
+                    Timber.e(error, "Error getting auth state")
                     authState.update { AuthState.Error(error.message ?: "Error getting the user") }
                 }
                 .filterNotNull()
-                .collectLatest { user ->
-                    if (user.isEmailVerified) {
+                .collectLatest { result ->
+                    val user = result.getOrNull()
+                    if (user?.isEmailVerified == true) {
                         AuthState.Authenticated(user)
                     } else {
                         AuthState.Unauthenticated
-                    }.let {
-                        authState.update { it }
+                    }.let { newState ->
+                        authState.update { newState }
                     }
                 }
+
+
+//                .collectLatest { result ->
+//                authState.update { result.getOrElse { AuthState.Unauthenticated } }
+//            }
         }
     }
 
@@ -151,6 +172,11 @@ class AuthViewModel @Inject constructor(
 //            }
 //    }
 
+    fun logOut() {
+        authRepository.logOut()
+        googleSignInClient.signOut()
+        authState.update { AuthState.Unauthenticated } // TODO: Review this
+    }
 
     fun createNewUser(user: FirebaseUser) {
         repository.createUser(

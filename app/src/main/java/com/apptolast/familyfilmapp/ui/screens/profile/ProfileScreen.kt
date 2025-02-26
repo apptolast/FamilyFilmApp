@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -21,43 +23,73 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
+import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun ProfileScreen(
+    navController: NavController,
+    viewModel: AuthViewModel = hiltViewModel(),
+//    viewModel: ProfileViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         contentColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
-        ProfileContent(
-            state = state,
-            onClickLogOut = {
-                viewModel.logOut()
 
-                navController.navigate(Routes.Login.routes) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
+        when (authState) {
+            is AuthState.Authenticated -> {
+                ProfileContent(
+                    email = (authState as AuthState.Authenticated).user.email ?: "",
+                    onClickLogOut = {
+                        viewModel.logOut()
+
+//                        navController.navigate(Routes.Login.routes) {
+//                            popUpTo(navController.graph.id) {
+//                                inclusive = false
+//                            }
+//                            launchSingleTop = true
+//                        }
+                    },
+                    modifier = Modifier.padding(paddingValues),
+                )
+            }
+
+            is AuthState.Error -> {
+                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_LONG).show()
+            }
+
+            AuthState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 180.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
                 }
-            },
-            modifier = Modifier.padding(paddingValues),
-        )
+            }
+
+            AuthState.Unauthenticated -> { /* no-op */
+            }
+        }
+
     }
 }
 
 @Composable
-fun ProfileContent(state: ProfileUiState, modifier: Modifier = Modifier, onClickLogOut: () -> Unit = {}) {
+fun ProfileContent(email: String, modifier: Modifier = Modifier, onClickLogOut: () -> Unit = {}) {
     var filedSpacer = 16.dp
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -70,7 +102,7 @@ fun ProfileContent(state: ProfileUiState, modifier: Modifier = Modifier, onClick
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = state.userData.email,
+                    text = email,
                     style = MaterialTheme.typography.titleLarge,
                 )
 
@@ -114,11 +146,7 @@ fun ProfileContent(state: ProfileUiState, modifier: Modifier = Modifier, onClick
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
         ProfileContent(
-            state = ProfileUiState().copy(
-                userData = User().copy(
-                    email = "test@test.com",
-                ),
-            ),
+            email = "test@test.com",
         )
     }
 }

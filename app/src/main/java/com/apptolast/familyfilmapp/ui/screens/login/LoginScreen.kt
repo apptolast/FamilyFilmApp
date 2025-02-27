@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,12 +35,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,14 +56,11 @@ import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
-import com.apptolast.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
-import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import com.apptolast.familyfilmapp.utils.Constants
 import kotlin.random.Random
 
 @Composable
@@ -77,13 +71,14 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
+    val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
     Scaffold { innerPadding ->
         MovieAppLoginContent(
             email = email,
             password = password,
             screenState = screenState,
-//            recoverPassState = recoverPassUIState,
+            recoverPassState = recoverPassState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
@@ -94,6 +89,8 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                 }
             },
             onClickScreenState = viewModel::changeScreenState,
+            onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
+            onRecoverPassword = viewModel::recoverPassword
         )
 
         when (authState) {
@@ -130,11 +127,12 @@ fun MovieAppLoginContent(
     email: String,
     password: String,
     screenState: LoginRegisterState,
-//    recoverPassState: RecoverPassState,
+    recoverPassState: RecoverPassState,
     modifier: Modifier = Modifier,
-    onClick: (String, String) -> Unit,
-    onClickScreenState: () -> Unit,
-//    onRecoveryPassUpdate: (RecoverPassState) -> Unit,
+    onClick: (String, String) -> Unit = { _, _ -> },
+    onClickScreenState: () -> Unit = {},
+    onRecoveryPassUpdate: (RecoverPassState) -> Unit = {},
+    onRecoverPassword: (String) -> Unit = {},
 ) {
     var email by rememberSaveable(key = email) { mutableStateOf(email) }
     var password by rememberSaveable(key = password) { mutableStateOf(password) }
@@ -302,68 +300,7 @@ fun MovieAppLoginContent(
                     .copy(fontWeight = FontWeight.Bold),
             )
         }
-        Text(
-            modifier = Modifier.clickable {
-//                onRecoveryPassUpdate(
-//                    recoverPassState.copy(
-//                        isDialogVisible = true,
-//                        emailErrorMessage = null,
-//                        errorMessage = null,
-//                    ),
-//                )
-            },
-            text = stringResource(R.string.login_text_forgot_your_password),
-            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-        )
-    }
-//    }
-}
-
-@Composable
-fun LoginContent(
-    loginUiState: LoginUiState,
-    recoverPassState: RecoverPassState,
-    onClickLogin: (String, String) -> Unit,
-    onCLickRecoverPassword: (String) -> Unit,
-    onClickGoogleButton: () -> Unit,
-    onClickScreenState: () -> Unit,
-    onRecoveryPassUpdate: (RecoverPassState) -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .alpha(
-                when (loginUiState.isLoading) {
-                    true -> 0.4f
-                    false -> 1f
-                },
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        LoginMainContent(
-            loginUiState = loginUiState,
-            onClick = onClickLogin,
-        )
-
-        Row(
-            modifier = Modifier
-                .padding(6.dp)
-                .clickable { onClickScreenState() },
-        ) {
-            Text(
-                text = stringResource(loginUiState.screenState.accountText),
-                modifier = Modifier.padding(end = 4.dp),
-            )
-
-            // TODO: Create Typography for this text.
-            Text(
-                text = stringResource(loginUiState.screenState.signText),
-                color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-
+        // Actualiza el Text clickable para la recuperación de contraseña
         Text(
             modifier = Modifier.clickable {
                 onRecoveryPassUpdate(
@@ -375,49 +312,25 @@ fun LoginContent(
                 )
             },
             text = stringResource(R.string.login_text_forgot_your_password),
-            color = MaterialTheme.colorScheme.outline,
+            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
         )
 
-        Button(
-            onClick = onClickGoogleButton,
-            modifier = Modifier.padding(vertical = 10.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.logo_google),
-                    contentDescription = stringResource(R.string.login_icon_google),
-                    modifier = Modifier
-                        .size(30.dp)
-                        .padding(end = 6.dp),
-                )
-                Text(stringResource(R.string.login_text_sign_in_with_google))
-            }
+        // Agrega el diálogo de recuperación de contraseña
+        if (recoverPassState.isDialogVisible) {
+            AlertRecoverPassDialog(
+                onCLickSend = onRecoverPassword,
+                recoverPassState = recoverPassState,
+                dismissDialog = {
+                    onRecoveryPassUpdate(
+                        recoverPassState.copy(
+                            isDialogVisible = false,
+                        ),
+                    )
+                },
+            )
         }
     }
-
-    if (loginUiState.isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.testTag(Constants.CIRCULAR_PROGRESS_INDICATOR),
-        )
-    }
-
-    if (recoverPassState.isDialogVisible) {
-        AlertRecoverPassDialog(
-            onCLickSend = onCLickRecoverPassword,
-            recoverPassState = recoverPassState,
-            dismissDialog = {
-                onRecoveryPassUpdate(
-                    recoverPassState.copy(
-                        isDialogVisible = false,
-                    ),
-                )
-            },
-        )
-    }
+//    }
 }
 
 @Preview(showBackground = true)
@@ -428,9 +341,8 @@ private fun LoginScreenPreview() {
             email = "email@something.com",
             password = "123456",
             screenState = LoginRegisterState.Login(),
+            recoverPassState = RecoverPassState(),
             modifier = Modifier.fillMaxSize(),
-            onClick = { _, _ -> },
-            onClickScreenState = {},
         )
     }
 }

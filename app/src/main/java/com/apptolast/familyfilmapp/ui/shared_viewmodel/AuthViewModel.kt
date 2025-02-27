@@ -6,6 +6,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,8 +44,8 @@ class AuthViewModel @Inject constructor(
     val password: StateFlow<String>
         field: MutableStateFlow<String> = MutableStateFlow("")
 
-//    val recoverPassState: StateFlow<RecoverPassState>
-//        field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
+    val recoverPassState: StateFlow<RecoverPassState>
+        field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
     init {
         viewModelScope.launch {
@@ -122,23 +123,41 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-//    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
-//            recoverPassUseCase(email).catch { error ->
-//                _recoverPassState.update {
-//                    it.copy(
-//                        errorMessage = GenericException(error.message ?: "Recover Pass Error"),
-//                    )
-//                }
-//            }.collectLatest { newLoginUIState ->
-//                _recoverPassState.update {
-//                    newLoginUIState
-//                }
-//            }
-//    }
+    fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        authRepository.recoverPassword(email)
+            .catch { error ->
+                recoverPassState.update {
+                    it.copy(
+                        errorMessage = error.message ?: "Recover Password Error",
+                        isLoading = false
+                    )
+                }
+            }
+            .collectLatest { result ->
+                result
+                    .onSuccess {
+                        recoverPassState.update {
+                            it.copy(
+                                isLoading = false,
+                                isSuccessful = true,
+                                errorMessage = null
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        recoverPassState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = error.message ?: "Recover Password Error"
+                            )
+                        }
+                    }
+            }
+    }
 
-//    fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {
-//        recoverPassState.update { newRecoverPassState }
-//    }
+    fun updateRecoveryPasswordState(newRecoverPassState: RecoverPassState) {
+        recoverPassState.update { newRecoverPassState }
+    }
 
     fun logOut() {
         authRepository.logOut()

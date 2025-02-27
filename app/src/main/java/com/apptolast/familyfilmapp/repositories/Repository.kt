@@ -16,11 +16,11 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.apptolast.familyfilmapp.workers.SyncWorker
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val roomDatasource: RoomDatasource,
@@ -77,14 +77,14 @@ class RepositoryImpl @Inject constructor(
     override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) =
         firebaseDatabaseDatasource.addMember(group, email, success = success, failure = failure)
 
-    override fun deleteMember(group: Group, user: User) {
+    override fun deleteMember(group: Group, user: User) =
         firebaseDatabaseDatasource.deleteMember(
             group,
             user,
             success = { enqueueSyncWork() },
             failure = { Timber.e(it, "Error deleting member from group") },
         )
-    }
+
 
     private fun enqueueSyncWork() {
         val syncWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
@@ -94,18 +94,27 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
-    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
+    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) =
         firebaseDatabaseDatasource.createUser(
             user = user,
             success = success,
             failure = failure,
         )
-    }
+
 
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override fun updateUser(user: User, success: (Void?) -> Unit) = firebaseDatabaseDatasource.updateUser(user, success)
+    override fun updateUser(user: User, success: (Void?) -> Unit) =
+        firebaseDatabaseDatasource.updateUser(user, success)
+
+    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
+        firebaseDatabaseDatasource.deleteUser(
+            user = user,
+            success = success,
+            failure = failure,
+        )
+    }
 }
 
 interface Repository {
@@ -127,4 +136,5 @@ interface Repository {
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(string: String): Flow<User>
     fun updateUser(user: User, success: (Void?) -> Unit)
+    fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
 }

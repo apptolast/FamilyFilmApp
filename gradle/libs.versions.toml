@@ -1,6 +1,6 @@
 [versions]
 activityCompose = "1.10.0"
-androidApplication = "8.7.3"
+androidApplication = "8.8.1"
 androidxCoreKtx = "1.15.0"
 androidxLifecycleCompose = "2.8.7"
 androidxPagingVersion = "3.3.6"

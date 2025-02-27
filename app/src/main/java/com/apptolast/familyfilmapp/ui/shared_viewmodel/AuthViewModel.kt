@@ -14,7 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -47,43 +50,20 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-//            authRepository.getUser()
-//                .catch { error ->
-//                    Timber.e(error, "Error getting user")
-//                    authState.update { AuthState.Error(error.message ?: "Error getting the user") }
-//                }
-//                .filterNotNull()
-//                .collectLatest { user ->
-//                    if (user.isEmailVerified) {
-//                        AuthState.Authenticated(user)
-//                    } else {
-//                        AuthState.Unauthenticated
-//                    }.let { newState ->
-//                        authState.update { newState }
-//                    }
-//                }
-
-            authRepository.authChangeListener()
-                .catch { error ->
-                    Timber.e(error, "Error getting auth state")
-                    authState.update { AuthState.Error(error.message ?: "Error getting the user") }
+            authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
+                user to isTokenValid
+            }.catch { error ->
+                Timber.e(error, "Error getting user")
+                authState.update { AuthState.Error(error.message ?: "Error getting the user") }
+            }.collectLatest { (user, isTokenValid) ->
+                if (user?.isEmailVerified == true && isTokenValid) {
+                    AuthState.Authenticated(user)
+                } else {
+                    AuthState.Unauthenticated
+                }.let { newState ->
+                    authState.update { newState }
                 }
-                .filterNotNull()
-                .collectLatest { result ->
-                    val user = result.getOrNull()
-                    if (user?.isEmailVerified == true) {
-                        AuthState.Authenticated(user)
-                    } else {
-                        AuthState.Unauthenticated
-                    }.let { newState ->
-                        authState.update { newState }
-                    }
-                }
-
-
-//                .collectLatest { result ->
-//                authState.update { result.getOrElse { AuthState.Unauthenticated } }
-//            }
+            }
         }
     }
 
@@ -121,7 +101,7 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-    fun register(email: String, password: String) = viewModelScope.launch {
+    fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         authState.update { AuthState.Loading }
         authRepository.register(email, password)
             .catch {
@@ -134,7 +114,6 @@ class AuthViewModel @Inject constructor(
                         if (user == null) return@collectLatest
 
                         createNewUser(user)
-                        authState.update { AuthState.Unauthenticated }
                         screenState.update { LoginRegisterState.Login() }
                     }
                     .onFailure { error ->
@@ -175,7 +154,49 @@ class AuthViewModel @Inject constructor(
     fun logOut() {
         authRepository.logOut()
         googleSignInClient.signOut()
-        authState.update { AuthState.Unauthenticated } // TODO: Review this
+        authState.update{ AuthState.Unauthenticated }
+    }
+
+    fun deleteUser(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+//        authState.update { AuthState.Loading }
+
+        val currentUser = (authState.value as? AuthState.Authenticated)?.user
+        if (currentUser != null) {
+            // Get user data from repository
+            repository.getUserById(currentUser.uid).take(1).collectLatest { user ->
+                // Delete from Firestore
+                repository.deleteUser(
+                    user = user,
+                    success = {
+//                           deleteUserFromFirebase()
+                        viewModelScope.launch {
+                            authRepository.deleteAccount(email, password).first().let { result ->
+                                result
+                                    .onSuccess {
+                                        authState.update { AuthState.Unauthenticated }
+                                    }
+                                    .onFailure { error ->
+                                        Timber.e(error)
+                                        authState.update {
+                                            AuthState.Error(error.message ?: "Delete User Error")
+                                        }
+                                    }
+
+                            }
+                        }
+//                            googleSignInClient.signOut()
+                    },
+                    failure = { error ->
+                        authState.update {
+                            AuthState.Error(error.message ?: "Delete User Error")
+                        }
+                    },
+                )
+            }
+        } else {
+            // FIXME: HERE the user is not authenticated
+            authState.update { AuthState.Unauthenticated }
+        }
     }
 
     fun createNewUser(user: FirebaseUser) {
@@ -192,7 +213,6 @@ class AuthViewModel @Inject constructor(
         )
     }
 }
-
 
 sealed interface AuthState {
     object Loading : AuthState

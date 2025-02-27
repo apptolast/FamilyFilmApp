@@ -21,6 +21,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
@@ -38,10 +42,12 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 fun ProfileScreen(
     navController: NavController,
     viewModel: AuthViewModel = hiltViewModel(),
-//    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
+
+    // State for showing the delete account dialog
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
@@ -52,18 +58,21 @@ fun ProfileScreen(
             is AuthState.Authenticated -> {
                 ProfileContent(
                     email = (authState as AuthState.Authenticated).user.email ?: "",
-                    onClickLogOut = {
-                        viewModel.logOut()
-
-//                        navController.navigate(Routes.Login.routes) {
-//                            popUpTo(navController.graph.id) {
-//                                inclusive = false
-//                            }
-//                            launchSingleTop = true
-//                        }
-                    },
                     modifier = Modifier.padding(paddingValues),
+                    onClickLogOut = { viewModel.logOut() },
+                    onDeleteUser = { showDeleteDialog = true },
                 )
+
+                // Show delete account dialog if state is true
+                if (showDeleteDialog) {
+                    DeleteAccountDialog(
+                        onDismiss = { showDeleteDialog = false },
+                        onConfirm = { email, password ->
+                            viewModel.deleteUser(email, password)
+                            showDeleteDialog = false
+                        },
+                    )
+                }
             }
 
             is AuthState.Error -> {
@@ -81,15 +90,20 @@ fun ProfileScreen(
                 }
             }
 
-            AuthState.Unauthenticated -> { /* no-op */
+            AuthState.Unauthenticated -> {
+                navController.navigate(Routes.Login.routes)
             }
         }
-
     }
 }
 
 @Composable
-fun ProfileContent(email: String, modifier: Modifier = Modifier, onClickLogOut: () -> Unit = {}) {
+fun ProfileContent(
+    email: String,
+    modifier: Modifier = Modifier,
+    onClickLogOut: () -> Unit = {},
+    onDeleteUser: () -> Unit = {},
+) {
     var filedSpacer = 16.dp
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -117,7 +131,7 @@ fun ProfileContent(email: String, modifier: Modifier = Modifier, onClickLogOut: 
 
                 Spacer(modifier = Modifier.height(filedSpacer))
 
-                Button(onClick = { onClickLogOut() }) {
+                Button(onClick = onClickLogOut) {
                     Text(
                         text = "Logout",
                         style = MaterialTheme.typography.titleMedium,
@@ -128,7 +142,7 @@ fun ProfileContent(email: String, modifier: Modifier = Modifier, onClickLogOut: 
 
                 Spacer(modifier = Modifier.height(filedSpacer))
 
-                Button(onClick = { onClickLogOut() }) {
+                Button(onClick = onDeleteUser) {
                     Text(
                         text = "Delete User",
                         style = MaterialTheme.typography.titleMedium,

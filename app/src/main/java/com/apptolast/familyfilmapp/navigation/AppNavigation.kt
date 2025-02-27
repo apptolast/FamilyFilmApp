@@ -16,7 +16,6 @@ import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
-import com.apptolast.familyfilmapp.ui.screens.recommend.RecommendScreen
 import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
@@ -28,6 +27,8 @@ fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
 
     val authState by viewModel.authState.collectAsStateWithLifecycle()
 
+    val authViewModel: AuthViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         modifier = Modifier.padding(),
@@ -38,7 +39,10 @@ fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
         },
     ) {
         composable(route = Routes.Login.routes) {
-            LoginScreen(navController = navController)
+            LoginScreen(
+                navController = navController,
+                viewModel = authViewModel,
+            )
         }
         composable(
             route = Routes.Home.routes,
@@ -46,15 +50,16 @@ fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
         ) {
             HomeScreen(navController = navController)
         }
-        composable(route = Routes.Recommend.routes) {
-            RecommendScreen(navController = navController)
-        }
+//        composable(route = Routes.Recommend.routes) {
+//            RecommendScreen(navController = navController)
+//        }
         composable(route = Routes.Groups.routes) {
             GroupsScreen(navController = navController)
         }
         composable(route = Routes.Profile.routes) {
             ProfileScreen(
                 navController = navController,
+                viewModel = authViewModel,
             )
         }
         composable(

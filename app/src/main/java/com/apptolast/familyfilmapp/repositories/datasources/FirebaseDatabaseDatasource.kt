@@ -7,6 +7,9 @@ import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Calendar
+import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -15,9 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Calendar
-import java.util.UUID
-import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class FirebaseDatabaseDatasourceImpl @Inject constructor(

@@ -15,17 +15,14 @@ import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 
 @Composable
-fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
-
+fun AppNavigation(viewModel: AuthViewModel = hiltViewModel(), authViewModel: AuthViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     val authState by viewModel.authState.collectAsStateWithLifecycle()
-
-    val authViewModel: AuthViewModel = hiltViewModel()
 
     NavHost(
         navController = navController,

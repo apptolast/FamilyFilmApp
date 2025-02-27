@@ -35,15 +35,12 @@ import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun ProfileScreen(
-    navController: NavController,
-    viewModel: AuthViewModel = hiltViewModel(),
-) {
+fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
 

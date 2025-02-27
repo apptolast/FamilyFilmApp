@@ -4,13 +4,11 @@ import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.user.UserDao
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
-class RoomDatasourceImpl @Inject constructor(
-    private val groupDao: GroupDao,
-    private val userDao: UserDao,
-) : RoomDatasource {
+class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, private val userDao: UserDao) :
+    RoomDatasource {
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

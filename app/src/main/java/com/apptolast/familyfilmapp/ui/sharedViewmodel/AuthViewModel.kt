@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.shared_viewmodel
+package com.apptolast.familyfilmapp.ui.sharedViewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -129,7 +129,7 @@ class AuthViewModel @Inject constructor(
                 recoverPassState.update {
                     it.copy(
                         errorMessage = error.message ?: "Recover Password Error",
-                        isLoading = false
+                        isLoading = false,
                     )
                 }
             }
@@ -140,7 +140,7 @@ class AuthViewModel @Inject constructor(
                             it.copy(
                                 isLoading = false,
                                 isSuccessful = true,
-                                errorMessage = null
+                                errorMessage = null,
                             )
                         }
                     }
@@ -148,7 +148,7 @@ class AuthViewModel @Inject constructor(
                         recoverPassState.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: "Recover Password Error"
+                                errorMessage = error.message ?: "Recover Password Error",
                             )
                         }
                     }
@@ -161,7 +161,7 @@ class AuthViewModel @Inject constructor(
 
     fun logOut() {
         authRepository.logOut()
-        authState.update{ AuthState.Unauthenticated }
+        authState.update { AuthState.Unauthenticated }
     }
 
     fun deleteUser(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
@@ -185,7 +185,6 @@ class AuthViewModel @Inject constructor(
                                             AuthState.Error(error.message ?: "Delete User Error")
                                         }
                                     }
-
                             }
                         }
                     },

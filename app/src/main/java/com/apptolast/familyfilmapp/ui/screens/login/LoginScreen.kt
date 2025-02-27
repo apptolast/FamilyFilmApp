@@ -58,14 +58,13 @@ import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
-import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlin.random.Random
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
-
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
@@ -90,7 +89,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             },
             onClickScreenState = viewModel::changeScreenState,
             onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
-            onRecoverPassword = viewModel::recoverPassword
+            onRecoverPassword = viewModel::recoverPassword,
         )
 
         when (authState) {
@@ -116,7 +115,8 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                 }
             }
 
-            AuthState.Unauthenticated -> {/* no-op */
+            AuthState.Unauthenticated -> {
+                /* no-op */
             }
         }
     }
@@ -184,7 +184,6 @@ fun MovieAppLoginContent(
         verticalArrangement = Arrangement.Bottom,
         modifier = modifier.padding(bottom = 36.dp),
     ) {
-
         // Logo
         Image(
             painter = painterResource(R.drawable.logo_film_family),

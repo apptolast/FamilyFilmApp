@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.components.dialogs
 
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -131,7 +130,6 @@ fun DeleteAccountDialog(
         },
     )
 }
-
 
 @Preview
 @Composable

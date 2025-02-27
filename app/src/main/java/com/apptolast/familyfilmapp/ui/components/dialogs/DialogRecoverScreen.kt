@@ -42,7 +42,7 @@ fun AlertRecoverPassDialog(
             Column {
                 Text(
                     text = stringResource(R.string.login_text_recover_password_description),
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
 
                 TextField(
@@ -62,14 +62,14 @@ fun AlertRecoverPassDialog(
                             Text(text = it)
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 if (recoverPassState.errorMessage != null) {
                     Text(
                         text = recoverPassState.errorMessage,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
 
@@ -77,7 +77,7 @@ fun AlertRecoverPassDialog(
                     Text(
                         text = stringResource(R.string.login_text_recover_password_sent),
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
 
@@ -85,7 +85,7 @@ fun AlertRecoverPassDialog(
                     CircularProgressIndicator(
                         modifier = Modifier
                             .padding(top = 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
                     )
                 }
             }
@@ -99,7 +99,7 @@ fun AlertRecoverPassDialog(
                         isEmailValid = false
                     }
                 },
-                enabled = !recoverPassState.isLoading && !recoverPassState.isSuccessful
+                enabled = !recoverPassState.isLoading && !recoverPassState.isSuccessful,
             ) {
                 Text(text = stringResource(R.string.login_button_send))
             }
@@ -108,12 +108,12 @@ fun AlertRecoverPassDialog(
             Button(
                 onClick = dismissDialog,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                ),
             ) {
                 Text(text = stringResource(R.string.login_button_cancel))
             }
-        }
+        },
     )
 }
 

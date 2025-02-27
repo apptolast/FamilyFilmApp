@@ -6,5 +6,5 @@ data class RecoverPassState(
     val isSuccessful: Boolean = false,
     val email: String = "",
     val emailErrorMessage: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
 )

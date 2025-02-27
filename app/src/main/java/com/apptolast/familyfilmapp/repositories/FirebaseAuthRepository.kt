@@ -5,11 +5,11 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) :
     FirebaseAuthRepository {
@@ -31,24 +31,23 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
      * @param email The email of the user.
      * @param password The password of the user.
      */
-    override fun login(email: String, password: String): Flow<Result<FirebaseUser?>> =
-        callbackFlow {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener { authResult ->
-                    launch {
-                        val user = authResult.user
-                        if (user != null && user.isEmailVerified) {
-                            send(Result.success(user))
-                        } else {
-                            send(Result.failure(Throwable("Email not verified")))
-                        }
+    override fun login(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+                launch {
+                    val user = authResult.user
+                    if (user != null && user.isEmailVerified) {
+                        send(Result.success(user))
+                    } else {
+                        send(Result.failure(Throwable("Email not verified")))
                     }
                 }
-                .addOnFailureListener {
-                    launch { send(Result.failure(it)) }
-                }
-            awaitClose()
-        }
+            }
+            .addOnFailureListener {
+                launch { send(Result.failure(it)) }
+            }
+        awaitClose()
+    }
 
     /**
      * Register a new user with email and password in firebase authentication.
@@ -56,39 +55,38 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
      * @param email The email of the user.
      * @param password The password of the user.
      */
-    override fun register(email: String, password: String): Flow<Result<FirebaseUser?>> =
-        callbackFlow {
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    // Send validation email
-                    if (task.isSuccessful) {
-                        val user = FirebaseAuth.getInstance().currentUser
-                        user?.sendEmailVerification()?.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                launch {
-                                    send(Result.success(user))
-                                    send(Result.failure(Throwable(message = "Verification email sent")))
-                                }
-                            } else {
-                                launch { send(Result.failure(task.exception as Throwable)) }
+    override fun register(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                // Send validation email
+                if (task.isSuccessful) {
+                    val user = FirebaseAuth.getInstance().currentUser
+                    user?.sendEmailVerification()?.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            launch {
+                                send(Result.success(user))
+                                send(Result.failure(Throwable(message = "Verification email sent")))
                             }
+                        } else {
+                            launch { send(Result.failure(task.exception as Throwable)) }
                         }
-                    } else {
-                        launch { send(Result.failure(task.exception as Throwable)) }
                     }
+                } else {
+                    launch { send(Result.failure(task.exception as Throwable)) }
                 }
-                .addOnFailureListener {
-                    launch { send(Result.failure(it)) }
-                }
-            awaitClose()
-        }
+            }
+            .addOnFailureListener {
+                launch { send(Result.failure(it)) }
+            }
+        awaitClose()
+    }
 
     override fun logOut() = firebaseAuth.signOut()
 
     override fun deleteAccount(email: String, password: String): Flow<Result<Boolean>> = callbackFlow {
         val user = firebaseAuth.currentUser
         if (user != null) {
-            val credential = EmailAuthProvider.getCredential(email,password)
+            val credential = EmailAuthProvider.getCredential(email, password)
             user.reauthenticate(credential)
             user.delete()
                 .addOnSuccessListener {
@@ -102,7 +100,6 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         }
         awaitClose()
     }
-
 
     override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)

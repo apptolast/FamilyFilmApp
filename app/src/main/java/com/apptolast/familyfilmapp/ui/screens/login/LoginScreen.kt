@@ -58,7 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
-import com.apptolast.familyfilmapp.ui.screens.login.components.AlertRecoverPassDialog
+import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.components.LoginMainContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
@@ -94,13 +94,6 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                 }
             },
             onClickScreenState = viewModel::changeScreenState,
-//                onClickGoogleButton = {
-//                    startForResult.launch(
-//                        viewModel.googleSignInClient.signInIntent,
-//                    )
-//                },
-//                onCLickRecoverPassword = viewModel::recoverPassword,
-//            onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
         )
 
         when (authState) {

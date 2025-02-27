@@ -75,10 +75,6 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 label = { Text(text = stringResource(R.string.login_text_field_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
-//                isError = !loginUiState.emailErrorMessage?.error.isNullOrBlank(),
-//                supportingText = {
-//                    SupportingErrorText(loginUiState.emailErrorMessage?.error)
-//                },
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -100,10 +96,6 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
                 label = { Text(text = stringResource(R.string.login_text_field_password)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 shape = RoundedCornerShape(25.dp),
-//                isError = !loginUiState.passErrorMessage?.error.isNullOrBlank(),
-//                supportingText = {
-//                    SupportingErrorText(loginUiState.passErrorMessage?.error)
-//                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -145,16 +137,3 @@ private fun CardLoginMainPreview() {
         )
     }
 }
-
-// @Preview(showBackground = true)
-// @Composable
-// private fun CardLoginMainErrorPreview() {
-//    FamilyFilmAppTheme {
-//        LoginMainContent(
-//            loginUiState = LoginUiState().copy(
-//                emailErrorMessage = LoginException.EmailInvalidFormat(),
-//            ),
-//            onClick = { _, _ -> },
-//        )
-//    }
-// }

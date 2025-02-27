@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
+import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -123,11 +124,6 @@ fun ProfileContent(
                 Spacer(
                     modifier = Modifier.height(filedSpacer),
                 )
-
-//                Text(
-//                    text = "${state.userData.groupIds.size} Groups",
-//                    style = MaterialTheme.typography.titleMedium,
-//                )
 
                 Spacer(modifier = Modifier.height(filedSpacer))
 

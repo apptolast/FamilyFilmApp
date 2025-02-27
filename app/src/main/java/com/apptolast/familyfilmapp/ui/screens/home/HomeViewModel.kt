@@ -6,7 +6,6 @@ import androidx.paging.cachedIn
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -30,20 +30,6 @@ class HomeViewModel @Inject constructor(
         }
         .distinctUntilChanged()
         .cachedIn(viewModelScope)
-
-//    init {
-//        getMovies()
-//    }
-//
-//    private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-//        repository.getPopularMovies().let {
-//            homeUiState.update { oldState ->
-//                oldState.copy(
-//                    movies = it,
-//                )
-//            }
-//        }
-//    }
 
     fun searchMovieByName(movieFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
         if (movieFilter.isEmpty()) {

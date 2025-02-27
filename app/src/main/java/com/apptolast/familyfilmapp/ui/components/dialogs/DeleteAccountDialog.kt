@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens.profile
+package com.apptolast.familyfilmapp.ui.components.dialogs
 
 
 import androidx.compose.foundation.layout.Column

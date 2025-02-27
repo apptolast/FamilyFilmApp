@@ -1,4 +1,4 @@
-package com.apptolast.familyfilmapp.ui.screens.login.components
+package com.apptolast.familyfilmapp.ui.components.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptolast.familyfilmapp.R
+import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 

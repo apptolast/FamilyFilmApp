@@ -10,13 +10,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.navigation.navtypes.SearchNavTypeDestination
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreenRoot
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
-import com.apptolast.familyfilmapp.ui.screens.search.SearchScreen
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.shared_viewmodel.AuthViewModel
 
@@ -50,9 +48,6 @@ fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
         ) {
             HomeScreen(navController = navController)
         }
-//        composable(route = Routes.Recommend.routes) {
-//            RecommendScreen(navController = navController)
-//        }
         composable(route = Routes.Groups.routes) {
             GroupsScreen(navController = navController)
         }
@@ -68,16 +63,6 @@ fun AppNavigation(viewModel: AuthViewModel = hiltViewModel()) {
         ) { backStackEntry ->
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             DetailsScreenRoot(movie = movie)
-        }
-        composable(
-            route = Routes.Search.routes,
-            arguments = SearchNavTypeDestination.argumentList,
-        ) { backStackEntry ->
-            val (groupId) = SearchNavTypeDestination.parseArguments(backStackEntry)
-            SearchScreen(
-                navController = navController,
-                groupId = groupId,
-            )
         }
     }
 }

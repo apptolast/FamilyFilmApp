@@ -43,7 +43,6 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import java.lang.ProcessBuilder.Redirect.to
 
 @Composable
 fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewModel()) {
@@ -55,14 +54,6 @@ fun DetailsScreenRoot(movie: Movie, viewModel: DetailScreenViewModel = hiltViewM
         onStatusChange = { status ->
             viewModel.updateMovieStatus(movie, status)
         },
-//        displayDialog = viewModel::displayDialog,
-//        updateGroup = { group, isChecked ->
-//            viewModel.updateMovieGroup(
-//                movieId = movie.id,
-//                group = group,
-//                isChecked = isChecked,
-//            )
-//        },
     )
 }
 
@@ -153,20 +144,6 @@ fun DetailsContent(
                         modifier = Modifier.weight(1f),
                         onClick = { onStatusChange(MovieStatus.Watched) },
                     )
-
-//                    Button(
-//                        onClick = { displayDialog(MovieStatus.ToWatch) },
-//                        modifier = Modifier.weight(1f),
-//                    ) {
-//                        DetailsButtonContent(icon = Icons.Default.Add, text = "To Watch")
-//                    }
-//                    Spacer(modifier = Modifier.width(14.dp))
-//                    OutlinedButton(
-//                        onClick = { displayDialog(MovieStatus.Watched) },
-//                        modifier = Modifier.weight(1f),
-//                    ) {
-//                        DetailsButtonContent(icon = Icons.Default.Visibility, text = "Watched")
-//                    }
                 }
                 Text(
                     text = "Description",

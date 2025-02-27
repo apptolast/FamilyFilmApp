@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.di
 
 import com.apptolast.familyfilmapp.BuildConfig
-import com.apptolast.familyfilmapp.network.BackendApi
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.interceptors.AuthInterceptor
 import com.google.gson.Gson
@@ -10,12 +9,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -69,10 +68,6 @@ class NetworkModule {
         .addConverterFactory(gsonConverterFactory)
         .client(client)
         .build()
-
-    @Provides
-    @Singleton
-    fun provideBackendApi(retrofit: Retrofit): BackendApi = retrofit.create(BackendApi::class.java)
 
     @Provides
     @Singleton

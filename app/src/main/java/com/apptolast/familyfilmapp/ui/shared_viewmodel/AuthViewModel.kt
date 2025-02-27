@@ -7,7 +7,6 @@ import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +29,6 @@ class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
-    val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -142,24 +140,12 @@ class AuthViewModel @Inject constructor(
 //        recoverPassState.update { newRecoverPassState }
 //    }
 
-//    fun handleGoogleSignInResult(account: GoogleSignInAccount) = viewModelScope.launch(dispatcherProvider.io()) {
-//            loginWithGoogleUseCase(account.idToken!!).let { result ->
-//                result.collectLatest { newLoginUIState ->
-//                    // User Login into our backend before update the UI state
-//                    backendLogin(newLoginUIState)
-//                }
-//            }
-//    }
-
     fun logOut() {
         authRepository.logOut()
-        googleSignInClient.signOut()
         authState.update{ AuthState.Unauthenticated }
     }
 
     fun deleteUser(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-//        authState.update { AuthState.Loading }
-
         val currentUser = (authState.value as? AuthState.Authenticated)?.user
         if (currentUser != null) {
             // Get user data from repository
@@ -168,7 +154,6 @@ class AuthViewModel @Inject constructor(
                 repository.deleteUser(
                     user = user,
                     success = {
-//                           deleteUserFromFirebase()
                         viewModelScope.launch {
                             authRepository.deleteAccount(email, password).first().let { result ->
                                 result
@@ -184,7 +169,6 @@ class AuthViewModel @Inject constructor(
 
                             }
                         }
-//                            googleSignInClient.signOut()
                     },
                     failure = { error ->
                         authState.update {
@@ -194,7 +178,6 @@ class AuthViewModel @Inject constructor(
                 )
             }
         } else {
-            // FIXME: HERE the user is not authenticated
             authState.update { AuthState.Unauthenticated }
         }
     }

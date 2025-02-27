@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieWrapperRemote
-import com.apptolast.familyfilmapp.network.ApiRoutesParams.PAGE_MOVIES
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -11,7 +10,7 @@ interface TmdbApi {
 
     @GET(MOVIES_POPULAR)
     suspend fun getPopularMovies(
-        @Query(PAGE_MOVIES) page: Int,
+        @Query(PARAM_PAGE) page: Int,
         @Query(PARAM_ADULT) adult: Boolean = false,
     ): TmdbMovieWrapperRemote
 

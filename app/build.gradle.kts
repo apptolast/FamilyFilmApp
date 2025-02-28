@@ -20,8 +20,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.1"
+        versionCode = 4
+        versionName = "0.3.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -119,7 +119,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.work.manager)
     ksp(libs.hilt.android.compiler)
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    ksp(libs.androidx.hilt.compiler)
     kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments

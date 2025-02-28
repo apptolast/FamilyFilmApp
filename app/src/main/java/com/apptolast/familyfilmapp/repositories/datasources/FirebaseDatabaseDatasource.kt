@@ -131,6 +131,19 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
+    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
+        usersCollection.document(user.id)
+            .delete()
+            .addOnSuccessListener {
+                Timber.d("User deleted from Firestore: ${user.email}")
+                success()
+            }
+            .addOnFailureListener { e ->
+                Timber.e(e, "Error deleting user from Firestore: ${user.email}")
+                failure(e)
+            }
+    }
+
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
@@ -318,6 +331,7 @@ interface FirebaseDatabaseDatasource {
     fun getUserById(userId: String, success: (User?) -> Unit)
     fun getUserByEmail(email: String, success: (User?) -> Unit)
     fun updateUser(user: User, success: (Void?) -> Unit)
+    fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

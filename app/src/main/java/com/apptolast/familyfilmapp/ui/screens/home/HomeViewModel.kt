@@ -31,20 +31,6 @@ class HomeViewModel @Inject constructor(
         .distinctUntilChanged()
         .cachedIn(viewModelScope)
 
-//    init {
-//        getMovies()
-//    }
-//
-//    private fun getMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-//        repository.getPopularMovies().let {
-//            homeUiState.update { oldState ->
-//                oldState.copy(
-//                    movies = it,
-//                )
-//            }
-//        }
-//    }
-
     fun searchMovieByName(movieFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
         if (movieFilter.isEmpty()) {
             homeUiState.update { it.copy(filterMovies = emptyList()) }

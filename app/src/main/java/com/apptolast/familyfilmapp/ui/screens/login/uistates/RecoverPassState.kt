@@ -1,21 +1,10 @@
 package com.apptolast.familyfilmapp.ui.screens.login.uistates
 
-import com.apptolast.familyfilmapp.BaseUiState
-import com.apptolast.familyfilmapp.exceptions.CustomException
-
 data class RecoverPassState(
-    val isDialogVisible: Boolean,
-    val emailErrorMessage: CustomException?,
-    val recoveryPassResponse: Boolean,
-    override val isLoading: Boolean,
-    override val errorMessage: CustomException?,
-) : BaseUiState {
-
-    constructor() : this(
-        isDialogVisible = false,
-        emailErrorMessage = null,
-        recoveryPassResponse = false,
-        isLoading = false,
-        errorMessage = null,
-    )
-}
+    val isDialogVisible: Boolean = false,
+    val isLoading: Boolean = false,
+    val isSuccessful: Boolean = false,
+    val email: String = "",
+    val emailErrorMessage: String? = null,
+    val errorMessage: String? = null,
+)

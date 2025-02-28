@@ -77,14 +77,12 @@ class RepositoryImpl @Inject constructor(
     override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) =
         firebaseDatabaseDatasource.addMember(group, email, success = success, failure = failure)
 
-    override fun deleteMember(group: Group, user: User) {
-        firebaseDatabaseDatasource.deleteMember(
-            group,
-            user,
-            success = { enqueueSyncWork() },
-            failure = { Timber.e(it, "Error deleting member from group") },
-        )
-    }
+    override fun deleteMember(group: Group, user: User) = firebaseDatabaseDatasource.deleteMember(
+        group,
+        user,
+        success = { enqueueSyncWork() },
+        failure = { Timber.e(it, "Error deleting member from group") },
+    )
 
     private fun enqueueSyncWork() {
         val syncWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
@@ -94,18 +92,25 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
-    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
+    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) =
         firebaseDatabaseDatasource.createUser(
             user = user,
             success = success,
             failure = failure,
         )
-    }
 
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
     override fun updateUser(user: User, success: (Void?) -> Unit) = firebaseDatabaseDatasource.updateUser(user, success)
+
+    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
+        firebaseDatabaseDatasource.deleteUser(
+            user = user,
+            success = success,
+            failure = failure,
+        )
+    }
 }
 
 interface Repository {
@@ -127,4 +132,5 @@ interface Repository {
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(string: String): Flow<User>
     fun updateUser(user: User, success: (Void?) -> Unit)
+    fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
 }

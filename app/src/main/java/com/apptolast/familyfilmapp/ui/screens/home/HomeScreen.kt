@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,7 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -176,12 +174,6 @@ private fun RowMovie(
                         error.error.localizedMessage!!,
                         Toast.LENGTH_SHORT,
                     ).show()
-
-//                    ErrorMessage(
-//                        modifier = Modifier,
-//                        message = error.error.localizedMessage!!,
-//                        onClickRetry = { retry() },
-//                    )
                 }
 
                 loadState.append is LoadState.Loading -> {
@@ -194,14 +186,6 @@ private fun RowMovie(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-
-//                    CircularProgressIndicator(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(16.dp)
-//                            .size(20.dp),
-//                        color = MaterialTheme.colorScheme.primary,
-//                    )
                 }
 
                 loadState.append is LoadState.Error -> {
@@ -212,41 +196,9 @@ private fun RowMovie(
                         error.error.localizedMessage!!,
                         Toast.LENGTH_SHORT,
                     ).show()
-
-//                    ErrorMessage(
-//                        modifier = Modifier,
-//                        message = error.error.localizedMessage!!,
-//                        onClickRetry = { retry() },
-//                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ErrorMessage(message: String, modifier: Modifier = Modifier, onClickRetry: () -> Unit = {}) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-        )
-
-        OutlinedButton(
-            onClick = onClickRetry,
-            modifier = Modifier
-                .padding(16.dp),
-            content = {
-                Text(text = "Retry")
-            },
-        )
     }
 }
 

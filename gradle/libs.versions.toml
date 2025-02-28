@@ -1,6 +1,6 @@
 [versions]
-activityCompose = "1.10.0"
-androidApplication = "8.7.3"
+activityCompose = "1.10.1"
+androidApplication = "8.8.2"
 androidxCoreKtx = "1.15.0"
 androidxLifecycleCompose = "2.8.7"
 androidxPagingVersion = "3.3.6"
@@ -16,6 +16,7 @@ firebaseBom = "33.9.0"
 firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.2"
 gson = "2.12.1"
+hiltCompilerVersion = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 hiltVersion = "2.55"
 hiltCompiler = "1.2.0"
@@ -23,14 +24,14 @@ junit = "4.13.2"
 junitJupiter = "5.12.0"
 kotlin = "2.1.10"
 ktlint = "0.4.22"
-ktlintJlleitschuh = "12.1.2"
+ktlintJlleitschuh = "12.2.0"
 ksp = "2.1.10-1.0.30"
 loggingInterceptor = "4.12.0"
 mockitoCore = "5.15.2"
 mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
 mockk = "1.13.16"
-navigationCompose = "2.8.7"
+navigationCompose = "2.8.8"
 playServicesAuth = "21.3.0"
 retrofit = "2.11.0"
 roomVersion = "2.6.1"
@@ -46,6 +47,7 @@ workRuntimeKtx = "2.10.0"
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }

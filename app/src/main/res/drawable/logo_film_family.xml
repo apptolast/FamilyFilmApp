@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:width="475.44dp"
     android:height="263.73dp"
-    android:tint="@color/primary"
+    android:tint="@color/white"
     android:viewportWidth="475.44"
     android:viewportHeight="263.73">
     <path

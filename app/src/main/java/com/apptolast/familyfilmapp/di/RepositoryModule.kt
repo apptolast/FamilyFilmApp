@@ -1,10 +1,7 @@
 package com.apptolast.familyfilmapp.di
 
 import androidx.work.WorkManager
-import com.apptolast.familyfilmapp.network.BackendApi
 import com.apptolast.familyfilmapp.network.TmdbApi
-import com.apptolast.familyfilmapp.repositories.BackendRepository
-import com.apptolast.familyfilmapp.repositories.BackendRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -34,10 +31,6 @@ object RepositoryModule {
     @Provides
     fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository =
         FirebaseAuthRepositoryImpl(firebaseAuth)
-
-    @Singleton
-    @Provides
-    fun provideBackendRepository(backendApi: BackendApi): BackendRepository = BackendRepositoryImpl(backendApi)
 
     @Provides
     fun provideRepository(

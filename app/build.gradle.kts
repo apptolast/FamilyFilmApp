@@ -20,8 +20,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.1"
+        versionCode = 4
+        versionName = "0.3.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -31,24 +31,12 @@ android {
         getByName("debug") {
             buildConfigField(
                 "String",
-                "WEB_ID_CLIENT",
-                "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
-            )
-            buildConfigField(
-                "String",
                 "TMDB_ACCESS_TOKEN",
                 "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
             )
         }
 
         getByName("release") {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            buildConfigField(
-                "String",
-                "WEB_ID_CLIENT",
-                "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
-            )
             buildConfigField(
                 "String",
                 "TMDB_ACCESS_TOKEN",
@@ -131,7 +119,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.work.manager)
     ksp(libs.hilt.android.compiler)
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    ksp(libs.androidx.hilt.compiler)
     kspTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments
@@ -194,7 +182,7 @@ dependencies {
 }
 
 ktlint {
-    version = "1.3.0"
+    version = "1.4.1"
     debug = true
     verbose = true
     android = false

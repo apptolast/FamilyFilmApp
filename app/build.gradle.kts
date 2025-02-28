@@ -194,7 +194,7 @@ dependencies {
 }
 
 ktlint {
-    version = "1.3.0"
+    version = "1.4.1"
     debug = true
     verbose = true
     android = false

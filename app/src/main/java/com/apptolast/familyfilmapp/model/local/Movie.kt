@@ -11,10 +11,6 @@ data class Movie(
     val adult: Boolean,
     val releaseDate: String,
     val overview: String,
-//    val popularity: Float,
-//    val voteAverage: Float,
-//    val voteCount: Int,
-//    val genres: List<Genre>,
     val posterPath: String,
 ) : Parcelable {
 
@@ -29,10 +25,6 @@ data class Movie(
         adult = false,
         releaseDate = "",
         overview = "",
-//        popularity = 0f,
-//        voteAverage = 0f,
-//        voteCount = 0,
-//        genres = emptyList(),
         posterPath = posterPath,
     )
 }
@@ -43,9 +35,5 @@ fun TmdbMovieRemote.toDomain(): Movie = Movie(
     adult = adult,
     releaseDate = releaseDate ?: "",
     overview = overview ?: "",
-//    popularity = popularity,
-//    voteAverage = voteAverage,
-//    voteCount = voteCount,
-//    genres = genres.map { it.toDomain() },
     posterPath = posterPath ?: "",
 )

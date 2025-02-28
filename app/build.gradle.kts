@@ -31,24 +31,12 @@ android {
         getByName("debug") {
             buildConfigField(
                 "String",
-                "WEB_ID_CLIENT",
-                "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
-            )
-            buildConfigField(
-                "String",
                 "TMDB_ACCESS_TOKEN",
                 "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
             )
         }
 
         getByName("release") {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            buildConfigField(
-                "String",
-                "WEB_ID_CLIENT",
-                "\"${providers.gradleProperty("WEB_ID_CLIENT").get()}\"",
-            )
             buildConfigField(
                 "String",
                 "TMDB_ACCESS_TOKEN",

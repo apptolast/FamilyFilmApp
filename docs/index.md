@@ -70,6 +70,8 @@ En primer lugar, crea un proyecto de firebase y configúralo. No olvides:
 Para obtener el token de API de TMDB, regístrate en TMDB, ve a Settings > API, y crea una nueva clave de API.
 A continuación, añádela an el fichero gradle.properties de tu proyecto con el nombre `TMDB_ACCESS_TOKEN`
 
+Puedes acceder a la política de privacidad en este [enlace](https://apptolast.github.io/FamilyFilmApp/privacy-policy).
+
 ## Contribuidores
 
 ### Android:

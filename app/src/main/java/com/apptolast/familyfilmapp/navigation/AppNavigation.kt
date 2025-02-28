@@ -19,10 +19,10 @@ import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 
 @Composable
-fun AppNavigation(viewModel: AuthViewModel = hiltViewModel(), authViewModel: AuthViewModel = hiltViewModel()) {
+fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
-    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,

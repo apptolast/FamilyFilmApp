@@ -171,7 +171,7 @@ fun MovieAppLoginContent(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0x00000000), Color(0x66000000), Color(0xD2000000)),
+                    colors = listOf(Color(0xDD000000), Color(0x9F000000), Color(0x00000000)),
                     startY = 0f,
                     endY = Float.POSITIVE_INFINITY,
                 ),
@@ -181,8 +181,8 @@ fun MovieAppLoginContent(
     // Login content
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = modifier.padding(bottom = 36.dp),
+        verticalArrangement = Arrangement.Top,
+        modifier = modifier.padding(top = 36.dp),
     ) {
         // Logo
         Image(

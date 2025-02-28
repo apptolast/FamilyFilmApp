@@ -16,6 +16,7 @@ firebaseBom = "33.9.0"
 firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.2"
 gson = "2.12.1"
+hiltCompilerVersion = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 hiltVersion = "2.55"
 hiltCompiler = "1.2.0"
@@ -46,6 +47,7 @@ workRuntimeKtx = "2.10.0"
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }

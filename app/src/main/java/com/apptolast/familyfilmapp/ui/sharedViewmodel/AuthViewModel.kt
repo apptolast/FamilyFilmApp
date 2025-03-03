@@ -1,5 +1,10 @@
 package com.apptolast.familyfilmapp.ui.sharedViewmodel
 
+import android.content.Context
+import android.util.Log
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
@@ -8,8 +13,11 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
@@ -30,6 +38,9 @@ class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
+    private val credentialManager: CredentialManager,
+    private val credentialRequest: GetCredentialRequest,
+    @ApplicationContext private val context: Context // 🔹 Se inyecta automáticamente
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -121,6 +132,49 @@ class AuthViewModel @Inject constructor(
                         }
                     }
             }
+    }
+
+    fun googleSignIn() = viewModelScope.launch {
+
+        // Handle the successfully returned credential.
+        try {
+            // Lógica para obtener credenciales
+
+            val credentialResponse = credentialManager.getCredential(
+                request = credentialRequest,
+                context = context,
+            )
+
+            val credential = credentialResponse.credential
+
+            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                try {
+                    // Use googleIdTokenCredential and extract id to validate and
+                    // authenticate on your server.
+                    val googleIdTokenCredential = GoogleIdTokenCredential
+                        .createFrom(credential.data)
+
+                    authRepository.loginWithGoogle(googleIdTokenCredential.idToken)
+                        .let { result ->
+                            result.collectLatest { newLoginUIState ->
+                                authState.update {
+                                    AuthState.Unauthenticated
+                                }
+                            }
+                        }
+                } catch (e: GoogleIdTokenParsingException) {
+                    Log.e("TAG", "Received an invalid google id token response", e)
+                }
+            } else {
+                // Catch any unrecognized custom credential type here.
+                Log.e("TAG", "Unexpected type of credential")
+            }
+
+        } catch (e: GetCredentialCancellationException) {
+            // Manejo de la cancelación por parte del usuario
+            Log.e("SignIn", "Usuario canceló el inicio de sesión", e)
+            // Aquí puedes notificar al usuario, registrar el evento, etc.
+        }
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {

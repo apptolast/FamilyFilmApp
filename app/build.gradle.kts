@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,6 +15,15 @@ plugins {
     alias(libs.plugins.room)
 }
 
+val localProperties = Properties()
+val localFile = rootProject.file("local.properties")
+
+if (localFile.exists()) {
+    localProperties.load(FileInputStream(localFile))
+}
+
+val apiKey: String = localProperties.getProperty("WEB_ID_CLIENT", "DEFAULT_KEY")
+
 android {
     namespace = "com.apptolast.familyfilmapp"
     compileSdk = 35
@@ -25,6 +37,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField("String", "WEB_ID_CLIENT", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -118,6 +132,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.work.manager)
+    implementation(libs.googleid)
     ksp(libs.hilt.android.compiler)
     ksp(libs.androidx.hilt.compiler)
     kspTest(libs.hilt.android.compiler)

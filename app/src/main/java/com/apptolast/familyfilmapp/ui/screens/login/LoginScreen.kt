@@ -13,17 +13,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -56,6 +60,7 @@ import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
+import com.apptolast.familyfilmapp.ui.screens.login.components.GoogleButtonContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
@@ -87,6 +92,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                     is LoginRegisterState.Register -> viewModel.register(email, pass)
                 }
             },
+            onClickGoogleButton = viewModel::googleSignIn,
             onClickScreenState = viewModel::changeScreenState,
             onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             onRecoverPassword = viewModel::recoverPassword,
@@ -130,6 +136,7 @@ fun MovieAppLoginContent(
     recoverPassState: RecoverPassState,
     modifier: Modifier = Modifier,
     onClick: (String, String) -> Unit = { _, _ -> },
+    onClickGoogleButton: () -> Unit= {},
     onClickScreenState: () -> Unit = {},
     onRecoveryPassUpdate: (RecoverPassState) -> Unit = {},
     onRecoverPassword: (String) -> Unit = {},
@@ -275,6 +282,19 @@ fun MovieAppLoginContent(
             Text(
                 text = stringResource(id = screenState.buttonText),
             )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onClickGoogleButton,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            GoogleButtonContent()
         }
 
         Spacer(modifier = Modifier.height(16.dp))

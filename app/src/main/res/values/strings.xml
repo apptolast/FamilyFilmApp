@@ -10,6 +10,7 @@
     <string name="login_text_button">Login</string>
     <string name="register_text_button">Register</string>
     <string name="login_text_sign_in_with_google">Sign in with Google</string>
+    <string name="login_text_signing_in">Signing in…</string>
     <string name="login_icon_google">Google Logo</string>
     <string name="login_text_no_account">Don\'t have an account?</string>
     <string name="login_text_yes_account">Do you have an account?</string>

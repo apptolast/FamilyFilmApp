@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Film</string>
+
+    <!-- LOGIN-->
+    <string name="login_snail_logo">Logo de Caracol</string>
+    <string name="login_text_app_title">Film Family</string>
+    <string name="login_text_app_subtitle">Comparte tus películas con tu familia y amigos</string>
+    <string name="login_text_field_email">Introduce tu correo electrónico</string>
+    <string name="login_text_field_password">Introduce tu contraseña</string>
+    <string name="login_text_button">Iniciar Sesión</string>
+    <string name="register_text_button">Registrarse</string>
+    <string name="login_text_sign_in_with_google">Iniciar sesión con Google</string>
+    <string name="login_icon_google">Logo de Google</string>
+    <string name="login_text_no_account">¿No tienes una cuenta?</string>
+    <string name="login_text_yes_account">¿Tienes una cuenta?</string>
+    <string name="login_text_sign_up">Regístrate</string>
+    <string name="login_text_sign_in">Iniciar sesión</string>
+    <string name="login_text_forgot_your_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_text_recover_password_description">Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="login_text_email_invalid">Correo electrónico no válido</string>
+    <string name="login_text_recover_password_sent">Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.</string>
+    <string name="login_button_send">Enviar</string>
+    <string name="login_button_cancel">Cancelar</string>
+
+    <!-- SCREEN TITLES-->
+    <string name="screen_title_home">Inicio</string>
+    <string name="screen_title_recommend">Recomendar</string>
+    <string name="screen_title_groups">Grupos</string>
+    <string name="screen_title_profile">Perfil</string>
+    <string name="screen_title_search">Buscar</string>
+    <string name="screen_title_details">Detalles</string>
+    <string name="screen_title_login">Iniciar Sesión</string>
+
+    <!-- GROUPS -->
+    <string name="groups_text_create_group">Crear Grupo</string>
+    <string name="groups_text_add_member">Añadir Miembro</string>
+    <string name="groups_text_delete_group">Eliminar Grupo</string>
+    <string name="groups_text_edit_group_name">Introduce el Nuevo Nombre del Grupo</string>
+    <string name="groups_text_to_watch">Quiero ver</string>
+    <string name="groups_text_watched">Vistas</string>
+
+    <!-- SEARCH -->
+    <string name="search_film_or_series">Buscar película o serie</string>
+
+    <!-- PROFILE -->
+    <string name="profile_delete_account">Eliminar Cuenta</string>
+
+    <!-- DIALOGS -->
+    <string name="dialog_create_group_title">Crear Grupo</string>
+    <string name="dialog_create_group_description">Introduce el nombre del grupo</string>
+    <string name="dialog_change_group_title">Cambiar nombre del Grupo</string>
+    <string name="dialog_change_group_description">Introduce el nuevo nombre del grupo</string>
+    <string name="dialog_add_group_member_title">Añadir miembro al grupo</string>
+    <string name="dialog_add_group_member_description">Introduce el correo electrónico del miembro</string>
+    <string name="dialog_delete_group_title">Eliminar Grupo</string>
+    <string name="dialog_delete_group_description">¿Estás seguro de que quieres eliminar el grupo?</string>
+    <string name="dialog_delete_member_title">Eliminar Usuario</string>
+    <string name="dialog_delete_member_description">¿Estás seguro de que quieres eliminar al usuario?</string>
+
+    <!-- GENERAL STRINGS -->
+    <string name="send_text">Enviar</string>
+    <string name="group_dialog_name_empty_error_message">El nombre del grupo está vacío</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="text_read_more">Leer Más</string>
+    <string name="edit_text">Editar</string>
+
+    <!-- Error messages -->
+    <string name="error_email_blank">El correo electrónico está vacío</string>
+    <string name="error_email_not_valid">Correo electrónico no válido</string>
+
+</resources>

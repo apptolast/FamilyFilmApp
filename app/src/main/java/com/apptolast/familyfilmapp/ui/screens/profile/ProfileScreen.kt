@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -27,11 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
@@ -115,7 +118,7 @@ fun ProfileContent(
             ) {
                 Text(
                     text = email,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleSmall,
                 )
 
                 Spacer(
@@ -127,7 +130,7 @@ fun ProfileContent(
                 Button(onClick = onClickLogOut) {
                     Text(
                         text = "Logout",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                     )
                     Spacer(modifier = Modifier.width(filedSpacer))
                     Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
@@ -135,10 +138,16 @@ fun ProfileContent(
 
                 Spacer(modifier = Modifier.height(filedSpacer))
 
-                Button(onClick = onDeleteUser) {
+                Button(
+                    onClick = onDeleteUser,
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+                ) {
                     Text(
-                        text = "Delete User",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = stringResource(R.string.profile_delete_account),
+                        style = MaterialTheme.typography.titleSmall,
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")

@@ -16,8 +16,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -121,9 +119,8 @@ class AuthViewModel @Inject constructor(
                 result
                     .onSuccess { user ->
                         if (user == null) return@collectLatest
-
                         createNewUser(user)
-                        screenState.update { LoginRegisterState.Login() }
+                        authState.update { AuthState.Authenticated(user) }
                     }
                     .onFailure { error ->
                         authState.update {
@@ -134,7 +131,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun googleSignIn(context: Context) = viewModelScope.launch {
-
+        authState.update { AuthState.Loading }
         // Handle the successfully returned credential.
         try {
             // Logic for obtaining credentials
@@ -154,12 +151,7 @@ class AuthViewModel @Inject constructor(
                         it.collectLatest { result ->
                             result
                                 .onSuccess { user ->
-                                    if (user != null) {
-                                        createNewUser(user)
-                                        authState.update { AuthState.Authenticated(user) }
-                                    } else {
-                                        authState.update { AuthState.Unauthenticated }
-                                    }
+                                    authState.update { AuthState.Authenticated(user) }
                                 }
                                 .onFailure { error ->
                                     Timber.e(error)

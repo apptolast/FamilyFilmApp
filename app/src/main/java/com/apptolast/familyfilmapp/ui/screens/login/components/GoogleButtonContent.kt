@@ -23,13 +23,6 @@ import androidx.compose.ui.unit.dp
 fun GoogleButtonContent() {
 
     Row(
-        modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium,
-                ),
-            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -37,15 +30,10 @@ fun GoogleButtonContent() {
             painter = painterResource(id = com.apptolast.familyfilmapp.R.drawable.ic_google),
             contentDescription = com.apptolast.familyfilmapp.R.drawable.ic_google.toString(),
             modifier = Modifier
-                .size(30.dp)
-                .padding(horizontal = 8.dp),
+                .size(32.dp)
+                .padding(horizontal = 5.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(
-                com.apptolast.familyfilmapp.R.string.login_text_sign_in_with_google,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Text(text = stringResource(com.apptolast.familyfilmapp.R.string.login_text_sign_in_with_google))
     }
 }

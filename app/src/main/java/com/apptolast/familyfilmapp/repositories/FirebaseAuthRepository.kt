@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.repositories
 
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -60,7 +59,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
             .addOnCompleteListener { task ->
                 // Send validation email
                 if (task.isSuccessful) {
-                    val user = FirebaseAuth.getInstance().currentUser
+                    val user = task.result.user
                     user?.sendEmailVerification()?.addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             launch {
@@ -101,12 +100,12 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         awaitClose()
     }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = callbackFlow {
+    override fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
-            .addOnSuccessListener {
+            .addOnSuccessListener { authResult ->
                 launch {
-                    send(Result.success(it))
+                    send(Result.success(authResult.user))
                 }
             }
             .addOnFailureListener {
@@ -144,9 +143,9 @@ interface FirebaseAuthRepository {
     fun getUser(): Flow<FirebaseUser?>
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
+    fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>>
     fun logOut()
     fun deleteAccount(email: String, password: String): Flow<Result<Boolean>>
-    fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
     fun isTokenValid(): Flow<Boolean>
 }

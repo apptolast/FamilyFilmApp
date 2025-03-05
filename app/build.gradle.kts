@@ -25,6 +25,8 @@ if (localFile.exists()) {
 
 val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT", "")
 val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN", "")
+val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID", "")
+val admobBannerIdDebug: String = localProperties.getProperty("ADMOB_BANNER_ID_DEBUG", "")
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -45,11 +47,19 @@ android {
         getByName("debug") {
             buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
             buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
+            buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
+            buildConfigField("String", "ADMOB_BANNER_ID_DEBUG", "\"$admobBannerIdDebug\"")
+
+            resValue("string", "admob_app_id", admobAppId)
         }
 
         getByName("release") {
             buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
             buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+            buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
+            buildConfigField("String", "ADMOB_BANNER_ID_DEBUG", "\"$admobBannerIdDebug\"")
+
+            resValue("string", "admob_app_id", admobAppId)
         }
     }
 
@@ -159,6 +169,9 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Admob
+    implementation(libs.play.services.ads)
 
     // Turbine
     testImplementation(libs.turbine)

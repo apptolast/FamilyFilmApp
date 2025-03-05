@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.apptolast.familyfilmapp.navigation.AppNavigation
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
         // Fill the screen
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         setContent {
             FamilyFilmAppTheme(dynamicColor = false) {
                 // A surface container using the 'background' color from the theme

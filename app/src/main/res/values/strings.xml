@@ -5,8 +5,8 @@
     <string name="login_snail_logo">Snail Logo</string>
     <string name="login_text_app_title">Film Family</string>
     <string name="login_text_app_subtitle">Shared your films with your family and friends</string>
-    <string name="login_text_field_email">Enter your email</string>
-    <string name="login_text_field_password">Enter your password</string>
+    <string name="login_text_field_email">Enter email</string>
+    <string name="login_text_field_password">Enter password</string>
     <string name="login_text_button">Login</string>
     <string name="register_text_button">Register</string>
     <string name="login_text_sign_in_with_google">Sign in with Google</string>
@@ -31,18 +31,19 @@
     <string name="screen_title_details">Details</string>
     <string name="screen_title_login">Login</string>
 
-    <!-- HOME-->
-    <string name="home_text_to_see">To see</string>
-    <string name="home_text_seen">Seen</string>
-
     <!-- GROUPS -->
     <string name="groups_text_create_group">Create Group</string>
     <string name="groups_text_add_member">Add Member</string>
     <string name="groups_text_delete_group">Delete Group</string>
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
+    <string name="groups_text_to_watch">To Watch</string>
+    <string name="groups_text_watched">Watched</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
+
+    <!-- PROFILE -->
+    <string name="profile_delete_account">Delete Account</string>
 
     <!-- DIALOGS -->
     <string name="dialog_create_group_title">Create Group</string>

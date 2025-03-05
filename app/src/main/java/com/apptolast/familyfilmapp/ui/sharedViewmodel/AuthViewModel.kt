@@ -16,6 +16,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +40,6 @@ class AuthViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
     private val credentialRequest: GetCredentialRequest,
-    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -133,7 +133,7 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-    fun googleSignIn() = viewModelScope.launch {
+    fun googleSignIn(context: Context) = viewModelScope.launch {
 
         // Handle the successfully returned credential.
         try {

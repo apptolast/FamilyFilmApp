@@ -92,7 +92,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                     is LoginRegisterState.Register -> viewModel.register(email, pass)
                 }
             },
-            onClickGoogleButton = viewModel::googleSignIn,
+            onClickGoogleButton = { viewModel.googleSignIn(context) },
             onClickScreenState = viewModel::changeScreenState,
             onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             onRecoverPassword = viewModel::recoverPassword,

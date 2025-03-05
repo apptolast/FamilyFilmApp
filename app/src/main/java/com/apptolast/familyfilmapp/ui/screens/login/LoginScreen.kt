@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +67,7 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
@@ -76,8 +79,12 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val password by viewModel.password.collectAsStateWithLifecycle()
     val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
+    var showLoginInterface by remember { mutableStateOf(false) }
+
+
     Scaffold { innerPadding ->
         MovieAppLoginContent(
+            showLoginInterface = showLoginInterface,
             email = email,
             password = password,
             screenState = screenState,
@@ -99,9 +106,13 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
 
         when (authState) {
             is AuthState.Authenticated -> {
-                navController.navigate(Routes.Home.routes) {
-                    popUpTo(Routes.Login.routes) { inclusive = true }
-                    launchSingleTop = true
+                LaunchedEffect(true) {
+                    showLoginInterface = false
+                    delay(500)
+                    navController.navigate(Routes.Home.routes) {
+                        popUpTo(Routes.Login.routes) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
 
@@ -122,6 +133,10 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
 
             AuthState.Unauthenticated -> {
                 /* no-op */
+                LaunchedEffect(true) {
+                    delay(700)
+                    showLoginInterface = authState is AuthState.Unauthenticated
+                }
             }
         }
     }
@@ -129,6 +144,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
 
 @Composable
 fun MovieAppLoginContent(
+    showLoginInterface: Boolean,
     email: String,
     password: String,
     screenState: LoginRegisterState,
@@ -184,11 +200,14 @@ fun MovieAppLoginContent(
             ),
     )
 
+
     // Login content
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.padding(horizontal = 16.dp).padding(bottom = 20.dp),
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 20.dp),
     ) {
         // Logo
         Image(
@@ -225,139 +244,154 @@ fun MovieAppLoginContent(
             maxLines = 2,
             modifier = Modifier.padding(bottom = 20.dp),
         )
+        AnimatedVisibility(showLoginInterface) {
 
-        // Email Field
-        TextField(
-            value = email,
-            onValueChange = { email = it.trim() },
-            label = { Text(text = stringResource(R.string.login_text_field_email)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.small.copy(
-                bottomStart = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp),
-            ),
-        )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Password field
-        TextField(
-            value = password,
-            onValueChange = { password = it.trim() },
-            label = { Text(text = stringResource(R.string.login_text_field_password)) },
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = "Toggle Password Visibility",
-//                        tint = Color.White,
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = MaterialTheme.shapes.small.copy(
-                bottomStart = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp),
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Login Button
-        Button(
-            onClick = { onClick(email, password) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp),
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            Text(text = stringResource(id = screenState.buttonText))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
-            Text(
-                text = stringResource(R.string.or_else),
-                modifier = Modifier.padding(horizontal = 8.dp),
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-            )
-            HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onClickGoogleButton,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp),
-            shape = MaterialTheme.shapes.medium,
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
-        ) {
-            Surface {
-                GoogleButtonContent()
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Register text
-        Row(modifier = Modifier.clickable { onClickScreenState() }) {
-            Text(
-                text = stringResource(screenState.accountText),
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-
-                modifier = Modifier.padding(end = 4.dp),
-            )
-
-            // TODO: Create Typography for this text.
-            Text(
-                text = stringResource(screenState.signText),
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                    .copy(fontWeight = FontWeight.Bold),
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Actualiza el Text clickable para la recuperación de contraseña
-        Text(
-            modifier = Modifier.clickable {
-                onRecoveryPassUpdate(
-                    recoverPassState.copy(
-                        isDialogVisible = true,
-                        emailErrorMessage = null,
-                        errorMessage = null,
+                // Email Field
+                TextField(
+                    value = email,
+                    onValueChange = { email = it.trim() },
+                    label = { Text(text = stringResource(R.string.login_text_field_email)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small.copy(
+                        bottomStart = CornerSize(0.dp),
+                        bottomEnd = CornerSize(0.dp),
                     ),
                 )
-            },
-            text = stringResource(R.string.login_text_forgot_your_password),
-            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-        )
 
-        // Agrega el diálogo de recuperación de contraseña
-        if (recoverPassState.isDialogVisible) {
-            AlertRecoverPassDialog(
-                onCLickSend = onRecoverPassword,
-                recoverPassState = recoverPassState,
-                dismissDialog = {
-                    onRecoveryPassUpdate(
-                        recoverPassState.copy(
-                            isDialogVisible = false,
-                        ),
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Password field
+                TextField(
+                    value = password,
+                    onValueChange = { password = it.trim() },
+                    label = { Text(text = stringResource(R.string.login_text_field_password)) },
+                    singleLine = true,
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = "Toggle Password Visibility",
+//                        tint = Color.White,
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small.copy(
+                        bottomStart = CornerSize(0.dp),
+                        bottomEnd = CornerSize(0.dp),
+                    ),
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Login Button
+                Button(
+                    onClick = { onClick(email, password) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp),
+                    shape = MaterialTheme.shapes.medium,
+                ) {
+                    Text(text = stringResource(id = screenState.buttonText))
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
                     )
-                },
-            )
+                    Text(
+                        text = stringResource(R.string.or_else),
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = onClickGoogleButton,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
+                ) {
+                    Surface {
+                        GoogleButtonContent()
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Register text
+                Row(modifier = Modifier.clickable { onClickScreenState() }) {
+                    Text(
+                        text = stringResource(screenState.accountText),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+
+                        modifier = Modifier.padding(end = 4.dp),
+                    )
+
+                    // TODO: Create Typography for this text.
+                    Text(
+                        text = stringResource(screenState.signText),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                            .copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Actualiza el Text clickable para la recuperación de contraseña
+                Text(
+                    modifier = Modifier.clickable {
+                        onRecoveryPassUpdate(
+                            recoverPassState.copy(
+                                isDialogVisible = true,
+                                emailErrorMessage = null,
+                                errorMessage = null,
+                            ),
+                        )
+                    },
+                    text = stringResource(R.string.login_text_forgot_your_password),
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                )
+
+                // Agrega el diálogo de recuperación de contraseña
+                if (recoverPassState.isDialogVisible) {
+                    AlertRecoverPassDialog(
+                        onCLickSend = onRecoverPassword,
+                        recoverPassState = recoverPassState,
+                        dismissDialog = {
+                            onRecoveryPassUpdate(
+                                recoverPassState.copy(
+                                    isDialogVisible = false,
+                                ),
+                            )
+                        },
+                    )
+                }
+            }
         }
     }
-//    }
 }
 
 @Preview(showBackground = true)
@@ -365,6 +399,7 @@ fun MovieAppLoginContent(
 private fun LoginScreenPreview() {
     FamilyFilmAppTheme {
         MovieAppLoginContent(
+            showLoginInterface = true,
             email = "email@something.com",
             password = "123456",
             screenState = LoginRegisterState.Login(),

@@ -29,8 +29,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository =
-        FirebaseAuthRepositoryImpl(firebaseAuth)
+    fun provideLoginRepository(firebaseAuth: FirebaseAuth, repository: Repository): FirebaseAuthRepository =
+        FirebaseAuthRepositoryImpl(firebaseAuth, repository)
 
     @Provides
     fun provideRepository(

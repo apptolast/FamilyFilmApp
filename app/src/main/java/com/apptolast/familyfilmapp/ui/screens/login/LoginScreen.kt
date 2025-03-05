@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -24,11 +22,12 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -136,7 +135,7 @@ fun MovieAppLoginContent(
     recoverPassState: RecoverPassState,
     modifier: Modifier = Modifier,
     onClick: (String, String) -> Unit = { _, _ -> },
-    onClickGoogleButton: () -> Unit= {},
+    onClickGoogleButton: () -> Unit = {},
     onClickScreenState: () -> Unit = {},
     onRecoveryPassUpdate: (RecoverPassState) -> Unit = {},
     onRecoverPassword: (String) -> Unit = {},
@@ -188,8 +187,8 @@ fun MovieAppLoginContent(
     // Login content
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-        modifier = modifier.padding(top = 36.dp),
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.padding(horizontal = 16.dp).padding(bottom = 20.dp),
     ) {
         // Logo
         Image(
@@ -197,7 +196,7 @@ fun MovieAppLoginContent(
             contentDescription = stringResource(R.string.login_snail_logo),
             modifier = Modifier
                 .width(130.dp)
-                .padding(12.dp),
+                .padding(14.dp),
         )
 
         // Title
@@ -206,8 +205,9 @@ fun MovieAppLoginContent(
             style = MaterialTheme.typography.headlineMedium.copy(
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                fontSize = 32.sp,
+                fontSize = 36.sp,
                 textAlign = TextAlign.Center,
+                fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
             ),
             modifier = Modifier.padding(bottom = 8.dp),
         )
@@ -217,12 +217,13 @@ fun MovieAppLoginContent(
             text = stringResource(R.string.login_text_app_subtitle),
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = Color.LightGray,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 textAlign = TextAlign.Center,
+                fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
             ),
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
-            modifier = Modifier.padding(bottom = 24.dp),
+            modifier = Modifier.padding(bottom = 20.dp),
         )
 
         // Email Field
@@ -231,9 +232,7 @@ fun MovieAppLoginContent(
             onValueChange = { email = it.trim() },
             label = { Text(text = stringResource(R.string.login_text_field_email)) },
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small.copy(
                 bottomStart = CornerSize(0.dp),
                 bottomEnd = CornerSize(0.dp),
@@ -261,27 +260,36 @@ fun MovieAppLoginContent(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth(),
             shape = MaterialTheme.shapes.small.copy(
                 bottomStart = CornerSize(0.dp),
                 bottomEnd = CornerSize(0.dp),
             ),
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Login Button
         Button(
             onClick = { onClick(email, password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .height(45.dp),
             shape = MaterialTheme.shapes.medium,
         ) {
+            Text(text = stringResource(id = screenState.buttonText))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
             Text(
-                text = stringResource(id = screenState.buttonText),
+                text = stringResource(R.string.or_else),
+                modifier = Modifier.padding(horizontal = 8.dp),
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
             )
+            HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -290,21 +298,19 @@ fun MovieAppLoginContent(
             onClick = onClickGoogleButton,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
+                .height(45.dp),
             shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
         ) {
-            GoogleButtonContent()
+            Surface {
+                GoogleButtonContent()
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Register text
-        Row(
-            modifier = Modifier
-                .padding(6.dp)
-                .clickable { onClickScreenState() },
-        ) {
+        Row(modifier = Modifier.clickable { onClickScreenState() }) {
             Text(
                 text = stringResource(screenState.accountText),
                 style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
@@ -319,6 +325,8 @@ fun MovieAppLoginContent(
                     .copy(fontWeight = FontWeight.Bold),
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
         // Actualiza el Text clickable para la recuperación de contraseña
         Text(
             modifier = Modifier.clickable {

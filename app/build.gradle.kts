@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Read properties from local.properties
 val localProperties = Properties()
 val localFile = rootProject.file("local.properties")
 
@@ -22,7 +23,8 @@ if (localFile.exists()) {
     localProperties.load(FileInputStream(localFile))
 }
 
-val apiKey: String = localProperties.getProperty("WEB_ID_CLIENT", "DEFAULT_KEY")
+val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT", "")
+val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN", "")
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -32,30 +34,23 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.3.2"
+        versionCode = 5
+        versionName = "0.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
-        buildConfigField("String", "WEB_ID_CLIENT", "\"$apiKey\"")
     }
 
     buildTypes {
         getByName("debug") {
-            buildConfigField(
-                "String",
-                "TMDB_ACCESS_TOKEN",
-                "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
-            )
+            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
         }
 
         getByName("release") {
-            buildConfigField(
-                "String",
-                "TMDB_ACCESS_TOKEN",
-                "\"${providers.gradleProperty("TMDB_ACCESS_TOKEN").get()}\"",
-            )
+            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
+            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
         }
     }
 

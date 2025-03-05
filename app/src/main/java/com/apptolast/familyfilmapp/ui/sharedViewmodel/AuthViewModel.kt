@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.ui.sharedViewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
@@ -18,9 +17,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.util.Locale
-import java.util.UUID
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -32,6 +28,9 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
+import java.util.UUID
+import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -40,7 +39,7 @@ class AuthViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
     private val credentialRequest: GetCredentialRequest,
-    @ApplicationContext private val context: Context // 🔹 Se inyecta automáticamente
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -138,8 +137,7 @@ class AuthViewModel @Inject constructor(
 
         // Handle the successfully returned credential.
         try {
-            // Lógica para obtener credenciales
-
+            // Logic for obtaining credentials
             val credentialResponse = credentialManager.getCredential(
                 request = credentialRequest,
                 context = context,
@@ -149,30 +147,37 @@ class AuthViewModel @Inject constructor(
 
             if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 try {
-                    // Use googleIdTokenCredential and extract id to validate and
-                    // authenticate on your server.
-                    val googleIdTokenCredential = GoogleIdTokenCredential
-                        .createFrom(credential.data)
+                    // Use googleIdTokenCredential and extract id to validate and authenticate on your server.
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-                    authRepository.loginWithGoogle(googleIdTokenCredential.idToken)
-                        .let { result ->
-                            result.collectLatest { newLoginUIState ->
-                                authState.update {
-                                    AuthState.Unauthenticated
+                    authRepository.loginWithGoogle(googleIdTokenCredential.idToken).let {
+                        it.collectLatest { result ->
+                            result
+                                .onSuccess { user ->
+                                    if (user != null) {
+                                        createNewUser(user)
+                                        authState.update { AuthState.Authenticated(user) }
+                                    } else {
+                                        authState.update { AuthState.Unauthenticated }
+                                    }
                                 }
-                            }
+                                .onFailure { error ->
+                                    Timber.e(error)
+                                    authState.update { AuthState.Error(error.message.toString()) }
+                                }
                         }
+                    }
                 } catch (e: GoogleIdTokenParsingException) {
-                    Log.e("TAG", "Received an invalid google id token response", e)
+                    Timber.e(e, "Received an invalid google id token response")
                 }
             } else {
                 // Catch any unrecognized custom credential type here.
-                Log.e("TAG", "Unexpected type of credential")
+                Timber.e("Unexpected type of credential")
             }
 
         } catch (e: GetCredentialCancellationException) {
             // Manejo de la cancelación por parte del usuario
-            Log.e("SignIn", "Usuario canceló el inicio de sesión", e)
+            Timber.e(e, "Usuario canceló el inicio de sesión")
             // Aquí puedes notificar al usuario, registrar el evento, etc.
         }
     }

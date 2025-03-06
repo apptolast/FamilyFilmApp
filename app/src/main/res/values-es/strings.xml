@@ -17,6 +17,7 @@
     <string name="login_text_sign_up">Regístrate</string>
     <string name="login_text_sign_in">Iniciar sesión</string>
     <string name="login_text_forgot_your_password">¿Olvidaste tu contraseña?</string>
+    <string name="or_else">o bien</string>
     <string name="login_text_recover_password_description">Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
     <string name="login_text_email_invalid">Correo electrónico no válido</string>
     <string name="login_text_recover_password_sent">Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.</string>

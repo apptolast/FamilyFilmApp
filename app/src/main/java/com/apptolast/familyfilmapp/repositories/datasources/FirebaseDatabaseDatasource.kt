@@ -105,7 +105,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
                         println("El usuario es nuevo (Firestore - primera vez).")
                         // El usuario no existe en la base de datos, es nuevo
                         val newUser = hashMapOf(
-                            "isNewUser" to true
+                            "isNewUser" to true,
                         )
                         userRef.set(newUser)
                         // Realizar acciones para usuarios nuevos

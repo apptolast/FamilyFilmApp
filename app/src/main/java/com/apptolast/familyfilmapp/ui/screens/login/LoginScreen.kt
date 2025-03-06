@@ -67,8 +67,8 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import kotlinx.coroutines.delay
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
@@ -80,7 +80,6 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
     var showLoginInterface by remember { mutableStateOf(false) }
-
 
     Scaffold { innerPadding ->
         MovieAppLoginContent(
@@ -200,7 +199,6 @@ fun MovieAppLoginContent(
             ),
     )
 
-
     // Login content
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -245,12 +243,10 @@ fun MovieAppLoginContent(
             modifier = Modifier.padding(bottom = 20.dp),
         )
         AnimatedVisibility(showLoginInterface) {
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-
                 // Email Field
                 TextField(
                     value = email,

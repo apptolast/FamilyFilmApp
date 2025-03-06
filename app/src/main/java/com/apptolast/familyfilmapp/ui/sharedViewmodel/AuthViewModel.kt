@@ -16,6 +16,9 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
+import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -27,9 +30,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Locale
-import java.util.UUID
-import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -166,7 +166,6 @@ class AuthViewModel @Inject constructor(
                 // Catch any unrecognized custom credential type here.
                 Timber.e("Unexpected type of credential")
             }
-
         } catch (e: GetCredentialCancellationException) {
             // Manejo de la cancelación por parte del usuario
             Timber.e(e, "Usuario canceló el inicio de sesión")

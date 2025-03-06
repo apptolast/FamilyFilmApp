@@ -61,7 +61,15 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltV
                     email = (authState as AuthState.Authenticated).user.email ?: "",
                     modifier = Modifier.padding(paddingValues),
                     onClickLogOut = { viewModel.logOut() },
-                    onDeleteUser = { showDeleteDialog = true },
+                    onDeleteUser = {
+                        // Show dialog only when the user has used email/pass provider
+                        // Delete user straight away if user has used google provider
+                        if (viewModel.credential != null) {
+                            viewModel.deleteUser()
+                        } else {
+                            showDeleteDialog = true
+                        }
+                    },
                 )
 
                 // Show delete account dialog if state is true

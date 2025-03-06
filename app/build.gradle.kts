@@ -1,3 +1,4 @@
+
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -34,8 +35,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.3.3"
+        versionCode = 6
+        versionName = "0.3.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -114,9 +115,8 @@ dependencies {
     implementation(libs.compose.runtime.livedata)
     implementation(libs.compose.animation)
 
-    // Google auth
-    implementation(libs.googleid)
-    implementation(libs.play.services.auth)
+    // Google credentials
+    implementation(libs.bundles.google.credentials)
 
     // Retrofit
     implementation(libs.logging.interceptor)

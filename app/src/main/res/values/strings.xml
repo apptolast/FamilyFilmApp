@@ -16,6 +16,7 @@
     <string name="login_text_sign_up">Sign up</string>
     <string name="login_text_sign_in">Sign in</string>
     <string name="login_text_forgot_your_password">Forgot your password?</string>
+    <string name="or_else">or else</string>
     <string name="login_text_recover_password_description">Enter your email and we will send you a link to reset your password.</string>
     <string name="login_text_email_invalid">Invalid email</string>
     <string name="login_text_recover_password_sent">An email has been sent with instructions to reset your password.</string>

@@ -32,6 +32,7 @@ mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
 mockk = "1.13.16"
 navigationCompose = "2.8.8"
+playServicesAds = "24.0.0"
 playServicesAuth = "21.3.0"
 retrofit = "2.11.0"
 roomVersion = "2.6.1"
@@ -97,6 +98,7 @@ mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref =
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 swipe = { group = "me.saket.swipe", name = "swipe", version.ref = "swipe" }

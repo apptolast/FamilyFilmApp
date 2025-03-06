@@ -104,36 +104,12 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser>> = callbackFlow {
+    override fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
             .addOnSuccessListener { authResult ->
-                val user = authResult.user
-                val isNewUser = authResult.additionalUserInfo?.isNewUser
-                if (user != null) {
-                    if (isNewUser == true) {
-                        repository.createUser(
-                            User().copy(
-                                id = user.uid,
-                                email = user.email ?: "",
-                                language = Locale.getDefault().language,
-                            ),
-                            success = {
-                                launch {
-                                    send(Result.success(user))
-                                }
-                            },
-                            failure = { error ->
-                                launch {
-                                    send(Result.failure(error))
-                                }
-                            },
-                        )
-                    } else {
-                        launch {
-                            send(Result.success(user))
-                        }
-                    }
+                launch {
+                    send(Result.success(authResult.user))
                 }
             }
             .addOnFailureListener {
@@ -171,7 +147,7 @@ interface FirebaseAuthRepository {
     fun getUser(): Flow<FirebaseUser?>
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
-    fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser>>
+    fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>>
     fun logOut()
     fun deleteAccount(email: String, password: String): Flow<Result<Boolean>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>

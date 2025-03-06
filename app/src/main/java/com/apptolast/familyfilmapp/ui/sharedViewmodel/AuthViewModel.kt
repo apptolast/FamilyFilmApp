@@ -151,22 +151,34 @@ class AuthViewModel @Inject constructor(
                         it.collectLatest { result ->
                             result
                                 .onSuccess { user ->
-                                    authState.update { AuthState.Authenticated(user) }
+                                    if (user != null) {
+                                        authState.update { AuthState.Authenticated(user) }
+                                    }else{
+                                        authState.update { AuthState.Error("User not found") }
+                                        authState.update { AuthState.Unauthenticated }
+                                    }
                                 }
                                 .onFailure { error ->
                                     Timber.e(error)
                                     authState.update { AuthState.Error(error.message.toString()) }
+                                    authState.update { AuthState.Unauthenticated }
                                 }
                         }
                     }
                 } catch (e: GoogleIdTokenParsingException) {
+                    authState.update { AuthState.Error(e.message.toString()) }
+                    authState.update { AuthState.Unauthenticated }
                     Timber.e(e, "Received an invalid google id token response")
                 }
             } else {
                 // Catch any unrecognized custom credential type here.
+                authState.update { AuthState.Error("Unexpected type of credential") }
+                authState.update { AuthState.Unauthenticated }
                 Timber.e("Unexpected type of credential")
             }
         } catch (e: GetCredentialCancellationException) {
+            authState.update { AuthState.Error(e.message.toString()) }
+            authState.update { AuthState.Unauthenticated }
             // Manejo de la cancelación por parte del usuario
             Timber.e(e, "Usuario canceló el inicio de sesión")
             // Aquí puedes notificar al usuario, registrar el evento, etc.

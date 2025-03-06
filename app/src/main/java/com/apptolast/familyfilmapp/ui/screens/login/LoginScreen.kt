@@ -268,14 +268,17 @@ fun MovieAppLoginContent(
                     onValueChange = { password = it.trim() },
                     label = { Text(text = stringResource(R.string.login_text_field_password)) },
                     singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
                     trailingIcon = {
                         val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = icon,
                                 contentDescription = "Toggle Password Visibility",
-//                        tint = Color.White,
                             )
                         }
                     },

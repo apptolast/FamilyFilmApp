@@ -11,9 +11,11 @@ composeBom = "2025.02.00"
 composeUiTextGoogleFonts = "1.7.8"
 coreSplashscreen = "1.0.1"
 coroutines = "1.10.1"
+credentials = "1.3.0"
 espressoCore = "3.6.1"
-firebaseBom = "33.9.0"
+firebaseBom = "33.10.0"
 firebaseCrashlytics = "3.0.3"
+googleid = "1.1.1"
 googleServices = "4.4.2"
 gson = "2.12.1"
 hiltCompilerVersion = "1.2.0"
@@ -32,7 +34,7 @@ mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
 mockk = "1.13.16"
 navigationCompose = "2.8.8"
-playServicesAuth = "21.3.0"
+#playServicesAuth = "21.3.0"
 retrofit = "2.11.0"
 roomVersion = "2.6.1"
 swipe = "1.3.0"
@@ -42,10 +44,12 @@ timber = "5.0.1"
 truth = "1.4.4"
 turbine = "1.2.0"
 workRuntimeKtx = "2.10.0"
-googleid = "1.1.1"
+#googleid = "1.1.1"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
@@ -83,6 +87,7 @@ firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" 
 firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
@@ -97,7 +102,6 @@ mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref =
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 swipe = { group = "me.saket.swipe", name = "swipe", version.ref = "swipe" }
 test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }
@@ -105,7 +109,13 @@ test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
-googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+
+[bundles]
+google-credentials = [
+    "androidx-credentials-play-services-auth",
+    "androidx-credentials",
+    "googleid",
+]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidApplication" }

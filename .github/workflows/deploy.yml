@@ -64,7 +64,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON }}
           packageName: com.apptolast.familyfilmapp
-          releaseFile: app/build/outputs/bundle/globalRelease/app-global-release.aab
+          releaseFile: app/build/outputs/bundle/release/app-release.aab
           track: internal
           userFraction: 0.99
           whatsNewDirectory: distribution/whatsnew
@@ -78,4 +78,4 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
           groups: Developers
-          file: app/build/outputs/apk/global/debug/app-debug.apk
+          file: app/build/outputs/apk/debug/app-debug.apk

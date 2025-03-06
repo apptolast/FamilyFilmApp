@@ -41,11 +41,14 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val provider by viewModel.provider.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -61,7 +64,14 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltV
                     email = (authState as AuthState.Authenticated).user.email ?: "",
                     modifier = Modifier.padding(paddingValues),
                     onClickLogOut = { viewModel.logOut() },
-                    onDeleteUser = { showDeleteDialog = true },
+                    onDeleteUser = {
+                        // Show dialog only when the user has used email/pass provider
+                        // Delete user straight away if user has used google provider
+                        when (provider) {
+                            GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> viewModel.deleteUser()
+                            EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> showDeleteDialog = true
+                        }
+                    },
                 )
 
                 // Show delete account dialog if state is true

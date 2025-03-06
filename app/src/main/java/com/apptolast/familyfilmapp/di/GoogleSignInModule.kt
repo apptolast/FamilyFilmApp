@@ -19,12 +19,7 @@ object GoogleSignInModule {
     @Singleton
     @Provides
     fun signInWithGoogleOption(): GetSignInWithGoogleOption =
-        GetSignInWithGoogleOption.Builder(BuildConfig.WEB_ID_CLIENT)
-            .build()
-
-    @Singleton
-    @Provides
-    fun credentialManager(@ApplicationContext context: Context): CredentialManager = CredentialManager.create(context)
+        GetSignInWithGoogleOption.Builder(BuildConfig.WEB_ID_CLIENT).build()
 
     @Singleton
     @Provides
@@ -32,4 +27,8 @@ object GoogleSignInModule {
         GetCredentialRequest.Builder()
             .addCredentialOption(signInWithGoogleOption)
             .build()
+
+    @Singleton
+    @Provides
+    fun credentialManager(@ApplicationContext context: Context): CredentialManager = CredentialManager.create(context)
 }

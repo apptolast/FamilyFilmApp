@@ -1,5 +1,9 @@
 package com.apptolast.familyfilmapp.ui.sharedViewmodel
 
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
@@ -8,6 +12,8 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
@@ -30,6 +36,8 @@ class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
+    private val credentialManager: CredentialManager,
+    private val credentialRequest: GetCredentialRequest,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -111,9 +119,8 @@ class AuthViewModel @Inject constructor(
                 result
                     .onSuccess { user ->
                         if (user == null) return@collectLatest
-
                         createNewUser(user)
-                        screenState.update { LoginRegisterState.Login() }
+                        authState.update { AuthState.Authenticated(user) }
                     }
                     .onFailure { error ->
                         authState.update {
@@ -121,6 +128,49 @@ class AuthViewModel @Inject constructor(
                         }
                     }
             }
+    }
+
+    fun googleSignIn(context: Context) = viewModelScope.launch {
+        authState.update { AuthState.Loading }
+        // Handle the successfully returned credential.
+        try {
+            // Logic for obtaining credentials
+            val credentialResponse = credentialManager.getCredential(
+                request = credentialRequest,
+                context = context,
+            )
+
+            val credential = credentialResponse.credential
+
+            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                try {
+                    // Use googleIdTokenCredential and extract id to validate and authenticate on your server.
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+                    authRepository.loginWithGoogle(googleIdTokenCredential.idToken).let {
+                        it.collectLatest { result ->
+                            result
+                                .onSuccess { user ->
+                                    authState.update { AuthState.Authenticated(user) }
+                                }
+                                .onFailure { error ->
+                                    Timber.e(error)
+                                    authState.update { AuthState.Error(error.message.toString()) }
+                                }
+                        }
+                    }
+                } catch (e: GoogleIdTokenParsingException) {
+                    Timber.e(e, "Received an invalid google id token response")
+                }
+            } else {
+                // Catch any unrecognized custom credential type here.
+                Timber.e("Unexpected type of credential")
+            }
+        } catch (e: GetCredentialCancellationException) {
+            // Manejo de la cancelación por parte del usuario
+            Timber.e(e, "Usuario canceló el inicio de sesión")
+            // Aquí puedes notificar al usuario, registrar el evento, etc.
+        }
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch(dispatcherProvider.io()) {

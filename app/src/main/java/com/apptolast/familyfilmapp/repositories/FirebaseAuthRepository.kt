@@ -1,18 +1,21 @@
 package com.apptolast.familyfilmapp.repositories
 
-import com.google.firebase.auth.AuthResult
+import com.apptolast.familyfilmapp.model.local.User
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
-class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) :
-    FirebaseAuthRepository {
+class FirebaseAuthRepositoryImpl @Inject constructor(
+    private val firebaseAuth: FirebaseAuth,
+    private val repository: Repository,
+) : FirebaseAuthRepository {
 
     /**
      * Get the current user from firebase authentication.
@@ -57,22 +60,22 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
      */
     override fun register(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+            .addOnCompleteListener { createUserTask ->
                 // Send validation email
-                if (task.isSuccessful) {
-                    val user = FirebaseAuth.getInstance().currentUser
-                    user?.sendEmailVerification()?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
+                if (createUserTask.isSuccessful) {
+                    val user = createUserTask.result.user
+                    user?.sendEmailVerification()?.addOnCompleteListener { sendEmailTask ->
+                        if (sendEmailTask.isSuccessful) {
                             launch {
                                 send(Result.success(user))
                                 send(Result.failure(Throwable(message = "Verification email sent")))
                             }
                         } else {
-                            launch { send(Result.failure(task.exception as Throwable)) }
+                            launch { send(Result.failure(sendEmailTask.exception as Throwable)) }
                         }
                     }
                 } else {
-                    launch { send(Result.failure(task.exception as Throwable)) }
+                    launch { send(Result.failure(createUserTask.exception as Throwable)) }
                 }
             }
             .addOnFailureListener {
@@ -101,12 +104,36 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         awaitClose()
     }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>> = callbackFlow {
+    override fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
-            .addOnSuccessListener {
-                launch {
-                    send(Result.success(it))
+            .addOnSuccessListener { authResult ->
+                val user = authResult.user
+                val isNewUser = authResult.additionalUserInfo?.isNewUser
+                if (user != null) {
+                    if (isNewUser == true) {
+                        repository.createUser(
+                            User().copy(
+                                id = user.uid,
+                                email = user.email ?: "",
+                                language = Locale.getDefault().language,
+                            ),
+                            success = {
+                                launch {
+                                    send(Result.success(user))
+                                }
+                            },
+                            failure = { error ->
+                                launch {
+                                    send(Result.failure(error))
+                                }
+                            },
+                        )
+                    } else {
+                        launch {
+                            send(Result.success(user))
+                        }
+                    }
                 }
             }
             .addOnFailureListener {
@@ -144,9 +171,9 @@ interface FirebaseAuthRepository {
     fun getUser(): Flow<FirebaseUser?>
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
+    fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser>>
     fun logOut()
     fun deleteAccount(email: String, password: String): Flow<Result<Boolean>>
-    fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
     fun isTokenValid(): Flow<Boolean>
 }

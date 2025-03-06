@@ -115,6 +115,7 @@ dependencies {
     implementation(libs.compose.animation)
 
     // Google auth
+    implementation(libs.googleid)
     implementation(libs.play.services.auth)
 
     // Retrofit

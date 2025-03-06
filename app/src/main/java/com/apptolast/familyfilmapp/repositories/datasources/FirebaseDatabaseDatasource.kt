@@ -5,6 +5,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUserTable
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
@@ -77,6 +78,43 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             .set(user)
             .addOnSuccessListener(success)
             .addOnFailureListener(failure)
+    }
+
+    fun checkNewUser() {
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val userRef = db.collection("users").document(userId)
+
+            userRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val isNewUser = document.getBoolean("isNewUser") ?: false
+                        if (isNewUser) {
+                            println("El usuario es nuevo (Firestore).")
+                            // Realizar acciones para usuarios nuevos
+                            userRef.update("isNewUser", false) // Marcar como no nuevo
+                        } else {
+                            println("El usuario ya existe (Firestore).")
+                            // Realizar acciones para usuarios existentes
+                        }
+                    } else {
+                        println("El usuario es nuevo (Firestore - primera vez).")
+                        // El usuario no existe en la base de datos, es nuevo
+                        val newUser = hashMapOf(
+                            "isNewUser" to true,
+                        )
+                        userRef.set(newUser)
+                        // Realizar acciones para usuarios nuevos
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    println("Error al comprobar el usuario: $exception")
+                }
+        }
     }
 
     override fun getUserById(userId: String, success: (User?) -> Unit) {

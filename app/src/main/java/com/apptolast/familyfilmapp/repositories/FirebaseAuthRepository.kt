@@ -147,6 +147,26 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             }
         awaitClose()
     }
+
+    override fun getProvider(): Flow<String?> = callbackFlow {
+        val user = firebaseAuth.currentUser
+        if (user != null) {
+            // Check if the user is logged with google
+            if (user.providerData.any { it.providerId.contains(GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD) }) {
+                launch { send(GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD) }
+            } else if (user.providerData.any {
+                    it.providerId.contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)
+                }
+            ) {
+                launch { send(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD) }
+            } else {
+                launch { send(null) }
+            }
+        } else {
+            launch { send(null) }
+        }
+        awaitClose()
+    }
 }
 
 interface FirebaseAuthRepository {
@@ -159,4 +179,5 @@ interface FirebaseAuthRepository {
     fun deleteGoogleAccount(): Flow<Result<Boolean>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
     fun isTokenValid(): Flow<Boolean>
+    fun getProvider(): Flow<String?>
 }

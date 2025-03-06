@@ -3,7 +3,6 @@ package com.apptolast.familyfilmapp.ui.sharedViewmodel
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -19,15 +18,19 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -60,7 +63,11 @@ class AuthViewModel @Inject constructor(
     val recoverPassState: StateFlow<RecoverPassState>
         field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
-    var credential: Credential? = null //
+    val provider: StateFlow<String?> = authRepository.getProvider().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
 
     init {
         viewModelScope.launch {
@@ -153,14 +160,14 @@ class AuthViewModel @Inject constructor(
 
     fun handleSignIn(result: GetCredentialResponse) {
         // Handle the successfully returned credential.
-        credential = result.credential
+        val credential = result.credential
 
         when (credential) {
             is CustomCredential -> {
-                if (credential!!.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
                         // Use googleIdTokenCredential and extract id to validate and authenticate on your server.
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential!!.data)
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
                         viewModelScope.launch {
                             authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first().let { result ->
@@ -239,10 +246,6 @@ class AuthViewModel @Inject constructor(
 
     fun logOut() {
         authRepository.logOut()
-        // TODO: Al hacer el logout hay que comprobar el provider.
-        //  para google hay que hacer `clearCredentialState()`
-        //  https://developer.android.com/identity/sign-in/credential-manager-siwg#handle-sign-out
-
         clearGoogleCredentials()
         authState.update { AuthState.Unauthenticated }
     }
@@ -257,27 +260,35 @@ class AuthViewModel @Inject constructor(
                     user = user,
                     success = {
                         viewModelScope.launch {
-                            if (credential == null) {
-                                authRepository.deleteAccountWithReAuthentication(email, password).first()
-                                    .let { result ->
+                            when (provider.value) {
+                                GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
+                                    authRepository.deleteGoogleAccount().first().let { result ->
                                         result
                                             .onSuccess {
+                                                clearGoogleCredentials()
                                                 authState.update { AuthState.Unauthenticated }
                                             }
                                             .onFailure { error ->
                                                 handleFailure(error, "Delete User Error")
                                             }
                                     }
-                            } else {
-                                authRepository.deleteGoogleAccount().first().let { result ->
-                                    result
-                                        .onSuccess {
-                                            clearGoogleCredentials()
-                                            authState.update { AuthState.Unauthenticated }
+                                }
+
+                                EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
+                                    authRepository.deleteAccountWithReAuthentication(email, password).first()
+                                        .let { result ->
+                                            result
+                                                .onSuccess {
+                                                    authState.update { AuthState.Unauthenticated }
+                                                }
+                                                .onFailure { error ->
+                                                    handleFailure(error, "Delete User Error")
+                                                }
                                         }
-                                        .onFailure { error ->
-                                            handleFailure(error, "Delete User Error")
-                                        }
+                                }
+
+                                else -> {
+                                    Timber.w(IllegalStateException("Credential not expected"))
                                 }
                             }
                         }
@@ -293,7 +304,7 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun clearGoogleCredentials() = viewModelScope.launch {
-        if (credential != null) {
+        if (provider.value == GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD) {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
     }

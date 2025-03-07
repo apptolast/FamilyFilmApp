@@ -1,4 +1,3 @@
-
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -35,12 +34,21 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.3.5"
+        versionCode = 8
+        versionName = "0.3.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
+//    signingConfigs {
+//        create("release") {
+//            storeFile = file(localProperties.getProperty("storeFile"))
+//            storePassword = localProperties.getProperty("storePassword")
+//            keyAlias = localProperties.getProperty("keyAlias")
+//            keyPassword = localProperties.getProperty("keyPassword")
+//        }
+//    }
 
     buildTypes {
         getByName("debug") {
@@ -49,13 +57,18 @@ android {
         }
 
         getByName("release") {
+
             buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
             buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+
             isMinifyEnabled = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+
+//            signingConfig = signingConfigs.getByName("release")
         }
     }
 

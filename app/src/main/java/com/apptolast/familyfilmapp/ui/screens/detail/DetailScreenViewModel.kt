@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.collections.toMutableMap
 
 @HiltViewModel
 class DetailScreenViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
@@ -48,9 +50,4 @@ data class DetailScreenStateState(val user: User) {
     constructor() : this(
         user = User(),
     )
-}
-
-enum class MovieStatus {
-    Watched,
-    ToWatch,
 }

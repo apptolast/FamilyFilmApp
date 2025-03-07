@@ -121,10 +121,11 @@ fun ProfileContent(
     var filedSpacer = 16.dp
 
     Column(
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
             contentAlignment = Alignment.Center,
@@ -183,7 +184,6 @@ fun ProfileContent(
             textAlign = TextAlign.Center,
         )
     }
-
 }
 
 @Preview(showSystemUi = true, showBackground = true)

@@ -75,7 +75,10 @@ jobs:
           name: apks
           path: |
             app/build/outputs/bundle/**/*.aab
+            app/build/outputs/apk/**/*.apk
             app/build/outputs/apk/
+            app/release/*.aab
+            app/release/*.apk
 
       # https://github.com/r0adkll/upload-google-play
       - name: Publish to Google Play Console
@@ -87,7 +90,7 @@ jobs:
           track: internal
           status: draft
           whatsNewDirectory: distribution/whatsnew
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
+#          mappingFile: app/build/outputs/mapping/release/mapping.txt
         continue-on-error: true
 
       # https://github.com/marketplace/actions/firebase-app-distribution

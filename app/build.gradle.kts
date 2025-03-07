@@ -62,7 +62,6 @@ android {
             buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
 
             isMinifyEnabled = true
-            isDebuggable = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

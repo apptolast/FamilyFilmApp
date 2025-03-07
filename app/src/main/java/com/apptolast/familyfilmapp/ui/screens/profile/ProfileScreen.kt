@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -29,11 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.BottomBar
@@ -117,54 +120,70 @@ fun ProfileContent(
 ) {
     var filedSpacer = 16.dp
 
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Card(
-//            modifier = Modifier
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center,
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = email,
-                    style = MaterialTheme.typography.titleSmall,
-                )
-
-                Spacer(
-                    modifier = Modifier.height(filedSpacer),
-                )
-
-                Spacer(modifier = Modifier.height(filedSpacer))
-
-                Button(onClick = onClickLogOut) {
-                    Text(
-                        text = "Logout",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    Spacer(modifier = Modifier.width(filedSpacer))
-                    Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
-                }
-
-                Spacer(modifier = Modifier.height(filedSpacer))
-
-                Button(
-                    onClick = onDeleteUser,
-                    colors = ButtonDefaults.buttonColors().copy(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    ),
+            Card {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = stringResource(R.string.profile_delete_account),
-                        style = MaterialTheme.typography.titleSmall,
+                        text = email,
+                        style = MaterialTheme.typography.titleMedium,
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+
+                    Spacer(
+                        modifier = Modifier.height(filedSpacer),
+                    )
+
+                    Spacer(modifier = Modifier.height(filedSpacer))
+
+                    Button(onClick = onClickLogOut) {
+                        Text(
+                            text = "Logout",
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        Spacer(modifier = Modifier.width(filedSpacer))
+                        Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+                    }
+
+                    Spacer(modifier = Modifier.height(filedSpacer))
+
+                    Button(
+                        onClick = onDeleteUser,
+                        colors = ButtonDefaults.buttonColors().copy(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                        ),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.profile_delete_account),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
             }
         }
+
+        Text(
+            text = "v${BuildConfig.VERSION_NAME}",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            textAlign = TextAlign.Center,
+        )
     }
+
 }
 
 @Preview(showSystemUi = true, showBackground = true)

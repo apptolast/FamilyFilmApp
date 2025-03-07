@@ -35,8 +35,8 @@ val titleMediumFontFamily = FontFamily(
 val baseline = Typography()
 
 val AppTypography = Typography(
-    titleLarge = baseline.headlineLarge.copy(fontFamily = titleLargeFontFamily),
-    titleMedium = baseline.headlineMedium.copy(fontFamily = titleMediumFontFamily),
+    titleLarge = baseline.titleLarge.copy(fontFamily = titleLargeFontFamily),
+    titleMedium = baseline.titleMedium.copy(fontFamily = titleMediumFontFamily),
 )
 
 @Preview(showBackground = true)

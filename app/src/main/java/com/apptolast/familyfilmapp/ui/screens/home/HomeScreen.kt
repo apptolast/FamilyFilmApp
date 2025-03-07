@@ -1,26 +1,32 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -49,13 +56,31 @@ import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.flow.flowOf
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movieItems: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Movies")
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
         bottomBar = { BottomBar(navController = navController) },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
         HomeContent(
             movies = movieItems,
@@ -79,17 +104,21 @@ fun HomeContent(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 4.dp),
+    ) {
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 8.dp),
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
                 searchMovieByNameBody(it)
             },
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.small,
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
             },
@@ -107,7 +136,7 @@ fun HomeContent(
             ),
         )
 
-        RowMovie(
+        MovieGridList(
             movies = movies,
             filterMovies = filterMovies,
             modifier = Modifier.weight(1f),
@@ -117,7 +146,7 @@ fun HomeContent(
 }
 
 @Composable
-private fun RowMovie(
+private fun MovieGridList(
     movies: LazyPagingItems<Movie>,
     filterMovies: List<Movie>,
     modifier: Modifier = Modifier,
@@ -128,8 +157,9 @@ private fun RowMovie(
     Box(modifier = modifier) {
         if (filterMovies.isNotEmpty()) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.padding(bottom = 15.dp),
+                columns = GridCells.Adaptive(100.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 items(filterMovies) { movie ->
                     MovieItem(
@@ -140,8 +170,9 @@ private fun RowMovie(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.padding(bottom = 15.dp),
+                columns = GridCells.Adaptive(100.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 items(movies.itemCount) { index ->
                     MovieItem(

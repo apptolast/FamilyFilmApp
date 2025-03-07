@@ -10,12 +10,14 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.EmailAuthProvider
@@ -45,7 +47,7 @@ class AuthViewModel @Inject constructor(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
-    private val credentialRequest: GetCredentialRequest,
+//    private val credentialRequest: GetCredentialRequest,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -145,9 +147,19 @@ class AuthViewModel @Inject constructor(
     }
 
     fun googleSignIn(context: Context) = viewModelScope.launch {
+        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(true)
+            .setServerClientId(BuildConfig.WEB_ID_CLIENT)
+            .setAutoSelectEnabled(true)
+            .build()
+
+        val request: GetCredentialRequest = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
         try {
             val result = credentialManager.getCredential(
-                request = credentialRequest,
+                request = request,
                 context = context,
             )
             handleSignIn(result)

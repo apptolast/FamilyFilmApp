@@ -35,8 +35,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "0.3.4"
+        versionCode = 7
+        versionName = "0.3.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -51,6 +51,11 @@ android {
         getByName("release") {
             buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
             buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 

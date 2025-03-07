@@ -5,6 +5,25 @@ on:
     branches:
       - main
 
+#  For testing the action manually it can be done executing:
+#  gh run list --workflow=deploy.yml
+#
+#  workflow_dispatch:
+#    inputs:
+#      environment:
+#        description: 'Environment to deploy to'
+#        required: true
+#        type: choice
+#        options:
+#          - release
+#          - internal
+#        default: release
+#      branch:
+#        description: 'Branch to deploy'
+#        required: true
+#        type: string
+#        default: main
+
 jobs:
   build_and_deploy:
     name: Deploy
@@ -56,7 +75,10 @@ jobs:
           name: apks
           path: |
             app/build/outputs/bundle/**/*.aab
+            app/build/outputs/apk/**/*.apk
             app/build/outputs/apk/
+            app/release/*.aab
+            app/release/*.apk
 
       # https://github.com/r0adkll/upload-google-play
       - name: Publish to Google Play Console
@@ -64,18 +86,19 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON }}
           packageName: com.apptolast.familyfilmapp
-          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
-          userFraction: 0.99
+          status: draft
           whatsNewDirectory: distribution/whatsnew
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
+#          mappingFile: app/build/outputs/mapping/release/mapping.txt
         continue-on-error: true
 
       # https://github.com/marketplace/actions/firebase-app-distribution
       - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.2.2
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
-          token: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
-          groups: Developers
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE_CONTENT }}
+          groups: devs
+          debug: true
           file: app/build/outputs/apk/debug/app-debug.apk

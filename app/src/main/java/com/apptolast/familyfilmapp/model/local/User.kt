@@ -1,6 +1,6 @@
 package com.apptolast.familyfilmapp.model.local
 
-import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 
 data class User(
     val id: String,

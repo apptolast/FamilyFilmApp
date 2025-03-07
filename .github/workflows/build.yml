@@ -38,6 +38,11 @@ jobs:
           FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
         run: echo $FIREBASE_JSON > app/google-services.json
 
+      - name: Create local.properties
+        run: |
+          echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
+          echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
+
       - name: Run Debug Tests
         run: ./gradlew build test --continue
 

@@ -1,7 +1,7 @@
 package com.apptolast.familyfilmapp.room.converters
 
 import androidx.room.TypeConverter
-import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

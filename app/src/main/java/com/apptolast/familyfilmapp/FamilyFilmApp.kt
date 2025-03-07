@@ -5,9 +5,9 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
 import timber.log.Timber.DebugTree
 import timber.log.Timber.Forest.plant
+import javax.inject.Inject
 
 @HiltAndroidApp
 class FamilyFilmApp :
@@ -26,8 +26,6 @@ class FamilyFilmApp :
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
-            plant(DebugTree())
-        }
+        plant(DebugTree())
     }
 }

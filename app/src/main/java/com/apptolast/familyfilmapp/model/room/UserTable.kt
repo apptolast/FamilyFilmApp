@@ -4,9 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
 import com.apptolast.familyfilmapp.room.converters.MapStatusConverter
-import com.apptolast.familyfilmapp.ui.screens.detail.MovieStatus
 
 @Entity(tableName = USERS_TABLE_NAME)
 data class UserTable(

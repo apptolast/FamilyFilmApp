@@ -121,12 +121,12 @@ fun ProfileContent(
     var filedSpacer = 16.dp
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
@@ -180,13 +180,15 @@ fun ProfileContent(
             text = "v${BuildConfig.VERSION_NAME}",
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
         )
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true)
+@Preview(showBackground = true)
 @Composable
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {

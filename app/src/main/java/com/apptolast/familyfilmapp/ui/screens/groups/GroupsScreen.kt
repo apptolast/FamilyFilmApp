@@ -41,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
@@ -60,8 +59,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 @Composable
 fun GroupsScreen(
     viewModel: GroupViewModel = hiltViewModel(),
-    onClickNav: (String) -> Unit,
-    onBack: () -> Unit
+    onClickNav: (String) -> Unit = {},
+    onBack: () -> Unit = {},
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -85,14 +84,14 @@ fun GroupsScreen(
                 title = {
                     Text(stringResource(R.string.screen_title_groups))
                 },
-                navigationIcon ={
+                navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
                         )
                     }
-                }
+                },
             )
         },
 //        bottomBar = { BottomBar(navController = navController) },

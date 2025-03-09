@@ -53,8 +53,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 @Composable
 fun ProfileScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    onClickNav: (String) -> Unit,
-    onBack: () -> Unit,
+    onClickNav: (String) -> Unit = {},
+    onBack: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()

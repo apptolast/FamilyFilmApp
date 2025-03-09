@@ -95,7 +95,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
                     ) {
                         Text(
                             text = stringResource(R.string.movies),
-                            style = MaterialTheme.typography.headlineLarge
+                            style = MaterialTheme.typography.headlineLarge,
                         )
                         Row {
                             IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
@@ -154,7 +154,6 @@ fun HomeContent(
             .fillMaxSize()
             .padding(horizontal = 8.dp),
     ) {
-
         MovieGridList(
             movies = movies,
             filterMovies = filterMovies,
@@ -212,7 +211,6 @@ private fun MovieGridList(
     filterMovies: List<Movie>,
     onMovieClick: (Movie) -> Unit = {},
 ) {
-
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
@@ -247,7 +245,6 @@ private fun MovieGridList(
 
 @Composable
 private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (String) -> Unit) {
-
     movies.apply {
         when {
             loadState.refresh is LoadState.Loading -> {

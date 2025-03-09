@@ -25,3 +25,23 @@
 
 -keep class com.apptolast.familyfilmapp.model.local.** { *; }
 -keep class com.apptolast.familyfilmapp.model.local.types.** { *; }
+
+-include proguard-rules.pro
+-keepattributes SourceFile,LineNumberTable
+-dontwarn org.xmlpull.v1.**
+-dontnote org.xmlpull.v1.**
+-keep class org.xmlpull.** { *; }
+-keepclassmembers class org.xmlpull.** { *; }
+-keep class com.google.firebase.auth.** {*;}
+
+# Proguard rules form official quickstart-android project from firebase:
+# https://github.com/firebase/quickstart-android/blob/master/auth/app/proguard-rules.pro
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+-dontwarn org.xmlpull.v1.**
+-dontnote org.xmlpull.v1.**
+-keep class org.xmlpull.** { *; }
+-keepclassmembers class org.xmlpull.** { *; }

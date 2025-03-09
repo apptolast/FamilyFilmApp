@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
@@ -23,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,7 +47,6 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
@@ -53,9 +56,13 @@ import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScroll
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 
-@OptIn(DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltViewModel()) {
+fun GroupsScreen(
+    viewModel: GroupViewModel = hiltViewModel(),
+    onClickNav: (String) -> Unit,
+    onBack: () -> Unit
+) {
     val snackBarHostState = remember { SnackbarHostState() }
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
@@ -73,7 +80,22 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
-        bottomBar = { BottomBar(navController = navController) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(stringResource(R.string.screen_title_groups))
+                },
+                navigationIcon ={
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
+                        )
+                    }
+                }
+            )
+        },
+//        bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = stringResource(id = R.string.groups_text_create_group)) },
@@ -123,7 +145,7 @@ fun GroupsScreen(navController: NavController, viewModel: GroupViewModel = hiltV
                     viewModel.selectGroup(index)
                 },
                 onMovieClick = { movie ->
-                    navController.navigate(DetailNavTypeDestination.getDestination(movie))
+                    onClickNav(DetailNavTypeDestination.getDestination(movie))
                 },
             )
 

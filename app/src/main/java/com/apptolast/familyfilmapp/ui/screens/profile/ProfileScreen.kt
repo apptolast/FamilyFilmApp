@@ -12,15 +12,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,11 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
-import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
@@ -47,8 +49,13 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
+    onClickNav: (String) -> Unit,
+    onBack: () -> Unit,
+) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val provider by viewModel.provider.collectAsStateWithLifecycle()
@@ -57,7 +64,22 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltV
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(stringResource(R.string.screen_title_profile))
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
+                        )
+                    }
+                },
+            )
+        },
+//        bottomBar = { BottomBar(navController = navController) },
         contentColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
 
@@ -105,7 +127,7 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = hiltV
             }
 
             AuthState.Unauthenticated -> {
-                navController.navigate(Routes.Login.routes)
+                onClickNav(Routes.Login.routes)
             }
         }
     }

@@ -34,8 +34,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 12
-        versionName = "0.3.10"
+        versionCode = 13
+        versionName = "0.3.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -57,7 +57,7 @@ android {
         getByName("debug") { }
 
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

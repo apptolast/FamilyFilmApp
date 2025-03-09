@@ -9,21 +9,21 @@ on:
 #  gh workflow run deploy.yml environment=release --ref <Branch>
 #  gh run list --workflow=deploy.yml
 #
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        type: choice
-        options:
-          - release
-          - internal
-        default: release
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        type: string
-        default: main
+#  workflow_dispatch:
+#    inputs:
+#      environment:
+#        description: 'Environment to deploy to'
+#        required: true
+#        type: choice
+#        options:
+#          - release
+#          - internal
+#        default: release
+#      branch:
+#        description: 'Branch to deploy'
+#        required: true
+#        type: string
+#        default: main
 
 jobs:
   build_and_deploy:
@@ -60,7 +60,6 @@ jobs:
         run: |
           echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
           echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
-          ls -al
 
       - name: Assemble
         run: ./gradlew assembleDebug bundleRelease

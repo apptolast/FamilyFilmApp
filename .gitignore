@@ -200,3 +200,10 @@ fabric.properties
 
 /.java-version
 /app/schemas/
+/app/release/
+/ui-debug.log
+/firestore-debug.log
+/firestore.rules
+/firestore.indexes.json
+/firebase.json
+/.firebaserc

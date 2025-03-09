@@ -95,7 +95,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(stringResource(R.string.movies))
+                        Text(
+                            text = stringResource(R.string.movies),
+                            style = MaterialTheme.typography.headlineLarge
+                        )
                         Row {
                             IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
                                 Icon(
@@ -178,7 +181,7 @@ fun HomeContent(
                     IconButton(onClick = { searchQuery = "" }) {
                         Icon(
                             imageVector = Icons.Default.Close, // Ícono de "X"
-                            contentDescription = "Borrar texto"
+                            contentDescription = "Borrar texto",
                         )
                     }
                 }

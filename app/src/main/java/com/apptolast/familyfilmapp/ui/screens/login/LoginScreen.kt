@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
@@ -204,6 +205,7 @@ fun MovieAppLoginContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
+            .imePadding() // Ajusta el espacio cuando aparece el teclado,
             .padding(horizontal = 16.dp)
             .padding(bottom = 20.dp),
     ) {
@@ -219,29 +221,23 @@ fun MovieAppLoginContent(
         // Title
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineMedium.copy(
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 36.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
-            ),
-            modifier = Modifier.padding(bottom = 8.dp),
+            style = MaterialTheme.typography.headlineLarge.copy(color = Color.White, fontSize = 38.sp),
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
         // Additional description
         Text(
             text = stringResource(R.string.login_text_app_subtitle),
-            style = MaterialTheme.typography.bodyMedium.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = Color.LightGray,
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
-                fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
             ),
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
             modifier = Modifier.padding(bottom = 20.dp),
         )
+
         AnimatedVisibility(showLoginInterface) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

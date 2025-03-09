@@ -20,7 +20,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.FamilyFilmApp">
+            android:theme="@style/Theme.FamilyFilmApp"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Adjust content to keyboard size. -->
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

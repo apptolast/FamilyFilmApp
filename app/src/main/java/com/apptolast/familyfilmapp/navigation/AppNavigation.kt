@@ -1,9 +1,7 @@
 package com.apptolast.familyfilmapp.navigation
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -26,7 +24,6 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
     NavHost(
         navController = navController,
-        modifier = Modifier.padding(),
         startDestination = if (authState is AuthState.Authenticated) {
             Routes.Home.routes
         } else {
@@ -43,15 +40,27 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
             route = Routes.Home.routes,
             arguments = listOf(),
         ) {
-            HomeScreen(navController = navController)
+            HomeScreen(
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+            )
         }
         composable(route = Routes.Groups.routes) {
-            GroupsScreen(navController = navController)
+            GroupsScreen(
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+                onBack = { navController.navigateUp() },
+            )
         }
         composable(route = Routes.Profile.routes) {
             ProfileScreen(
-                navController = navController,
                 viewModel = authViewModel,
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+                onBack = { navController.navigateUp() },
             )
         }
         composable(

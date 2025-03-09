@@ -17,14 +17,14 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs,
 )
 
-val titleLargeFontFamily = FontFamily(
+val headlineLargeFontFamily = FontFamily(
     Font(
         googleFont = GoogleFont("Aclonica"),
         fontProvider = provider,
     ),
 )
 
-val titleMediumFontFamily = FontFamily(
+val titleLargeFontFamily = FontFamily(
     Font(
         googleFont = GoogleFont("Acme"),
         fontProvider = provider,
@@ -35,8 +35,8 @@ val titleMediumFontFamily = FontFamily(
 val baseline = Typography()
 
 val AppTypography = Typography(
-    titleLarge = baseline.headlineLarge.copy(fontFamily = titleLargeFontFamily),
-    titleMedium = baseline.headlineMedium.copy(fontFamily = titleMediumFontFamily),
+    headlineLarge = baseline.headlineLarge.copy(fontFamily = headlineLargeFontFamily),
+    titleLarge = baseline.titleLarge.copy(fontFamily = titleLargeFontFamily),
 )
 
 @Preview(showBackground = true)

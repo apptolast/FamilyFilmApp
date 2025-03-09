@@ -1,34 +1,50 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
-import android.widget.Toast
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -44,28 +59,83 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.components.BottomBar
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.flow.flowOf
 
+@SuppressLint("StateFlowValueCalledInComposition")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) -> Unit) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
-    val movieItems: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
+    val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
+
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val errorMessage = viewModel.homeUiState.value.errorMessage?.error
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackBarHostState.showSnackbar(it)
+            viewModel.clearError() // Clear error after showing
+        }
+    }
 
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.movies),
+                            style = MaterialTheme.typography.headlineLarge,
+                        )
+                        Row {
+                            IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Groups,
+                                    contentDescription = Icons.Outlined.Groups.toString(),
+                                )
+                            }
+                            IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = Icons.Outlined.Settings.toString(),
+                                )
+                            }
+                        }
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
-        HomeContent(
-            movies = movieItems,
-            filterMovies = stateUI.filterMovies,
-            modifier = Modifier.padding(paddingValues),
-            onMovieClick = { movie ->
-                navController.navigate(DetailNavTypeDestination.getDestination(movie))
-            },
-            searchMovieByNameBody = viewModel::searchMovieByName,
-        )
+        Box {
+            HomeContent(
+                movies = movies,
+                filterMovies = stateUI.filterMovies,
+                modifier = Modifier.padding(top = paddingValues.calculateTopPadding().value.dp),
+                onMovieClick = { movie ->
+                    onClickNav(DetailNavTypeDestination.getDestination(movie))
+                },
+                searchMovieByNameBody = viewModel::searchMovieByName,
+            )
+
+            LoadStateContent(
+                movies = movies,
+                triggerError = viewModel::triggerError,
+            )
+        }
     }
 }
 
@@ -79,19 +149,39 @@ fun HomeContent(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
+    ) {
+        MovieGridList(
+            movies = movies,
+            filterMovies = filterMovies,
+            onMovieClick = onMovieClick,
+        )
+
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 8.dp),
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
                 searchMovieByNameBody(it)
             },
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.small,
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+            },
+            trailingIcon = {
+                AnimatedVisibility(searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(
+                            imageVector = Icons.Default.Close, // Ícono de "X"
+                            contentDescription = "Borrar texto",
+                        )
+                    }
+                }
             },
             label = {
                 Text(text = stringResource(R.string.search_film_or_series))
@@ -105,98 +195,90 @@ fun HomeContent(
                     searchMovieByNameBody(searchQuery)
                 },
             ),
-        )
-
-        RowMovie(
-            movies = movies,
-            filterMovies = filterMovies,
-            modifier = Modifier.weight(1f),
-            onMovieClick = onMovieClick,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                disabledContainerColor = MaterialTheme.colorScheme.background,
+                errorContainerColor = MaterialTheme.colorScheme.background,
+            ),
         )
     }
 }
 
 @Composable
-private fun RowMovie(
+private fun MovieGridList(
     movies: LazyPagingItems<Movie>,
     filterMovies: List<Movie>,
-    modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit = {},
 ) {
-    val context = LocalContext.current
-
-    Box(modifier = modifier) {
-        if (filterMovies.isNotEmpty()) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.padding(bottom = 15.dp),
-            ) {
-                items(filterMovies) { movie ->
-                    MovieItem(
-                        movie = movie,
-                        onClick = onMovieClick,
-                    )
-                }
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.padding(bottom = 15.dp),
-            ) {
-                items(movies.itemCount) { index ->
-                    MovieItem(
-                        movie = movies[index]!!,
-                        onClick = onMovieClick,
-                    )
-                }
+    AnimatedVisibility(filterMovies.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(100.dp),
+            horizontalArrangement = Arrangement.spacedBy(17.dp),
+            verticalArrangement = Arrangement.spacedBy(17.dp),
+            contentPadding = PaddingValues(top = 76.dp),
+        ) {
+            items(filterMovies) { movie ->
+                MovieItem(
+                    movie = movie,
+                    onClick = onMovieClick,
+                )
             }
         }
+    }
+    AnimatedVisibility(filterMovies.isEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(100.dp),
+            horizontalArrangement = Arrangement.spacedBy(17.dp),
+            verticalArrangement = Arrangement.spacedBy(17.dp),
+            contentPadding = PaddingValues(top = 76.dp),
+        ) {
+            items(movies.itemCount) { index ->
+                MovieItem(
+                    movie = movies[index]!!,
+                    onClick = onMovieClick,
+                )
+            }
+        }
+    }
+}
 
-        movies.apply {
-            when {
-                loadState.refresh is LoadState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
+@Composable
+private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (String) -> Unit) {
+    movies.apply {
+        when {
+            loadState.refresh is LoadState.Loading -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
+            }
 
-                loadState.refresh is LoadState.Error -> {
-                    val error = movies.loadState.refresh as LoadState.Error
+            loadState.refresh is LoadState.Error -> {
+                val error = movies.loadState.refresh as LoadState.Error
+                triggerError(error.error.localizedMessage!!)
+            }
 
-                    Toast.makeText(
-                        context,
-                        error.error.localizedMessage!!,
-                        Toast.LENGTH_SHORT,
-                    ).show()
+            loadState.append is LoadState.Loading -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
+            }
 
-                loadState.append is LoadState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
-
-                loadState.append is LoadState.Error -> {
-                    val error = movies.loadState.append as LoadState.Error
-
-                    Toast.makeText(
-                        context,
-                        error.error.localizedMessage!!,
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                }
+            loadState.append is LoadState.Error -> {
+                val error = movies.loadState.append as LoadState.Error
+                triggerError(error.error.localizedMessage!!)
             }
         }
     }

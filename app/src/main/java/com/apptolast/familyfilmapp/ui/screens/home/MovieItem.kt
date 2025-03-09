@@ -1,24 +1,14 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -26,48 +16,21 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
-fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onClick: (Movie) -> Unit = {}) {
-    Box(
-        modifier = modifier
-            .width(IntrinsicSize.Max)
-            .padding(4.dp)
+fun MovieItem(movie: Movie, onClick: (Movie) -> Unit = {}) {
+    AsyncImage(
+        model = if (movie.posterPath.isEmpty()) {
+            "https://picsum.photos/133/200"
+        } else {
+            "${BASE_URL}${movie.posterPath}"
+        },
+        contentDescription = movie.title,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(2 / 3.2f)
+            .clip(shape = MaterialTheme.shapes.small)
             .clickable { onClick(movie) },
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(4.dp)
-                .clickable { onClick(movie) },
-        ) {
-            AsyncImage(
-                model = if (movie.posterPath.isEmpty()) {
-                    "https://picsum.photos/133/200"
-                } else {
-                    "${BASE_URL}${movie.posterPath}"
-                },
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = 133.dp, height = 200.dp)
-                    .clip(
-                        shape = MaterialTheme.shapes.medium,
-                    ),
-                contentScale = ContentScale.FillHeight,
-            )
-
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp),
-                textAlign = TextAlign.Center,
-                minLines = 2,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
+        contentScale = ContentScale.FillHeight,
+    )
 }
 
 @Preview(showBackground = true)

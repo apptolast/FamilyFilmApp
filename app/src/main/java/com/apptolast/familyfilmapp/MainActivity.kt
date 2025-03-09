@@ -15,9 +15,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         // Fill the screen
-        enableEdgeToEdge()
         setContent {
             FamilyFilmAppTheme(dynamicColor = false) {
                 // A surface container using the 'background' color from the theme

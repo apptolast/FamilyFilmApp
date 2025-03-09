@@ -51,7 +51,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onClickNav = { route ->
                     navController.navigate(route)
                 },
-                onBack = { navController.popBackStack() },
+                onBack = { navController.navigateUp() },
             )
         }
         composable(route = Routes.Profile.routes) {
@@ -60,7 +60,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onClickNav = { route ->
                     navController.navigate(route)
                 },
-                onBack = { navController.popBackStack() },
+                onBack = { navController.navigateUp() },
             )
         }
         composable(

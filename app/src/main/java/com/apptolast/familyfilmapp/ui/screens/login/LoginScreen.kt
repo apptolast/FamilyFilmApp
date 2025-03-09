@@ -230,6 +230,7 @@ fun MovieAppLoginContent(
             text = stringResource(R.string.login_text_app_subtitle),
             style = MaterialTheme.typography.titleLarge.copy(
                 color = Color.LightGray,
+                fontSize = 18.sp,
                 textAlign = TextAlign.Center,
             ),
             overflow = TextOverflow.Ellipsis,

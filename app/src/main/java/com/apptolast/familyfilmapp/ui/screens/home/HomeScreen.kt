@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Groups
@@ -80,7 +78,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
-            viewModel.clearError() // Limpiar error después de mostrar el Snackbar
+            viewModel.clearError() // Clear error after showing
         }
     }
 

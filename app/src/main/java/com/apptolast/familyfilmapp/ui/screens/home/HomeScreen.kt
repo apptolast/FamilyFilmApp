@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Settings
@@ -149,7 +151,7 @@ fun HomeContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 8.dp),
     ) {
 
         MovieGridList(
@@ -170,6 +172,16 @@ fun HomeContent(
             shape = MaterialTheme.shapes.small,
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+            },
+            trailingIcon = {
+                AnimatedVisibility(searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(
+                            imageVector = Icons.Default.Close, // Ícono de "X"
+                            contentDescription = "Borrar texto"
+                        )
+                    }
+                }
             },
             label = {
                 Text(text = stringResource(R.string.search_film_or_series))
@@ -200,11 +212,11 @@ private fun MovieGridList(
     onMovieClick: (Movie) -> Unit = {},
 ) {
 
-    if (filterMovies.isNotEmpty()) {
+    AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(17.dp),
+            verticalArrangement = Arrangement.spacedBy(17.dp),
             contentPadding = PaddingValues(top = 76.dp),
         ) {
             items(filterMovies) { movie ->
@@ -214,11 +226,12 @@ private fun MovieGridList(
                 )
             }
         }
-    } else {
+    }
+    AnimatedVisibility(filterMovies.isEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(17.dp),
+            verticalArrangement = Arrangement.spacedBy(17.dp),
             contentPadding = PaddingValues(top = 76.dp),
         ) {
             items(movies.itemCount) { index ->

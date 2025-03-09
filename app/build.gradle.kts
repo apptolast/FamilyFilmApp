@@ -58,7 +58,6 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
-            isDebuggable = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

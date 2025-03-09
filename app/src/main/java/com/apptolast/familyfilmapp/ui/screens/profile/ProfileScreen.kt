@@ -130,7 +130,7 @@ fun ProfileContent(
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            Card() {
+            Card {
                 Column(
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

@@ -16,9 +16,13 @@ import javax.inject.Singleton
 object FirebaseModule {
     @Singleton
     @Provides
-    fun provideFirebaseFirestore(): FirebaseFirestore = Firebase.firestore
+    fun provideFirebaseFirestore(): FirebaseFirestore = Firebase.firestore.also {
+//        it.useEmulator("10.0.2.2", 8080)
+    }
 
     @Singleton
     @Provides
-    fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth
+    fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth.also {
+//        it.useEmulator("10.0.2.2", 9099)
+    }
 }

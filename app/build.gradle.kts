@@ -23,8 +23,8 @@ if (localFile.exists()) {
     localProperties.load(FileInputStream(localFile))
 }
 
-val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT", "")
-val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN", "")
+val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT")
+val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN")
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -34,11 +34,14 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "0.3.6"
+        versionCode = 13
+        versionName = "0.3.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+        buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
     }
 
 //    signingConfigs {
@@ -51,16 +54,9 @@ android {
 //    }
 
     buildTypes {
-        getByName("debug") {
-            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
-            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
-        }
+        getByName("debug") { }
 
         getByName("release") {
-
-            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
-            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
-
             isMinifyEnabled = true
 
             proguardFiles(

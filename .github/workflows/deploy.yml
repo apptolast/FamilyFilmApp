@@ -6,23 +6,24 @@ on:
       - main
 
 #  For testing the action manually it can be done executing:
+#  gh workflow run deploy.yml environment=release --ref <Branch>
 #  gh run list --workflow=deploy.yml
 #
-#  workflow_dispatch:
-#    inputs:
-#      environment:
-#        description: 'Environment to deploy to'
-#        required: true
-#        type: choice
-#        options:
-#          - release
-#          - internal
-#        default: release
-#      branch:
-#        description: 'Branch to deploy'
-#        required: true
-#        type: string
-#        default: main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - release
+          - internal
+        default: release
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        type: string
+        default: main
 
 jobs:
   build_and_deploy:

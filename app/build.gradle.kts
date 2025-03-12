@@ -23,8 +23,10 @@ if (localFile.exists()) {
     localProperties.load(FileInputStream(localFile))
 }
 
-val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT")
-val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN")
+val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT", "")
+val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN", "")
+val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID", "")
+val admobBannerIdDebug: String = localProperties.getProperty("ADMOB_BANNER_ID_DEBUG", "")
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -34,37 +36,30 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.3.11"
+        versionCode = 5
+        versionName = "0.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-
-        buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
-        buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
     }
 
-//    signingConfigs {
-//        create("release") {
-//            storeFile = file(localProperties.getProperty("storeFile"))
-//            storePassword = localProperties.getProperty("storePassword")
-//            keyAlias = localProperties.getProperty("keyAlias")
-//            keyPassword = localProperties.getProperty("keyPassword")
-//        }
-//    }
-
     buildTypes {
-        getByName("debug") { }
+        getByName("debug") {
+            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
+            buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
+            buildConfigField("String", "ADMOB_BANNER_ID_DEBUG", "\"$admobBannerIdDebug\"")
+
+            resValue("string", "admob_app_id", admobAppId)
+        }
 
         getByName("release") {
-            isMinifyEnabled = true
+            buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
+            buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
+            buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
+            buildConfigField("String", "ADMOB_BANNER_ID_DEBUG", "\"$admobBannerIdDebug\"")
 
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-
-//            signingConfig = signingConfigs.getByName("release")
+            resValue("string", "admob_app_id", admobAppId)
         }
     }
 
@@ -129,8 +124,9 @@ dependencies {
     implementation(libs.compose.runtime.livedata)
     implementation(libs.compose.animation)
 
-    // Google credentials
-    implementation(libs.bundles.google.credentials)
+    // Google auth
+    implementation(libs.googleid)
+    implementation(libs.play.services.auth)
 
     // Retrofit
     implementation(libs.logging.interceptor)
@@ -174,6 +170,9 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Admob
+    implementation(libs.play.services.ads)
 
     // Turbine
     testImplementation(libs.turbine)

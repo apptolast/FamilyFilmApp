@@ -31,20 +31,3 @@ fun AdaptiveBanner() {
         },
     )
 }
-
-//@Composable
-//fun AdMobBanner(adUnitId: String) {
-//
-//    AndroidView(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(50.dp), // Altura estándar del banner
-//        factory = { context ->
-//            AdView(context).apply {
-//                setAdSize(AdSize.BANNER) // Puedes cambiar el tamaño si es necesario
-//                adUnitId = adUnitId
-//                loadAd(AdRequest.Builder().build())
-//            }
-//        }
-//    )
-//}

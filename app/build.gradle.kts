@@ -126,7 +126,7 @@ dependencies {
 
     // Google auth
     implementation(libs.googleid)
-    implementation(libs.play.services.auth)
+//    implementation(libs.play.services.auth)
 
     // Retrofit
     implementation(libs.logging.interceptor)

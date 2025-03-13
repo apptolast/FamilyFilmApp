@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -80,6 +81,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val password by viewModel.password.collectAsStateWithLifecycle()
     val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
+    val snackBarHostState = remember { SnackbarHostState() }
     var showLoginInterface by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
@@ -117,7 +119,11 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             }
 
             is AuthState.Error -> {
-                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_LONG).show()
+                val errorMessage = (authState as AuthState.Error).message
+                LaunchedEffect(errorMessage) {
+                    snackBarHostState.showSnackbar(errorMessage ?: "Error")
+                }
+
             }
 
             AuthState.Loading -> {

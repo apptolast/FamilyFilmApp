@@ -1,10 +1,12 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
@@ -22,8 +24,10 @@ fun MovieItem(modifier: Modifier = Modifier, onClick: (Movie) -> Unit = {}, movi
         },
         contentDescription = movie.title,
         modifier = modifier
+            .aspectRatio(2 / 3.2f)
             .clip(shape = MaterialTheme.shapes.small)
             .clickable { onClick(movie) },
+        contentScale = ContentScale.FillHeight,
     )
 }
 

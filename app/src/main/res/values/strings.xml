@@ -44,7 +44,8 @@
     <string name="search_film_or_series">Search film or series</string>
 
     <!-- PROFILE -->
-    <string name="profile_delete_account">Delete Account</string>
+    <string name="profile_text_delete_account">Delete Account</string>
+    <string name="profile_text_logout">Logout</string>
 
     <!-- DIALOGS -->
     <string name="dialog_create_group_title">Create Group</string>

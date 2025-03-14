@@ -32,8 +32,13 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
     ) {
         composable(route = Routes.Login.routes) {
             LoginScreen(
-                navController = navController,
                 viewModel = authViewModel,
+                onClickNav = {
+                    navController.navigate(Routes.Home.routes) {
+                        popUpTo(Routes.Login.routes) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
             )
         }
         composable(
@@ -57,8 +62,11 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         composable(route = Routes.Profile.routes) {
             ProfileScreen(
                 viewModel = authViewModel,
-                onClickNav = { route ->
-                    navController.navigate(route)
+                onClickNav = {
+                    navController.navigate(Routes.Login.routes) {
+                        popUpTo(Routes.Profile.routes) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 onBack = { navController.navigateUp() },
             )

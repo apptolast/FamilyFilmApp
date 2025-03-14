@@ -302,21 +302,18 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesToWatch,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
                     )
                 }
+
             }
 
             // Movies watched
@@ -324,18 +321,14 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_watched),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesWatched,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
                     )
                 }

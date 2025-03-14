@@ -72,7 +72,7 @@ import kotlin.random.Random
 import kotlinx.coroutines.delay
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
+fun LoginScreen(viewModel: AuthViewModel = hiltViewModel(), onClickNav: () -> Unit = {}) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
@@ -109,10 +109,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                 LaunchedEffect(true) {
                     showLoginInterface = false
                     delay(500)
-                    navController.navigate(Routes.Home.routes) {
-                        popUpTo(Routes.Login.routes) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                    onClickNav()
                 }
             }
 

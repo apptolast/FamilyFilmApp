@@ -45,9 +45,10 @@
     <string name="search_film_or_series">Buscar película o serie</string>
 
     <!-- PROFILE -->
-    <string name="profile_delete_account">Eliminar Cuenta</string>
 
     <!-- DIALOGS -->
+    <string name="profile_text_delete_account">Eliminar Cuenta</string>
+    <string name="profile_text_logout">Cerrar sesión</string>
     <string name="dialog_create_group_title">Crear Grupo</string>
     <string name="dialog_create_group_description">Introduce el nombre del grupo</string>
     <string name="dialog_change_group_title">Cambiar nombre del Grupo</string>

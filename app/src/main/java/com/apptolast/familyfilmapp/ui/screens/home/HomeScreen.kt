@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,7 +61,6 @@ import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.flow.flowOf
 
@@ -117,9 +115,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
                 },
                 scrollBehavior = scrollBehavior,
             )
-        },
-        bottomBar = {
-            AdaptiveBanner()
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

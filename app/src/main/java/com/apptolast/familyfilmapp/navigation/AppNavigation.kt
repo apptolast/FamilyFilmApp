@@ -1,17 +1,15 @@
 package com.apptolast.familyfilmapp.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreenRoot
+import com.apptolast.familyfilmapp.ui.screens.detail.MovieDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
@@ -25,60 +23,53 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-    val screensWithoutAds = listOf(
-        Routes.Login.routes,
-    )
-
-    Column {
-        NavHost(
-            navController = navController,
-            startDestination = if (authState is AuthState.Authenticated) {
-                Routes.Home.routes
-            } else {
-                Routes.Login.routes
-            },
-            modifier = Modifier.weight(1f),
+    NavHost(
+        navController = navController,
+        startDestination = if (authState is AuthState.Authenticated) {
+            Routes.Home.routes
+        } else {
+            Routes.Login.routes
+        },
+    ) {
+        composable(route = Routes.Login.routes) {
+            LoginScreen(
+                navController = navController,
+                viewModel = authViewModel,
+            )
+        }
+        composable(
+            route = Routes.Home.routes,
+            arguments = listOf(),
         ) {
-            composable(route = Routes.Login.routes) {
-                LoginScreen(
-                    navController = navController,
-                    viewModel = authViewModel,
-                )
-            }
-            composable(
-                route = Routes.Home.routes,
-                arguments = listOf(),
-            ) {
-                HomeScreen(
-                    onClickNav = { route ->
-                        navController.navigate(route)
-                    },
-                )
-            }
-            composable(route = Routes.Groups.routes) {
-                GroupsScreen(
-                    onClickNav = { route ->
-                        navController.navigate(route)
-                    },
-                    onBack = { navController.navigateUp() },
-                )
-            }
-            composable(route = Routes.Profile.routes) {
-                ProfileScreen(
-                    viewModel = authViewModel,
-                    onClickNav = { route ->
-                        navController.navigate(route)
-                    },
-                    onBack = { navController.navigateUp() },
-                )
-            }
-            composable(
-                route = Routes.Details.routes,
-                arguments = DetailNavTypeDestination.argumentList,
-            ) { backStackEntry ->
-                val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
-                DetailsScreenRoot(movie = movie)
-            }
+            HomeScreen(
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+            )
+        }
+        composable(route = Routes.Groups.routes) {
+            GroupsScreen(
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+                onBack = { navController.navigateUp() },
+            )
+        }
+        composable(route = Routes.Profile.routes) {
+            ProfileScreen(
+                viewModel = authViewModel,
+                onClickNav = { route ->
+                    navController.navigate(route)
+                },
+                onBack = { navController.navigateUp() },
+            )
+        }
+        composable(
+            route = Routes.Details.routes,
+            arguments = DetailNavTypeDestination.argumentList,
+        ) { backStackEntry ->
+            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
+            MovieDetailScreen(movie = movie, onBack = { navController.navigateUp() })
         }
 
         if (navController.currentDestination?.route !in screensWithoutAds) {

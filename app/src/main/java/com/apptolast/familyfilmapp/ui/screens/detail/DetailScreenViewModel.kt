@@ -18,8 +18,10 @@ import timber.log.Timber
 import kotlin.collections.toMutableMap
 
 @HiltViewModel
-class DetailScreenViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
-    ViewModel() {
+class DetailScreenViewModel @Inject constructor(
+    private val repository: Repository,
+    private val auth: FirebaseAuth,
+) : ViewModel() {
 
     val state: StateFlow<DetailScreenStateState>
         field: MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())

@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -23,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -84,22 +80,35 @@ fun MovieDetailScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
     ) { paddingValues ->
+        MovieDetailsContent(
+            movie = movie,
+            user = state.user,
+            modifier = Modifier.padding(paddingValues),
+            updateMovieStatus = { movieStatus ->
+                viewModel.updateMovieStatus(movie, movieStatus)
+            },
+        )
+    }
+}
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
+@Composable
+fun MovieDetailsContent(
+    movie: Movie,
+    user: User,
+    modifier: Modifier = Modifier,
+    updateMovieStatus: (MovieStatus) -> Unit = { },
+) {
 
-            MoviePoster(
-                movie = movie,
-                user = state.user,
-                onStatusChange = { status ->
-                    viewModel.updateMovieStatus(movie, status)
-                },
-            )
-            MovieInfo(movie)
-        }
+    Column(
+        modifier = modifier.fillMaxSize(),
+    ) {
+
+        MoviePoster(
+            movie = movie,
+            user = user,
+            onStatusChange = updateMovieStatus,
+        )
+        MovieInfo(movie)
     }
 }
 
@@ -128,9 +137,11 @@ fun MoviePoster(movie: Movie, user: User, onStatusChange: (MovieStatus) -> Unit 
 
 @Composable
 fun MovieInfo(movie: Movie) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -145,6 +156,9 @@ fun MovieInfo(movie: Movie) {
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                 ),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
             )
 
             Row(
@@ -220,25 +234,25 @@ fun CustomStatusButton(
 
 @Composable
 fun AgeRestrictionBadge(age: Int, color: Color) {
-    Box(
+    Text(
+        text = "+$age",
+        color = Color.White,
         modifier = Modifier
-            .size(25.dp)
-            .clip(CircleShape)
-            .background(color),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "+$age",
-            color = Color.White,
-        )
-    }
+            .background(
+                color = color,
+                shape = CircleShape,
+            )
+            .defaultMinSize(minWidth = 40.dp)
+            .padding(6.dp),
+        textAlign = TextAlign.Center,
+    )
 }
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
-        MovieDetailScreen(
+        MovieDetailsContent(
             movie = Movie().copy(
                 id = 1,
                 title = "Movie title",
@@ -246,6 +260,8 @@ private fun DetailsScreenPreview() {
                 adult = true,
                 releaseDate = "2023-01-01",
             ),
+            user = User().copy(email = "a@a.com"),
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

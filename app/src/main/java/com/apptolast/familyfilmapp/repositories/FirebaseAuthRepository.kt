@@ -5,15 +5,26 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val repository: Repository,
 ) : FirebaseAuthRepository {
+
+    val verifiedAccount: Flow<Boolean> = flow {
+        while (true) {
+            val verified = verifyEmailIsVerified()
+            emit(verified)
+            delay(1000)
+        }
+    }
 
     /**
      * Get the current user from firebase authentication.
@@ -62,14 +73,14 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                 // Send validation email
                 if (createUserTask.isSuccessful) {
                     val user = createUserTask.result.user
-                    user?.sendEmailVerification()?.addOnCompleteListener { sendEmailTask ->
-                        if (sendEmailTask.isSuccessful) {
+                    user?.sendEmailVerification()?.addOnCompleteListener { verificationTask ->
+                        if (verificationTask.isSuccessful) {
                             launch {
                                 send(Result.success(user))
                                 send(Result.failure(Throwable(message = "Verification email sent")))
                             }
                         } else {
-                            launch { send(Result.failure(sendEmailTask.exception as Throwable)) }
+                            launch { send(Result.failure(verificationTask.exception as Throwable)) }
                         }
                     }
                 } else {
@@ -80,6 +91,11 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                 launch { send(Result.failure(it)) }
             }
         awaitClose()
+    }
+
+    override suspend fun verifyEmailIsVerified(): Boolean {
+        firebaseAuth.currentUser?.reload()?.await()
+        return firebaseAuth.currentUser?.isEmailVerified == true
     }
 
     override fun logOut() = firebaseAuth.signOut()
@@ -173,6 +189,7 @@ interface FirebaseAuthRepository {
     fun getUser(): Flow<FirebaseUser?>
     fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
     fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
+    suspend fun verifyEmailIsVerified(): Boolean
     fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>>
     fun logOut()
     fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>>

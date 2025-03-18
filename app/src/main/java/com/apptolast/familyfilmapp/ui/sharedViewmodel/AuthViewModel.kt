@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
@@ -43,6 +44,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
+    private val authRepositoryImpl: FirebaseAuthRepositoryImpl,
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
@@ -72,6 +74,9 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+
+            verifyEmail()
+
             authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
                 user to isTokenValid
             }.catch { error ->
@@ -138,6 +143,19 @@ class AuthViewModel @Inject constructor(
                         handleFailure(error.message ?: "Error register user")
                     }
             }
+    }
+
+    private suspend fun verifyEmail() {
+        authRepositoryImpl.verifiedAccount
+            .catch { error ->
+                handleFailure(error.message ?: "Error verification user")
+                Timber.e(error.message ?: "Error verification user")
+            }
+            .collectLatest { result ->
+            if (result) {
+                authState.update { AuthState.Authenticated(FirebaseIs) }
+            }
+        }
     }
 
     fun googleSignIn(context: Context) = viewModelScope.launch {

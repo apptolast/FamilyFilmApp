@@ -60,6 +60,8 @@ jobs:
         run: |
           echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
           echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
+          echo "ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}" >> local.properties
+          echo "ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}" >> local.properties
 
       - name: Assemble
         run: ./gradlew assembleDebug bundleRelease

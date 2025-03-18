@@ -120,11 +120,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 8.dp),
+        ) {
             HomeContent(
                 movies = movies,
                 filterMovies = stateUI.filterMovies,
-                modifier = Modifier.padding(top = paddingValues.calculateTopPadding().value.dp),
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
                 },
@@ -149,60 +153,54 @@ fun HomeContent(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
-    ) {
-        MovieGridList(
-            movies = movies,
-            filterMovies = filterMovies,
-            onMovieClick = onMovieClick,
-        )
+    MovieGridList(
+        movies = movies,
+        filterMovies = filterMovies,
+        onMovieClick = onMovieClick,
+    )
 
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                searchMovieByNameBody(it)
-            },
-            shape = MaterialTheme.shapes.small,
-            leadingIcon = {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = "")
-            },
-            trailingIcon = {
-                AnimatedVisibility(searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(
-                            imageVector = Icons.Default.Close, // Ícono de "X"
-                            contentDescription = "Borrar texto",
-                        )
-                    }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        value = searchQuery,
+        onValueChange = {
+            searchQuery = it
+            searchMovieByNameBody(it)
+        },
+        shape = MaterialTheme.shapes.small,
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+        },
+        trailingIcon = {
+            AnimatedVisibility(searchQuery.isNotEmpty()) {
+                IconButton(onClick = { searchQuery = "" }) {
+                    Icon(
+                        imageVector = Icons.Default.Close, // Ícono de "X"
+                        contentDescription = "Borrar texto",
+                    )
                 }
+            }
+        },
+        label = {
+            Text(text = stringResource(R.string.search_film_or_series))
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Search,
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                searchMovieByNameBody(searchQuery)
             },
-            label = {
-                Text(text = stringResource(R.string.search_film_or_series))
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Search,
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    searchMovieByNameBody(searchQuery)
-                },
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.background,
-                unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                disabledContainerColor = MaterialTheme.colorScheme.background,
-                errorContainerColor = MaterialTheme.colorScheme.background,
-            ),
-        )
-    }
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            disabledContainerColor = MaterialTheme.colorScheme.background,
+            errorContainerColor = MaterialTheme.colorScheme.background,
+        ),
+    )
 }
 
 @Composable
@@ -214,9 +212,9 @@ private fun MovieGridList(
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(17.dp),
-            verticalArrangement = Arrangement.spacedBy(17.dp),
-            contentPadding = PaddingValues(top = 76.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
             items(filterMovies) { movie ->
                 MovieItem(
@@ -229,9 +227,9 @@ private fun MovieGridList(
     AnimatedVisibility(filterMovies.isEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(17.dp),
-            verticalArrangement = Arrangement.spacedBy(17.dp),
-            contentPadding = PaddingValues(top = 76.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
             items(movies.itemCount) { index ->
                 MovieItem(

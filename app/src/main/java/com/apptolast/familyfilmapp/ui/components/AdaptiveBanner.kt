@@ -10,7 +10,6 @@ import com.google.android.gms.ads.AdView
 
 @Composable
 fun AdaptiveBanner() {
-
     val deviceCurrentWidthDp = LocalConfiguration.current.screenWidthDp
     AndroidView(
         factory = { context ->

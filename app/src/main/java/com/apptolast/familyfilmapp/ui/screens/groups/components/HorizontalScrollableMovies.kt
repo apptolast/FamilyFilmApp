@@ -15,13 +15,11 @@ import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HorizontalScrollableMovies(
-    movies: List<Movie>,
-    onMovieClick: (Movie) -> Unit = {},
-) {
-
+fun HorizontalScrollableMovies(movies: List<Movie>, onMovieClick: (Movie) -> Unit = {}) {
     LazyRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(movies) { movie ->
@@ -39,12 +37,11 @@ fun HorizontalScrollableMovies(
 private fun HorizontalScrollableMoviesPreview() {
     FamilyFilmAppTheme {
         HorizontalScrollableMovies(
-            movies =
-                listOf(
-                    Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
-                    Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
-                    Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
-                ),
+            movies = listOf(
+                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
+            ),
         )
     }
 }

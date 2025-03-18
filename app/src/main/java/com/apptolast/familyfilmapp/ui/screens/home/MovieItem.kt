@@ -15,7 +15,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
-fun MovieItem(modifier: Modifier = Modifier, onClick: (Movie) -> Unit = {}, movie: Movie) {
+fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onClick: (Movie) -> Unit = {}) {
     AsyncImage(
         model = if (movie.posterPath.isEmpty()) {
             "https://picsum.photos/133/200"

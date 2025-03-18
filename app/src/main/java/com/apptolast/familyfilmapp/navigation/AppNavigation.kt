@@ -86,5 +86,3 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         }
     }
 }
-
-

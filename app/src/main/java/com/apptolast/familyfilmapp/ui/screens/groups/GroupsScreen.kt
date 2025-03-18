@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -302,18 +300,14 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesToWatch,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
                     )
                 }
@@ -324,18 +318,14 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_watched),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesWatched,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
                     )
                 }

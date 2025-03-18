@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,16 +18,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,8 +72,8 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-import kotlin.random.Random
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
@@ -79,16 +82,18 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
+    val isEmailSent by viewModel.isEmailSent.collectAsStateWithLifecycle()
     val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
     var showLoginInterface by remember { mutableStateOf(false) }
 
-    Scaffold { innerPadding ->
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { innerPadding ->
         MovieAppLoginContent(
             showLoginInterface = showLoginInterface,
             email = email,
             password = password,
+            isEmailSent = isEmailSent,
             screenState = screenState,
             recoverPassState = recoverPassState,
             modifier = Modifier
@@ -97,7 +102,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             onClick = { email, pass ->
                 when (screenState) {
                     is LoginRegisterState.Login -> viewModel.login(email, pass)
-                    is LoginRegisterState.Register -> viewModel.register(email, pass)
+                    is LoginRegisterState.Register -> viewModel.registerAndSendEmail(email, pass)
                 }
             },
             onClickGoogleButton = { viewModel.googleSignIn(context) },
@@ -122,15 +127,13 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
                 val errorMessage = (authState as AuthState.Error).message
                 LaunchedEffect(errorMessage) {
                     snackBarHostState.showSnackbar(errorMessage ?: "Error")
+                    viewModel.clearFailure()
                 }
-
             }
 
             AuthState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 180.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -148,11 +151,13 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieAppLoginContent(
     showLoginInterface: Boolean,
     email: String,
     password: String,
+    isEmailSent: Boolean,
     screenState: LoginRegisterState,
     recoverPassState: RecoverPassState,
     modifier: Modifier = Modifier,
@@ -390,6 +395,27 @@ fun MovieAppLoginContent(
                         },
                     )
                 }
+
+                AnimatedVisibility(isEmailSent) {
+                    AlertDialog(
+                        onDismissRequest = { /* Handle dismiss if needed */ },
+                        confirmButton = { /* Handle dismiss if needed */ },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = Icons.Default.Check.toString(),
+                            )
+                        },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.login_text_email_sent),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                            )
+                        },
+                        text = { Text(stringResource(R.string.login_text_check_your_email_to_verify_your_account)) },
+                    )
+                }
             }
         }
     }
@@ -403,6 +429,7 @@ private fun LoginScreenPreview() {
             showLoginInterface = true,
             email = "email@something.com",
             password = "123456",
+            isEmailSent = true,
             screenState = LoginRegisterState.Login(),
             recoverPassState = RecoverPassState(),
             modifier = Modifier.fillMaxSize(),

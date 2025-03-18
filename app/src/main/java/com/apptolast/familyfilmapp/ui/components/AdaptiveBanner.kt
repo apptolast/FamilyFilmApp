@@ -18,14 +18,10 @@ fun AdaptiveBanner() {
                 setAdSize(
                     AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
                         context,
-                        deviceCurrentWidthDp
-                    )
+                        deviceCurrentWidthDp,
+                    ),
                 )
-                adUnitId = if (BuildConfig.DEBUG) {
-                    BuildConfig.ADMOB_BANNER_ID_DEBUG
-                } else {
-                    BuildConfig.ADMOB_BANNER_ID_DEBUG
-                }
+                adUnitId = BuildConfig.ADMOB_BOTTOM_BANNER_ID
                 loadAd(AdRequest.Builder().build())
             }
         },

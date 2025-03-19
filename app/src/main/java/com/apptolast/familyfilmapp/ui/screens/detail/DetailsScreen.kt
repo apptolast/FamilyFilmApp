@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,9 +47,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
@@ -66,7 +71,27 @@ fun MovieDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(movie.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(movie.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Row {
+                            CustomStatusButton(
+                                icon = Icons.Default.PlaylistAddCircle,
+                                isSelected = state.user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch,
+                                onClick = { viewModel.updateMovieStatus(movie, MovieStatus.ToWatch) },
+                            )
+                            CustomStatusButton(
+                                icon = Icons.Default.Visibility,
+                                isSelected = state.user.statusMovies[movie.id.toString()] == MovieStatus.Watched,
+                                onClick = { viewModel.updateMovieStatus(movie, MovieStatus.Watched) },
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -80,40 +105,15 @@ fun MovieDetailScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
     ) { paddingValues ->
-        MovieDetailsContent(
-            movie = movie,
-            user = state.user,
-            modifier = Modifier.padding(paddingValues),
-            updateMovieStatus = { movieStatus ->
-                viewModel.updateMovieStatus(movie, movieStatus)
-            },
-        )
+        Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            MoviePoster(movie = movie)
+            MovieInfo(movie = movie)
+        }
     }
 }
 
 @Composable
-fun MovieDetailsContent(
-    movie: Movie,
-    user: User,
-    modifier: Modifier = Modifier,
-    updateMovieStatus: (MovieStatus) -> Unit = { },
-) {
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-    ) {
-
-        MoviePoster(
-            movie = movie,
-            user = user,
-            onStatusChange = updateMovieStatus,
-        )
-        MovieInfo(movie)
-    }
-}
-
-@Composable
-fun MoviePoster(movie: Movie, user: User, onStatusChange: (MovieStatus) -> Unit = { }) {
+fun MoviePoster(movie: Movie) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,12 +125,6 @@ fun MoviePoster(movie: Movie, user: User, onStatusChange: (MovieStatus) -> Unit 
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
 //            clipToBounds = true,
-        )
-        ButtonsContent(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            movie = movie,
-            user = user,
-            onStatusChange = onStatusChange,
         )
     }
 }
@@ -185,30 +179,6 @@ fun MovieInfo(movie: Movie) {
 }
 
 @Composable
-fun ButtonsContent(
-    modifier: Modifier = Modifier,
-    movie: Movie,
-    user: User,
-    onStatusChange: (MovieStatus) -> Unit = { },
-) {
-    Row(
-        modifier = modifier.padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
-    ) {
-        CustomStatusButton(
-            icon = Icons.Default.PlaylistAddCircle,
-            isSelected = user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch,
-            onClick = { onStatusChange(MovieStatus.ToWatch) },
-        )
-        CustomStatusButton(
-            icon = Icons.Default.Visibility,
-            isSelected = user.statusMovies[movie.id.toString()] == MovieStatus.Watched,
-            onClick = { onStatusChange(MovieStatus.Watched) },
-        )
-    }
-}
-
-@Composable
 fun CustomStatusButton(
     icon: ImageVector,
     isSelected: Boolean,
@@ -252,7 +222,7 @@ fun AgeRestrictionBadge(age: Int, color: Color) {
 @Composable
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
-        MovieDetailsContent(
+        MovieDetailScreen(
             movie = Movie().copy(
                 id = 1,
                 title = "Movie title",
@@ -260,8 +230,6 @@ private fun DetailsScreenPreview() {
                 adult = true,
                 releaseDate = "2023-01-01",
             ),
-            user = User().copy(email = "a@a.com"),
-            modifier = Modifier.padding(16.dp),
         )
     }
 }

@@ -128,11 +128,11 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
         ) {
             HomeContent(
                 movies = movies,
-                filterMovies = stateUI.filterMovies,
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
                 },
                 searchMovieByNameBody = viewModel::searchMovieByName,
+                stateUI = stateUI,
             )
 
             LoadStateContent(
@@ -146,16 +146,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
 @Composable
 fun HomeContent(
     movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
     onMovieClick: (Movie) -> Unit,
-    modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
+    stateUI: HomeUiState,
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     MovieGridList(
         movies = movies,
-        filterMovies = filterMovies,
+        stateUi = stateUI,
         onMovieClick = onMovieClick,
     )
 
@@ -206,9 +205,13 @@ fun HomeContent(
 @Composable
 private fun MovieGridList(
     movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
+    stateUi: HomeUiState,
     onMovieClick: (Movie) -> Unit = {},
 ) {
+
+    val filterMovies = stateUi.filterMovies
+
+
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
@@ -217,9 +220,11 @@ private fun MovieGridList(
             contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
             items(filterMovies) { movie ->
+                val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
                     movie = movie,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -231,10 +236,12 @@ private fun MovieGridList(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
-            items(movies.itemCount) { index ->
+            items(movies.itemSnapshotList.items) { movie ->
+                val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
-                    movie = movies[index]!!,
+                    movie = movie,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -302,7 +309,7 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
-            filterMovies = emptyList(),
+            stateUI = HomeUiState(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

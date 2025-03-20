@@ -24,8 +24,8 @@ fun HorizontalScrollableMovies(movies: List<Movie>, onMovieClick: (Movie) -> Uni
     ) {
         items(movies) { movie ->
             MovieItem(
-                modifier = Modifier.width(130.dp),
                 movie = movie,
+                modifier = Modifier.width(130.dp),
                 onClick = onMovieClick,
             )
         }

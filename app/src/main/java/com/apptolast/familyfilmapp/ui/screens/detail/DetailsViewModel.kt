@@ -6,8 +6,10 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,16 +20,17 @@ import timber.log.Timber
 import kotlin.collections.toMutableMap
 
 @HiltViewModel
-class DetailScreenViewModel @Inject constructor(
+class DetailsViewModel @Inject constructor(
     private val repository: Repository,
     private val auth: FirebaseAuth,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    val state: StateFlow<DetailScreenStateState>
-        field: MutableStateFlow<DetailScreenStateState> = MutableStateFlow(DetailScreenStateState())
+    val state: StateFlow<DetailStateState>
+        field: MutableStateFlow<DetailStateState> = MutableStateFlow(DetailStateState())
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherProvider.io()) {
             repository.getUserById(auth.uid!!).collectLatest { user ->
                 state.update { it.copy(user = user) }
             }
@@ -48,8 +51,6 @@ class DetailScreenViewModel @Inject constructor(
     }
 }
 
-data class DetailScreenStateState(val user: User) {
-    constructor() : this(
-        user = User(),
-    )
+data class DetailStateState(val user: User) {
+    constructor() : this(user = User())
 }

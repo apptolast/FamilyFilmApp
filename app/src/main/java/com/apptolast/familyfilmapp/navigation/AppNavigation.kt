@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
-import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreenRoot
 import com.apptolast.familyfilmapp.ui.screens.detail.MovieDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
@@ -72,8 +71,8 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
             MovieDetailScreen(movie = movie, onBack = { navController.navigateUp() })
         }
 
-        if (navController.currentDestination?.route !in screensWithoutAds) {
-            AdaptiveBanner()
-        }
+//        if (navController.currentDestination?.route !in screensWithoutAds) {
+//            AdaptiveBanner()
+//        }
     }
 }

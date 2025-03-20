@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.ui.screens.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -13,10 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -51,7 +48,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -62,9 +58,9 @@ import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDetailScreen(
-    viewModel: DetailScreenViewModel = hiltViewModel(),
+    viewModel: DetailsViewModel = hiltViewModel(),
+    movie: Movie = Movie(), // Datos de la película
     onBack: () -> Unit = {},
-    movie: Movie, // Datos de la película
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -89,7 +85,8 @@ fun MovieDetailScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp).padding(bottom = 30.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 50.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CustomStatusButton(
@@ -127,57 +124,57 @@ fun MovieDetailScreen(
                     .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Fit,
             )
-            MovieInfo(movie = movie,)
+            MovieInfo(movie = movie)
         }
     }
 }
 
 @Composable
 fun MovieInfo(movie: Movie) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = movie.title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-            )
-
+        item {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = movie.releaseDate.take(4), fontWeight = FontWeight.Bold)
-                AgeRestrictionBadge(
-                    age = if (movie.adult) 18 else 0,
-                    color = if (movie.adult) redAgeMovie else greenAgeMovie,
+                Text(
+                    text = movie.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
                 )
-            }
-        }
 
-        Text(
-            text = movie.overview,
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            fontSize = 16.sp,
-            textAlign = TextAlign.Justify,
-        )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(text = movie.releaseDate.take(4), fontWeight = FontWeight.Bold)
+                    AgeRestrictionBadge(
+                        age = if (movie.adult) 18 else 0,
+                        color = if (movie.adult) redAgeMovie else greenAgeMovie,
+                    )
+                }
+            }
+
+            Text(
+                text = movie.overview,
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Justify,
+            )
+        }
     }
 }
 
@@ -225,7 +222,7 @@ fun CustomStatusButton(
 }
 
 @Composable
-private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String, selected: Boolean = false) {
+private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String) {
     Icon(
         imageVector = icon,
         contentDescription = null,
@@ -238,14 +235,6 @@ private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String, selec
 @Composable
 private fun DetailsScreenPreview() {
     FamilyFilmAppTheme {
-        MovieDetailScreen(
-            movie = Movie().copy(
-                id = 1,
-                title = "Movie title",
-                posterPath = "/poster.jpg",
-                adult = true,
-                releaseDate = "2023-01-01",
-            ),
-        )
+        MovieDetailScreen()
     }
 }

@@ -11,7 +11,6 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.toDomainUserModel
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -23,8 +22,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -77,11 +74,19 @@ class AuthViewModel @Inject constructor(
     )
 
     init {
-        viewModelScope.launch {
-            awaitAll(
-                async { checkIsUserLogged() },
-                async { verifyEmail() },
-            )
+        viewModelScope.launch(dispatcherProvider.io()) {
+            combine(
+                authRepository.getUser(),
+                authRepository.verifiedAccount,
+                authRepository.isTokenValid(),
+            ) { user, verifiedAccount, isTokenValid ->
+                if (verifiedAccount && isTokenValid && user != null)
+                    AuthState.Authenticated(user)
+                else
+                    AuthState.Unauthenticated
+            }.collectLatest {
+                authState.update { it }
+            }
         }
     }
 
@@ -96,22 +101,22 @@ class AuthViewModel @Inject constructor(
         authState.update { AuthState.Unauthenticated }
     }
 
-    private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
-        authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
-            user to isTokenValid
-        }.catch { error ->
-            Timber.e(error, "Error getting user")
-            handleFailure(error.message ?: "Error getting the user")
-        }.collectLatest { (user, isTokenValid) ->
-            if (user?.isEmailVerified == true && isTokenValid) {
-                AuthState.Authenticated(user.toDomainUserModel())
-            } else {
-                AuthState.Unauthenticated
-            }.let { newState ->
-                authState.update { newState }
-            }
-        }
-    }
+//    private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
+//        authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
+//            user to isTokenValid
+//        }.catch { error ->
+//            Timber.e(error, "Error getting user")
+//            handleFailure(error.message ?: "Error getting the user")
+//        }.collectLatest { (user, isTokenValid) ->
+//            if (user?.isEmailVerified == true && isTokenValid) {
+//                AuthState.Authenticated(user.toDomainUserModel())
+//            } else {
+//                AuthState.Unauthenticated
+//            }.let { newState ->
+//                authState.update { newState }
+//            }
+//        }
+//    }
 
     fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         authState.update { AuthState.Loading }
@@ -153,19 +158,19 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-    private suspend fun verifyEmail() {
-        authRepositoryImpl.verifiedAccount
-            .catch { error ->
-                handleFailure(error.message ?: "Error verification user")
-                Timber.e(error.message ?: "Error verification user")
-            }
-            .collectLatest { result ->
-                if (result) {
-                    isEmailSent.update { false }
-                    checkIsUserLogged()
-                }
-            }
-    }
+//    private suspend fun verifyEmail() {
+//        authRepositoryImpl.verifiedAccount
+//            .catch { error ->
+//                handleFailure(error.message ?: "Error verification user")
+//                Timber.e(error.message ?: "Error verification user")
+//            }
+//            .collectLatest { result ->
+//                if (result) {
+//                    isEmailSent.update { false }
+//                    checkIsUserLogged()
+//                }
+//            }
+//    }
 
     fun googleSignIn(context: Context) = viewModelScope.launch {
         try {
@@ -197,7 +202,7 @@ class AuthViewModel @Inject constructor(
                                 result
                                     .onSuccess { user ->
                                         createNewUser(user)
-                                        checkIsUserLogged()
+//                                        checkIsUserLogged()
                                     }
                                     .onFailure { error ->
                                         handleFailure(error.message ?: "Google Login Error")

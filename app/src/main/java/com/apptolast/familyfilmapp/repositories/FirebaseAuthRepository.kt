@@ -15,9 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class FirebaseAuthRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-) : FirebaseAuthRepository {
+class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseAuthRepository {
 
     val verifiedAccount: Flow<Boolean> = flow {
         while (true) {
@@ -35,7 +33,6 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
         firebaseAuth.addAuthStateListener { authStateResult ->
             authStateResult.currentUser.let { firebaseUser ->
                 launch { send(firebaseUser) }
-
             }
         }
         awaitClose()

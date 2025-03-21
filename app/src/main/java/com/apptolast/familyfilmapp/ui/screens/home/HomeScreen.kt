@@ -211,7 +211,6 @@ private fun MovieGridList(
 
     val filterMovies = stateUi.filterMovies
 
-
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
@@ -236,10 +235,10 @@ private fun MovieGridList(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
-            items(movies.itemSnapshotList.items) { movie ->
-                val status = stateUi.user.statusMovies[movie.id.toString()]
+            items(movies.itemCount) { index ->
+                val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
-                    movie = movie,
+                    movie = movies[index]!!,
                     onClick = onMovieClick,
                     status = status,
                 )

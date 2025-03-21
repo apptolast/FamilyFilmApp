@@ -222,7 +222,7 @@ class AuthViewModel @Inject constructor(
 
     @SuppressLint("TimberExceptionLogging")
     private fun handleFailure(message: String? = null, e: Throwable? = null) {
-        authState.update { AuthState.Error(e?.message) }
+        authState.update { AuthState.Error(e?.message ?: message ?: "Error") }
         Timber.e(e, message)
     }
 

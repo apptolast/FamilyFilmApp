@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,10 +54,10 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.greenAgeMovie
 import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDetailScreen(
+    modifier: Modifier = Modifier,
     viewModel: DetailsViewModel = hiltViewModel(),
     movie: Movie = Movie(), // Datos de la película
     onBack: () -> Unit = {},
@@ -85,13 +85,12 @@ fun MovieDetailScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 50.dp),
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CustomStatusButton(
                     text = "To Watch",
-                    icon = Icons.Default.Add,
+                    icon = Icons.Default.PlaylistAddCircle,
                     isSelected = state.user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch,
                     modifier = Modifier.weight(1f),
                     onClick = { viewModel.updateMovieStatus(movie, MovieStatus.ToWatch) },
@@ -109,6 +108,7 @@ fun MovieDetailScreen(
             }
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+        modifier = modifier,
     ) { paddingValues ->
         Column(
             modifier = Modifier

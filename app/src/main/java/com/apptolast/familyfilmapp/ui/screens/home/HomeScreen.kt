@@ -67,7 +67,11 @@ import kotlinx.coroutines.flow.flowOf
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    onClickNav: (String) -> Unit,
+) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
 
@@ -117,7 +121,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
         Box(

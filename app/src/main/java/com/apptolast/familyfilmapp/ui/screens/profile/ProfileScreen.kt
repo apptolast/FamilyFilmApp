@@ -55,6 +55,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
     onClickNav: (String) -> Unit = {},
     onBack: () -> Unit = {},
@@ -85,13 +86,16 @@ fun ProfileScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         contentColor = MaterialTheme.colorScheme.background,
+        modifier = modifier,
     ) { paddingValues ->
 
         when (authState) {
             is AuthState.Authenticated -> {
                 ProfileContent(
-                    email = (authState as AuthState.Authenticated).user.email,
-                    modifier = Modifier.padding(paddingValues),
+                    email = (authState as AuthState.Authenticated).user.email ?: "",
+                    modifier = Modifier.padding(
+                        top = paddingValues.calculateTopPadding(),
+                    ),
                     onClickLogOut = { viewModel.logOut() },
                     onDeleteUser = {
                         // Show dialog only when the user has used email/pass provider
@@ -149,6 +153,7 @@ fun ProfileContent(
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
+
     ) {
         Box(
             modifier = Modifier

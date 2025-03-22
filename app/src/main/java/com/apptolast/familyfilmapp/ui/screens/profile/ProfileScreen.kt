@@ -92,10 +92,8 @@ fun ProfileScreen(
         when (authState) {
             is AuthState.Authenticated -> {
                 ProfileContent(
-                    email = (authState as AuthState.Authenticated).user.email ?: "",
-                    modifier = Modifier.padding(
-                        top = paddingValues.calculateTopPadding(),
-                    ),
+                    email = (authState as AuthState.Authenticated).user.email,
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                     onClickLogOut = { viewModel.logOut() },
                     onDeleteUser = {
                         // Show dialog only when the user has used email/pass provider
@@ -153,7 +151,6 @@ fun ProfileContent(
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
-
     ) {
         Box(
             modifier = Modifier

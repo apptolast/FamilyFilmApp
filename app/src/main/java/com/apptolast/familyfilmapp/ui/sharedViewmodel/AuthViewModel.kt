@@ -11,7 +11,9 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.toDomainUserModel
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
@@ -19,9 +21,10 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +45,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
+    private val authRepositoryImpl: FirebaseAuthRepositoryImpl,
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
@@ -60,6 +64,9 @@ class AuthViewModel @Inject constructor(
     val password: StateFlow<String>
         field: MutableStateFlow<String> = MutableStateFlow("")
 
+    val isEmailSent: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     val recoverPassState: StateFlow<RecoverPassState>
         field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
@@ -71,20 +78,10 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
-                user to isTokenValid
-            }.catch { error ->
-                Timber.e(error, "Error getting user")
-                authState.update { AuthState.Error(error.message ?: "Error getting the user") }
-            }.collectLatest { (user, isTokenValid) ->
-                if (user?.isEmailVerified == true && isTokenValid) {
-                    AuthState.Authenticated(user)
-                } else {
-                    AuthState.Unauthenticated
-                }.let { newState ->
-                    authState.update { newState }
-                }
-            }
+            awaitAll(
+                async { checkIsUserLogged() },
+                async { verifyEmail() },
+            )
         }
     }
 
@@ -99,14 +96,29 @@ class AuthViewModel @Inject constructor(
         authState.update { AuthState.Unauthenticated }
     }
 
+    private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
+        authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
+            user to isTokenValid
+        }.catch { error ->
+            Timber.e(error, "Error getting user")
+            handleFailure(error.message ?: "Error getting the user")
+        }.collectLatest { (user, isTokenValid) ->
+            if (user?.isEmailVerified == true && isTokenValid) {
+                AuthState.Authenticated(user.toDomainUserModel())
+            } else {
+                AuthState.Unauthenticated
+            }.let { newState ->
+                authState.update { newState }
+            }
+        }
+    }
+
     fun login(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         authState.update { AuthState.Loading }
 
         authRepository.login(email, password)
             .catch { error ->
-                authState.update {
-                    AuthState.Error(error.message ?: "Login Error")
-                }
+                handleFailure(error.message ?: "Error Sign in user")
             }.collect { result ->
                 result
                     .onSuccess { user ->
@@ -115,18 +127,17 @@ class AuthViewModel @Inject constructor(
                         }
                     }
                     .onFailure { error ->
-                        authState.update {
-                            AuthState.Error(error.message ?: "Login Error")
-                        }
+                        handleFailure(error.message ?: "Error login")
                     }
             }
     }
 
-    fun register(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
+    fun registerAndSendEmail(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
         authState.update { AuthState.Loading }
         authRepository.register(email, password)
-            .catch {
-                Timber.e(it)
+            .catch { error ->
+                handleFailure(error.message ?: "Error register user")
+                Timber.e(error.message ?: "Error register user")
             }
             .filterNotNull()
             .collectLatest { result ->
@@ -134,13 +145,25 @@ class AuthViewModel @Inject constructor(
                     .onSuccess { user ->
                         if (user == null) return@collectLatest
                         createNewUser(user)
-                        authState.update { AuthState.Authenticated(user) }
+                        isEmailSent.update { true }
                     }
                     .onFailure { error ->
-                        authState.update {
-                            AuthState.Error(error.message ?: "Login Error")
-                        }
+                        handleFailure(error.message ?: "Error register user")
                     }
+            }
+    }
+
+    private suspend fun verifyEmail() {
+        authRepositoryImpl.verifiedAccount
+            .catch { error ->
+                handleFailure(error.message ?: "Error verification user")
+                Timber.e(error.message ?: "Error verification user")
+            }
+            .collectLatest { result ->
+                if (result) {
+                    isEmailSent.update { false }
+                    checkIsUserLogged()
+                }
             }
     }
 
@@ -152,9 +175,9 @@ class AuthViewModel @Inject constructor(
             )
             handleSignIn(result)
         } catch (e: GetCredentialException) {
-            handleFailure(e)
+            handleFailure(e.message)
         } catch (e: Exception) {
-            handleFailure(e)
+            handleFailure(e.message)
         }
     }
 
@@ -173,38 +196,37 @@ class AuthViewModel @Inject constructor(
                             authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first().let { result ->
                                 result
                                     .onSuccess { user ->
-                                        if (user != null) {
-                                            createNewUser(user)
-                                            authState.update { AuthState.Authenticated(user) }
-                                        } else {
-                                            handleFailure(null, "User not found")
-                                        }
+                                        createNewUser(user)
+                                        checkIsUserLogged()
                                     }
                                     .onFailure { error ->
-                                        handleFailure(error)
+                                        handleFailure(error.message ?: "Google Login Error")
                                     }
                             }
                         }
                     } catch (e: GoogleIdTokenParsingException) {
-                        handleFailure(e, "Received an invalid google id token response")
+                        handleFailure(e.message)
                     }
                 } else {
                     // Catch any unrecognized credential type here.
-                    handleFailure(null, "Unexpected type of credential")
+                    handleFailure("Unexpected type of credential")
                 }
             }
 
             else -> {
                 // Catch any unrecognized credential type here.
-                handleFailure(null, "Unexpected type of credential")
+                handleFailure("Unexpected type of credential")
             }
         }
     }
 
     @SuppressLint("TimberExceptionLogging")
-    private fun handleFailure(e: Throwable? = null, message: String? = null) {
+    private fun handleFailure(message: String? = null, e: Throwable? = null) {
+        authState.update { AuthState.Error(e?.message ?: message ?: "Error") }
         Timber.e(e, message)
-        authState.update { AuthState.Error(e?.message ?: message ?: "") }
+    }
+
+    fun clearFailure() {
         authState.update { AuthState.Unauthenticated }
     }
 
@@ -269,7 +291,7 @@ class AuthViewModel @Inject constructor(
                                                 authState.update { AuthState.Unauthenticated }
                                             }
                                             .onFailure { error ->
-                                                handleFailure(error, "Delete User Error")
+                                                handleFailure("Delete User Error")
                                             }
                                     }
                                 }
@@ -282,7 +304,7 @@ class AuthViewModel @Inject constructor(
                                                     authState.update { AuthState.Unauthenticated }
                                                 }
                                                 .onFailure { error ->
-                                                    handleFailure(error, "Delete User Error")
+                                                    handleFailure("Delete User Error")
                                                 }
                                         }
                                 }
@@ -294,12 +316,12 @@ class AuthViewModel @Inject constructor(
                         }
                     },
                     failure = { error ->
-                        handleFailure(error, "Delete User Error")
+                        handleFailure("Delete User Error")
                     },
                 )
             }
         } else {
-            handleFailure(null, "Delete user - No user found")
+            handleFailure("Delete user - No user found")
         }
     }
 
@@ -309,16 +331,16 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun createNewUser(user: FirebaseUser) {
+    fun createNewUser(user: User) {
         repository.createUser(
             User().copy(
-                id = user.uid,
-                email = user.email ?: "",
+                uid = user.uid,
+                email = user.email,
                 language = Locale.getDefault().toLanguageTag(),
             ),
             success = {},
             failure = { error ->
-                handleFailure(error)
+                handleFailure(error.message ?: "Create New User Error")
             },
         )
     }
@@ -327,6 +349,6 @@ class AuthViewModel @Inject constructor(
 sealed interface AuthState {
     object Loading : AuthState
     object Unauthenticated : AuthState
-    data class Authenticated(val user: FirebaseUser) : AuthState
-    data class Error(val message: String, val id: UUID = UUID.randomUUID()) : AuthState
+    data class Authenticated(val user: User) : AuthState
+    data class Error(val message: String?, val id: UUID = UUID.randomUUID()) : AuthState
 }

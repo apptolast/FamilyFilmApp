@@ -56,6 +56,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
+    modifier: Modifier = Modifier,
     viewModel: GroupViewModel = hiltViewModel(),
     onClickNav: (String) -> Unit = {},
     onBack: () -> Unit = {},
@@ -105,9 +106,12 @@ fun GroupsScreen(
                 onClick = {
                     viewModel.showDialog(GroupScreenDialogs.CreateGroup)
                 },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
             )
         },
         floatingActionButtonPosition = FabPosition.End,
+        modifier = modifier,
     ) { paddingValues ->
 
         if (uiState.isLoading) {

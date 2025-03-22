@@ -67,7 +67,11 @@ import kotlinx.coroutines.flow.flowOf
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    onClickNav: (String) -> Unit = {},
+) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
 
@@ -117,7 +121,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
         Box(
@@ -128,11 +132,11 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
         ) {
             HomeContent(
                 movies = movies,
-                filterMovies = stateUI.filterMovies,
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
                 },
                 searchMovieByNameBody = viewModel::searchMovieByName,
+                stateUI = stateUI,
             )
 
             LoadStateContent(
@@ -146,16 +150,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
 @Composable
 fun HomeContent(
     movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
     onMovieClick: (Movie) -> Unit,
-    modifier: Modifier = Modifier,
     searchMovieByNameBody: (String) -> Unit,
+    stateUI: HomeUiState,
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     MovieGridList(
         movies = movies,
-        filterMovies = filterMovies,
+        stateUi = stateUI,
         onMovieClick = onMovieClick,
     )
 
@@ -204,11 +207,9 @@ fun HomeContent(
 }
 
 @Composable
-private fun MovieGridList(
-    movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
-    onMovieClick: (Movie) -> Unit = {},
-) {
+private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, onMovieClick: (Movie) -> Unit = {}) {
+    val filterMovies = stateUi.filterMovies
+
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
@@ -217,9 +218,11 @@ private fun MovieGridList(
             contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
             items(filterMovies) { movie ->
+                val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
                     movie = movie,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -232,9 +235,11 @@ private fun MovieGridList(
             contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
         ) {
             items(movies.itemCount) { index ->
+                val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
                     movie = movies[index]!!,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -302,7 +307,7 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
-            filterMovies = emptyList(),
+            stateUI = HomeUiState(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

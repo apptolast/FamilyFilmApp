@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
@@ -277,7 +278,10 @@ fun SettingItem(title: String, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text = title, fontSize = 16.sp, modifier = Modifier.weight(1f))
-        Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
+        Icon(
+            imageVector = Icons.Default.ArrowCircleRight,
+            contentDescription = Icons.Default.ArrowCircleRight.toString()
+        )
     }
 }
 

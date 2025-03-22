@@ -68,7 +68,9 @@
 
     <!-- Error messages -->
     <string name="movies">Cine</string>
-    <string name="error_email_blank">El correo electrónico está vacío</string>
-    <string name="error_email_not_valid">Correo electrónico no válido</string>
+    <string name="error_email_blank">El email está vacío</string>
+    <string name="error_email_not_valid">Email no válido</string>
+    <string name="login_text_email_sent">Email de verificación enviado</string>
+    <string name="login_text_check_your_email_to_verify_your_account">Revise su correo electrónico para verificar su cuenta.</string>
 
 </resources>

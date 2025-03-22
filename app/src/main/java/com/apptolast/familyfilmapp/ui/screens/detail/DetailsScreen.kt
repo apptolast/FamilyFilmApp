@@ -210,7 +210,7 @@ private fun DetailsScreenPreview() {
                 releaseDate = "2023-01-01",
             ),
             user = User().copy(
-                id = "1",
+                uid = "1",
                 email = "a@a.com",
                 statusMovies = mapOf(),
             ),
@@ -231,7 +231,7 @@ private fun DetailsScreenToWatchPreview() {
                 releaseDate = "2023-01-01",
             ),
             user = User().copy(
-                id = "1",
+                uid = "1",
                 email = "a@a.com",
                 statusMovies = mapOf("1" to MovieStatus.ToWatch),
             ),
@@ -252,7 +252,7 @@ private fun DetailsScreenWatchedPreview() {
                 releaseDate = "2023-01-01",
             ),
             user = User().copy(
-                id = "1",
+                uid = "1",
                 email = "a@a.com",
                 statusMovies = mapOf("1" to MovieStatus.Watched),
             ),

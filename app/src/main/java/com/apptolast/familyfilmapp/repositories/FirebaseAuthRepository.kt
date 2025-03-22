@@ -1,27 +1,39 @@
 package com.apptolast.familyfilmapp.repositories
 
+import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.toDomainUserModel
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class FirebaseAuthRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    private val repository: Repository,
-) : FirebaseAuthRepository {
+class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseAuthRepository {
+
+    val verifiedAccount: Flow<Boolean> = flow {
+        while (true) {
+            val verified = verifyEmailIsVerified()
+            emit(verified)
+            delay(1000)
+        }
+    }
 
     /**
      * Get the current user from firebase authentication.
      * It handles the auth state changes.
      */
     override fun getUser(): Flow<FirebaseUser?> = callbackFlow {
-        firebaseAuth.addAuthStateListener {
-            launch { send(it.currentUser) }
+        firebaseAuth.addAuthStateListener { authStateResult ->
+            authStateResult.currentUser.let { firebaseUser ->
+                launch { send(firebaseUser) }
+            }
         }
         awaitClose()
     }
@@ -32,13 +44,13 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
      * @param email The email of the user.
      * @param password The password of the user.
      */
-    override fun login(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
+    override fun login(email: String, password: String): Flow<Result<User?>> = callbackFlow {
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
                 launch {
                     val user = authResult.user
                     if (user != null && user.isEmailVerified) {
-                        send(Result.success(user))
+                        send(Result.success(user.toDomainUserModel()))
                     } else {
                         send(Result.failure(Throwable("Email not verified")))
                     }
@@ -56,20 +68,19 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
      * @param email The email of the user.
      * @param password The password of the user.
      */
-    override fun register(email: String, password: String): Flow<Result<FirebaseUser?>> = callbackFlow {
+    override fun register(email: String, password: String): Flow<Result<User?>> = callbackFlow {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { createUserTask ->
                 // Send validation email
                 if (createUserTask.isSuccessful) {
                     val user = createUserTask.result.user
-                    user?.sendEmailVerification()?.addOnCompleteListener { sendEmailTask ->
-                        if (sendEmailTask.isSuccessful) {
+                    user?.sendEmailVerification()?.addOnCompleteListener { verificationTask ->
+                        if (verificationTask.isSuccessful) {
                             launch {
-                                send(Result.success(user))
-                                send(Result.failure(Throwable(message = "Verification email sent")))
+                                send(Result.success(user.toDomainUserModel()))
                             }
                         } else {
-                            launch { send(Result.failure(sendEmailTask.exception as Throwable)) }
+                            launch { send(Result.failure(verificationTask.exception as Throwable)) }
                         }
                     }
                 } else {
@@ -80,6 +91,11 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                 launch { send(Result.failure(it)) }
             }
         awaitClose()
+    }
+
+    override suspend fun verifyEmailIsVerified(): Boolean {
+        firebaseAuth.currentUser?.reload()?.await()
+        return firebaseAuth.currentUser?.isEmailVerified == true
     }
 
     override fun logOut() = firebaseAuth.signOut()
@@ -114,11 +130,17 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>> = callbackFlow {
+    override fun loginWithGoogle(idToken: String): Flow<Result<User>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
             .addOnSuccessListener { authResult ->
-                launch { send(Result.success(authResult.user)) }
+                authResult.user.let { firebaseUser ->
+                    if (firebaseUser != null) {
+                        launch { send(Result.success(firebaseUser.toDomainUserModel())) }
+                    } else {
+                        launch { send(Result.failure(Throwable("User not found"))) }
+                    }
+                }
             }
             .addOnFailureListener {
                 launch { send(Result.failure(it)) }
@@ -171,9 +193,10 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
 
 interface FirebaseAuthRepository {
     fun getUser(): Flow<FirebaseUser?>
-    fun login(email: String, password: String): Flow<Result<FirebaseUser?>>
-    fun register(email: String, password: String): Flow<Result<FirebaseUser?>>
-    fun loginWithGoogle(idToken: String): Flow<Result<FirebaseUser?>>
+    fun login(email: String, password: String): Flow<Result<User?>>
+    fun register(email: String, password: String): Flow<Result<User?>>
+    suspend fun verifyEmailIsVerified(): Boolean
+    fun loginWithGoogle(idToken: String): Flow<Result<User>>
     fun logOut()
     fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>>
     fun deleteGoogleAccount(): Flow<Result<Boolean>>

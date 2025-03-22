@@ -94,9 +94,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun AddBanner(
-    content: @Composable ColumnScope.() -> Unit,
-) {
+fun AddBanner(content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {

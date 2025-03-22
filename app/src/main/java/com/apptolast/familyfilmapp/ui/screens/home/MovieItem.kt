@@ -51,8 +51,11 @@ fun MovieItem(
         )
         AnimatedVisibility(status != null) {
             Icon(
-                imageVector = if (status == MovieStatus.Watched) Icons.Default.Visibility
-                    else Icons.Default.PlaylistAddCheckCircle,
+                imageVector = if (status == MovieStatus.Watched) {
+                    Icons.Default.Visibility
+                } else {
+                    Icons.Default.PlaylistAddCheckCircle
+                },
                 contentDescription = Icons.Default.Favorite.toString(),
                 modifier = Modifier
                     .padding(7.dp)

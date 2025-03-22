@@ -70,7 +70,7 @@ import kotlinx.coroutines.flow.flowOf
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    onClickNav: (String) -> Unit,
+    onClickNav: (String) -> Unit = {},
 ) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
@@ -207,12 +207,7 @@ fun HomeContent(
 }
 
 @Composable
-private fun MovieGridList(
-    movies: LazyPagingItems<Movie>,
-    stateUi: HomeUiState,
-    onMovieClick: (Movie) -> Unit = {},
-) {
-
+private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, onMovieClick: (Movie) -> Unit = {}) {
     val filterMovies = stateUi.filterMovies
 
     AnimatedVisibility(filterMovies.isNotEmpty()) {

@@ -2,6 +2,8 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -80,6 +82,11 @@ fun HomeScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val errorMessage = viewModel.homeUiState.value.errorMessage?.error
 
+    val animatedColor by animateColorAsState(
+        targetValue = if (scrollBehavior.state.collapsedFraction != 1f) MaterialTheme.colorScheme.background else Color.Transparent,
+        animationSpec = tween(durationMillis = 1000) // Duración de la animación
+    )
+
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
@@ -110,7 +117,9 @@ fun HomeScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(scrolledContainerColor = Color.Transparent),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    scrolledContainerColor = animatedColor,
+                ),
                 scrollBehavior = scrollBehavior,
             )
         },

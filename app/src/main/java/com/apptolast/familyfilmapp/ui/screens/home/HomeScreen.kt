@@ -90,31 +90,23 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.movies),
-                            style = MaterialTheme.typography.headlineLarge,
+                    Text(
+                        text = stringResource(R.string.movies),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                },
+                actions = {
+                    IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Groups,
+                            contentDescription = Icons.Outlined.Groups.toString(),
                         )
-                        Row {
-                            IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Groups,
-                                    contentDescription = Icons.Outlined.Groups.toString(),
-                                )
-                            }
-                            IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Settings,
-                                    contentDescription = Icons.Outlined.Settings.toString(),
-                                )
-                            }
-                        }
+                    }
+                    IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = Icons.Outlined.Settings.toString(),
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior,

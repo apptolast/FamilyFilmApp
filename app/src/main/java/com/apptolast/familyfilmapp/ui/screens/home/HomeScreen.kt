@@ -44,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -109,6 +110,7 @@ fun HomeScreen(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(scrolledContainerColor = Color.Transparent),
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -119,10 +121,10 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 8.dp),
         ) {
             HomeContent(
+                modifier = Modifier.padding(paddingValues),
                 movies = movies,
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
@@ -141,6 +143,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent(
+    modifier: Modifier = Modifier,
     movies: LazyPagingItems<Movie>,
     onMovieClick: (Movie) -> Unit,
     searchMovieByNameBody: (String) -> Unit,
@@ -155,7 +158,7 @@ fun HomeContent(
     )
 
     OutlinedTextField(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         value = searchQuery,
@@ -207,7 +210,7 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
             items(filterMovies) { movie ->
                 val status = stateUi.user.statusMovies[movie.id.toString()]
@@ -224,7 +227,7 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 76.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
             items(movies.itemCount) { index ->
                 val status = stateUi.user.statusMovies[movies[index]?.id.toString()]

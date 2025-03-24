@@ -3,11 +3,9 @@ package com.apptolast.familyfilmapp.ui.screens.home
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -83,8 +82,12 @@ fun HomeScreen(
     val errorMessage = viewModel.homeUiState.value.errorMessage?.error
 
     val animatedColor by animateColorAsState(
-        targetValue = if (scrollBehavior.state.collapsedFraction != 1f) MaterialTheme.colorScheme.background else Color.Transparent,
-        animationSpec = tween(durationMillis = 1000) // Duración de la animación
+        targetValue = lerp(
+            MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+            Color.Transparent,
+            scrollBehavior.state.collapsedFraction,
+        ),
+        label = "Color transition",
     )
 
     LaunchedEffect(errorMessage) {
@@ -117,8 +120,9 @@ fun HomeScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors().copy(
                     scrolledContainerColor = animatedColor,
+                    containerColor = animatedColor,
                 ),
                 scrollBehavior = scrollBehavior,
             )
@@ -152,11 +156,11 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent(
-    modifier: Modifier = Modifier,
-    movies: LazyPagingItems<Movie>,
-    onMovieClick: (Movie) -> Unit,
-    searchMovieByNameBody: (String) -> Unit,
     stateUI: HomeUiState,
+    movies: LazyPagingItems<Movie>,
+    modifier: Modifier = Modifier,
+    onMovieClick: (Movie) -> Unit = {},
+    searchMovieByNameBody: (String) -> Unit = {},
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 

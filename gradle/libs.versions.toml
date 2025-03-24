@@ -13,7 +13,7 @@ coreSplashscreen = "1.0.1"
 coroutines = "1.10.1"
 credentials = "1.5.0"
 espressoCore = "3.6.1"
-firebaseBom = "33.10.0"
+firebaseBom = "33.11.0"
 firebaseCrashlytics = "3.0.3"
 googleid = "1.1.1"
 googleServices = "4.4.2"
@@ -24,10 +24,10 @@ hiltVersion = "2.55"
 hiltCompiler = "1.2.0"
 junit = "4.13.2"
 junitJupiter = "5.12.1"
-kotlin = "2.1.10"
+kotlin = "2.1.20"
 ktlint = "0.4.22"
 ktlintJlleitschuh = "12.2.0"
-ksp = "2.1.10-1.0.31"
+ksp = "2.1.20-1.0.31"
 loggingInterceptor = "4.12.0"
 mockitoCore = "5.16.1"
 mockitoInline = "5.2.0"
@@ -44,6 +44,8 @@ timber = "5.0.1"
 truth = "1.4.4"
 turbine = "1.2.0"
 workRuntimeKtx = "2.10.0"
+
+materialAlpha="1.4.0-alpha10" # TODO: Delete when updating material3 to 1.4.0
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -65,7 +67,7 @@ compose-annotation = { group = "io.github.dilrajsingh1997", name = "compose-anno
 compose-annotation-processor = { group = "io.github.dilrajsingh1997", name = "compose-annotation-processor", version.ref = "composeAnnotationProcessor" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref="materialAlpha" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }

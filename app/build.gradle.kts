@@ -25,6 +25,8 @@ if (localFile.exists()) {
 
 val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT")
 val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN")
+val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID")
+val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID")
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -34,14 +36,18 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.3.12"
+        versionCode = 15
+        versionName = "0.3.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
         buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
+        buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
+        buildConfigField("String", "ADMOB_BOTTOM_BANNER_ID", "\"$admobBottomBanner\"")
+
+        resValue("string", "admob_app_id", admobAppId)
     }
 
 //    signingConfigs {
@@ -58,7 +64,7 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
-
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -174,6 +180,9 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Admob
+    implementation(libs.play.services.ads)
 
     // Turbine
     testImplementation(libs.turbine)

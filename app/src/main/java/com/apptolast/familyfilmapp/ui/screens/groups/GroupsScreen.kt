@@ -2,21 +2,35 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,15 +43,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +73,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
+    modifier: Modifier = Modifier,
     viewModel: GroupViewModel = hiltViewModel(),
     onClickNav: (String) -> Unit = {},
     onBack: () -> Unit = {},
@@ -66,6 +82,13 @@ fun GroupsScreen(
 
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val listState = rememberLazyListState()
+    val isFabExtended by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
 
     if (!uiState.errorMessage.isNullOrBlank()) {
         Toast.makeText(
@@ -96,20 +119,15 @@ fun GroupsScreen(
         },
 //        bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = stringResource(id = R.string.groups_text_create_group)) },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(id = R.string.groups_text_create_group),
-                    )
-                },
+            ExpandableFAB(
+                isExtended = isFabExtended,
                 onClick = {
                     viewModel.showDialog(GroupScreenDialogs.CreateGroup)
                 },
             )
         },
         floatingActionButtonPosition = FabPosition.End,
+        modifier = modifier,
     ) { paddingValues ->
 
         if (uiState.isLoading) {
@@ -127,7 +145,13 @@ fun GroupsScreen(
                 moviesToWatch = backendState.moviesToWatch,
                 moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
-                modifier = Modifier.padding(paddingValues),
+                scrollState = listState,
+                modifier = Modifier.padding(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    top = paddingValues.calculateTopPadding(),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = 8.dp,
+                ),
                 onChangeGroupName = { group ->
                     viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
                 },
@@ -223,6 +247,7 @@ fun GroupContent(
     moviesToWatch: List<Movie>,
     moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
+    scrollState: LazyListState,
     modifier: Modifier = Modifier,
     onChangeGroupName: (Group) -> Unit = {},
     onAddMemberClick: (Group) -> Unit = {},
@@ -239,13 +264,14 @@ fun GroupContent(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Create a group",
+                text = stringResource(R.string.groups_text_create_group),
                 style = MaterialTheme.typography.headlineMedium,
             )
         }
     } else {
         LazyColumn(
             modifier = modifier.fillMaxSize(),
+            state = scrollState,
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -302,18 +328,14 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesToWatch,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
                     )
                 }
@@ -324,19 +346,55 @@ fun GroupContent(
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_watched),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(10.dp),
                     )
                 }
 
                 item {
                     HorizontalScrollableMovies(
                         movies = moviesWatched,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         onMovieClick = onMovieClick,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+    ) {
+        AnimatedContent(
+            targetState = isExtended,
+            label = "Fab content",
+            transitionSpec = {
+                (slideInHorizontally { height -> height } + fadeIn()).togetherWith(
+                    slideOutHorizontally { height -> -height } + fadeOut(),
+                ).using(
+                    SizeTransform(clip = false),
+                )
+            },
+        ) { targetState ->
+            Row(
+                modifier = Modifier.padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add",
+                )
+
+                if (targetState) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.groups_text_create_group),
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                 }
             }
@@ -355,11 +413,7 @@ private fun GroupContentEmptyPreview() {
             groupUsers = emptyList(),
             moviesToWatch = emptyList(),
             moviesWatched = emptyList(),
-            onChangeGroupName = {},
-            onAddMemberClick = {},
-            onDeleteGroup = {},
-            onDeleteUser = { _, _ -> },
-            onGroupSelect = { _ -> },
+            scrollState = rememberLazyListState(),
             selectedGroupIndex = 0,
         )
     }
@@ -378,7 +432,7 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 3"),
             ),
             groupUsers = listOf(
-                User().copy(id = "1", email = "a@a.com"),
+                User().copy(uid = "1", email = "a@a.com"),
             ),
             moviesToWatch = listOf(
                 Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
@@ -391,6 +445,7 @@ private fun GroupContentPreview() {
 //                Movie().copy(id = 6, title = "Title 6", overview = "Description 6"),
             ),
             selectedGroupIndex = 0,
+            scrollState = rememberLazyListState(),
         )
     }
 }

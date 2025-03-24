@@ -6,11 +6,13 @@ import androidx.paging.cachedIn
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,10 +22,25 @@ import timber.log.Timber
 class HomeViewModel @Inject constructor(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
 
     val homeUiState: StateFlow<HomeUiState>
         field: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
+
+    init {
+        viewModelScope.launch {
+            homeUiState.update { it.copy(isLoading = true) }
+            repository.getUserById(auth.uid!!).collectLatest { user ->
+                homeUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        user = user,
+                    )
+                }
+            }
+        }
+    }
 
     val movies = repository.getPopularMovies()
         .catch { error ->

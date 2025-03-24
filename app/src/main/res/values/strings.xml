@@ -70,5 +70,7 @@
     <!-- Error messages -->
     <string name="error_email_blank">Email is empty</string>
     <string name="error_email_not_valid">Email not valid</string>
+    <string name="login_text_email_sent">Email Sent</string>
+    <string name="login_text_check_your_email_to_verify_your_account">Check your email to verify your account.</string>
 
 </resources>

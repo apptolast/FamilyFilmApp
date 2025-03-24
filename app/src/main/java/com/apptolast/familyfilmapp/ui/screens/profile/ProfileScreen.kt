@@ -23,11 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +55,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
     onClickNav: (String) -> Unit = {},
     onBack: () -> Unit = {},
@@ -62,6 +66,7 @@ fun ProfileScreen(
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         topBar = {
@@ -79,15 +84,16 @@ fun ProfileScreen(
                 },
             )
         },
-//        bottomBar = { BottomBar(navController = navController) },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         contentColor = MaterialTheme.colorScheme.background,
+        modifier = modifier,
     ) { paddingValues ->
 
         when (authState) {
             is AuthState.Authenticated -> {
                 ProfileContent(
-                    email = (authState as AuthState.Authenticated).user.email ?: "",
-                    modifier = Modifier.padding(paddingValues),
+                    email = (authState as AuthState.Authenticated).user.email,
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                     onClickLogOut = { viewModel.logOut() },
                     onDeleteUser = {
                         // Show dialog only when the user has used email/pass provider

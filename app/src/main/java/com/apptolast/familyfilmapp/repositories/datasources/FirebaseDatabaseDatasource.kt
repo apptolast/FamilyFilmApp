@@ -8,9 +8,6 @@ import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Calendar
-import java.util.UUID
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +16,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import java.util.UUID
+import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class FirebaseDatabaseDatasourceImpl @Inject constructor(
@@ -74,7 +74,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
         usersCollection
-            .document(user.id)
+            .document(user.uid)
             .set(user)
             .addOnSuccessListener(success)
             .addOnFailureListener(failure)
@@ -161,7 +161,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
         )
 
         usersCollection
-            .document(user.id)
+            .document(user.uid)
             .update(updates)
             .addOnSuccessListener(success)
             .addOnFailureListener {
@@ -170,7 +170,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     }
 
     override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        usersCollection.document(user.id)
+        usersCollection.document(user.uid)
             .delete()
             .addOnSuccessListener {
                 Timber.d("User deleted from Firestore: ${user.email}")
@@ -248,9 +248,9 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
         val uuid = UUID.randomUUID().toString()
         val group = Group().copy(
             id = uuid,
-            ownerId = user.id,
+            ownerId = user.uid,
             name = groupName,
-            users = listOf(user.id), // Store user IDs, not the entire User object
+            users = listOf(user.uid), // Store user IDs, not the entire User object
             lastUpdated = Calendar.getInstance().time, // Set the initial lastUpdated timestamp
         )
 
@@ -317,8 +317,8 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
                 val updatedUsers = group.users.toMutableList()
                 // If the email is not found in the group's user list, add it
-                if (user.id !in updatedUsers) {
-                    updatedUsers.add(user.id)
+                if (user.uid !in updatedUsers) {
+                    updatedUsers.add(user.uid)
 
                     val updatedGroup = group.copy(
                         users = updatedUsers,
@@ -341,7 +341,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
         val updatedUsers = group.users.toMutableList().apply {
-            remove(user.id)
+            remove(user.uid)
         }
 
         val updatedGroup = group.copy(

@@ -2,10 +2,10 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +44,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -67,13 +69,26 @@ import kotlinx.coroutines.flow.flowOf
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    onClickNav: (String) -> Unit = {},
+) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
     val errorMessage = viewModel.homeUiState.value.errorMessage?.error
+
+    val animatedColor by animateColorAsState(
+        targetValue = lerp(
+            MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+            Color.Transparent,
+            scrollBehavior.state.collapsedFraction,
+        ),
+        label = "Color transition",
+    )
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
@@ -86,49 +101,49 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
         topBar = {
             TopAppBar(
                 title = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.movies),
-                            style = MaterialTheme.typography.headlineLarge,
+                    Text(
+                        text = stringResource(R.string.movies),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                },
+                actions = {
+                    IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Groups,
+                            contentDescription = Icons.Outlined.Groups.toString(),
                         )
-                        Row {
-                            IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Groups,
-                                    contentDescription = Icons.Outlined.Groups.toString(),
-                                )
-                            }
-                            IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Settings,
-                                    contentDescription = Icons.Outlined.Settings.toString(),
-                                )
-                            }
-                        }
+                    }
+                    IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = Icons.Outlined.Settings.toString(),
+                        )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors().copy(
+                    scrolledContainerColor = animatedColor,
+                    containerColor = animatedColor,
+                ),
                 scrollBehavior = scrollBehavior,
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+        ) {
             HomeContent(
+                modifier = Modifier.padding(paddingValues),
                 movies = movies,
-                filterMovies = stateUI.filterMovies,
-                modifier = Modifier.padding(top = paddingValues.calculateTopPadding().value.dp),
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
                 },
                 searchMovieByNameBody = viewModel::searchMovieByName,
+                stateUI = stateUI,
             )
 
             LoadStateContent(
@@ -141,87 +156,81 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onClickNav: (String) 
 
 @Composable
 fun HomeContent(
+    stateUI: HomeUiState,
     movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
-    onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier,
-    searchMovieByNameBody: (String) -> Unit,
+    onMovieClick: (Movie) -> Unit = {},
+    searchMovieByNameBody: (String) -> Unit = {},
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
-    ) {
-        MovieGridList(
-            movies = movies,
-            filterMovies = filterMovies,
-            onMovieClick = onMovieClick,
-        )
+    MovieGridList(
+        movies = movies,
+        stateUi = stateUI,
+        onMovieClick = onMovieClick,
+    )
 
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                searchMovieByNameBody(it)
-            },
-            shape = MaterialTheme.shapes.small,
-            leadingIcon = {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = "")
-            },
-            trailingIcon = {
-                AnimatedVisibility(searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(
-                            imageVector = Icons.Default.Close, // Ícono de "X"
-                            contentDescription = "Borrar texto",
-                        )
-                    }
+    OutlinedTextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        value = searchQuery,
+        onValueChange = {
+            searchQuery = it
+            searchMovieByNameBody(it)
+        },
+        shape = MaterialTheme.shapes.small,
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+        },
+        trailingIcon = {
+            AnimatedVisibility(searchQuery.isNotEmpty()) {
+                IconButton(onClick = { searchQuery = "" }) {
+                    Icon(
+                        imageVector = Icons.Default.Close, // Ícono de "X"
+                        contentDescription = "Borrar texto",
+                    )
                 }
+            }
+        },
+        label = {
+            Text(text = stringResource(R.string.search_film_or_series))
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Search,
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                searchMovieByNameBody(searchQuery)
             },
-            label = {
-                Text(text = stringResource(R.string.search_film_or_series))
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Search,
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    searchMovieByNameBody(searchQuery)
-                },
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.background,
-                unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                disabledContainerColor = MaterialTheme.colorScheme.background,
-                errorContainerColor = MaterialTheme.colorScheme.background,
-            ),
-        )
-    }
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            disabledContainerColor = MaterialTheme.colorScheme.background,
+            errorContainerColor = MaterialTheme.colorScheme.background,
+        ),
+    )
 }
 
 @Composable
-private fun MovieGridList(
-    movies: LazyPagingItems<Movie>,
-    filterMovies: List<Movie>,
-    onMovieClick: (Movie) -> Unit = {},
-) {
+private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, onMovieClick: (Movie) -> Unit = {}) {
+    val filterMovies = stateUi.filterMovies
+
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(17.dp),
-            verticalArrangement = Arrangement.spacedBy(17.dp),
-            contentPadding = PaddingValues(top = 76.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
             items(filterMovies) { movie ->
+                val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
                     movie = movie,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -229,14 +238,16 @@ private fun MovieGridList(
     AnimatedVisibility(filterMovies.isEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(17.dp),
-            verticalArrangement = Arrangement.spacedBy(17.dp),
-            contentPadding = PaddingValues(top = 76.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
             items(movies.itemCount) { index ->
+                val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
                     movie = movies[index]!!,
                     onClick = onMovieClick,
+                    status = status,
                 )
             }
         }
@@ -304,7 +315,7 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
-            filterMovies = emptyList(),
+            stateUI = HomeUiState(),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

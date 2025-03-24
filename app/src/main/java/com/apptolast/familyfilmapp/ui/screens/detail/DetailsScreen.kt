@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.PlaylistAddCheckCircle
 import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
@@ -81,16 +82,19 @@ fun MovieDetailScreen(
         },
         bottomBar = {
             // Botones para guardar
+            val isToWatch = state.user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .padding(bottom = 10.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CustomStatusButton(
                     text = "To Watch",
-                    icon = Icons.Default.PlaylistAddCircle,
-                    isSelected = state.user.statusMovies[movie.id.toString()] == MovieStatus.ToWatch,
+                    icon = if (isToWatch) Icons.Default.PlaylistAddCheckCircle else Icons.Default.PlaylistAddCircle,
+                    isSelected = isToWatch,
                     modifier = Modifier.weight(1f),
                     onClick = { viewModel.updateMovieStatus(movie, MovieStatus.ToWatch) },
                 )
@@ -111,8 +115,8 @@ fun MovieDetailScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(

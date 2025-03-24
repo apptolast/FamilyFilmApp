@@ -2,20 +2,35 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +83,13 @@ fun GroupsScreen(
     val backendState by viewModel.backendState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val listState = rememberLazyListState()
+    val isFabExtended by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+
     if (!uiState.errorMessage.isNullOrBlank()) {
         Toast.makeText(
             LocalContext.current,
@@ -95,19 +119,11 @@ fun GroupsScreen(
         },
 //        bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = stringResource(id = R.string.groups_text_create_group)) },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(id = R.string.groups_text_create_group),
-                    )
-                },
+            ExpandableFAB(
+                isExtended = isFabExtended,
                 onClick = {
                     viewModel.showDialog(GroupScreenDialogs.CreateGroup)
                 },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
             )
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -129,7 +145,13 @@ fun GroupsScreen(
                 moviesToWatch = backendState.moviesToWatch,
                 moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
-                modifier = Modifier.padding(paddingValues),
+                scrollState = listState,
+                modifier = Modifier.padding(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    top = paddingValues.calculateTopPadding(),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = 8.dp,
+                ),
                 onChangeGroupName = { group ->
                     viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
                 },
@@ -225,6 +247,7 @@ fun GroupContent(
     moviesToWatch: List<Movie>,
     moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
+    scrollState: LazyListState,
     modifier: Modifier = Modifier,
     onChangeGroupName: (Group) -> Unit = {},
     onAddMemberClick: (Group) -> Unit = {},
@@ -241,13 +264,14 @@ fun GroupContent(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Create a group",
+                text = stringResource(R.string.groups_text_create_group),
                 style = MaterialTheme.typography.headlineMedium,
             )
         }
     } else {
         LazyColumn(
             modifier = modifier.fillMaxSize(),
+            state = scrollState,
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -338,6 +362,46 @@ fun GroupContent(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+    ) {
+        AnimatedContent(
+            targetState = isExtended,
+            label = "Fab content",
+            transitionSpec = {
+                (slideInHorizontally { height -> height } + fadeIn()).togetherWith(
+                    slideOutHorizontally { height -> -height } + fadeOut(),
+                ).using(
+                    SizeTransform(clip = false),
+                )
+            },
+        ) { targetState ->
+            Row(
+                modifier = Modifier.padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add",
+                )
+
+                if (targetState) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.groups_text_create_group),
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
@@ -349,11 +413,7 @@ private fun GroupContentEmptyPreview() {
             groupUsers = emptyList(),
             moviesToWatch = emptyList(),
             moviesWatched = emptyList(),
-            onChangeGroupName = {},
-            onAddMemberClick = {},
-            onDeleteGroup = {},
-            onDeleteUser = { _, _ -> },
-            onGroupSelect = { _ -> },
+            scrollState = rememberLazyListState(),
             selectedGroupIndex = 0,
         )
     }
@@ -385,6 +445,7 @@ private fun GroupContentPreview() {
 //                Movie().copy(id = 6, title = "Title 6", overview = "Description 6"),
             ),
             selectedGroupIndex = 0,
+            scrollState = rememberLazyListState(),
         )
     }
 }

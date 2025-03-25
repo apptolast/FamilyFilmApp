@@ -5,14 +5,14 @@ import com.google.firebase.auth.FirebaseUser
 import java.util.Locale
 
 data class User(
-    val uid: String,
+    val id: String,
     val email: String,
     val userName: String,
     val language: String,
     val statusMovies: Map<String, MovieStatus>, // Map with key-value pair: MovieId, Status
 ) {
     constructor() : this(
-        uid = "",
+        id = "",
         email = "",
         userName = "",
         language = "",
@@ -21,7 +21,7 @@ data class User(
 }
 
 fun FirebaseUser.toDomainUserModel(): User = User(
-    uid = this.uid,
+    id = this.uid,
     email = this.email ?: "email not found",
     userName = this.displayName ?: "display name not found",
     language = Locale.getDefault().toLanguageTag(),

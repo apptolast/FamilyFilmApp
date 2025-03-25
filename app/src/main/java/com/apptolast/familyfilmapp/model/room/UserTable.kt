@@ -26,7 +26,7 @@ data class UserTable(
 }
 
 fun UserTable.toUser() = User(
-    uid = userId,
+    id = userId,
     email = email,
     userName = "",
     language = language,
@@ -34,7 +34,7 @@ fun UserTable.toUser() = User(
 )
 
 fun User.toUserTable() = UserTable(
-    userId = uid,
+    userId = id,
     email = email,
     language = language,
     statusMovies = statusMovies,

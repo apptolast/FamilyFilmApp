@@ -77,10 +77,10 @@ fun GroupCard(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .weight(1f) // Assign weight to text
-                        .padding(top = if (group.ownerId == userOwner.uid) 0.dp else 10.dp),
+                        .padding(top = if (group.ownerId == userOwner.id) 0.dp else 10.dp),
                 )
 
-                if (group.ownerId == userOwner.uid) {
+                if (group.ownerId == userOwner.id) {
                     IconButton(onClick = onChangeGroupName) {
                         Icon(
                             imageVector = Icons.Filled.ModeEditOutline,
@@ -98,7 +98,7 @@ fun GroupCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (group.ownerId.equals(userOwner.uid)) {
+                if (group.ownerId.equals(userOwner.id)) {
                     OutlinedButton(onClick = onAddMember) {
                         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                         Text(text = stringResource(id = R.string.groups_text_add_member))
@@ -119,7 +119,7 @@ fun GroupCard(
                         confirmValueChange = {
                             when (it) {
                                 SwipeToDismissBoxValue.EndToStart -> {
-                                    if (group.ownerId != user.uid) {
+                                    if (group.ownerId != user.id) {
                                         onDeleteUser(user)
                                         true
                                     } else {
@@ -135,7 +135,7 @@ fun GroupCard(
 
                     SwipeToDismissBox(
                         state = swipeState,
-                        enableDismissFromEndToStart = userOwner.uid == group.ownerId,
+                        enableDismissFromEndToStart = userOwner.id == group.ownerId,
                         enableDismissFromStartToEnd = false,
                         backgroundContent = {
 //                            Box(
@@ -203,7 +203,7 @@ fun GroupCard(
 private fun GroupCardOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User().copy(uid = "1"),
+            userOwner = User().copy(id = "1"),
             group = Group().copy(
                 id = "1",
                 ownerId = "1",
@@ -215,9 +215,9 @@ private fun GroupCardOwnerPreview() {
                 ),
             ),
             groupUsers = listOf(
-                User().copy(uid = "1", email = "a@a.com"),
-                User().copy(uid = "2", email = "b@b.com"),
-                User().copy(uid = "3", email = "c@c.com"),
+                User().copy(id = "1", email = "a@a.com"),
+                User().copy(id = "2", email = "b@b.com"),
+                User().copy(id = "3", email = "c@c.com"),
             ),
         )
     }
@@ -228,7 +228,7 @@ private fun GroupCardOwnerPreview() {
 private fun GroupCardNotOwnerPreview() {
     FamilyFilmAppTheme {
         GroupCard(
-            userOwner = User().copy(uid = "2"),
+            userOwner = User().copy(id = "2"),
             group = Group().copy(
                 id = "1",
                 ownerId = "2",
@@ -240,9 +240,9 @@ private fun GroupCardNotOwnerPreview() {
                 ),
             ),
             groupUsers = listOf(
-                User().copy(uid = "1", email = "a@a.com"),
-                User().copy(uid = "2", email = "b@b.com"),
-                User().copy(uid = "3", email = "c@c.com"),
+                User().copy(id = "1", email = "a@a.com"),
+                User().copy(id = "2", email = "b@b.com"),
+                User().copy(id = "3", email = "c@c.com"),
             ),
         )
     }

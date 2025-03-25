@@ -432,7 +432,7 @@ private fun GroupContentPreview() {
                 Group().copy(name = "name 3"),
             ),
             groupUsers = listOf(
-                User().copy(uid = "1", email = "a@a.com"),
+                User().copy(id = "1", email = "a@a.com"),
             ),
             moviesToWatch = listOf(
                 Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),

@@ -28,7 +28,6 @@ data class UserTable(
 fun UserTable.toUser() = User(
     id = userId,
     email = email,
-    userName = "",
     language = language,
     statusMovies = statusMovies,
 )

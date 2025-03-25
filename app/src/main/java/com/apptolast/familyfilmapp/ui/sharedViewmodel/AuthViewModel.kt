@@ -276,7 +276,7 @@ class AuthViewModel @Inject constructor(
         val currentUser = (authState.value as? AuthState.Authenticated)?.user
         if (currentUser != null) {
             // Get user data from repository
-            repository.getUserById(currentUser.uid).take(1).collectLatest { user ->
+            repository.getUserById(currentUser.id).take(1).collectLatest { user ->
                 // Delete from Firestore
                 repository.deleteUser(
                     user = user,
@@ -334,7 +334,7 @@ class AuthViewModel @Inject constructor(
     fun createNewUser(user: User) {
         repository.createUser(
             User().copy(
-                uid = user.uid,
+                id = user.id,
                 email = user.email,
                 language = Locale.getDefault().toLanguageTag(),
             ),

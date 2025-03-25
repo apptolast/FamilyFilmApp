@@ -74,7 +74,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
         usersCollection
-            .document(user.uid)
+            .document(user.id)
             .set(user)
             .addOnSuccessListener(success)
             .addOnFailureListener(failure)
@@ -161,7 +161,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
         )
 
         usersCollection
-            .document(user.uid)
+            .document(user.id)
             .update(updates)
             .addOnSuccessListener(success)
             .addOnFailureListener {
@@ -170,7 +170,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     }
 
     override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        usersCollection.document(user.uid)
+        usersCollection.document(user.id)
             .delete()
             .addOnSuccessListener {
                 Timber.d("User deleted from Firestore: ${user.email}")
@@ -248,9 +248,9 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
         val uuid = UUID.randomUUID().toString()
         val group = Group().copy(
             id = uuid,
-            ownerId = user.uid,
+            ownerId = user.id,
             name = groupName,
-            users = listOf(user.uid), // Store user IDs, not the entire User object
+            users = listOf(user.id), // Store user IDs, not the entire User object
             lastUpdated = Calendar.getInstance().time, // Set the initial lastUpdated timestamp
         )
 
@@ -317,8 +317,8 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
                 val updatedUsers = group.users.toMutableList()
                 // If the email is not found in the group's user list, add it
-                if (user.uid !in updatedUsers) {
-                    updatedUsers.add(user.uid)
+                if (user.id !in updatedUsers) {
+                    updatedUsers.add(user.id)
 
                     val updatedGroup = group.copy(
                         users = updatedUsers,
@@ -341,7 +341,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
         val updatedUsers = group.users.toMutableList().apply {
-            remove(user.uid)
+            remove(user.id)
         }
 
         val updatedGroup = group.copy(

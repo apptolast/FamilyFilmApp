@@ -65,6 +65,7 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
 import kotlinx.coroutines.flow.flowOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -181,7 +182,7 @@ fun HomeContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
-            .testTag("home_search"),
+            .testTag(TT_HOME_SEARCH_TEXT_FIELD),
         value = searchQuery,
         onValueChange = {
             searchQuery = it

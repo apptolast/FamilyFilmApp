@@ -39,8 +39,8 @@ android {
         versionCode = 17
         versionName = "0.3.15"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-//        testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
+//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
@@ -96,7 +96,23 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/LICENSE.md"
+            merges.add("META-INF/LICENSE-notice.md")
+            excludes += mutableSetOf(
+                "**/junit-jupiter-engine-*.jar/META-INF/LICENSE-notice.md",
+                "**/junit-jupiter-params-*.jar/META-INF/LICENSE-notice.md",
+                "**/junit-jupiter-api-*.jar/META-INF/LICENSE-notice.md",
+                "**/junit-platform-engine-*.jar/META-INF/LICENSE-notice.md",
+                "**/junit-platform-commons-*.jar/META-INF/LICENSE-notice.md",
+                "**/junit-jupiter-*.jar/META-INF/LICENSE-notice.md",
+            )
         }
+//        exclude "**/junit-jupiter-engine-*.jar/META-INF/LICENSE-notice.md"
+//        exclude "**/junit-jupiter-params-*.jar/META-INF/LICENSE-notice.md"
+//        exclude "**/junit-jupiter-api-*.jar/META-INF/LICENSE-notice.md"
+//        exclude "**/junit-platform-engine-*.jar/META-INF/LICENSE-notice.md"
+//        exclude "**/junit-platform-commons-*.jar/META-INF/LICENSE-notice.md"
+//        exclude "**/junit-jupiter-*.jar/META-INF/LICENSE-notice.md"
     }
 
     room {

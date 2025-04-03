@@ -147,6 +147,7 @@ android-tests = [
     "truth",
     "androidx-arch-core-testing",
     "androidx-test-ext-junit",
+    "compose-ui-test-junit4",
     "test-core-ktx",
     "mockk",
     "androidx-test-runner",

@@ -36,10 +36,11 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 16
-        versionName = "0.3.14"
+        versionCode = 17
+        versionName = "0.3.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "WEB_ID_CLIENT", "\"$webIdClient\"")
@@ -147,9 +148,13 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.work.manager)
+    testImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+
     ksp(libs.hilt.android.compiler)
     ksp(libs.androidx.hilt.compiler)
     kspTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
 
     // Navigation Con Safe Arguments
     implementation(libs.gson)
@@ -185,32 +190,18 @@ dependencies {
     implementation(libs.play.services.ads)
 
     // Turbine
-    testImplementation(libs.turbine)
+//    testImplementation(libs.turbine)
 
-    // Test
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.coroutines.android)
-    testImplementation(libs.coroutines.test)
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.test.core.ktx)
-    testImplementation(libs.junit)
-    testImplementation(libs.test.rules)
+    // /////////////
+    // Tests bundles
+    // /////////////
+    testImplementation(libs.bundles.tests)
 
-    testImplementation(libs.mockk)
+    debugImplementation(platform(libs.compose.bom))
+    debugImplementation(libs.bundles.debug.tests)
 
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.mockito.inline)
-
-    // Tests
-    testImplementation(libs.junit)
-    debugImplementation(libs.compose.ui.tooling)
-    debugImplementation(libs.compose.ui.test.manifest)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.bundles.android.tests)
 }
 
 ktlint {

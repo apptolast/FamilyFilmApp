@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -107,13 +108,19 @@ fun HomeScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
+                    IconButton(
+                        modifier = Modifier,
+                        onClick = { onClickNav(Routes.Groups.routes) },
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Groups,
                             contentDescription = Icons.Outlined.Groups.toString(),
                         )
                     }
-                    IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
+                    IconButton(
+                        modifier = Modifier,
+                        onClick = { onClickNav(Routes.Profile.routes) },
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = Icons.Outlined.Settings.toString(),
@@ -173,7 +180,8 @@ fun HomeContent(
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .testTag("home_search"),
         value = searchQuery,
         onValueChange = {
             searchQuery = it
@@ -194,7 +202,10 @@ fun HomeContent(
             }
         },
         label = {
-            Text(text = stringResource(R.string.search_film_or_series))
+            Text(
+                text = stringResource(R.string.search_film_or_series),
+//                modifier = Modifier.testTag("home_search"))
+            )
         },
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Text,

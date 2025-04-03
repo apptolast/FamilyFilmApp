@@ -8,7 +8,6 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -17,12 +16,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: Repository,
-    private val dispatcherProvider: DispatcherProvider,
     private val auth: FirebaseAuth,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     val homeUiState: StateFlow<HomeUiState>
@@ -53,7 +53,7 @@ class HomeViewModel @Inject constructor(
     fun searchMovieByName(movieFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
         if (movieFilter.isEmpty()) {
             homeUiState.update { it.copy(filterMovies = emptyList()) }
-            triggerError("Empty List")
+            triggerError("Empty List") // Todo: Fix the hardcoded message and its test
             Timber.e("Empty List")
         } else {
             repository.searchTmdbMovieByName(movieFilter).let { movies ->

@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             homeUiState.update { it.copy(isLoading = true) }
-            if(auth.uid == null) return@launch
+            if (auth.uid == null) return@launch
 
             repository.getUserById(auth.uid!!).collectLatest { user ->
                 homeUiState.update {

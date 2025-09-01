@@ -23,7 +23,7 @@ import org.junit.Test
 
 class HomeViewModelTest {
 
-    lateinit var viewModel: HomeViewModel
+    private lateinit var viewModel: HomeViewModel
 
     @get:Rule
     val mockkRule = MockKRule(this)
@@ -39,7 +39,6 @@ class HomeViewModelTest {
 
     @Before
     fun setUp() = runTest {
-
         val actualUserId = "userId"
         val expectedUser = User().copy(id = actualUserId, email = "a@a.com")
 
@@ -53,14 +52,13 @@ class HomeViewModelTest {
                         overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
                          una simulación creada por máquinas."
-                            """.trimIndent(),
+                        """.trimIndent(),
                         posterPath = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
                     ),
                 ),
                 sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
             ),
         )
-
 
         viewModel = HomeViewModel(
             repository,
@@ -72,7 +70,6 @@ class HomeViewModelTest {
     @Test
     fun `searchMovieByName should return the movie when it is contained in the list`() =
         runTest(dispatcher.testDispatcherProvider.io()) {
-
             val actualMovieName = "Matrix"
             val expectedMovies = listOf(Movie().copy(title = actualMovieName))
 
@@ -86,7 +83,6 @@ class HomeViewModelTest {
     @Test
     fun `searchMovieByName should return EMPTY LIST when filter is EMPTY`() =
         runTest(dispatcher.testDispatcherProvider.io()) {
-
             val actualMovieName = ""
             val errorMessage = "Empty List"
 
@@ -94,18 +90,16 @@ class HomeViewModelTest {
 
             assertThat(viewModel.homeUiState.value.filterMovies).isEqualTo(emptyList<Movie>())
             assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(
-                CustomException.GenericException(errorMessage)
+                CustomException.GenericException(errorMessage),
             )
         }
 
     @Test
-    fun `clearError should clear the state`() =
-        runTest(dispatcher.testDispatcherProvider.io()) {
+    fun `clearError should clear the state`() = runTest(dispatcher.testDispatcherProvider.io()) {
+        viewModel.clearError()
 
-            viewModel.clearError()
-
-            assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(
-                CustomException.GenericException(null)
-            )
-        }
+        assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(
+            CustomException.GenericException(null),
+        )
+    }
 }

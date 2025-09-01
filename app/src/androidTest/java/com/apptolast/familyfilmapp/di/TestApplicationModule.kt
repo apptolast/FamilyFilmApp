@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class TestApplicationModule {
@@ -23,5 +22,4 @@ class TestApplicationModule {
     @Singleton
     fun provideCoroutineScope(dispatcher: DispatcherProvider): CoroutineScope =
         CoroutineScope(SupervisorJob() + dispatcher.default())
-
 }

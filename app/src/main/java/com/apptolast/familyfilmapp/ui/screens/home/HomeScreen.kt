@@ -65,7 +65,9 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
+import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_LABEL
 import kotlinx.coroutines.flow.flowOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -205,7 +207,7 @@ fun HomeContent(
         label = {
             Text(
                 text = stringResource(R.string.search_film_or_series),
-//                modifier = Modifier.testTag("home_search"))
+                modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
             )
         },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -254,12 +256,16 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
-            items(movies.itemCount) { index ->
+            items(
+                count = movies.itemCount,
+                key = { movies[it]?.id ?: "" },
+            ) { index ->
                 val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
                     movie = movies[index]!!,
                     onClick = onMovieClick,
                     status = status,
+                    modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$index"),
                 )
             }
         }

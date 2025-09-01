@@ -1,5 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
@@ -219,6 +221,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val selectedGroupIndex: Int,
         val isLoading: Boolean,
         val errorMessage: String?,
+        val textField: MutableState<String> = mutableStateOf(""),
     ) {
         constructor() : this(
             showDialog = GroupScreenDialogs.None,

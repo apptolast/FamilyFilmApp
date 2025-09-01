@@ -333,7 +333,14 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
-            stateUI = HomeUiState(),
+            stateUI = HomeUiState().copy(
+                filterMovies = arrayListOf(
+                    Movie(
+                        title = "title",
+                        posterPath = "",
+                    ),
+                ),
+            ),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

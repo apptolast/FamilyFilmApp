@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -13,11 +14,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -50,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -67,6 +72,7 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
+import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 
@@ -238,7 +244,7 @@ fun GroupsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupContent(
     userOwner: User,
@@ -303,6 +309,29 @@ fun GroupContent(
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
+                        )
+                    }
+                }
+            }
+
+            // Recommended movie
+            item {
+                AnimatedVisibility(visible = moviesToWatch.isNotEmpty()) {
+                    FlowColumn(
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .fillMaxSize(0.4f),
+                    ) {
+                        Text(
+                            text = "Recommended",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                        MovieItem(
+                            movie = moviesToWatch.first(),
+                            onClick = onMovieClick,
+                            status = null,
                         )
                     }
                 }

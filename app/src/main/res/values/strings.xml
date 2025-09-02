@@ -66,6 +66,10 @@
     <string name="edit_text">Edit</string>
     <string name="movies">Movies</string>
 
+    <!-- PROVIDERS -->
+    <string name="provider_available_stream">Available for streaming</string>
+    <string name="provider_available_buy">Available to buy</string>
+    <string name="provider_available_rent">Available to rent</string>
 
     <!-- Error messages -->
     <string name="error_email_blank">Email is empty</string>

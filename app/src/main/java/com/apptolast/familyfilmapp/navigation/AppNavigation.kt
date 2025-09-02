@@ -84,7 +84,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
             val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
             AddBanner {
                 MovieDetailScreen(
-                    movie = movie,
+                    movieId = movie.id,
                     onBack = { navController.navigateUp() },
                     modifier = Modifier.weight(1f),
                 )

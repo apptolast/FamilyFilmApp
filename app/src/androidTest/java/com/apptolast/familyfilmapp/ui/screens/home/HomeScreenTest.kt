@@ -17,7 +17,6 @@ import com.apptolast.familyfilmapp.TestMainActivity
 import com.apptolast.familyfilmapp.di.ApplicationModule
 import com.apptolast.familyfilmapp.di.LocalStoreModule
 import com.apptolast.familyfilmapp.di.RepositoryModule
-import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.screens.detail.MovieDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
@@ -79,14 +78,7 @@ class HomeScreenTest {
 
                     composable(route = Routes.Details.routes) {
                         MovieDetailScreen(
-                            movie = Movie().copy(
-                                title = "Matrix",
-                                overview = """
-                        "Trata sobre un programador que descubre que la realidad en la que vive es
-                         una simulación creada por máquinas."
-                                """.trimIndent(),
-                                posterPath = "https://image.tmdb.org/t/p/w500/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
-                            ),
+                            movieId = 1234,
                             onBack = {
                                 navController.popBackStack()
                             },

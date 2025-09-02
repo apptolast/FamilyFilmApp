@@ -66,6 +66,11 @@
     <string name="text_read_more">Leer Más</string>
     <string name="edit_text">Editar</string>
 
+    <!-- PROVIDERS -->
+    <string name="provider_available_stream">Disponible para streaming</string>
+    <string name="provider_available_buy">Disponible para comprar</string>
+    <string name="provider_available_rent">Disponible para alquilar</string>
+
     <!-- Error messages -->
     <string name="movies">Cine</string>
     <string name="error_email_blank">El email está vacío</string>

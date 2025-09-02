@@ -39,7 +39,6 @@ fun ProvidersContent(
     buyProviders: List<Provider> = emptyList(),
     rentProviders: List<Provider> = emptyList(),
 ) {
-
     Column(modifier = Modifier.fillMaxWidth()) {
         // Stream Providers Section
         if (streamProviders.isNotEmpty()) {
@@ -148,7 +147,7 @@ fun ProviderItem(provider: Provider) {
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
-fun ProvidersContentPreview() {
+private fun ProvidersContentPreview() {
     val mockProviders = listOf(
         Provider(
             providerId = 8,

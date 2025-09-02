@@ -52,7 +52,15 @@ class DetailsViewModel @AssistedInject constructor(
 
     fun updateMovieStatus(movie: Movie, status: MovieStatus) {
         val currentStatusMovies = state.value.user.statusMovies.toMutableMap()
-        currentStatusMovies[movie.id.toString()] = status
+        val currentStatus = currentStatusMovies[movie.id.toString()]
+
+        // Toggle functionality: If already has the same status, remove it (deselect)
+        if (currentStatus == status) {
+            currentStatusMovies.remove(movie.id.toString())
+        } else {
+            // Otherwise set the new status
+            currentStatusMovies[movie.id.toString()] = status
+        }
 
         repository.updateUser(
             state.value.user.copy(
@@ -69,20 +77,15 @@ class DetailsViewModel @AssistedInject constructor(
     }
 
     companion object {
-        fun provideFactory(
-            assistedFactory: DetailsViewModelFactory,
-            movieId: Int,
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = assistedFactory.create(movieId) as T
-        }
+        fun provideFactory(assistedFactory: DetailsViewModelFactory, movieId: Int): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = assistedFactory.create(movieId) as T
+            }
     }
 }
 
-data class DetailStateState(
-    val user: User,
-    val movie: Movie,
-) {
+data class DetailStateState(val user: User, val movie: Movie) {
     constructor() : this(
         user = User(),
         movie = Movie(),

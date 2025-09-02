@@ -59,12 +59,11 @@ import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDetailScreen(
-    modifier: Modifier = Modifier,
     movieId: Int,
+    modifier: Modifier = Modifier,
     factoryProvider: DetailsViewModelFactoryProvider = hiltViewModel(),
     onBack: () -> Unit = {},
 ) {
-
     val viewModel: DetailsViewModel = viewModel(
         factory = DetailsViewModel.provideFactory(
             assistedFactory = factoryProvider.detailsViewModelFactory,
@@ -90,7 +89,6 @@ fun MovieDetailScreen(
             )
         },
         bottomBar = {
-            // Botones para guardar
             val isToWatch = state.user.statusMovies[state.movie.id.toString()] == MovieStatus.ToWatch
 
             Row(
@@ -199,7 +197,6 @@ fun MovieInfo(movie: Movie) {
         }
     }
 }
-
 
 @Composable
 fun AgeRestrictionBadge(age: Int, color: Color) {

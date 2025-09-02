@@ -75,6 +75,7 @@ import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScroll
 import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
+import timber.log.Timber
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -316,24 +317,28 @@ fun GroupContent(
 
             // Recommended movie
             item {
-                AnimatedVisibility(visible = moviesToWatch.isNotEmpty()) {
-                    FlowColumn(
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxSize(0.4f),
-                    ) {
-                        Text(
-                            text = "Recommended",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                        )
-                        MovieItem(
-                            movie = moviesToWatch.first(),
-                            onClick = onMovieClick,
-                            status = null,
-                        )
+                try {
+                    AnimatedVisibility(visible = moviesToWatch.isNotEmpty()) {
+                        FlowColumn(
+                            modifier = Modifier
+                                .padding(vertical = 12.dp)
+                                .fillMaxSize(0.4f),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.group_recommended_label),
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                            )
+                            MovieItem(
+                                movie = moviesToWatch.maxBy { it.popularity },
+                                onClick = onMovieClick,
+                                status = null,
+                            )
+                        }
                     }
+                } catch (ex: NoSuchElementException) {
+                    Timber.e(ex)
                 }
             }
 

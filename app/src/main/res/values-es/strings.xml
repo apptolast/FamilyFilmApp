@@ -40,6 +40,7 @@
     <string name="groups_text_edit_group_name">Introduce el Nuevo Nombre del Grupo</string>
     <string name="groups_text_to_watch">Quiero ver</string>
     <string name="groups_text_watched">Vistas</string>
+    <string name="group_recommended_label">Recomendada</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>

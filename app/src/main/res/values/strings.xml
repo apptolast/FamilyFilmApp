@@ -39,6 +39,7 @@
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
     <string name="groups_text_to_watch">To Watch</string>
     <string name="groups_text_watched">Watched</string>
+    <string name="group_recommended_label">Recommended</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>

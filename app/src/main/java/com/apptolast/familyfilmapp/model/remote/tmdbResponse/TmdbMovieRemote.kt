@@ -13,10 +13,7 @@ data class TmdbMovieRemote(
     @SerializedName("poster_path") val posterPath: String?,
 )
 
-
-data class ProvidersRoot(
-    @SerializedName("results") val results: Map<String, CountryProviders>,
-)
+data class ProvidersRoot(@SerializedName("results") val results: Map<String, CountryProviders>)
 
 data class CountryProviders(
     @SerializedName("link") val link: String,

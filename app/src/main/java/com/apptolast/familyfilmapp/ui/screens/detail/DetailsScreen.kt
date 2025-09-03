@@ -70,7 +70,6 @@ fun MovieDetailScreen(
     ),
     onBack: () -> Unit = {},
 ) {
-
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 

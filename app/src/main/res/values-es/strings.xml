@@ -47,6 +47,13 @@
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Eliminar Cuenta</string>
+    <string name="profile_title">Perfil</string>
+    <string name="profile_image_description">Profile picture</string>
+    <string name="settings_title">Configuracion</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="account_title">Cuenta</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="delete_account">Eliminar cuenta</string>
 
     <!-- DIALOGS -->
     <string name="dialog_create_group_title">Crear Grupo</string>
@@ -66,6 +73,7 @@
     <string name="login">Iniciar Sesión</string>
     <string name="text_read_more">Leer Más</string>
     <string name="edit_text">Editar</string>
+    <string name="back">Atrás</string>
 
     <!-- PROVIDERS -->
     <string name="provider_available_stream">Disponible para streaming</string>

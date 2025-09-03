@@ -45,7 +45,19 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             repository.getMyGroups(auth.currentUser!!.uid),
         ) { uiState, currentUser, groups ->
 
-            if (groups.isEmpty()) return@combine arrayOf<Any>(false)
+            if (groups.isEmpty()) {
+                // Actualizar backendState con listas vacías cuando no hay grupos
+                backendState.update {
+                    it.copy(
+                        currentUser = currentUser,
+                        groups = emptyList(),
+                        groupUsers = emptyList(),
+                        moviesToWatch = emptyList(),
+                        moviesWatched = emptyList(),
+                    )
+                }
+                return@combine arrayOf<Any>(false)
+            }
 
             try {
                 groups[uiState.selectedGroupIndex]
@@ -154,13 +166,23 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.deleteGroup(
             group = group,
             success = {
-                uiState.update {
-                    it.copy(
-                        selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
-                            0,
-                            Int.MAX_VALUE,
-                        ),
-                    )
+                // Comprobar si este era el último grupo
+                viewModelScope.launch {
+                    val remainingGroups = repository.getMyGroups(auth.currentUser!!.uid).first()
+                    if (remainingGroups.isEmpty()) {
+                        // Si era el ultimo grupo, forzar una actualización completa
+                        refreshUi()
+                    } else {
+                        // Si no, actualizar el indice seleccionado
+                        uiState.update {
+                            it.copy(
+                                selectedGroupIndex = (uiState.value.selectedGroupIndex - 1).coerceIn(
+                                    0,
+                                    remainingGroups.size - 1,
+                                ),
+                            )
+                        }
+                    }
                 }
             },
             failure = { error ->

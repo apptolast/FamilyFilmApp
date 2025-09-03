@@ -328,11 +328,13 @@ fun GroupContent(
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                         )
-                        MovieItem(
-                            movie = moviesToWatch.maxBy { it.popularity },
-                            onClick = onMovieClick,
-                            status = null,
-                        )
+                        moviesToWatch.maxByOrNull { it.popularity }?.let { movie ->
+                            MovieItem(
+                                movie = movie,
+                                onClick = onMovieClick,
+                                status = null,
+                            )
+                        }
                     }
                 }
             }

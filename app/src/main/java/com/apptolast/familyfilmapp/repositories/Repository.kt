@@ -16,11 +16,11 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
 import com.apptolast.familyfilmapp.workers.SyncWorker
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(
     private val roomDatasource: RoomDatasource,
@@ -130,7 +130,7 @@ interface Repository {
 
     // Users
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
-    fun getUserById(string: String): Flow<User>
+    fun getUserById(userId: String): Flow<User>
     fun updateUser(user: User, success: (Void?) -> Unit)
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
 }

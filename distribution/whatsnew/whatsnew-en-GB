@@ -1,1 +1,2 @@
-Fix uid that are causing problems adding members
+Added user profile avatar and fixed group management issues.
+Improved navigation flow and UI updating when deleting groups.

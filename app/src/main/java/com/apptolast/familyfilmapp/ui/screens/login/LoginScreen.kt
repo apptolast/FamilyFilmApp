@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +73,8 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -260,7 +263,9 @@ fun MovieAppLoginContent(
                     onValueChange = { email = it.trim() },
                     label = { Text(text = stringResource(R.string.login_text_field_email)) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TT_LOGIN_EMAIL),
                     shape = MaterialTheme.shapes.small.copy(
                         bottomStart = CornerSize(0.dp),
                         bottomEnd = CornerSize(0.dp),
@@ -305,7 +310,8 @@ fun MovieAppLoginContent(
                     onClick = { onClick(email, password) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(45.dp),
+                        .height(45.dp)
+                        .testTag(TT_LOGIN_EMAIL),
                     shape = MaterialTheme.shapes.medium,
                 ) {
                     Text(text = stringResource(id = screenState.buttonText))
@@ -337,7 +343,8 @@ fun MovieAppLoginContent(
                     onClick = onClickGoogleButton,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(45.dp),
+                        .height(45.dp)
+                        .testTag(TT_LOGIN_GOOGLE_BUTTON),
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
                 ) {

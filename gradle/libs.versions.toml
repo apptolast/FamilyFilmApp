@@ -1,26 +1,29 @@
 [versions]
 activityCompose = "1.10.1"
-androidApplication = "8.8.2"
-androidxCoreKtx = "1.15.0"
+androidxArchCoreTesting = "2.2.0"
+androidApplication = "8.11.1"
+androidxCoreKtx = "1.16.0"
 androidxLifecycleCompose = "2.8.7"
 androidxPagingVersion = "3.3.6"
+androidxTestRunner = "1.6.2"
+androidxTestExtJunit = "1.2.1"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
-composeBom = "2025.03.00"
+composeBom = "2025.04.00"
 composeUiTextGoogleFonts = "1.7.8"
 coreSplashscreen = "1.0.1"
 coroutines = "1.10.1"
 credentials = "1.5.0"
 espressoCore = "3.6.1"
-firebaseBom = "33.11.0"
+firebaseBom = "33.12.0"
 firebaseCrashlytics = "3.0.3"
 googleid = "1.1.1"
 googleServices = "4.4.2"
 gson = "2.12.1"
 hiltCompilerVersion = "1.2.0"
 hiltNavigationCompose = "1.2.0"
-hiltVersion = "2.55"
+hiltVersion = "2.56"
 hiltCompiler = "1.2.0"
 junit = "4.13.2"
 junitJupiter = "5.12.1"
@@ -34,32 +37,38 @@ mockitoInline = "5.2.0"
 mockitoKotlin = "5.4.0"
 mockk = "1.13.17"
 navigationCompose = "2.8.9"
-playServicesAds = "24.1.0"
+playServicesAds = "24.2.0"
 retrofit = "2.11.0"
-roomVersion = "2.6.1"
+roomVersion = "2.7.0"
 swipe = "1.3.0"
 testCoreKtx = "1.6.1"
 testRules = "1.6.1"
 timber = "5.0.1"
 truth = "1.4.4"
 turbine = "1.2.0"
+uiTestJunit4 = "1.7.8"
 workRuntimeKtx = "2.10.0"
 
-materialAlpha="1.4.0-alpha10" # TODO: Delete when updating material3 to 1.4.0
+materialAlpha = "1.4.0-alpha12"
+#junitVersion = "4.12" # TODO: Delete when updating material3 to 1.4.0
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidxArchCoreTesting" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }
+androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationCompose" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPagingVersion" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
@@ -67,7 +76,7 @@ compose-annotation = { group = "io.github.dilrajsingh1997", name = "compose-anno
 compose-annotation-processor = { group = "io.github.dilrajsingh1997", name = "compose-annotation-processor", version.ref = "composeAnnotationProcessor" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref="materialAlpha" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "materialAlpha" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -91,6 +100,7 @@ googleid = { module = "com.google.android.libraries.identity.googleid:googleid",
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hiltVersion" }
 hilt-work-manager = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltCompiler" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -116,6 +126,34 @@ google-credentials = [
     "androidx-credentials-play-services-auth",
     "androidx-credentials",
     "googleid",
+]
+
+tests = [
+    "androidx-arch-core-testing",
+    "coroutines-test",
+    "junit",
+    "mockk",
+    "test-core-ktx",
+    "truth",
+]
+
+debug-tests = [
+    "compose-ui-tooling",
+    "compose-ui-test-manifest",
+]
+
+android-tests = [
+    "junit",
+    "coroutines-test",
+    "truth",
+    "androidx-arch-core-testing",
+    "androidx-test-ext-junit",
+    "compose-ui-test-junit4",
+    "test-core-ktx",
+    "mockk",
+    "androidx-test-runner",
+    #    "androidx-espresso-core",
+    #    "compose-ui-test-junit4",
 ]
 
 [plugins]

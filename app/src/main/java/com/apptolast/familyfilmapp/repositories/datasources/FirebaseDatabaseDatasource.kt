@@ -29,6 +29,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
     val rootDatabase = database.collection(DB_ROOT_COLLECTION).document(BuildConfig.BUILD_TYPE)
     val usersCollection = rootDatabase.collection("users")
+
     val groupsCollection = rootDatabase.collection("groups")
     val moviesCollection = rootDatabase.collection("movies")
 

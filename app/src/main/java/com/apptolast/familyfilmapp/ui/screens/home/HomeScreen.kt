@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,6 +65,9 @@ import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
+import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
+import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_LABEL
 import kotlinx.coroutines.flow.flowOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -107,13 +111,19 @@ fun HomeScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = { onClickNav(Routes.Groups.routes) }) {
+                    IconButton(
+                        modifier = Modifier,
+                        onClick = { onClickNav(Routes.Groups.routes) },
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Groups,
                             contentDescription = Icons.Outlined.Groups.toString(),
                         )
                     }
-                    IconButton(onClick = { onClickNav(Routes.Profile.routes) }) {
+                    IconButton(
+                        modifier = Modifier,
+                        onClick = { onClickNav(Routes.Profile.routes) },
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = Icons.Outlined.Settings.toString(),
@@ -173,7 +183,8 @@ fun HomeContent(
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .testTag(TT_HOME_SEARCH_TEXT_FIELD),
         value = searchQuery,
         onValueChange = {
             searchQuery = it
@@ -194,7 +205,10 @@ fun HomeContent(
             }
         },
         label = {
-            Text(text = stringResource(R.string.search_film_or_series))
+            Text(
+                text = stringResource(R.string.search_film_or_series),
+                modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
+            )
         },
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Text,
@@ -242,12 +256,16 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
         ) {
-            items(movies.itemCount) { index ->
+            items(
+                count = movies.itemCount,
+                key = { movies[it]?.id ?: "" },
+            ) { index ->
                 val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
                     movie = movies[index]!!,
                     onClick = onMovieClick,
                     status = status,
+                    modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$index"),
                 )
             }
         }
@@ -315,7 +333,14 @@ private fun HomeContentPreview() {
                     sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
                 ),
             ).collectAsLazyPagingItems(),
-            stateUI = HomeUiState(),
+            stateUI = HomeUiState().copy(
+                filterMovies = arrayListOf(
+                    Movie(
+                        title = "title",
+                        posterPath = "",
+                    ),
+                ),
+            ),
             onMovieClick = {},
             searchMovieByNameBody = {},
         )

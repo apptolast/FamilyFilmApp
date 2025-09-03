@@ -62,14 +62,14 @@ fun MovieDetailScreen(
     movieId: Int,
     modifier: Modifier = Modifier,
     factoryProvider: DetailsViewModelFactoryProvider = hiltViewModel(),
-    onBack: () -> Unit = {},
-) {
-    val viewModel: DetailsViewModel = viewModel(
+    viewModel: DetailsViewModel = viewModel(
         factory = DetailsViewModel.provideFactory(
             assistedFactory = factoryProvider.detailsViewModelFactory,
             movieId = movieId,
         ),
-    )
+    ),
+    onBack: () -> Unit = {},
+) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }

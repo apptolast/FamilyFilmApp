@@ -1,22 +1,27 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +32,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,14 +41,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
@@ -71,17 +80,18 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(stringResource(R.string.screen_title_profile))
-                },
+                title = { Text(text = stringResource(id = R.string.profile_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                ),
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
@@ -91,19 +101,24 @@ fun ProfileScreen(
 
         when (authState) {
             is AuthState.Authenticated -> {
-                ProfileContent(
-                    email = (authState as AuthState.Authenticated).user.email,
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-                    onClickLogOut = { viewModel.logOut() },
-                    onDeleteUser = {
-                        // Show dialog only when the user has used email/pass provider
-                        // Delete user straight away if user has used google provider
-                        when (provider) {
-                            GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> viewModel.deleteUser()
-                            EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> showDeleteDialog = true
-                        }
-                    },
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                ) {
+                    ProfileContent(
+                        email = "sophia.clark@email.com",
+                        onClickLogOut = { viewModel.logOut() },
+                        onDeleteUser = {
+                            // Show dialog only when the user has used email/pass provider
+                            // Delete user straight away if user has used google provider
+                            when (provider) {
+                                GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> viewModel.deleteUser()
+                                EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> showDeleteDialog = true
+                            }
+                        },
+                    )
+                }
 
                 // Show delete account dialog if state is true
                 if (showDeleteDialog) {
@@ -146,73 +161,136 @@ fun ProfileContent(
     onClickLogOut: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
-    var filedSpacer = 16.dp
+    var notificationsEnabled by remember { mutableStateOf(false) }
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Profile Avatar
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            contentAlignment = Alignment.Center,
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFE8C4A9)),
         ) {
-            Card {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = email,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(filedSpacer),
-                    )
-
-                    Spacer(modifier = Modifier.height(filedSpacer))
-
-                    Button(onClick = onClickLogOut) {
-                        Text(
-                            text = "Logout",
-                            style = MaterialTheme.typography.titleSmall,
-                        )
-                        Spacer(modifier = Modifier.width(filedSpacer))
-                        Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
-                    }
-
-                    Spacer(modifier = Modifier.height(filedSpacer))
-
-                    Button(
-                        onClick = onDeleteUser,
-                        colors = ButtonDefaults.buttonColors().copy(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError,
-                        ),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.profile_delete_account),
-                            style = MaterialTheme.typography.titleSmall,
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
-                    }
-                }
-            }
+            Image(
+                painter = painterResource(id = R.drawable.profile_avatar),
+                contentDescription = stringResource(R.string.profile_image_description),
+                modifier = Modifier.fillMaxSize(),
+            )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // User Info
         Text(
-            text = "v${BuildConfig.VERSION_NAME}",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.titleLarge,
+            text = email,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+//        Spacer(modifier = Modifier.height(32.dp))
+
+        // Settings Section
+//        ProfileSection(title = stringResource(R.string.settings_title)) {
+//            // Notifications
+//            ProfileItem(
+//                title = stringResource(R.string.notifications),
+//                trailingContent = {
+//                    Switch(
+//                        checked = notificationsEnabled,
+//                        onCheckedChange = { notificationsEnabled = it },
+//                    )
+//                },
+//            )
+//        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Account Section
+        ProfileSection(title = stringResource(R.string.account_title)) {
+            // Log Out
+            ProfileItem(
+                title = stringResource(R.string.logout),
+                onClick = onClickLogOut,
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
+
+            // Delete Account
+            ProfileItem(
+                title = stringResource(R.string.delete_account),
+                titleColor = MaterialTheme.colorScheme.error,
+                onClick = onDeleteUser,
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileSection(title: String, content: @Composable () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            Column {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileItem(
+    title: String,
+    modifier: Modifier = Modifier,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    onClick: (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .let { if (onClick != null) it.clickable(onClick = onClick) else it }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = titleColor,
+        )
+
+        trailingContent?.invoke()
     }
 }
 
@@ -221,7 +299,7 @@ fun ProfileContent(
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
         ProfileContent(
-            email = "test@test.com",
+            email = "sophia.clark@email.com",
         )
     }
 }

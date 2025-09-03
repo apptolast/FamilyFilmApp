@@ -39,12 +39,20 @@
     <string name="groups_text_edit_group_name">Introduce the New Group Name</string>
     <string name="groups_text_to_watch">To Watch</string>
     <string name="groups_text_watched">Watched</string>
+    <string name="group_recommended_label">Recommended</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Delete Account</string>
+    <string name="profile_title">Profile</string>
+    <string name="profile_image_description">Profile picture</string>
+    <string name="settings_title">Configuration</string>
+    <string name="notifications">Notifications</string>
+    <string name="account_title">Account</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Delete Account</string>
 
     <!-- DIALOGS -->
     <string name="dialog_create_group_title">Create Group</string>
@@ -65,7 +73,12 @@
     <string name="text_read_more">Read More</string>
     <string name="edit_text">Edit</string>
     <string name="movies">Movies</string>
+    <string name="back">Back</string>
 
+    <!-- PROVIDERS -->
+    <string name="provider_available_stream">Available for streaming</string>
+    <string name="provider_available_buy">Available to buy</string>
+    <string name="provider_available_rent">Available to rent</string>
 
     <!-- Error messages -->
     <string name="error_email_blank">Email is empty</string>

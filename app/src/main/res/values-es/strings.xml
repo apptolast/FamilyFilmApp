@@ -40,12 +40,20 @@
     <string name="groups_text_edit_group_name">Introduce el Nuevo Nombre del Grupo</string>
     <string name="groups_text_to_watch">Quiero ver</string>
     <string name="groups_text_watched">Vistas</string>
+    <string name="group_recommended_label">Recomendada</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Eliminar Cuenta</string>
+    <string name="profile_title">Perfil</string>
+    <string name="profile_image_description">Profile picture</string>
+    <string name="settings_title">Configuracion</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="account_title">Cuenta</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="delete_account">Eliminar cuenta</string>
 
     <!-- DIALOGS -->
     <string name="dialog_create_group_title">Crear Grupo</string>
@@ -65,6 +73,12 @@
     <string name="login">Iniciar Sesión</string>
     <string name="text_read_more">Leer Más</string>
     <string name="edit_text">Editar</string>
+    <string name="back">Atrás</string>
+
+    <!-- PROVIDERS -->
+    <string name="provider_available_stream">Disponible para streaming</string>
+    <string name="provider_available_buy">Disponible para comprar</string>
+    <string name="provider_available_rent">Disponible para alquilar</string>
 
     <!-- Error messages -->
     <string name="movies">Cine</string>

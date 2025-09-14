@@ -10,64 +10,64 @@
 
 ### Description
 
-The application aims to solve the problem of deciding what movies or series to watch when several people gather in a group. It's difficult to get people to agree on what to watch since there's always someone who has already seen what the majority wants to watch, preferences are very different, etc.
+This application solves the common problem of deciding what movies or TV series to watch when multiple people gather together. It's often difficult to reach consensus since someone has usually already seen what the majority wants to watch, or everyone has different preferences.
 
-The application allows you to add the movies you've watched and the ones you want to watch, and the fantastic algorithm it incorporates takes care of filtering that information for each group member and recommending the movie that everyone would like to watch at that friends' gathering or family get-together.
+The app allows you to track movies you've watched and add ones to your watchlist. Our sophisticated algorithm filters this information across all group members and recommends movies that everyone will enjoy during your next movie night or family gathering.
 
 # Architecture and Technologies
 
 ## Design Pattern
-**MVVM** (Model-View-ViewModel): Follows the standards established by Google and widely used by the developer community. This ensures a clear separation between UI logic, business logic, and the data model, facilitating maintenance and scalability.
+**MVVM** (Model-View-ViewModel): Follows Google's established standards and is widely adopted by the developer community. This ensures clear separation between UI logic, business logic, and the data model, facilitating maintenance and scalability.
 
 ## State Management
-**Flow and Coroutines**: For reactive state management, Flow is used, which allows efficient and safe UI updates in response to data changes.
+**Flow and Coroutines**: Used for reactive state management, Flow enables efficient and safe UI updates in response to data changes.
 
 ## Dependency Injection
-**Hilt**: Dependency injection is handled through Hilt, simplifying object construction and promoting looser coupling and more testable code.
+**Hilt**: Dependency injection is managed through Hilt, simplifying object construction and promoting loose coupling with more testable code.
 
 ## Firebase
 **Firestore**: Used to manage users, movies, and the groups they belong to.
 
-**Auth**: Firebase **Authentication** is used to obtain the UID that will be sent to the backend to identify users. The registration providers used are: **email/password** and **Google**
+**Auth**: Firebase **Authentication** is used to obtain the UID that is sent to the backend for user identification. The registration providers used are: **email/password** and **Google**
 
-**Crashlytics**: Crashlytics is used for early detection of errors that may occur in the application and to address them as soon as possible to prevent them from affecting more users.
+**Crashlytics**: Used for early detection of application errors, allowing us to address them quickly and prevent them from affecting more users.
 
 ## Main Libraries
-**Jetpack Compose**: This project is built using Jetpack Compose, Android's modern UI toolkit for creating native interfaces declaratively and efficiently. It simplifies and accelerates UI development on Android.
+**Jetpack Compose**: This project is built using Jetpack Compose, Android's modern UI toolkit for creating native interfaces declaratively and efficiently. It simplifies and accelerates Android UI development.
 
-**Retrofit**: For API calls, Retrofit is used for its efficiency and ease of integration with JSON converters like Gson.
+**Retrofit**: Used for API calls due to its efficiency and easy integration with JSON converters like Gson.
 
-**Navigation Component**: For navigation management in the application, the Android Jetpack navigation component is used, together with a [third-party library to manage navigation arguments](https://github.com/dilrajsingh1997/safe-compose-args).
+**Navigation Component**: Navigation management uses the Android Jetpack navigation component, along with a [third-party library for managing navigation arguments](https://github.com/dilrajsingh1997/safe-compose-args).
 
-**Coroutines**: For asynchronous programming and background task management, Kotlin Coroutines are used.
+**Coroutines**: Used for asynchronous programming and background task management with Kotlin Coroutines.
 
-**StateFlow**: For communication between ViewModel and UI, StateFlow is used.
+**StateFlow**: Used for communication between ViewModel and UI.
 
-**CI/CD**: GitHub Actions is used for Continuous Integration
+**CI/CD**: GitHub Actions is used for Continuous Integration.
 
-**Ktlint**: Used for code checking and auto-formatting to maintain a standard among all members collaborating on the project. In particular, the plugin from [jlleitschuh](https://github.com/JLLeitschuh/ktlint-gradle) is being used.
+**Ktlint**: Used for code checking and auto-formatting to maintain coding standards among all project contributors. We specifically use the plugin from [jlleitschuh](https://github.com/JLLeitschuh/ktlint-gradle).
 
 ## How to participate?
 ### Fork the project
-To participate in this project, I recommend:
+To participate in this project, we recommend:
 
-*  **Fork** the project and give it a **star** to support and give visibility to the repo.
-*  **Create a branch** in which to develop improvements or new functionalities. Why in a branch? It's better to develop your changes in a branch to keep the fork unchanged, so you can update the changes we continue to make in the main repository.
-*  Merge them into your branch, fixing any conflicts that may arise.
+*  **Fork** the project and give it a **star** to support and increase repo visibility.
+*  **Create a branch** for developing improvements or new features. Why use a branch? It's better to develop changes in a separate branch to keep your fork clean, allowing you to pull updates we make to the main repository.
+*  Merge changes into your branch, resolving any conflicts that may arise.
 *  Create a **Pull Request** from your branch to our **develop** branch.
-*  Next, we will proceed to review your PR, suggesting changes or accepting it to add your changes to the main repo.
+*  We will then review your PR, suggest changes, or accept it to merge your changes into the main repository.
 
 ### Configuration
-Due to the use of **Firebase** and **Github Actions**, the project will not compile automatically, so a series of steps are necessary:
+Due to the use of **Firebase** and **GitHub Actions**, the project will not compile automatically, so several setup steps are required:
 
 #### Firebase
 First, create a Firebase project and configure it. Don't forget to:
 
-* Add your SHA-1 key in the project configuration, in the "General" tab.
-* Download the `google-services.json` file and add it inside your app folder of your Android project.
+* Add your SHA-1 key in the project configuration under the "General" tab.
+* Download the `google-services.json` file and add it to your Android project's app folder.
 
 #### TMDB API Token
-To get the TMDB API token, register on TMDB, go to Settings > API, and create a new API key.
+To obtain the TMDB API token, register on TMDB, go to Settings > API, and create a new API key.
 Then, add it to your project's gradle.properties file with the name `TMDB_ACCESS_TOKEN`
 
 ## Testing resources:

@@ -8,73 +8,73 @@
 
 # FamilyFilmApp
 
-### Descripción
+### Description
 
-La aplicación trata de resolver el problema a la hora de decir que películas o series ver cuando se juntan varias personas en un grupo. Cuesta poner a la gente de acuderdo para decidir que ver ya que siempre hay alguien que ha visto lo que la mayoría quiere ver, las preferencias son muy distintas, etc.
+This application solves the common problem of deciding what movies or TV series to watch when multiple people gather together. It's often difficult to reach consensus since someone has usually already seen what the majority wants to watch, or everyone has different preferences.
 
-La aplicación te permite añadir las películas que has visto y las que quieres ver y el fantástico algoritmno que incorpora se encarga de filtrar esa información, para cada miembro del grupo, y recomerdar la película que a todos les gustaría ver en esa reunión de amigos o quedada familiar.
+The app allows you to track movies you've watched and add ones to your watchlist. Our sophisticated algorithm filters this information across all group members and recommends movies that everyone will enjoy during your next movie night or family gathering.
 
-# Arquitectura y Tecnologías
+# Architecture and Technologies
 
-## Patrón de Diseño
-**MVVM** (Model-View-ViewModel): Sigue los estándares establecidos por Google y utilizados ampliamente por la comunidad de desarrolladores. Esto asegura una separación clara entre la lógica de la UI, la lógica de negocios y el modelo de datos, facilitando el mantenimiento y la escalabilidad.
+## Design Pattern
+**MVVM** (Model-View-ViewModel): Follows Google's established standards and is widely adopted by the developer community. This ensures clear separation between UI logic, business logic, and the data model, facilitating maintenance and scalability.
 
-## Gestión del Estado
-**Flow y Coroutines**: Para la gestión reactiva del estado, se utiliza Flow, lo que permite una actualización eficiente y segura de la UI en respuesta a los cambios de datos.
+## State Management
+**Flow and Coroutines**: Used for reactive state management, Flow enables efficient and safe UI updates in response to data changes.
 
-## Inyección de Dependencias
-**Hilt**: La inyección de dependencias se maneja a través de Hilt, simplificando la construcción de objetos y promoviendo un acoplamiento más débil y un código más testeable.
+## Dependency Injection
+**Hilt**: Dependency injection is managed through Hilt, simplifying object construction and promoting loose coupling with more testable code.
 
 ## Firebase
-**Firestore**: Se utiliza para gestionar los usuarios, la películas y los grupos a los que pertenecen.
+**Firestore**: Used to manage users, movies, and the groups they belong to.
 
-**Auth**: Se utiliza Firebase **Authentication** para obtener el UID que se enviará al backend para identifciar a los usuarios. Los proveedores de registro utilizados son: **emial/pass** y **Google**
+**Auth**: Firebase **Authentication** is used to obtain the UID that is sent to the backend for user identification. The registration providers used are: **email/password** and **Google**
 
-**Crashlytics**: Se utiliza Crashlytics para la detección temprana de errores que puedan ocurrir en la aplicación y poder atajarlos los antes posible evitando que afecte a más usuarios.
+**Crashlytics**: Used for early detection of application errors, allowing us to address them quickly and prevent them from affecting more users.
 
-## Librerías Principales
-**Jetpack Compose**: Este proyecto está construido utilizando Jetpack Compose, el moderno toolkit de UI de Android para crear interfaces nativas de forma declarativa y eficiente. Simplifica y acelera el desarrollo de la IU en Android.
+## Main Libraries
+**Jetpack Compose**: This project is built using Jetpack Compose, Android's modern UI toolkit for creating native interfaces declaratively and efficiently. It simplifies and accelerates Android UI development.
 
-**Retrofit**: Para las llamadas a la API, Retrofit es utilizado por su eficiencia y facilidad de integración con los convertidores de JSON como Gson.
+**Retrofit**: Used for API calls due to its efficiency and easy integration with JSON converters like Gson.
 
-**Navigation Component**: Para la gestión de la navegación en la aplicación, se emplea el componente de navegación de Android Jetpack, en conjunto con una [libreria de terceros para gestionar los argumentos de navegacion](https://github.com/dilrajsingh1997/safe-compose-args).
+**Navigation Component**: Navigation management uses the Android Jetpack navigation component, along with a [third-party library for managing navigation arguments](https://github.com/dilrajsingh1997/safe-compose-args).
 
-**Coroutines**: Para la programación asíncrona y la gestión de tareas en segundo plano, se utilizan las Coroutines de Kotlin.
+**Coroutines**: Used for asynchronous programming and background task management with Kotlin Coroutines.
 
-**StateFlow**: Para la comunicación entre ViewModel y UI se utiliza StateFlow.
+**StateFlow**: Used for communication between ViewModel and UI.
 
-**CI/CD**: Se utiliza Github Actions para la Integración Continua
+**CI/CD**: GitHub Actions is used for Continuous Integration.
 
-**Ktlint**: Se utiliza para la comprobación y autoformato del código para mantener un estandar entre todos los miembros que colaboran en el proyecto. En particular, se está utilizando el plugin de [jlleitschuh](https://github.com/JLLeitschuh/ktlint-gradle).
+**Ktlint**: Used for code checking and auto-formatting to maintain coding standards among all project contributors. We specifically use the plugin from [jlleitschuh](https://github.com/JLLeitschuh/ktlint-gradle).
 
-## ¿Cómo participar?
-### Fork del proyecto
-Para participar en este proyecto recomiendo:
+## How to participate?
+### Fork the project
+To participate in this project, we recommend:
 
-*  **Hacer un fork** del proyecto y darle a la **estrellita** para apoyar y dar visibilidad al repo.
-*  **Crear una rama** en la que desarrollar las mejoras o nuevas funcionalidades. ¿Por qué en una rama? Es mejor desarollar tus cambios en una rama para mantener el fork sin cambios, así podrás actualizar los cambios que sigamos haciendo en el repositorio principal.
-*  Mergearlos en tu rama, arreglando los conflictos que puedan surgir.
-*  Crear un **Pull Request** desde tu rama a nuestra rama de **develop**.
-*  A continuación, procederemos a revisar tu PR, sugiriendo cambios o aceptándolo pra añadir tus cambios al repo principal.
+*  **Fork** the project and give it a **star** to support and increase repo visibility.
+*  **Create a branch** for developing improvements or new features. Why use a branch? It's better to develop changes in a separate branch to keep your fork clean, allowing you to pull updates we make to the main repository.
+*  Merge changes into your branch, resolving any conflicts that may arise.
+*  Create a **Pull Request** from your branch to our **develop** branch.
+*  We will then review your PR, suggest changes, or accept it to merge your changes into the main repository.
 
-### Configuración
-Debido a la utilización de **Firebase** y **Github Actions** el proyecto no compilará automáticamente, por lo que es necesario una serie de paso:
+### Configuration
+Due to the use of **Firebase** and **GitHub Actions**, the project will not compile automatically, so several setup steps are required:
 
 #### Firebase
-En primer lugar, crea un proyecto de firebase y configúralo. No olvides:
+First, create a Firebase project and configure it. Don't forget to:
 
-* Añadir tu clave SHA-1 en la configuración del proyecto, en la pestaña "General".
-* Descargar el fichero `google-services.json` y añadirlo dentro de tu carpeta app de tu proyecto de android.
+* Add your SHA-1 key in the project configuration under the "General" tab.
+* Download the `google-services.json` file and add it to your Android project's app folder.
 
-#### API Token de TMDB
-Para obtener el token de API de TMDB, regístrate en TMDB, ve a Settings > API, y crea una nueva clave de API.
-A continuación, añádela an el fichero gradle.properties de tu proyecto con el nombre `TMDB_ACCESS_TOKEN`
+#### TMDB API Token
+To obtain the TMDB API token, register on TMDB, go to Settings > API, and create a new API key.
+Then, add it to your project's gradle.properties file with the name `TMDB_ACCESS_TOKEN`
 
 ## Testing resources:
 Koin Unit tests: https://insert-koin.io/docs/reference/koin-test/testing
 Koin Android tests: https://insert-koin.io/docs/reference/koin-android/instrumented-testing/
 
-## Contribuidores
+## Contributors
 
 ### Android:
 [<img alt="GitHub" height="35" src="https://img.shields.io/badge/-hgarciaalberto-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/hgarciaalberto)
@@ -86,7 +86,7 @@ Koin Android tests: https://insert-koin.io/docs/reference/koin-android/instrumen
 [<img alt="GitHub" height="35" src="https://img.shields.io/badge/-Isabel9422-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/Isabel9422)
 [<img alt="GitHub" height="35" src="https://img.shields.io/badge/-El3auti-181717?style=flat-square&amp;logo=github&amp;logoColor=white"/>](https://github.com/El3auti)
 
-## Puedes encontrarnos en:
+## You can find us at:
 
 [<img alt="Discord" height="35" src="https://img.shields.io/badge/-Discord-7289DA?style=flat-square&amp;logo=discord&amp;logoColor=white"/>](https://discord.gg/wyPDmk6Fda)
 <img alt="Twitch Status" height="35" src="https://img.shields.io/twitch/status/AndroidZen"/>

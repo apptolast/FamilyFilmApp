@@ -1,2 +1,4 @@
-Añadido avatar de perfil de usuario y solucionados problemas de gestión de grupos.
-Mejorado el flujo de navegación y la actualización de la UI al eliminar grupos.
+- Se ha corregido un error que podía provocar que la aplicación se bloqueara al abrirla por primera vez.
+- Se ha mejorado el proceso de verificación de correo electrónico.
+- Se ha corregido un problema que impedía que los usuarios se crearan correctamente en diferentes entornos.
+- Se ha corregido un error que podía provocar un bloqueo al crear un grupo.

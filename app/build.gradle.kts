@@ -30,14 +30,14 @@ val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER
 
 android {
     namespace = "com.apptolast.familyfilmapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 17
-        versionName = "0.3.15"
+        targetSdk = 36
+        versionCode = 18
+        versionName = "0.3.16"
 
 //        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
@@ -97,6 +97,7 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
             merges.add("META-INF/LICENSE-notice.md")
             excludes += mutableSetOf(
                 "**/junit-jupiter-engine-*.jar/META-INF/LICENSE-notice.md",

@@ -5,7 +5,6 @@ import androidx.paging.PagingState
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
-import okhttp3.internal.filterList
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -19,7 +18,7 @@ class MoviePagingSource(private val tmdbDatasource: TmdbDatasource) : PagingSour
             )
 
             LoadResult.Page(
-                data = movies.distinct().filterList { posterPath != null }.map { it.toDomain() },
+                data = movies.distinct().map { it.toDomain() },
                 prevKey = if (currentPage == 1) null else currentPage - 1,
                 nextKey = if (movies.isEmpty()) null else currentPage + 1,
             )

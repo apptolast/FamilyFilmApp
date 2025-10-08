@@ -183,6 +183,16 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             }
     }
 
+    override fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit) {
+        usersCollection.document(userId).get()
+            .addOnSuccessListener { document ->
+                callback(document.exists())
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
@@ -371,6 +381,7 @@ interface FirebaseDatabaseDatasource {
     fun getUserByEmail(email: String, success: (User?) -> Unit)
     fun updateUser(user: User, success: (Void?) -> Unit)
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
+    fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

@@ -1,1 +1,4 @@
-Add tests to improve app stability
+- Fixed a bug that could cause the app to crash when opening it for the first time.
+- Improved the email verification process.
+- Fixed an issue that prevented users from being created correctly in different environments.
+- Fixed a bug that could cause a crash when creating a group.

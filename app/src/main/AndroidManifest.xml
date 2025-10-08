@@ -16,7 +16,7 @@
         android:roundIcon="@mipmap/ic_snail_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FamilyFilmApp"
-        tools:targetApi="35">
+        tools:targetApi="36">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

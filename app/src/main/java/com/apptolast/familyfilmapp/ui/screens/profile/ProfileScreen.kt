@@ -107,7 +107,7 @@ fun ProfileScreen(
                         .padding(paddingValues),
                 ) {
                     ProfileContent(
-                        email = "sophia.clark@email.com",
+                        email = (authState as AuthState.Authenticated).user.email,
                         onClickLogOut = { viewModel.logOut() },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
@@ -299,7 +299,7 @@ fun ProfileItem(
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
         ProfileContent(
-            email = "sophia.clark@email.com",
+            email = "sophia.clark@gmail.com",
         )
     }
 }

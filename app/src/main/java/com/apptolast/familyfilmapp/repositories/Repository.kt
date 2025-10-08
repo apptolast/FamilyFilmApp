@@ -111,6 +111,10 @@ class RepositoryImpl @Inject constructor(
             failure = failure,
         )
     }
+
+    override fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit) {
+        firebaseDatabaseDatasource.checkIfUserExists(userId, callback)
+    }
 }
 
 interface Repository {
@@ -133,4 +137,5 @@ interface Repository {
     fun getUserById(userId: String): Flow<User>
     fun updateUser(user: User, success: (Void?) -> Unit)
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
+    fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
 }

@@ -15,7 +15,7 @@ class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, pri
     // /////////////////////////////////////////////////////////////////////////
     override fun getGroups(): Flow<List<GroupTable>> = groupDao.getGroups()
     override fun getMyGroups(userId: String): Flow<List<GroupTable>> = groupDao.getMyGroups(userId)
-    override fun getGroupById(id: String): Flow<GroupTable> = groupDao.getGroup(id)
+    override fun getGroupById(id: String): Flow<GroupTable?> = groupDao.getGroup(id)
     override suspend fun insertGroup(group: GroupTable) = groupDao.insert(group)
     override suspend fun updateGroup(group: GroupTable) = groupDao.update(group)
     override suspend fun deleteGroup(group: GroupTable) = groupDao.delete(group)
@@ -25,7 +25,7 @@ class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, pri
     // /////////////////////////////////////////////////////////////////////////
     override fun getAllUsers(): Flow<List<UserTable>> = userDao.getUsers()
     override fun getUser(id: String): Flow<UserTable?> = userDao.getUser(id)
-    override fun getUserByEmail(email: String): Flow<UserTable> = userDao.getUserByEmail(email)
+    override fun getUserByEmail(email: String): Flow<UserTable?> = userDao.getUserByEmail(email)
     override suspend fun insertUser(user: UserTable) = userDao.insert(user)
     override suspend fun deleteUser(user: UserTable) = userDao.delete(user)
     override suspend fun updateUser(user: UserTable) = userDao.update(user)
@@ -53,7 +53,7 @@ interface RoomDatasource {
     /**
      * Retrieve groups from the given data source that matches with the [id].
      */
-    fun getGroupById(id: String): Flow<GroupTable>
+    fun getGroupById(id: String): Flow<GroupTable?>
 
     /**
      * Insert group in the data source

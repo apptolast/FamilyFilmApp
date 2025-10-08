@@ -133,7 +133,11 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     fun createGroup(groupName: String) = viewModelScope.launch {
-        val currentUser = repository.getUserById(auth.currentUser?.uid!!).first()
+        val currentUser = repository.getUserById(auth.currentUser?.uid!!).firstOrNull()
+        if (currentUser == null) {
+            uiState.update { it.copy(errorMessage = "User not found") }
+            return@launch
+        }
         repository.createGroup(
             groupName = groupName,
             user = currentUser,

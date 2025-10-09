@@ -1,2 +1,4 @@
-Added user profile avatar and fixed group management issues.
-Improved navigation flow and UI updating when deleting groups.
+- Fixed a bug that could cause the app to crash when opening it for the first time.
+- Improved the email verification process.
+- Fixed an issue that prevented users from being created correctly in different environments.
+- Fixed a bug that could cause a crash when creating a group.

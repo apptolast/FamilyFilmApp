@@ -38,7 +38,7 @@ abstract class GroupDao {
     }
 
     @Query("SELECT * from $GROUPS_TABLE_NAME WHERE groupId = :id")
-    abstract fun getGroup(id: String): Flow<GroupTable>
+    abstract fun getGroup(id: String): Flow<GroupTable?>
 
     @Update
     abstract suspend fun update(group: GroupTable)

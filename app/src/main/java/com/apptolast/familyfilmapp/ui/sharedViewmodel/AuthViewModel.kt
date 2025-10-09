@@ -196,8 +196,12 @@ class AuthViewModel @Inject constructor(
                             authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first().let { result ->
                                 result
                                     .onSuccess { user ->
-                                        createNewUser(user)
-                                        checkIsUserLogged()
+                                        repository.checkIfUserExists(user.id) { exists ->
+                                            if (!exists) {
+                                                createNewUser(user)
+                                            }
+                                            checkIsUserLogged()
+                                        }
                                     }
                                     .onFailure { error ->
                                         handleFailure(error.message ?: "Google Login Error")

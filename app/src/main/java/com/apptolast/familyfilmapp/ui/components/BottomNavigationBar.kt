@@ -36,6 +36,7 @@ fun BottomNavigationBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         items.forEach { screen ->
+            val isSelected = currentRoute == screen.routes
             NavigationBarItem(
                 icon = {
                     screen.icon?.let { icon ->
@@ -45,8 +46,12 @@ fun BottomNavigationBar(
                         )
                     }
                 },
-                label = { Text(stringResource(screen.title)) },
-                selected = currentRoute == screen.routes,
+                label = if (isSelected) {
+                    { Text(stringResource(screen.title)) }
+                } else {
+                    null
+                },
+                selected = isSelected,
                 onClick = {
                     if (currentRoute != screen.routes) {
                         navController.navigate(screen.routes) {

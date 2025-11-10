@@ -130,7 +130,7 @@ fun MovieDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .consumeWindowInsets(paddingValues),
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(

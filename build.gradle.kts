@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.serialize) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.dagger.hilt) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.ktlint.jlleitschuh) apply false
     alias(libs.plugins.room) apply false

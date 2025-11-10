@@ -39,10 +39,16 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     fun refreshUi() = viewModelScope.launch {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            uiState.update { it.copy(errorMessage = "User not authenticated") }
+            return@launch
+        }
+
         combine(
             uiState,
-            repository.getUserById(auth.currentUser!!.uid),
-            repository.getMyGroups(auth.currentUser!!.uid),
+            repository.getUserById(userId),
+            repository.getMyGroups(userId),
         ) { uiState, currentUser, groups ->
 
             if (groups.isEmpty()) {
@@ -133,7 +139,12 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     fun createGroup(groupName: String) = viewModelScope.launch {
-        val currentUser = repository.getUserById(auth.currentUser?.uid!!).firstOrNull()
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            uiState.update { it.copy(errorMessage = "User not authenticated") }
+            return@launch
+        }
+        val currentUser = repository.getUserById(userId).firstOrNull()
         if (currentUser == null) {
             uiState.update { it.copy(errorMessage = "User not found") }
             return@launch
@@ -172,7 +183,12 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             success = {
                 // Comprobar si este era el último grupo
                 viewModelScope.launch {
-                    val remainingGroups = repository.getMyGroups(auth.currentUser!!.uid).first()
+                    val userId = auth.currentUser?.uid
+                    if (userId == null) {
+                        uiState.update { it.copy(errorMessage = "User not authenticated") }
+                        return@launch
+                    }
+                    val remainingGroups = repository.getMyGroups(userId).first()
                     if (remainingGroups.isEmpty()) {
                         // Si era el ultimo grupo, forzar una actualización completa
                         refreshUi()

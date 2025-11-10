@@ -32,6 +32,7 @@ object RepositoryModule {
     fun provideLoginRepository(firebaseAuth: FirebaseAuth): FirebaseAuthRepository =
         FirebaseAuthRepositoryImpl(firebaseAuth)
 
+    @Singleton
     @Provides
     fun provideRepository(
         roomDatasource: RoomDatasource,
@@ -40,10 +41,12 @@ object RepositoryModule {
         workManager: WorkManager,
     ): Repository = RepositoryImpl(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
 
+    @Singleton
     @Provides
     fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =
         RoomDatasourceImpl(groupDao, userDao)
 
+    @Singleton
     @Provides
     fun provideFirebaseDatabaseDatasource(
         database: FirebaseFirestore,
@@ -51,6 +54,7 @@ object RepositoryModule {
         coroutineScope: CoroutineScope,
     ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource, coroutineScope)
 
+    @Singleton
     @Provides
     fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)
 }

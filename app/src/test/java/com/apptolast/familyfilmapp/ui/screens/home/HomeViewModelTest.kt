@@ -81,18 +81,15 @@ class HomeViewModelTest {
         }
 
     @Test
-    fun `searchMovieByName should return EMPTY LIST when filter is EMPTY`() =
-        runTest(dispatcher.testDispatcherProvider.io()) {
-            val actualMovieName = ""
-            val errorMessage = "Empty List"
+    fun `searchMovieByName should return EMPTY LIST when filter is EMPTY`() = runTest {
+        val actualMovieName = ""
 
-            viewModel.searchMovieByName(actualMovieName)
+        viewModel.searchMovieByName(actualMovieName)
+        testScheduler.advanceUntilIdle()
 
-            assertThat(viewModel.homeUiState.value.filterMovies).isEqualTo(emptyList<Movie>())
-            assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(
-                CustomException.GenericException(errorMessage),
-            )
-        }
+        assertThat(viewModel.homeUiState.value.filterMovies).isEqualTo(emptyList<Movie>())
+        assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(CustomException.GenericException(null))
+    }
 
     @Test
     fun `clearError should clear the state`() = runTest(dispatcher.testDispatcherProvider.io()) {

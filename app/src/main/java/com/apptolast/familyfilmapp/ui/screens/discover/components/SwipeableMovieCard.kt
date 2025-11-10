@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -247,7 +247,7 @@ fun SwipeableMovieCard(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = Icons.Default.PlaylistAdd,
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                             contentDescription = "Want to Watch",
                             tint = Color.Black,
                             modifier = Modifier.size(48.dp),

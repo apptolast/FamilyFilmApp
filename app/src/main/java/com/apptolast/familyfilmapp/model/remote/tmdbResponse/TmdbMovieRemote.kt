@@ -7,6 +7,7 @@ data class TmdbMovieRemote(
     @SerializedName("adult") val adult: Boolean,
     @SerializedName("title") val title: String?,
     @SerializedName("popularity") val popularity: Float?,
+    @SerializedName("vote_average") val voteAverage: Float?,
     @SerializedName("watch/providers") val providers: ProvidersRoot?,
     @SerializedName("overview") val overview: String?,
     @SerializedName("release_date") val releaseDate: String?,

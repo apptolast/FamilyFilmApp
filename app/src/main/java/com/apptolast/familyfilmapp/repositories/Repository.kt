@@ -37,6 +37,9 @@ class RepositoryImpl @Inject constructor(
         pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
     ).flow
 
+    override suspend fun getPopularMoviesList(page: Int): List<Movie> =
+        tmdbDatasource.getPopularMovies(page).map { it.toDomain() }
+
     override suspend fun searchTmdbMovieByName(string: String): List<Movie> =
         tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
 
@@ -121,6 +124,7 @@ interface Repository {
 
     // Movies
     fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
+    suspend fun getPopularMoviesList(page: Int = 1): List<Movie>
     suspend fun searchTmdbMovieByName(string: String): List<Movie>
     suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
 

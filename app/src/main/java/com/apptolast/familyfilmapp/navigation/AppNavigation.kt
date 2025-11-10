@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,84 +20,82 @@ import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 
+/**
+ * Main navigation component for the app.
+ * Implements a persistent banner that stays visible across authenticated screens.
+ *
+ * Banner visibility logic:
+ * - Login/Register screens: NO banner (user not authenticated)
+ * - SplashScreen: NO banner (handled by authState check)
+ * - Home, Groups, Profile, Details: YES banner (user authenticated)
+ *
+ * The banner is positioned at the app level (outside NavHost) to prevent
+ * recreation on navigation, ensuring smooth UX and efficient ad loading.
+ */
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
     val navController = rememberNavController()
-
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-    NavHost(
-        navController = navController,
-        startDestination = if (authState is AuthState.Authenticated) {
-            Routes.Home.routes
-        } else {
-            Routes.Login.routes
-        },
-    ) {
-        composable(route = Routes.Login.routes) {
-            LoginScreen(
-                navController = navController,
-                viewModel = authViewModel,
-            )
-        }
-        composable(
-            route = Routes.Home.routes,
-            arguments = listOf(),
+    Column(modifier = Modifier.fillMaxSize()) {
+        NavHost(
+            navController = navController,
+            startDestination = if (authState is AuthState.Authenticated) {
+                Routes.Home.routes
+            } else {
+                Routes.Login.routes
+            },
+            modifier = Modifier.weight(1f),
         ) {
-            AddBanner {
+            composable(route = Routes.Login.routes) {
+                LoginScreen(
+                    navController = navController,
+                    viewModel = authViewModel,
+                )
+            }
+            composable(
+                route = Routes.Home.routes,
+                arguments = listOf(),
+            ) {
                 HomeScreen(
                     onClickNav = { route ->
                         navController.navigate(route)
                     },
-                    modifier = Modifier.weight(1f),
                 )
             }
-        }
-        composable(route = Routes.Groups.routes) {
-            AddBanner {
+            composable(route = Routes.Groups.routes) {
                 GroupsScreen(
                     onClickNav = { route ->
                         navController.navigate(route)
                     },
                     onBack = { navController.navigateUp() },
-                    modifier = Modifier.weight(1f),
                 )
             }
-        }
-        composable(route = Routes.Profile.routes) {
-            AddBanner {
+            composable(route = Routes.Profile.routes) {
                 ProfileScreen(
                     viewModel = authViewModel,
                     onClickNav = { route ->
                         navController.navigate(route)
                     },
                     onBack = { navController.navigateUp() },
-                    modifier = Modifier.weight(1f),
                 )
             }
-        }
-        composable(
-            route = Routes.Details.routes,
-            arguments = DetailNavTypeDestination.argumentList,
-        ) { backStackEntry ->
-            val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
-            AddBanner {
+            composable(
+                route = Routes.Details.routes,
+                arguments = DetailNavTypeDestination.argumentList,
+            ) { backStackEntry ->
+                val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
                 MovieDetailScreen(
                     movieId = movie.id,
                     onBack = { navController.navigateUp() },
-                    modifier = Modifier.weight(1f),
                 )
             }
         }
-    }
-}
 
-@Composable
-fun AddBanner(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        content()
-        AdaptiveBanner()
+        // Banner visibility: Only show for authenticated users
+        // This automatically excludes: Login, Register, and any pre-auth screens
+        if (authState is AuthState.Authenticated) {
+            AdaptiveBanner()
+        }
     }
 }

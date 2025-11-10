@@ -31,9 +31,13 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             homeUiState.update { it.copy(isLoading = true) }
-            if (auth.uid == null) return@launch
+            val userId = auth.uid
+            if (userId == null) {
+                homeUiState.update { it.copy(isLoading = false) }
+                return@launch
+            }
 
-            repository.getUserById(auth.uid!!).collectLatest { user ->
+            repository.getUserById(userId).collectLatest { user ->
                 homeUiState.update {
                     it.copy(
                         isLoading = false,
@@ -54,12 +58,19 @@ class HomeViewModel @Inject constructor(
 
     fun searchMovieByName(movieFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
         if (movieFilter.isEmpty()) {
+            // Clear filter movies list when search is empty
             homeUiState.update { it.copy(filterMovies = emptyList()) }
-            triggerError("Empty List") // Todo: Fix the hardcoded message and its test
-            Timber.e("Empty List")
+            clearError() // Clear any previous errors
+            Timber.d("Search cleared, showing popular movies")
         } else {
-            repository.searchTmdbMovieByName(movieFilter).let { movies ->
-                homeUiState.update { it.copy(filterMovies = movies) }
+            try {
+                repository.searchTmdbMovieByName(movieFilter).let { movies ->
+                    homeUiState.update { it.copy(filterMovies = movies) }
+                    clearError()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error searching movies")
+                triggerError(e.message ?: "Error searching movies")
             }
         }
     }

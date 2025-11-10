@@ -196,9 +196,14 @@ fun HomeContent(
         },
         trailingIcon = {
             AnimatedVisibility(searchQuery.isNotEmpty()) {
-                IconButton(onClick = { searchQuery = "" }) {
+                IconButton(
+                    onClick = {
+                        searchQuery = ""
+                        searchMovieByNameBody("") // Notify ViewModel to clear filter
+                    },
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Close, // Ícono de "X"
+                        imageVector = Icons.Default.Close,
                         contentDescription = "Borrar texto",
                     )
                 }

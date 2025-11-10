@@ -6,24 +6,55 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import javax.inject.Inject
 
 class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : FirebaseAuthRepository {
 
-    val verifiedAccount: Flow<Boolean> = flow {
-        while (true) {
-            val verified = verifyEmailIsVerified()
-            emit(verified)
-            delay(1000)
+    /**
+     * Starts email verification polling on-demand.
+     * This method should only be called when user needs verification check (e.g., on verification screen).
+     * The Flow automatically stops when:
+     * - Email is verified
+     * - Flow is cancelled (user leaves screen)
+     * - An unrecoverable error occurs
+     *
+     * @param intervalMillis Polling interval in milliseconds (default 5000ms = 5 seconds)
+     * @return Flow that emits verification status until verified or cancelled
+     */
+    override fun checkEmailVerification(intervalMillis: Long): Flow<Boolean> = callbackFlow {
+        var isVerified = false
+
+        while (!isClosedForSend && !isVerified) {
+            try {
+                isVerified = verifyEmailIsVerified()
+                trySend(isVerified)
+
+                if (isVerified) {
+                    Timber.d("Email verified successfully!")
+                    break
+                }
+
+                delay(intervalMillis)
+            } catch (e: Exception) {
+                Timber.e(e, "Error checking email verification")
+                // Continue polling even on error (could be temporary network issue)
+                delay(intervalMillis)
+            }
         }
-    }
+
+        awaitClose {
+            Timber.d("Email verification check stopped")
+        }
+    }.flowOn(Dispatchers.IO)
 
     /**
      * Get the current user from firebase authentication.
@@ -93,9 +124,32 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
         awaitClose()
     }
 
+    /**
+     * Checks if the current user's email is verified.
+     * Reloads user data from Firebase before checking to ensure fresh data.
+     *
+     * @return true if email is verified, false otherwise (including when user is null)
+     * @throws Exception if network error or Firebase auth issues occur
+     */
     override suspend fun verifyEmailIsVerified(): Boolean {
-        firebaseAuth.currentUser?.reload()?.await()
-        return firebaseAuth.currentUser?.isEmailVerified == true
+        return try {
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                Timber.w("No authenticated user found when checking email verification")
+                return false
+            }
+
+            // Reload to get fresh data from Firebase
+            user.reload().await()
+
+            val isVerified = user.isEmailVerified
+            Timber.d("Email verification status: $isVerified for user: ${user.email}")
+
+            isVerified
+        } catch (e: Exception) {
+            Timber.e(e, "Error verifying email status")
+            throw e // Re-throw to let caller handle
+        }
     }
 
     override fun logOut() = firebaseAuth.signOut()
@@ -192,6 +246,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(private val firebaseAuth: F
 }
 
 interface FirebaseAuthRepository {
+    fun checkEmailVerification(intervalMillis: Long = 5000): Flow<Boolean>
     fun getUser(): Flow<FirebaseUser?>
     fun login(email: String, password: String): Flow<Result<User?>>
     fun register(email: String, password: String): Flow<Result<User?>>

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.dagger.hilt)
     alias(libs.plugins.ktlint.jlleitschuh)

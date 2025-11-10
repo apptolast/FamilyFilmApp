@@ -17,6 +17,7 @@ coroutines = "1.10.2"
 credentials = "1.5.0"
 espressoCore = "3.7.0"
 firebaseBom = "34.5.0"
+firebaseCrashlytics = "3.0.6"
 googleid = "1.1.1"
 googleServices = "4.4.4"
 gson = "2.13.2"
@@ -156,7 +157,7 @@ android-tests = [
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidApplication" }
-#firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
 google-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

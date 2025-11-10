@@ -1,4 +1,5 @@
-- Fixed a bug that could cause the app to crash when opening it for the first time.
-- Improved the email verification process.
-- Fixed an issue that prevented users from being created correctly in different environments.
-- Fixed a bug that could cause a crash when creating a group.
+- NEW: Discover screen with Tinder-style swipe to find your next movie! Swipe right to add to watchlist, left to mark as watched.
+- Improved navigation: streamlined top bar and enhanced bottom navigation with clearer visual feedback.
+- Fixed critical crash when scrolling quickly through movie lists.
+- Better swipe indicators with improved visibility on all movie posters.
+- UI consistency improvements across the app for a smoother experience.

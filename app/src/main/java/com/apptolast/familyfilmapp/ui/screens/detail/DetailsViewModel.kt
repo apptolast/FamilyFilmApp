@@ -35,9 +35,15 @@ class DetailsViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch(dispatcherProvider.io()) {
+            val userId = auth.uid
+            if (userId == null) {
+                Timber.e("User not authenticated")
+                return@launch
+            }
+
             awaitAll(
                 async {
-                    repository.getUserById(auth.uid!!).collectLatest { user ->
+                    repository.getUserById(userId).collectLatest { user ->
                         state.update { it.copy(user = user) }
                     }
                 },

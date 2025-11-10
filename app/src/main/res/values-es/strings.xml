@@ -26,6 +26,7 @@
 
     <!-- SCREEN TITLES-->
     <string name="screen_title_home">Inicio</string>
+    <string name="screen_title_discover">Descubrir</string>
     <string name="screen_title_recommend">Recomendar</string>
     <string name="screen_title_groups">Grupos</string>
     <string name="screen_title_profile">Perfil</string>
@@ -44,6 +45,16 @@
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
+
+    <!-- DISCOVER -->
+    <string name="discover_watched">Watched</string>
+    <string name="discover_want_to_watch">To Watch</string>
+    <string name="discover_skip">Skip</string>
+    <string name="discover_see_details">Ver Detalles</string>
+    <string name="discover_no_more_movies">¡No hay más películas! Vuelve más tarde</string>
+    <string name="discover_loading">Cargando películas…</string>
+    <string name="discover_swipe_left">Desliza a la izquierda para marcar como vista</string>
+    <string name="discover_swipe_right">Desliza a la derecha para añadir a tu lista</string>
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Eliminar Cuenta</string>

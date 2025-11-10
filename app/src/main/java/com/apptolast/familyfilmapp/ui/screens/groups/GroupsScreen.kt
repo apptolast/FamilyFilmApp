@@ -18,8 +18,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -29,14 +28,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
@@ -44,7 +41,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -57,7 +53,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,22 +103,6 @@ fun GroupsScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(R.string.screen_title_groups))
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
-                        )
-                    }
-                },
-            )
-        },
-//        bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
             ExpandableFAB(
                 isExtended = isFabExtended,
@@ -152,12 +131,13 @@ fun GroupsScreen(
                 moviesWatched = backendState.moviesWatched,
                 selectedGroupIndex = uiState.selectedGroupIndex,
                 scrollState = listState,
-                modifier = Modifier.padding(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    top = paddingValues.calculateTopPadding(),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    bottom = 8.dp,
-                ),
+                modifier = Modifier.consumeWindowInsets(paddingValues),
+//                modifier = Modifier.padding(
+//                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+//                    top = paddingValues.calculateTopPadding(),
+//                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+//                    bottom = 8.dp,
+//                ),
                 onChangeGroupName = { group ->
                     viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
                 },

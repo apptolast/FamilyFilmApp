@@ -36,6 +36,33 @@ This project uses **ktlint** for code style enforcement. After completing any ta
 ./gradlew build
 ```
 
+### Updating Release Notes (whatsnew files)
+
+When the user requests to **"Actualice los ficheros whatsnew"** (Update whatsnew files):
+
+1. **Review recent changes**: Check the git commit history on the current branch to understand what features, fixes, or improvements have been implemented
+2. **Create a brief summary**: Write a concise summary of the changes in **no more than 3 lines**
+3. **Update all language files**: Update the whatsnew files for each supported language in `/distribution/whatsnew/`:
+   - `whatsnew-en-GB` (English)
+   - `whatsnew-es-ES` (Spanish)
+   - Any other language files present
+
+**Guidelines**:
+- Keep the summary user-friendly and focused on user-facing changes
+- Avoid technical jargon; focus on benefits to the user
+- Prioritize the most impactful changes if there are many commits
+- Maintain consistent tone across all language versions
+
+**Example workflow:**
+```bash
+# Review recent commits
+git log --oneline -10
+
+# Update whatsnew files based on commits
+# Then format if needed
+./gradlew ktlintFormat
+```
+
 ## Build Commands
 
 ### Setup Requirements

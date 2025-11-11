@@ -42,6 +42,7 @@
     <string name="groups_text_to_watch">Quiero ver</string>
     <string name="groups_text_watched">Vistas</string>
     <string name="group_recommended_label">Recomendada</string>
+    <string name="cannot_delete_owner">No se puede eliminar al propietario del grupo. Elimina el grupo en su lugar.</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>

@@ -1,5 +1,2 @@
-- NEW: Discover screen with Tinder-style swipe to find your next movie! Swipe right to add to watchlist, left to mark as watched.
-- Improved navigation: streamlined top bar and enhanced bottom navigation with clearer visual feedback.
-- Fixed critical crash when scrolling quickly through movie lists.
-- Better swipe indicators with improved visibility on all movie posters.
-- UI consistency improvements across the app for a smoother experience.
+- IMPROVED: Groups screen with enhanced stability, better swipe-to-delete functionality, and smoother member management.
+- ENHANCED: Smart movie recommendation algorithm that analyzes your group's preferences to suggest the perfect film for everyone.

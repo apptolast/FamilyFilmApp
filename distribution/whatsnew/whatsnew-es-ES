@@ -1,5 +1,2 @@
-- NUEVO: Pantalla Descubrir con deslizamiento estilo Tinder para encontrar tu próxima película. Desliza a la derecha para añadir a tu lista, a la izquierda para marcar como vista.
-- Navegación mejorada: barra superior optimizada y navegación inferior mejorada con indicadores visuales más claros.
-- Corregido cierre inesperado al hacer scroll rápido en listas de películas.
-- Indicadores de deslizamiento con mejor visibilidad en todos los pósters.
-- Mejoras de consistencia en la interfaz para una experiencia más fluida.
+- MEJORADO: Pantalla de Grupos con mayor estabilidad, mejor funcionalidad de deslizar para eliminar y gestión de miembros más fluida.
+- MEJORADO: Algoritmo inteligente de recomendación de películas que analiza las preferencias de tu grupo para sugerir la película perfecta para todos.

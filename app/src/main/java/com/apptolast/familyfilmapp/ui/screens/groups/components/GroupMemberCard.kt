@@ -19,10 +19,11 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            containerColor = MaterialTheme.colorScheme.onSurfaceVariant, // Cambio aquí
+            contentColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp,
+            defaultElevation = 2.dp,
         ),
     ) {
         Text(
@@ -32,6 +33,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
                 .padding(12.dp),
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleSmall,
+//            color = MaterialTheme.colorScheme.onPrimaryContainer, // Mejor contraste
         )
     }
 }

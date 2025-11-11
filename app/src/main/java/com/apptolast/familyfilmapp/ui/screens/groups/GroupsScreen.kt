@@ -389,8 +389,8 @@ fun GroupContent(
 fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         AnimatedContent(
             targetState = isExtended,

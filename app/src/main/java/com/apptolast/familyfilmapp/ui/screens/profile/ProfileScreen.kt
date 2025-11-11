@@ -169,7 +169,7 @@ fun ProfileContent(
 
         // User Info
         Text(
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             text = email,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

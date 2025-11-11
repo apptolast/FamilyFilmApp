@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,8 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -62,7 +59,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
@@ -102,52 +98,17 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.movies),
-                        style = MaterialTheme.typography.headlineLarge,
-                    )
-                },
-                actions = {
-                    IconButton(
-                        modifier = Modifier,
-                        onClick = { onClickNav(Routes.Groups.routes) },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Groups,
-                            contentDescription = Icons.Outlined.Groups.toString(),
-                        )
-                    }
-                    IconButton(
-                        modifier = Modifier,
-                        onClick = { onClickNav(Routes.Profile.routes) },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = Icons.Outlined.Settings.toString(),
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    scrolledContainerColor = animatedColor,
-                    containerColor = animatedColor,
-                ),
-                scrollBehavior = scrollBehavior,
-            )
-        },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .consumeWindowInsets(paddingValues)
                 .padding(horizontal = 8.dp),
         ) {
             HomeContent(
-                modifier = Modifier.padding(paddingValues),
                 movies = movies,
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
@@ -196,9 +157,14 @@ fun HomeContent(
         },
         trailingIcon = {
             AnimatedVisibility(searchQuery.isNotEmpty()) {
-                IconButton(onClick = { searchQuery = "" }) {
+                IconButton(
+                    onClick = {
+                        searchQuery = ""
+                        searchMovieByNameBody("") // Notify ViewModel to clear filter
+                    },
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Close, // Ícono de "X"
+                        imageVector = Icons.Default.Close,
                         contentDescription = "Borrar texto",
                     )
                 }
@@ -237,9 +203,12 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
         ) {
-            items(filterMovies) { movie ->
+            items(
+                items = filterMovies,
+                key = { movie -> "filter_${movie.id}" },
+            ) { movie ->
                 val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
                     movie = movie,
@@ -254,11 +223,18 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 180.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
         ) {
             items(
                 count = movies.itemCount,
-                key = { movies[it]?.id ?: "" },
+                key = { index ->
+                    val movie = movies[index]
+                    if (movie != null) {
+                        "paging_${movie.id}_$index"
+                    } else {
+                        "loading_$index"
+                    }
+                },
             ) { index ->
                 val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(

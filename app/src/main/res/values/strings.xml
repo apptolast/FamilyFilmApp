@@ -25,6 +25,7 @@
 
     <!-- SCREEN TITLES-->
     <string name="screen_title_home">Home</string>
+    <string name="screen_title_discover">Discover</string>
     <string name="screen_title_recommend">Recommend</string>
     <string name="screen_title_groups">Groups</string>
     <string name="screen_title_profile">Profile</string>
@@ -43,6 +44,16 @@
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
+
+    <!-- DISCOVER -->
+    <string name="discover_watched">Watched</string>
+    <string name="discover_want_to_watch">To Watch</string>
+    <string name="discover_skip">Skip</string>
+    <string name="discover_see_details">See Details</string>
+    <string name="discover_no_more_movies">No more movies! Check back later</string>
+    <string name="discover_loading">Loading movies…</string>
+    <string name="discover_swipe_left">Swipe left to mark as watched</string>
+    <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Delete Account</string>

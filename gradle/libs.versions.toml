@@ -1,7 +1,7 @@
 [versions]
 activityCompose = "1.11.0"
 androidxArchCoreTesting = "2.2.0"
-androidApplication = "8.11.2"
+androidApplication = "8.12.3"
 androidxCoreKtx = "1.17.0"
 androidxLifecycleCompose = "2.9.4"
 androidxPagingVersion = "3.3.6"
@@ -10,36 +10,36 @@ androidxTestExtJunit = "1.3.0"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
-composeBom = "2025.09.01"
-composeUiTextGoogleFonts = "1.9.2"
-coreSplashscreen = "1.0.1"
+composeBom = "2025.11.00"
+composeUiTextGoogleFonts = "1.9.4"
+coreSplashscreen = "1.2.0"
 coroutines = "1.10.2"
 credentials = "1.5.0"
 espressoCore = "3.7.0"
-firebaseBom = "33.12.0"
-firebaseCrashlytics = "3.0.3"
+firebaseBom = "34.5.0"
+firebaseCrashlytics = "3.0.6"
 googleid = "1.1.1"
-googleServices = "4.4.3"
+googleServices = "4.4.4"
 gson = "2.13.2"
 hiltCompilerVersion = "1.3.0"
 hiltNavigationCompose = "1.3.0"
 hiltVersion = "2.57.2"
 hiltCompiler = "1.3.0"
 junit = "4.13.2"
-junitJupiter = "6.0.0"
-kotlin = "2.2.20"
+junitJupiter = "6.0.1"
+kotlin = "2.2.21"
 ktlint = "0.4.22"
 ktlintJlleitschuh = "13.1.0"
 ksp = "2.2.20-2.0.4"
-loggingInterceptor = "5.2.0"
+loggingInterceptor = "5.3.0"
 mockitoCore = "5.20.0"
 mockitoInline = "5.2.0"
 mockitoKotlin = "6.1.0"
 mockk = "1.14.6"
-navigationCompose = "2.9.5"
-playServicesAds = "24.6.0"
+navigationCompose = "2.9.6"
+playServicesAds = "24.7.0"
 retrofit = "3.0.0"
-roomVersion = "2.8.1"
+roomVersion = "2.8.3"
 swipe = "1.3.0"
 testCoreKtx = "1.7.0"
 testRules = "1.7.0"
@@ -47,7 +47,7 @@ timber = "5.0.1"
 truth = "1.4.5"
 turbine = "1.2.1"
 uiTestJunit4 = "1.7.8"
-workRuntimeKtx = "2.10.5"
+workRuntimeKtx = "2.11.0"
 
 materialAlpha = "1.4.0"
 #junitVersion = "4.12" # TODO: Delete when updating material3 to 1.4.0
@@ -89,12 +89,11 @@ compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
-firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
-firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

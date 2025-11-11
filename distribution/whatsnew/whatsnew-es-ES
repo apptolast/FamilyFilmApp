@@ -1,4 +1,5 @@
-- Se ha corregido un error que podía provocar que la aplicación se bloqueara al abrirla por primera vez.
-- Se ha mejorado el proceso de verificación de correo electrónico.
-- Se ha corregido un problema que impedía que los usuarios se crearan correctamente en diferentes entornos.
-- Se ha corregido un error que podía provocar un bloqueo al crear un grupo.
+- NUEVO: Pantalla Descubrir con deslizamiento estilo Tinder para encontrar tu próxima película. Desliza a la derecha para añadir a tu lista, a la izquierda para marcar como vista.
+- Navegación mejorada: barra superior optimizada y navegación inferior mejorada con indicadores visuales más claros.
+- Corregido cierre inesperado al hacer scroll rápido en listas de películas.
+- Indicadores de deslizamiento con mejor visibilidad en todos los pósters.
+- Mejoras de consistencia en la interfaz para una experiencia más fluida.

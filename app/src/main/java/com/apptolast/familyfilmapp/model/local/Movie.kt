@@ -11,6 +11,7 @@ data class Movie(
     val title: String,
     val adult: Boolean,
     val popularity: Float,
+    val voteAverage: Float,
     val streamProviders: List<Provider>,
     val buyProviders: List<Provider>,
     val rentProviders: List<Provider>,
@@ -29,6 +30,7 @@ data class Movie(
         title = title,
         adult = false,
         popularity = 0f,
+        voteAverage = 0f,
         streamProviders = emptyList(),
         buyProviders = emptyList(),
         rentProviders = emptyList(),
@@ -46,6 +48,7 @@ fun TmdbMovieRemote.toDomain(): Movie {
         adult = adult,
         title = title ?: "",
         popularity = popularity ?: 0f,
+        voteAverage = voteAverage ?: 0f,
         streamProviders = providers?.results?.get(deviceCountryCode)?.stream?.map { provider ->
             Provider(
                 providerId = provider.providerId,

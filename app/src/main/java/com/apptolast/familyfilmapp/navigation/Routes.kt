@@ -2,12 +2,14 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.navigation.navtypes.DiscoverNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.GroupsNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.HomeNavType
 import com.apptolast.familyfilmapp.navigation.navtypes.LoginNavType
@@ -26,6 +28,12 @@ sealed class Routes(@StringRes val title: Int, val routes: String, val icon: Ima
         title = R.string.screen_title_home,
         routes = HomeNavType.route,
         icon = Icons.Outlined.Home,
+    )
+
+    data object Discover : Routes(
+        title = R.string.screen_title_discover,
+        routes = DiscoverNavType.route,
+        icon = Icons.Outlined.Explore,
     )
 
     data object Groups : Routes(

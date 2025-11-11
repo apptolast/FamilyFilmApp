@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(./gradlew build:*)",
+      "WebSearch",
+      "Bash(./gradlew test:*)",
+      "Bash(./gradlew ktlintFormat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -81,8 +81,7 @@ fun GroupsScreen(
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val backendState by viewModel.backendState.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
     val isFabExtended by remember {
@@ -91,10 +90,10 @@ fun GroupsScreen(
         }
     }
 
-    if (!uiState.errorMessage.isNullOrBlank()) {
+    if (!state.errorMessage.isNullOrBlank()) {
         Toast.makeText(
             LocalContext.current,
-            uiState.errorMessage,
+            state.errorMessage,
             Toast.LENGTH_SHORT,
         ).show()
 
@@ -115,7 +114,7 @@ fun GroupsScreen(
         modifier = modifier,
     ) { paddingValues ->
 
-        if (uiState.isLoading) {
+        if (state.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -124,20 +123,14 @@ fun GroupsScreen(
             }
         } else {
             GroupContent(
-                userOwner = backendState.currentUser,
-                groups = backendState.groups,
-                groupUsers = backendState.groupUsers,
-                moviesToWatch = backendState.moviesToWatch,
-                moviesWatched = backendState.moviesWatched,
-                selectedGroupIndex = uiState.selectedGroupIndex,
+                userOwner = state.currentUser,
+                groups = state.groups,
+                groupUsers = state.groupUsers,
+                moviesToWatch = state.moviesToWatch,
+                moviesWatched = state.moviesWatched,
+                selectedGroupIndex = state.selectedGroupIndex,
                 scrollState = listState,
                 modifier = Modifier.consumeWindowInsets(paddingValues),
-//                modifier = Modifier.padding(
-//                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-//                    top = paddingValues.calculateTopPadding(),
-//                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-//                    bottom = 8.dp,
-//                ),
                 onChangeGroupName = { group ->
                     viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
                 },
@@ -150,8 +143,8 @@ fun GroupsScreen(
                 onDeleteUser = { group, user ->
                     viewModel.deleteMember(group, user)
                 },
-                onGroupSelect = { index ->
-                    viewModel.selectGroup(index)
+                onGroupSelect = { groupId ->
+                    viewModel.selectGroup(groupId)
                 },
                 onMovieClick = { movie ->
                     onClickNav(DetailNavTypeDestination.getDestination(movie))
@@ -159,7 +152,7 @@ fun GroupsScreen(
             )
 
             // Show dialog
-            when (uiState.showDialog) {
+            when (state.showDialog) {
                 GroupScreenDialogs.CreateGroup -> {
                     TextFieldDialog(
                         title = stringResource(id = R.string.dialog_create_group_title),
@@ -174,7 +167,7 @@ fun GroupsScreen(
                 }
 
                 is GroupScreenDialogs.AddMember -> {
-                    val group = (uiState.showDialog as GroupScreenDialogs.AddMember).group
+                    val group = (state.showDialog as GroupScreenDialogs.AddMember).group
 
                     EmailFieldDialog(
                         title = stringResource(id = R.string.dialog_add_group_member_title),
@@ -188,7 +181,7 @@ fun GroupsScreen(
                 }
 
                 is GroupScreenDialogs.ChangeGroupName -> {
-                    val group = (uiState.showDialog as GroupScreenDialogs.ChangeGroupName).group
+                    val group = (state.showDialog as GroupScreenDialogs.ChangeGroupName).group
 
                     TextFieldDialog(
                         title = stringResource(id = R.string.dialog_change_group_title),
@@ -203,7 +196,7 @@ fun GroupsScreen(
                 }
 
                 is GroupScreenDialogs.DeleteGroup -> {
-                    val group = (uiState.showDialog as GroupScreenDialogs.DeleteGroup).group
+                    val group = (state.showDialog as GroupScreenDialogs.DeleteGroup).group
                     BasicDialog(
                         title = stringResource(R.string.dialog_delete_group_title),
                         description = stringResource(R.string.dialog_delete_group_description),
@@ -239,7 +232,7 @@ fun GroupContent(
     onAddMemberClick: (Group) -> Unit = {},
     onDeleteGroup: (Group) -> Unit = {},
     onDeleteUser: (Group, User) -> Unit = { _, _ -> },
-    onGroupSelect: (Int) -> Unit = {},
+    onGroupSelect: (String) -> Unit = {}, // Now takes group ID
     onMovieClick: (Movie) -> Unit = {},
 ) {
     if (groups.isEmpty()) {
@@ -263,16 +256,25 @@ fun GroupContent(
         ) {
             // Group tabs
             stickyHeader {
+                // CRITICAL: Validate against the ACTUAL groups list we have in this composition
+                // This prevents crashes when selectedGroupIndex hasn't updated yet
+                val safeTabIndex = when {
+                    groups.isEmpty() -> 0
+                    selectedGroupIndex >= groups.size -> groups.size - 1
+                    selectedGroupIndex < 0 -> 0
+                    else -> selectedGroupIndex
+                }
+
                 ScrollableTabRow(
-                    selectedTabIndex = selectedGroupIndex,
+                    selectedTabIndex = safeTabIndex,
                     divider = {
                         VerticalDivider()
                     },
                 ) {
                     groups.forEachIndexed { index, group ->
                         Tab(
-                            selected = selectedGroupIndex == index,
-                            onClick = { onGroupSelect(index) },
+                            selected = safeTabIndex == index,
+                            onClick = { onGroupSelect(group.id) }, // Pass group ID
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
                             unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
@@ -281,7 +283,7 @@ fun GroupContent(
                                     text = group.name,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = if (selectedGroupIndex == index) {
+                                    style = if (safeTabIndex == index) {
                                         MaterialTheme.typography.titleMedium
                                     } else {
                                         MaterialTheme.typography.titleSmall
@@ -300,12 +302,14 @@ fun GroupContent(
                     FlowColumn(
                         modifier = Modifier
                             .padding(vertical = 12.dp)
-                            .fillMaxSize(0.4f),
+                            .fillMaxSize(0.5f),
                     ) {
                         Text(
                             text = stringResource(R.string.group_recommended_label),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp),
                             textAlign = TextAlign.Center,
                         )
                         moviesToWatch.maxByOrNull { it.popularity }?.let { movie ->
@@ -321,7 +325,14 @@ fun GroupContent(
 
             // Group card
             item {
-                val currentSelectedGroup = groups[selectedGroupIndex]
+                // CRITICAL: Validate against the ACTUAL groups list
+                val safeIndex = when {
+                    groups.isEmpty() -> return@item // No groups, don't render
+                    selectedGroupIndex >= groups.size -> groups.size - 1
+                    selectedGroupIndex < 0 -> 0
+                    else -> selectedGroupIndex
+                }
+                val currentSelectedGroup = groups[safeIndex]
                 GroupCard(
                     userOwner = userOwner,
                     group = currentSelectedGroup,
@@ -378,8 +389,8 @@ fun GroupContent(
 fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         AnimatedContent(
             targetState = isExtended,

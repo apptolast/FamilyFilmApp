@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,6 +40,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     /**
      * Observes groups from Firebase and updates state reactively.
      * Uses stable Group IDs instead of indices to avoid race conditions.
+     * Now also observes selectedGroupId changes to trigger member refresh.
      */
     private fun observeGroups() = viewModelScope.launch {
         val userId = auth.currentUser?.uid
@@ -49,12 +52,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         combine(
             repository.getUserById(userId),
             repository.getMyGroups(userId),
-        ) { currentUser, groups ->
-            Pair(currentUser, groups)
+            _state.map { it.selectedGroupId }.distinctUntilChanged(),
+        ) { currentUser, groups, manualSelectedId ->
+            Triple(currentUser, groups, manualSelectedId)
         }.catch { error ->
             Timber.e(error, "Error observing groups")
             _state.update { it.copy(errorMessage = error.message, isLoading = false) }
-        }.collectLatest { (currentUser, groups) ->
+        }.collectLatest { (currentUser, groups, manualSelectedId) ->
             if (groups.isEmpty()) {
                 _state.update {
                     it.copy(
@@ -74,13 +78,15 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             val currentState = _state.value
             val selectedGroupId = determineSelectedGroupId(
                 groups = groups,
-                currentSelectedId = currentState.selectedGroupId,
+                currentSelectedId = manualSelectedId,
                 pendingGroupId = currentState.pendingGroupIdToSelect,
             )
 
             // Find the group
             val selectedGroup = groups.firstOrNull { it.id == selectedGroupId }
                 ?: groups.first()
+
+            Timber.d("Loading data for group: ${selectedGroup.name} (ID: ${selectedGroup.id})")
 
             // Load data for the selected group
             loadGroupData(
@@ -123,11 +129,42 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
     /**
      * Loads all data for the selected group.
+     * Robustly handles member data collection and edge cases.
      */
     private suspend fun loadGroupData(groups: List<Group>, selectedGroup: Group, currentUser: User) {
-        // Load group users
+        Timber.d("Loading data for group '${selectedGroup.name}' with ${selectedGroup.users.size} members")
+
+        // Load group users - filter out nulls (deleted/non-existent users)
         val groupUsers = selectedGroup.users.mapNotNull { userId ->
-            repository.getUserById(userId).firstOrNull()
+            try {
+                repository.getUserById(userId).firstOrNull()
+            } catch (e: Exception) {
+                Timber.e(e, "Error loading user $userId for group ${selectedGroup.name}")
+                null
+            }
+        }
+
+        if (groupUsers.size < selectedGroup.users.size) {
+            val missingCount = selectedGroup.users.size - groupUsers.size
+            Timber.w("Group '${selectedGroup.name}': $missingCount member(s) could not be loaded")
+        }
+
+        // Handle empty group case
+        if (groupUsers.isEmpty()) {
+            Timber.d("Group '${selectedGroup.name}' has no valid members")
+            _state.update {
+                it.copy(
+                    currentUser = currentUser,
+                    groups = groups,
+                    selectedGroupId = selectedGroup.id,
+                    groupUsers = emptyList(),
+                    moviesToWatch = emptyList(),
+                    moviesWatched = emptyList(),
+                    pendingGroupIdToSelect = null,
+                    isLoading = false,
+                )
+            }
+            return
         }
 
         // Load movies to watch
@@ -140,7 +177,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
         val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
             repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading movies to watch")
+                Timber.e(error, "Error loading movies to watch for group '${selectedGroup.name}'")
                 emptyList()
             }
         } else {
@@ -157,12 +194,17 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
         val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
             repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading watched movies")
+                Timber.e(error, "Error loading watched movies for group '${selectedGroup.name}'")
                 emptyList()
             }
         } else {
             emptyList()
         }
+
+        Timber.d(
+            "Group '${selectedGroup.name}' loaded: " +
+                "${groupUsers.size} users, ${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
+        )
 
         // Update state atomically with all loaded data
         _state.update {
@@ -182,7 +224,14 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     // === Public Actions ===
 
     fun selectGroup(groupId: String) {
-        _state.update { it.copy(selectedGroupId = groupId, pendingGroupIdToSelect = null) }
+        Timber.d("User manually selected group: $groupId")
+        _state.update {
+            it.copy(
+                selectedGroupId = groupId,
+                pendingGroupIdToSelect = null,
+                isLoading = true,
+            )
+        }
     }
 
     fun createGroup(groupName: String) = viewModelScope.launch {

@@ -102,14 +102,14 @@ fun GroupCard(
             }
 
             // Buttons to "Add Member" and "Delete Group"
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (group.ownerId == userOwner.id) {
+            if (group.ownerId == userOwner.id) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp, horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Button(
                         onClick = onAddMember,
                         colors = ButtonDefaults.buttonColors(
@@ -165,6 +165,7 @@ fun GroupCard(
                                             false
                                         }
                                     }
+
                                     else -> false
                                 }
                             },
@@ -188,7 +189,7 @@ fun GroupCard(
                                 ) {
                                     // Delete action on swipe from end to start
                                     AnimatedVisibility(
-                                        visible = swipeState.targetValue == SwipeToDismissBoxValue.EndToStart,
+                                        visible = swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart,
                                         enter = fadeIn(),
                                     ) {
                                         Icon(

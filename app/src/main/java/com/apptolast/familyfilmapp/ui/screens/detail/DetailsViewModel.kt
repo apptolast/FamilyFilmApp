@@ -57,23 +57,27 @@ class DetailsViewModel @AssistedInject constructor(
     }
 
     fun updateMovieStatus(movie: Movie, status: MovieStatus) {
-        val currentStatusMovies = state.value.user.statusMovies.toMutableMap()
-        val currentStatus = currentStatusMovies[movie.id.toString()]
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val currentStatusMovies = state.value.user.statusMovies.toMutableMap()
+            val currentStatus = currentStatusMovies[movie.id.toString()]
 
-        // Toggle functionality: If already has the same status, remove it (deselect)
-        if (currentStatus == status) {
-            currentStatusMovies.remove(movie.id.toString())
-        } else {
-            // Otherwise set the new status
-            currentStatusMovies[movie.id.toString()] = status
-        }
+            // Toggle functionality: If already has the same status, remove it (deselect)
+            if (currentStatus == status) {
+                currentStatusMovies.remove(movie.id.toString())
+            } else {
+                // Otherwise set the new status
+                currentStatusMovies[movie.id.toString()] = status
+            }
 
-        repository.updateUser(
-            state.value.user.copy(
-                statusMovies = currentStatusMovies.toMap(),
-            ),
-        ) {
-            Timber.d("Movie status updated")
+            repository.updateUser(
+                state.value.user.copy(
+                    statusMovies = currentStatusMovies.toMap(),
+                ),
+            ).onSuccess {
+                Timber.d("Movie status updated successfully")
+            }.onFailure { error ->
+                Timber.e(error, "Error updating movie status")
+            }
         }
     }
 

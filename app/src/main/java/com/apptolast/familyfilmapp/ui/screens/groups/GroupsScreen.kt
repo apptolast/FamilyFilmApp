@@ -59,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
@@ -90,14 +91,14 @@ fun GroupsScreen(
         }
     }
 
-    if (!state.errorMessage.isNullOrBlank()) {
+    if (!state.error.isNullOrBlank()) {
         Toast.makeText(
             LocalContext.current,
-            state.errorMessage,
+            state.error,
             Toast.LENGTH_SHORT,
         ).show()
 
-        viewModel.clearErrorMessage()
+        viewModel.clearError()
     }
 
     Scaffold(
@@ -122,97 +123,102 @@ fun GroupsScreen(
                 CircularProgressIndicator()
             }
         } else {
-            GroupContent(
-                userOwner = state.currentUser,
-                groups = state.groups,
-                groupUsers = state.groupUsers,
-                moviesToWatch = state.moviesToWatch,
-                moviesWatched = state.moviesWatched,
-                selectedGroupIndex = state.selectedGroupIndex,
-                scrollState = listState,
-                modifier = Modifier.consumeWindowInsets(paddingValues),
-                onChangeGroupName = { group ->
-                    viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
-                },
-                onAddMemberClick = { group ->
-                    viewModel.showDialog(GroupScreenDialogs.AddMember(group))
-                },
-                onDeleteGroup = { group ->
-                    viewModel.showDialog(GroupScreenDialogs.DeleteGroup(group))
-                },
-                onDeleteUser = { group, user ->
-                    viewModel.deleteMember(group, user)
-                },
-                onGroupSelect = { groupId ->
-                    viewModel.selectGroup(groupId)
-                },
-                onMovieClick = { movie ->
-                    onClickNav(DetailNavTypeDestination.getDestination(movie))
-                },
-            )
-
-            // Show dialog
-            when (state.showDialog) {
-                GroupScreenDialogs.CreateGroup -> {
-                    TextFieldDialog(
-                        title = stringResource(id = R.string.dialog_create_group_title),
-                        description = stringResource(id = R.string.dialog_create_group_description),
-                        onConfirm = { groupName ->
-                            viewModel.createGroup(groupName)
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
-                    )
-                }
-
-                is GroupScreenDialogs.AddMember -> {
-                    val group = (state.showDialog as GroupScreenDialogs.AddMember).group
-
-                    EmailFieldDialog(
-                        title = stringResource(id = R.string.dialog_add_group_member_title),
-                        onConfirm = { email ->
-                            viewModel.addMember(group, email)
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
-                    )
-                }
-
-                is GroupScreenDialogs.ChangeGroupName -> {
-                    val group = (state.showDialog as GroupScreenDialogs.ChangeGroupName).group
-
-                    TextFieldDialog(
-                        title = stringResource(id = R.string.dialog_change_group_title),
-                        description = stringResource(id = R.string.dialog_change_group_description),
-                        onConfirm = { newGroupName ->
-                            viewModel.changeGroupName(group.copy(name = newGroupName))
-                        },
-                        onDismiss = {
-                            viewModel.showDialog(GroupScreenDialogs.None)
-                        },
-                    )
-                }
-
-                is GroupScreenDialogs.DeleteGroup -> {
-                    val group = (state.showDialog as GroupScreenDialogs.DeleteGroup).group
-                    BasicDialog(
-                        title = stringResource(R.string.dialog_delete_group_title),
-                        description = stringResource(R.string.dialog_delete_group_description),
-                        confirmButtonText = stringResource(id = android.R.string.ok),
-                        cancelButtonText = stringResource(id = android.R.string.cancel),
-                        onConfirm = { viewModel.deleteGroup(group) },
-                        onDismiss = { viewModel.showDialog(GroupScreenDialogs.None) },
-                    )
-                }
-
-                GroupScreenDialogs.None -> {
-                    /* no-op */
-                }
-
-                else -> {}
+            val selectedGroupData = state.selectedGroupData
+            if (selectedGroupData != null) {
+                GroupContent(
+                    groupData = selectedGroupData,
+                    groups = state.groups,
+                    selectedGroupIndex = state.selectedGroupIndex,
+                    syncState = state.syncState,
+                    scrollState = listState,
+                    modifier = Modifier.consumeWindowInsets(paddingValues),
+                    onChangeGroupName = { group ->
+                        viewModel.showDialog(GroupScreenDialogs.ChangeGroupName(group))
+                    },
+                    onAddMemberClick = { group ->
+                        viewModel.showDialog(GroupScreenDialogs.AddMember(group))
+                    },
+                    onDeleteGroup = { groupId ->
+                        viewModel.showDialog(
+                            GroupScreenDialogs.DeleteGroup(
+                                state.groups.first { it.id == groupId },
+                            ),
+                        )
+                    },
+                    onDeleteUser = { groupId, userId ->
+                        viewModel.removeMember(groupId, userId)
+                    },
+                    onGroupSelect = { groupId ->
+                        viewModel.selectGroup(groupId)
+                    },
+                    onMovieClick = { movie ->
+                        onClickNav(DetailNavTypeDestination.getDestination(movie))
+                    },
+                )
             }
+        }
+
+        // Show dialog
+        when (state.showDialog) {
+            GroupScreenDialogs.CreateGroup -> {
+                TextFieldDialog(
+                    title = stringResource(id = R.string.dialog_create_group_title),
+                    description = stringResource(id = R.string.dialog_create_group_description),
+                    onConfirm = { groupName ->
+                        viewModel.createGroup(groupName)
+                    },
+                    onDismiss = {
+                        viewModel.showDialog(GroupScreenDialogs.None)
+                    },
+                )
+            }
+
+            is GroupScreenDialogs.AddMember -> {
+                val group = (state.showDialog as GroupScreenDialogs.AddMember).group
+
+                EmailFieldDialog(
+                    title = stringResource(id = R.string.dialog_add_group_member_title),
+                    onConfirm = { email ->
+                        viewModel.addMember(group.id, email)
+                    },
+                    onDismiss = {
+                        viewModel.showDialog(GroupScreenDialogs.None)
+                    },
+                )
+            }
+
+            is GroupScreenDialogs.ChangeGroupName -> {
+                val group = (state.showDialog as GroupScreenDialogs.ChangeGroupName).group
+
+                TextFieldDialog(
+                    title = stringResource(id = R.string.dialog_change_group_title),
+                    description = stringResource(id = R.string.dialog_change_group_description),
+                    onConfirm = { newGroupName ->
+                        viewModel.changeGroupName(group.copy(name = newGroupName))
+                    },
+                    onDismiss = {
+                        viewModel.showDialog(GroupScreenDialogs.None)
+                    },
+                )
+            }
+
+            is GroupScreenDialogs.DeleteGroup -> {
+                val group = (state.showDialog as GroupScreenDialogs.DeleteGroup).group
+                BasicDialog(
+                    title = stringResource(R.string.dialog_delete_group_title),
+                    description = stringResource(R.string.dialog_delete_group_description),
+                    confirmButtonText = stringResource(id = android.R.string.ok),
+                    cancelButtonText = stringResource(id = android.R.string.cancel),
+                    onConfirm = { viewModel.deleteGroup(group.id) },
+                    onDismiss = { viewModel.showDialog(GroupScreenDialogs.None) },
+                )
+            }
+
+            GroupScreenDialogs.None -> {
+                /* no-op */
+            }
+
+            else -> {}
         }
     }
 }
@@ -220,19 +226,17 @@ fun GroupsScreen(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupContent(
-    userOwner: User,
+    groupData: GroupViewModel.GroupData,
     groups: List<Group>,
-    groupUsers: List<User>,
-    moviesToWatch: List<Movie>,
-    moviesWatched: List<Movie>,
     selectedGroupIndex: Int,
+    syncState: SyncState,
     scrollState: LazyListState,
     modifier: Modifier = Modifier,
     onChangeGroupName: (Group) -> Unit = {},
     onAddMemberClick: (Group) -> Unit = {},
-    onDeleteGroup: (Group) -> Unit = {},
-    onDeleteUser: (Group, User) -> Unit = { _, _ -> },
-    onGroupSelect: (String) -> Unit = {}, // Now takes group ID
+    onDeleteGroup: (String) -> Unit = {},
+    onDeleteUser: (String, String) -> Unit = { _, _ -> },
+    onGroupSelect: (String) -> Unit = {},
     onMovieClick: (Movie) -> Unit = {},
 ) {
     if (groups.isEmpty()) {
@@ -296,9 +300,14 @@ fun GroupContent(
                 }
             }
 
+            // Sync state indicator
+            item {
+                SyncStateIndicator(syncState = syncState)
+            }
+
             // Recommended movie
             item {
-                AnimatedVisibility(visible = moviesToWatch.isNotEmpty()) {
+                AnimatedVisibility(visible = groupData.recommendedMovie != null) {
                     FlowColumn(
                         modifier = Modifier
                             .padding(vertical = 12.dp)
@@ -312,7 +321,7 @@ fun GroupContent(
                                 .padding(bottom = 6.dp),
                             textAlign = TextAlign.Center,
                         )
-                        moviesToWatch.maxByOrNull { it.popularity }?.let { movie ->
+                        groupData.recommendedMovie?.let { movie ->
                             MovieItem(
                                 movie = movie,
                                 onClick = onMovieClick,
@@ -325,28 +334,24 @@ fun GroupContent(
 
             // Group card
             item {
-                // CRITICAL: Validate against the ACTUAL groups list
-                val safeIndex = when {
-                    groups.isEmpty() -> return@item // No groups, don't render
-                    selectedGroupIndex >= groups.size -> groups.size - 1
-                    selectedGroupIndex < 0 -> 0
-                    else -> selectedGroupIndex
+                // Find authenticated user by ID (not by position)
+                val currentUser = groupData.members.firstOrNull { it.id == groupData.currentUserId }
+                if (currentUser != null) {
+                    GroupCard(
+                        userOwner = currentUser,
+                        group = groupData.group,
+                        groupUsers = groupData.members,
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        onChangeGroupName = { onChangeGroupName(groupData.group) },
+                        onAddMember = { onAddMemberClick(groupData.group) },
+                        onDeleteGroup = { onDeleteGroup(groupData.group.id) },
+                        onDeleteUser = { user -> onDeleteUser(groupData.group.id, user.id) },
+                    )
                 }
-                val currentSelectedGroup = groups[safeIndex]
-                GroupCard(
-                    userOwner = userOwner,
-                    group = currentSelectedGroup,
-                    groupUsers = groupUsers,
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    onChangeGroupName = { onChangeGroupName(currentSelectedGroup) },
-                    onAddMember = { onAddMemberClick(currentSelectedGroup) },
-                    onDeleteGroup = { onDeleteGroup(currentSelectedGroup) },
-                    onDeleteUser = { user -> onDeleteUser(currentSelectedGroup, user) },
-                )
             }
 
             // Movies to watch
-            if (moviesToWatch.isNotEmpty()) {
+            if (groupData.moviesToWatch.isNotEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
@@ -357,14 +362,14 @@ fun GroupContent(
 
                 item {
                     HorizontalScrollableMovies(
-                        movies = moviesToWatch,
+                        movies = groupData.moviesToWatch,
                         onMovieClick = onMovieClick,
                     )
                 }
             }
 
             // Movies watched
-            if (moviesWatched.isNotEmpty()) {
+            if (groupData.moviesWatched.isNotEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_watched),
@@ -375,7 +380,7 @@ fun GroupContent(
 
                 item {
                     HorizontalScrollableMovies(
-                        movies = moviesWatched,
+                        movies = groupData.moviesWatched,
                         onMovieClick = onMovieClick,
                     )
                 }
@@ -424,20 +429,53 @@ fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     }
 }
 
-@SuppressLint("UnrememberedMutableState")
-@Preview(showBackground = true)
+/**
+ * Displays a subtle sync state indicator below the group tabs.
+ * Shows syncing progress, errors, or offline state.
+ */
 @Composable
-private fun GroupContentEmptyPreview() {
-    FamilyFilmAppTheme {
-        GroupContent(
-            userOwner = User(),
-            groups = emptyList(),
-            groupUsers = emptyList(),
-            moviesToWatch = emptyList(),
-            moviesWatched = emptyList(),
-            scrollState = rememberLazyListState(),
-            selectedGroupIndex = 0,
-        )
+fun SyncStateIndicator(syncState: SyncState) {
+    AnimatedVisibility(
+        visible = syncState !is SyncState.Synced,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            when (syncState) {
+                is SyncState.Syncing -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(end = 8.dp).width(16.dp).padding(2.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Text(
+                        text = stringResource(R.string.sync_state_syncing),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is SyncState.Error -> {
+                    Text(
+                        text = "${stringResource(R.string.sync_state_error)}: ${syncState.message}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                is SyncState.Offline -> {
+                    Text(
+                        text = stringResource(R.string.sync_state_offline),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is SyncState.Synced -> {
+                    // Hidden when synced
+                }
+            }
+        }
     }
 }
 
@@ -446,15 +484,12 @@ private fun GroupContentEmptyPreview() {
 @Composable
 private fun GroupContentPreview() {
     FamilyFilmAppTheme {
-        GroupContent(
-            userOwner = User(),
-            groups = listOf(
-                Group().copy(name = "name 1"),
-                Group().copy(name = "name 2"),
-                Group().copy(name = "name 3"),
-            ),
-            groupUsers = listOf(
+        val testGroup = Group().copy(id = "1", name = "Test Group")
+        val testGroupData = GroupViewModel.GroupData(
+            group = testGroup,
+            members = listOf(
                 User().copy(id = "1", email = "a@a.com"),
+                User().copy(id = "2", email = "b@b.com"),
             ),
             moviesToWatch = listOf(
                 Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
@@ -463,10 +498,20 @@ private fun GroupContentPreview() {
             ),
             moviesWatched = listOf(
                 Movie().copy(id = 4, title = "Title 4", overview = "Description 4"),
-//                Movie().copy(id = 5, title = "Title 5", overview = "Description 5"),
-//                Movie().copy(id = 6, title = "Title 6", overview = "Description 6"),
+            ),
+            recommendedMovie = Movie().copy(id = 1, title = "Recommended", overview = "Top pick"),
+            currentUserId = "1",
+        )
+
+        GroupContent(
+            groupData = testGroupData,
+            groups = listOf(
+                testGroup,
+                Group().copy(id = "2", name = "name 2"),
+                Group().copy(id = "3", name = "name 3"),
             ),
             selectedGroupIndex = 0,
+            syncState = SyncState.Synced,
             scrollState = rememberLazyListState(),
         )
     }

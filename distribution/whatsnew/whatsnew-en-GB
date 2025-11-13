@@ -1,2 +1,3 @@
-- IMPROVED: Groups screen with enhanced stability, better swipe-to-delete functionality, and smoother member management.
-- ENHANCED: Smart movie recommendation algorithm that analyzes your group's preferences to suggest the perfect film for everyone.
+- FIXED: Movie status buttons (To Watch/Watched) now update instantly when clicked.
+- FIXED: Movies marked in details screen now appear correctly in group lists.
+- IMPROVED: Real-time synchronization ensures all group members see updates immediately.

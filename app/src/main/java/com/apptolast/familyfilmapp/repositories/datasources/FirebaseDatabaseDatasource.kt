@@ -95,7 +95,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             }
     }
 
-    override fun updateUser(user: User, success: (Void?) -> Unit) {
+    override fun updateUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
         // Update fields
         val updates = mapOf(
             "email" to user.email,
@@ -106,9 +106,13 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         usersCollection
             .document(user.id)
             .update(updates)
-            .addOnSuccessListener(success)
-            .addOnFailureListener {
-                Timber.e(it, "Error updating user in firestore")
+            .addOnSuccessListener {
+                Timber.d("User updated: ${user.email}")
+                success(it)
+            }
+            .addOnFailureListener { e ->
+                Timber.e(e, "Error updating user: ${user.email}")
+                failure(e)
             }
     }
 
@@ -133,6 +137,29 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             .addOnFailureListener {
                 callback(false)
             }
+    }
+
+    override fun observeUser(userId: String): Flow<User?> = callbackFlow {
+        val listenerRegistration = usersCollection
+            .document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Timber.e(error, "Error observing user: $userId")
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val user = snapshot.toObject(User::class.java)
+                    trySend(user)
+                } else {
+                    trySend(null)
+                }
+            }
+
+        awaitClose {
+            listenerRegistration.remove()
+        }
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -291,9 +318,10 @@ interface FirebaseDatabaseDatasource {
     fun getUserById(userId: String, success: (User?) -> Unit)
     suspend fun getUsersByIds(userIds: List<String>): List<User>
     fun getUserByEmail(email: String, success: (User?) -> Unit)
-    fun updateUser(user: User, success: (Void?) -> Unit)
+    fun updateUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
     fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
+    fun observeUser(userId: String): Flow<User?>
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

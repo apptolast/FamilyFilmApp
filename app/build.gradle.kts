@@ -36,8 +36,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 20
-        versionName = "0.4.1"
+        versionCode = 21
+        versionName = "0.4.2"
 
 //        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"

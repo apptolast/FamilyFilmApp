@@ -98,4 +98,9 @@
     <string name="login_text_email_sent">Email Sent</string>
     <string name="login_text_check_your_email_to_verify_your_account">Check your email to verify your account.</string>
 
+    <!-- Sync State -->
+    <string name="sync_state_syncing">Syncing…</string>
+    <string name="sync_state_error">Sync error</string>
+    <string name="sync_state_offline">Offline mode</string>
+
 </resources>

@@ -39,7 +39,14 @@ object RepositoryModule {
         firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
         tmdbDatasource: TmdbDatasource,
         workManager: WorkManager,
-    ): Repository = RepositoryImpl(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource, workManager)
+        coroutineScope: CoroutineScope,
+    ): Repository = RepositoryImpl(
+        roomDatasource,
+        firebaseDatabaseDatasource,
+        tmdbDatasource,
+        workManager,
+        coroutineScope,
+    )
 
     @Singleton
     @Provides
@@ -48,11 +55,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideFirebaseDatabaseDatasource(
-        database: FirebaseFirestore,
-        roomDatasource: RoomDatasource,
-        coroutineScope: CoroutineScope,
-    ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource, coroutineScope)
+    fun provideFirebaseDatabaseDatasource(database: FirebaseFirestore): FirebaseDatabaseDatasource =
+        FirebaseDatabaseDatasourceImpl(database)
 
     @Singleton
     @Provides

@@ -3,24 +3,29 @@ package com.apptolast.familyfilmapp.repositories
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.CoroutineScope
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.model.room.toGroup
+import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
-import com.apptolast.familyfilmapp.workers.SyncWorker
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,7 +36,12 @@ class RepositoryImpl @Inject constructor(
     private val firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
     private val tmdbDatasource: TmdbDatasource,
     private val workManager: WorkManager,
+    private val coroutineScope: CoroutineScope,
 ) : Repository {
+
+    // Sync state management
+    private val _syncState = MutableStateFlow<SyncState>(SyncState.Synced)
+    private var syncJob: Job? = null
 
     // /////////////////////////////////////////////////////////////////////////
     // Movies
@@ -61,41 +71,11 @@ class RepositoryImpl @Inject constructor(
             groupTables.map { it.toGroup() }
         }
 
-    /**
-     * Add new group into the database and store it in room database if successful.
-     *
-     * @param groupName The name of the group to be created.
-     * @param user The user that is creating the group.
-     */
-    override fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit) =
-        firebaseDatabaseDatasource.createGroup(
-            groupName = groupName,
-            user = user,
-            success = success,
-            failure = failure,
-        )
-
-    override fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) =
-        firebaseDatabaseDatasource.updateGroup(group, success = success, failure = failure)
-
-    override fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) =
-        firebaseDatabaseDatasource.deleteGroup(group, success = success, failure = failure)
-
-    override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) =
-        firebaseDatabaseDatasource.addMember(group, email, success = success, failure = failure)
-
-    override fun deleteMember(group: Group, user: User) = firebaseDatabaseDatasource.deleteMember(
-        group,
-        user,
-        success = { enqueueSyncWork() },
-        failure = { Timber.e(it, "Error deleting member from group") },
-    )
-
     // /////////////////////////////////////////////////////////////////////////
-    // Groups - New Suspend Functions
+    // Groups - Suspend Functions (Modern API)
     // /////////////////////////////////////////////////////////////////////////
 
-    override suspend fun createGroupSuspend(groupName: String, userId: String): Result<Group> {
+    override suspend fun createGroup(groupName: String, userId: String): Result<Group> {
         val user = runCatching {
             roomDatasource.getUser(userId).first()?.toUser()
         }.getOrNull()
@@ -108,13 +88,43 @@ class RepositoryImpl @Inject constructor(
             firebaseDatabaseDatasource.createGroup(
                 groupName = groupName,
                 user = user,
-                success = { group -> continuation.resume(Result.success(group)) },
+                success = { group ->
+                    // Write-through pattern: immediately update Room for instant UI response
+                    coroutineScope.launch {
+                        try {
+                            roomDatasource.insertGroup(group.toGroupTable())
+                            Timber.d("Group created and synced to Room: ${group.name}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing created group to Room")
+                        }
+                    }
+                    continuation.resume(Result.success(group))
+                },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
         }
     }
 
-    override suspend fun deleteGroupSuspend(groupId: String): Result<Unit> {
+    override suspend fun updateGroup(group: Group): Result<Unit> = suspendCancellableCoroutine { continuation ->
+        firebaseDatabaseDatasource.updateGroup(
+            group = group,
+            success = {
+                // Write-through pattern: immediately update Room for instant UI response
+                coroutineScope.launch {
+                    try {
+                        roomDatasource.insertGroup(group.toGroupTable())
+                        Timber.d("Group updated and synced to Room: ${group.name}")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error syncing updated group to Room")
+                    }
+                }
+                continuation.resume(Result.success(Unit))
+            },
+            failure = { error -> continuation.resume(Result.failure(error)) },
+        )
+    }
+
+    override suspend fun deleteGroup(groupId: String): Result<Unit> {
         val group = runCatching {
             roomDatasource.getGroupById(groupId).first()?.toGroup()
         }.getOrNull()
@@ -126,13 +136,24 @@ class RepositoryImpl @Inject constructor(
         return suspendCancellableCoroutine { continuation ->
             firebaseDatabaseDatasource.deleteGroup(
                 group = group,
-                success = { continuation.resume(Result.success(Unit)) },
+                success = {
+                    // Write-through pattern: immediately delete from Room for instant UI response
+                    coroutineScope.launch {
+                        try {
+                            roomDatasource.deleteGroup(group.toGroupTable())
+                            Timber.d("Group deleted and removed from Room: ${group.name}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error removing deleted group from Room")
+                        }
+                    }
+                    continuation.resume(Result.success(Unit))
+                },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
         }
     }
 
-    override suspend fun addMemberSuspend(groupId: String, email: String): Result<Unit> {
+    override suspend fun addMember(groupId: String, email: String): Result<Unit> {
         val group = runCatching {
             roomDatasource.getGroupById(groupId).first()?.toGroup()
         }.getOrNull()
@@ -151,7 +172,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeMemberSuspend(groupId: String, userId: String): Result<Unit> {
+    override suspend fun removeMember(groupId: String, userId: String): Result<Unit> {
         val group = runCatching {
             roomDatasource.getGroupById(groupId).first()?.toGroup()
         }.getOrNull()
@@ -169,17 +190,12 @@ class RepositoryImpl @Inject constructor(
                 group = group,
                 user = user,
                 success = {
-                    enqueueSyncWork()
+                    // No need to enqueue sync work - real-time sync handles this
                     continuation.resume(Result.success(Unit))
                 },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
         }
-    }
-
-    private fun enqueueSyncWork() {
-        val syncWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
-        workManager.enqueue(syncWorkRequest)
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -244,6 +260,58 @@ class RepositoryImpl @Inject constructor(
             roomUsers
         }
     }
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Sync Lifecycle Management
+    // /////////////////////////////////////////////////////////////////////////
+
+    override fun startSync(userId: String) {
+        Timber.d("Starting sync for user: $userId")
+
+        // Cancel any existing sync job
+        syncJob?.cancel()
+
+        // Start new sync job
+        syncJob = coroutineScope.launch {
+            try {
+                _syncState.value = SyncState.Syncing
+
+                // Start listening to Firebase groups and sync to Room
+                firebaseDatabaseDatasource.getMyGroups(userId)
+                    .collect { remoteGroups ->
+                        Timber.d("Received ${remoteGroups.size} groups from Firebase")
+
+                        // Sync to Room
+                        remoteGroups.forEach { group ->
+                            try {
+                                roomDatasource.insertGroup(group.toGroupTable())
+                                Timber.d("Synced group to Room: ${group.name}")
+                            } catch (e: Exception) {
+                                Timber.e(e, "Error syncing group ${group.name} to Room")
+                            }
+                        }
+
+                        // Update sync state to synced
+                        _syncState.value = SyncState.Synced
+                    }
+            } catch (e: Exception) {
+                Timber.e(e, "Sync error")
+                _syncState.value = SyncState.Error(
+                    message = e.message ?: "Unknown sync error",
+                    throwable = e,
+                )
+            }
+        }
+    }
+
+    override fun stopSync() {
+        Timber.d("Stopping sync")
+        syncJob?.cancel()
+        syncJob = null
+        _syncState.value = SyncState.Synced
+    }
+
+    override fun getSyncState(): Flow<SyncState> = _syncState.asStateFlow()
 }
 
 interface Repository {
@@ -256,17 +324,11 @@ interface Repository {
 
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>
-    fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit)
-    fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
-    fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
-    fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
-    fun deleteMember(group: Group, user: User)
-
-    // Groups - New suspend function versions
-    suspend fun createGroupSuspend(groupName: String, userId: String): Result<Group>
-    suspend fun deleteGroupSuspend(groupId: String): Result<Unit>
-    suspend fun addMemberSuspend(groupId: String, email: String): Result<Unit>
-    suspend fun removeMemberSuspend(groupId: String, userId: String): Result<Unit>
+    suspend fun createGroup(groupName: String, userId: String): Result<Group>
+    suspend fun updateGroup(group: Group): Result<Unit>
+    suspend fun deleteGroup(groupId: String): Result<Unit>
+    suspend fun addMember(groupId: String, email: String): Result<Unit>
+    suspend fun removeMember(groupId: String, userId: String): Result<Unit>
 
     // Users
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
@@ -277,4 +339,31 @@ interface Repository {
 
     // Users - New suspend function versions
     suspend fun getUsersByIds(userIds: List<String>): Result<List<User>>
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Sync Lifecycle Management
+    // /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Start synchronization of user data from Firebase to Room.
+     * Sets up real-time listeners for groups and users.
+     * Should be called when user logs in or app starts.
+     *
+     * @param userId The ID of the current authenticated user
+     */
+    fun startSync(userId: String)
+
+    /**
+     * Stop all active synchronization listeners.
+     * Should be called when user logs out or app is destroyed.
+     */
+    fun stopSync()
+
+    /**
+     * Observe the current synchronization state.
+     * Emits updates when sync state changes (Syncing, Synced, Error, Offline).
+     *
+     * @return Flow of SyncState updates
+     */
+    fun getSyncState(): Flow<SyncState>
 }

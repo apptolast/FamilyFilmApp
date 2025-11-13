@@ -59,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
@@ -128,6 +129,7 @@ fun GroupsScreen(
                     groupData = selectedGroupData,
                     groups = state.groups,
                     selectedGroupIndex = state.selectedGroupIndex,
+                    syncState = state.syncState,
                     scrollState = listState,
                     modifier = Modifier.consumeWindowInsets(paddingValues),
                     onChangeGroupName = { group ->
@@ -227,6 +229,7 @@ fun GroupContent(
     groupData: GroupViewModel.GroupData,
     groups: List<Group>,
     selectedGroupIndex: Int,
+    syncState: SyncState,
     scrollState: LazyListState,
     modifier: Modifier = Modifier,
     onChangeGroupName: (Group) -> Unit = {},
@@ -295,6 +298,11 @@ fun GroupContent(
                         )
                     }
                 }
+            }
+
+            // Sync state indicator
+            item {
+                SyncStateIndicator(syncState = syncState)
             }
 
             // Recommended movie
@@ -421,6 +429,56 @@ fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Displays a subtle sync state indicator below the group tabs.
+ * Shows syncing progress, errors, or offline state.
+ */
+@Composable
+fun SyncStateIndicator(syncState: SyncState) {
+    AnimatedVisibility(
+        visible = syncState !is SyncState.Synced,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            when (syncState) {
+                is SyncState.Syncing -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(end = 8.dp).width(16.dp).padding(2.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Text(
+                        text = stringResource(R.string.sync_state_syncing),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is SyncState.Error -> {
+                    Text(
+                        text = "${stringResource(R.string.sync_state_error)}: ${syncState.message}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                is SyncState.Offline -> {
+                    Text(
+                        text = stringResource(R.string.sync_state_offline),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is SyncState.Synced -> {
+                    // Hidden when synced
+                }
+            }
+        }
+    }
+}
+
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
@@ -452,6 +510,7 @@ private fun GroupContentPreview() {
                 Group().copy(id = "3", name = "name 3"),
             ),
             selectedGroupIndex = 0,
+            syncState = SyncState.Synced,
             scrollState = rememberLazyListState(),
         )
     }

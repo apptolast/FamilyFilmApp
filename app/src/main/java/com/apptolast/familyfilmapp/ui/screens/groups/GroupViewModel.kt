@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -39,10 +40,33 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     init {
         currentUserId = auth.currentUser?.uid
         if (currentUserId != null) {
+            // Start observing groups from Room (local database)
             startObservingGroups()
+            // Start Firebase sync (syncs Firebase changes to Room)
+            repository.startSync(currentUserId!!)
+            // Observe sync state
+            observeSyncState()
         } else {
             _state.update { it.copy(error = "User not authenticated") }
         }
+    }
+
+    /**
+     * Observe synchronization state from repository.
+     * Updates UI to reflect sync status (syncing, synced, error, offline).
+     */
+    private fun observeSyncState() {
+        viewModelScope.launch {
+            repository.getSyncState().collectLatest { syncState ->
+                _state.update { it.copy(syncState = syncState) }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        // Stop Firebase sync when ViewModel is destroyed
+        repository.stopSync()
+        super.onCleared()
     }
 
     // ===== OBSERVING GROUPS =====
@@ -140,7 +164,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         Timber.d("Creating group: $groupName")
         _state.update { it.copy(isLoading = true, error = null) }
 
-        repository.createGroupSuspend(groupName, userId)
+        repository.createGroup(groupName, userId)
             .onSuccess { createdGroup ->
                 Timber.d("Group created: ${createdGroup.id}")
                 // The group will appear in the groups list via the observer
@@ -181,7 +205,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             else -> null
         }
 
-        repository.deleteGroupSuspend(groupId)
+        repository.deleteGroup(groupId)
             .onSuccess {
                 Timber.d("Group deleted successfully")
                 // The observer will update the groups list automatically
@@ -210,7 +234,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         Timber.d("Adding member $email to group $groupId")
         _state.update { it.copy(isLoading = true, error = null) }
 
-        repository.addMemberSuspend(groupId, email)
+        repository.addMember(groupId, email)
             .onSuccess {
                 Timber.d("Member added successfully")
                 // Reload group data to show new member
@@ -234,7 +258,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         Timber.d("Removing member $userId from group $groupId")
         _state.update { it.copy(isLoading = true, error = null) }
 
-        repository.removeMemberSuspend(groupId, userId)
+        repository.removeMember(groupId, userId)
             .onSuccess {
                 Timber.d("Member removed successfully")
                 // Reload group data to reflect removal
@@ -252,17 +276,27 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     /**
-     * Change group name (keeping old function signature for compatibility).
+     * Change group name.
      */
-    fun changeGroupName(group: Group) {
-        repository.updateGroup(
-            group = group,
-            success = { Timber.d("Group name updated") },
-            failure = { error ->
+    fun changeGroupName(group: Group) = viewModelScope.launch {
+        Timber.d("Updating group name: ${group.name}")
+        _state.update { it.copy(isLoading = true, error = null) }
+
+        repository.updateGroup(group)
+            .onSuccess {
+                Timber.d("Group name updated successfully")
+                // The observer will update the groups list automatically
+                _state.update { it.copy(isLoading = false) }
+            }
+            .onFailure { error ->
                 Timber.e(error, "Error updating group name")
-                _state.update { it.copy(error = error.message) }
-            },
-        )
+                _state.update {
+                    it.copy(
+                        error = error.message ?: "Error updating group name",
+                        isLoading = false,
+                    )
+                }
+            }
     }
 
     // ===== LOADING GROUP DATA =====
@@ -372,11 +406,6 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         _state.update { it.copy(error = null) }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        groupsObserverJob?.cancel()
-    }
-
     // ===== STATE =====
 
     /**
@@ -390,6 +419,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val error: String? = null,
         val showDialog: GroupScreenDialogs = GroupScreenDialogs.None,
         val textField: MutableState<String> = mutableStateOf(""),
+        val syncState: SyncState = SyncState.Synced,
     ) {
         /**
          * Computed index for TabRow - derived on demand, not stored.

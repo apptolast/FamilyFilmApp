@@ -1,2 +1,3 @@
-- MEJORADO: Pantalla de Grupos con mayor estabilidad, mejor funcionalidad de deslizar para eliminar y gestión de miembros más fluida.
-- MEJORADO: Algoritmo inteligente de recomendación de películas que analiza las preferencias de tu grupo para sugerir la película perfecta para todos.
+- CORREGIDO: Los botones de estado de películas (Por Ver/Vista) ahora se actualizan instantáneamente al hacer clic.
+- CORREGIDO: Las películas marcadas en la pantalla de detalles ahora aparecen correctamente en las listas de grupos.
+- MEJORADO: La sincronización en tiempo real asegura que todos los miembros del grupo vean las actualizaciones inmediatamente.

@@ -211,7 +211,24 @@ class RepositoryImpl @Inject constructor(
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override fun updateUser(user: User, success: (Void?) -> Unit) = firebaseDatabaseDatasource.updateUser(user, success)
+    override suspend fun updateUser(user: User): Result<Unit> = suspendCancellableCoroutine { continuation ->
+        firebaseDatabaseDatasource.updateUser(
+            user = user,
+            success = {
+                // Write-through pattern: immediately update Room for instant UI response
+                coroutineScope.launch {
+                    try {
+                        roomDatasource.insertUser(user.toUserTable())
+                        Timber.d("User updated and synced to Room: ${user.email}")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error syncing updated user to Room")
+                    }
+                }
+                continuation.resume(Result.success(Unit))
+            },
+            failure = { error -> continuation.resume(Result.failure(error)) },
+        )
+    }
 
     override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
         firebaseDatabaseDatasource.deleteUser(
@@ -351,7 +368,7 @@ interface Repository {
     // Users
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String): Flow<User>
-    fun updateUser(user: User, success: (Void?) -> Unit)
+    suspend fun updateUser(user: User): Result<Unit>
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
     fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
 

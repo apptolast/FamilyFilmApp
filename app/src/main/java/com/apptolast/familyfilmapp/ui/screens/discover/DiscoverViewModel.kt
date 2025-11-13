@@ -167,9 +167,7 @@ class DiscoverViewModel @Inject constructor(
             val updatedUser = currentUser.copy(statusMovies = updatedStatusMovies)
 
             // Update in repository
-            repository.updateUser(updatedUser) { _ ->
-                Timber.d("Movie ${movie.title} marked as $status")
-            }
+            repository.updateUser(updatedUser)
         } catch (e: Exception) {
             Timber.e(e, "Error updating movie status")
             triggerError("Error updating movie status")

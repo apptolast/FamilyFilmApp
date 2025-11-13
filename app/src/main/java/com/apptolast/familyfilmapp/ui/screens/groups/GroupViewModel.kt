@@ -80,7 +80,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
         groupsObserverJob?.cancel()
         groupsObserverJob = viewModelScope.launch {
-            repository.getMyGroups(userId).collectLatest { groups ->
+            repository.getMyGroups(userId).collect { groups ->
                 Timber.d("Groups updated: ${groups.size} groups")
                 handleGroupsUpdate(groups)
             }

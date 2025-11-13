@@ -4,7 +4,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.work.WorkManager
-import kotlinx.coroutines.CoroutineScope
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
@@ -18,8 +17,9 @@ import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseData
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -276,24 +276,42 @@ class RepositoryImpl @Inject constructor(
             try {
                 _syncState.value = SyncState.Syncing
 
-                // Start listening to Firebase groups and sync to Room
-                firebaseDatabaseDatasource.getMyGroups(userId)
-                    .collect { remoteGroups ->
-                        Timber.d("Received ${remoteGroups.size} groups from Firebase")
-
-                        // Sync to Room
-                        remoteGroups.forEach { group ->
-                            try {
-                                roomDatasource.insertGroup(group.toGroupTable())
-                                Timber.d("Synced group to Room: ${group.name}")
-                            } catch (e: Exception) {
-                                Timber.e(e, "Error syncing group ${group.name} to Room")
-                            }
-                        }
-
-                        // Update sync state to synced
-                        _syncState.value = SyncState.Synced
+                // First, sync the authenticated user to Room
+                Timber.d("Syncing authenticated user to Room")
+                val authenticatedUser = suspendCancellableCoroutine { continuation ->
+                    firebaseDatabaseDatasource.getUserById(userId) { user ->
+                        continuation.resume(user)
                     }
+                }
+
+                if (authenticatedUser != null) {
+                    try {
+                        roomDatasource.insertUser(authenticatedUser.toUserTable())
+                        Timber.d("Authenticated user synced to Room: ${authenticatedUser.email}")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error syncing authenticated user to Room")
+                    }
+                } else {
+                    Timber.w("Authenticated user not found in Firebase")
+                }
+
+                // Start listening to Firebase groups and sync to Room
+                firebaseDatabaseDatasource.getMyGroups(userId).collect { remoteGroups ->
+                    Timber.d("Received ${remoteGroups.size} groups from Firebase")
+
+                    // Sync to Room
+                    remoteGroups.forEach { group ->
+                        try {
+                            roomDatasource.insertGroup(group.toGroupTable())
+                            Timber.d("Synced group to Room: ${group.name}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing group ${group.name} to Room")
+                        }
+                    }
+
+                    // Update sync state to synced
+                    _syncState.value = SyncState.Synced
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Sync error")
                 _syncState.value = SyncState.Error(

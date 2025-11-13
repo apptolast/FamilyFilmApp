@@ -334,8 +334,8 @@ fun GroupContent(
 
             // Group card
             item {
-                // Use current user from groupData to find owner
-                val currentUser = groupData.members.firstOrNull()
+                // Find authenticated user by ID (not by position)
+                val currentUser = groupData.members.firstOrNull { it.id == groupData.currentUserId }
                 if (currentUser != null) {
                     GroupCard(
                         userOwner = currentUser,
@@ -500,6 +500,7 @@ private fun GroupContentPreview() {
                 Movie().copy(id = 4, title = "Title 4", overview = "Description 4"),
             ),
             recommendedMovie = Movie().copy(id = 1, title = "Recommended", overview = "Top pick"),
+            currentUserId = "1",
         )
 
         GroupContent(

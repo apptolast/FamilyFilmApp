@@ -189,7 +189,7 @@ fun GroupCard(
                                 ) {
                                     // Delete action on swipe from end to start
                                     AnimatedVisibility(
-                                        visible = swipeState.targetValue == SwipeToDismissBoxValue.EndToStart,
+                                        visible = swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart,
                                         enter = fadeIn(),
                                     ) {
                                         Icon(

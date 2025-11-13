@@ -331,8 +331,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             Timber.w("No members loaded for group ${group.name}")
         }
 
+        // Sort members: owner first, then others
+        val sortedMembers = members.sortedBy { user ->
+            if (user.id == group.ownerId) 0 else 1
+        }
+
         // Load movies to watch
-        val toWatchMovieIds = members
+        val toWatchMovieIds = sortedMembers
             .flatMap { user ->
                 user.statusMovies
                     .filterValues { it == MovieStatus.ToWatch }
@@ -351,7 +356,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         }
 
         // Load watched movies
-        val watchedMovieIds = members
+        val watchedMovieIds = sortedMembers
             .flatMap { user ->
                 user.statusMovies
                     .filterValues { it == MovieStatus.Watched }
@@ -373,17 +378,18 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
 
         Timber.d(
-            "Loaded group '${group.name}': ${members.size} members, " +
+            "Loaded group '${group.name}': ${sortedMembers.size} members, " +
                 "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
         )
 
         // Update state with loaded data
         val groupData = GroupData(
             group = group,
-            members = members,
+            members = sortedMembers,
             moviesToWatch = moviesToWatch,
             moviesWatched = moviesWatched,
             recommendedMovie = recommendedMovie,
+            currentUserId = currentUserId ?: "",
         )
 
         _state.update {
@@ -441,6 +447,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val moviesToWatch: List<Movie>,
         val moviesWatched: List<Movie>,
         val recommendedMovie: Movie?,
+        val currentUserId: String,
     )
 
     sealed interface GroupScreenDialogs {

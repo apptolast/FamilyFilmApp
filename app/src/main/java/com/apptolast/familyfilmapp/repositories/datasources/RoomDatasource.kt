@@ -26,6 +26,7 @@ class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, pri
     override fun getAllUsers(): Flow<List<UserTable>> = userDao.getUsers()
     override fun getUser(id: String): Flow<UserTable?> = userDao.getUser(id)
     override fun getUserByEmail(email: String): Flow<UserTable?> = userDao.getUserByEmail(email)
+    override suspend fun getUsersByIds(userIds: List<String>): List<UserTable> = userDao.getUsersByIds(userIds)
     override suspend fun insertUser(user: UserTable) = userDao.insert(user)
     override suspend fun deleteUser(user: UserTable) = userDao.delete(user)
     override suspend fun updateUser(user: UserTable) = userDao.update(user)
@@ -88,6 +89,11 @@ interface RoomDatasource {
      * Retrieve an user from the given data source that matches with the [id].
      */
     fun getUserByEmail(email: String): Flow<UserTable?>
+
+    /**
+     * Retrieve multiple users by their IDs (batch query)
+     */
+    suspend fun getUsersByIds(userIds: List<String>): List<UserTable>
 
     /**
      * Insert user in the data source

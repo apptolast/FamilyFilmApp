@@ -5,7 +5,9 @@
       "Bash(./gradlew build:*)",
       "WebSearch",
       "Bash(./gradlew test:*)",
-      "Bash(./gradlew ktlintFormat:*)"
+      "Bash(./gradlew ktlintFormat:*)",
+      "Bash(git log:*)",
+      "Bash(./gradlew assembleDebug:*)"
     ],
     "deny": [],
     "ask": []

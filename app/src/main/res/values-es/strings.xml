@@ -99,4 +99,9 @@
     <string name="login_text_email_sent">Email de verificación enviado</string>
     <string name="login_text_check_your_email_to_verify_your_account">Revise su correo electrónico para verificar su cuenta.</string>
 
+    <!-- Sync State -->
+    <string name="sync_state_syncing">Sincronizando…</string>
+    <string name="sync_state_error">Error de sincronización</string>
+    <string name="sync_state_offline">Modo Offline</string>
+
 </resources>

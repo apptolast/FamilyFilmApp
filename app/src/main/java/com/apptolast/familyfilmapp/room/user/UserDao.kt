@@ -28,6 +28,9 @@ interface UserDao {
     @Query("SELECT * from $USERS_TABLE_NAME")
     fun getUsers(): Flow<List<UserTable>>
 
+    @Query("SELECT * from $USERS_TABLE_NAME WHERE userId IN (:userIds)")
+    suspend fun getUsersByIds(userIds: List<String>): List<UserTable>
+
     @Update
     suspend fun update(user: UserTable)
 }

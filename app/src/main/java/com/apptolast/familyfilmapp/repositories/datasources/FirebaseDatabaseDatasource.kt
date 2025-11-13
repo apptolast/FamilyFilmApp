@@ -14,6 +14,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.Calendar
 import java.util.UUID
@@ -32,44 +33,85 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     val groupsCollection = rootDatabase.collection("groups")
     val moviesCollection = rootDatabase.collection("movies")
 
-    init {
-        setupUserChangeListener()
-        setupGroupChangeListener()
+    // Listener registrations for scoped listening
+    private var groupsListenerRegistration: com.google.firebase.firestore.ListenerRegistration? = null
+    private var usersListenerRegistration: com.google.firebase.firestore.ListenerRegistration? = null
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Lifecycle - Scoped Listeners
+    // /////////////////////////////////////////////////////////////////////////
+
+    override fun startListeningToUserData(userId: String) {
+        Timber.d("Starting scoped listeners for user: $userId")
+        setupGroupChangeListenerForUser(userId)
+        setupUserChangeListenerForUserGroups(userId)
+    }
+
+    override fun stopListeningToUserData() {
+        Timber.d("Stopping scoped listeners")
+        groupsListenerRegistration?.remove()
+        usersListenerRegistration?.remove()
+        groupsListenerRegistration = null
+        usersListenerRegistration = null
     }
 
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
-    private fun setupUserChangeListener() {
-        usersCollection.addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                Timber.e(e, "Listen failed.")
-                return@addSnapshotListener
-            }
 
-            coroutineScope.launch(Dispatchers.IO) {
-                // Use injected CoroutineScope
-                for (docChange in snapshots!!.documentChanges) {
-                    val user = docChange.document.toObject(User::class.java)
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            Timber.d("User added: ${user.email}")
-                            roomDatasource.insertUser(user.toUserTable()) // Assume that insertGroup does a REPLACE
-                        }
+    /**
+     * Scoped listener for users in the current user's groups.
+     * Only listens to users that are members of groups the current user belongs to.
+     */
+    private fun setupUserChangeListenerForUserGroups(userId: String) {
+        // Note: For simplicity, we're listening to the user's own document.
+        // A more advanced implementation could listen to all users in the user's groups,
+        // but that would require maintaining a dynamic list.
+        // For now, Room caching + batch queries handle this efficiently.
+        usersListenerRegistration = usersCollection
+            .document(userId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Timber.e(e, "User listener failed")
+                    return@addSnapshotListener
+                }
 
-                        DocumentChange.Type.MODIFIED -> {
+                if (snapshot != null && snapshot.exists()) {
+                    val user = snapshot.toObject(User::class.java)
+                    if (user != null) {
+                        coroutineScope.launch(Dispatchers.IO) {
                             Timber.d("User updated: ${user.email}")
-                            roomDatasource.updateUser(user.toUserTable()) // Assume that insertGroup does a REPLACE
-                        }
-
-                        DocumentChange.Type.REMOVED -> {
-                            Timber.d("User deleted: ${user.email}")
-                            roomDatasource.deleteUser(user.toUserTable())
+                            roomDatasource.insertUser(user.toUserTable())
                         }
                     }
                 }
             }
+    }
+
+    override suspend fun getUsersByIds(userIds: List<String>): List<User> {
+        if (userIds.isEmpty()) return emptyList()
+
+        val users = mutableListOf<User>()
+
+        // Firebase whereIn() supports max 10 items, so we chunk
+        userIds.chunked(10).forEach { chunk ->
+            try {
+                val snapshot = usersCollection
+                    .whereIn(com.google.firebase.firestore.FieldPath.documentId(), chunk)
+                    .get()
+                    .await()
+
+                val chunkUsers = snapshot.documents.mapNotNull { document ->
+                    document.toObject(User::class.java)
+                }
+                users.addAll(chunkUsers)
+            } catch (e: Exception) {
+                Timber.e(e, "Error fetching users batch: $chunk")
+            }
         }
+
+        Timber.d("Fetched ${users.size} users from Firebase out of ${userIds.size} requested")
+        return users
     }
 
     override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
@@ -158,36 +200,42 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Groups
     // /////////////////////////////////////////////////////////////////////////
-    private fun setupGroupChangeListener() {
-        groupsCollection.addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                Timber.e(e, "Listen failed.")
-                return@addSnapshotListener
-            }
 
-            coroutineScope.launch(Dispatchers.IO) {
-                // Use injected CoroutineScope
-                for (docChange in snapshots!!.documentChanges) {
-                    val group = docChange.document.toObject(Group::class.java)
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            Timber.d("Group added: ${group.name}")
-                            roomDatasource.insertGroup(group.toGroupTable()) // Assume that insertGroup does a REPLACE
-                        }
+    /**
+     * Scoped listener for groups that the user is a member of.
+     * Only listens to groups where the user's ID is in the users array.
+     */
+    private fun setupGroupChangeListenerForUser(userId: String) {
+        groupsListenerRegistration = groupsCollection
+            .whereArrayContains("users", userId)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Timber.e(e, "Groups listener failed")
+                    return@addSnapshotListener
+                }
 
-                        DocumentChange.Type.MODIFIED -> {
-                            Timber.d("Group updated: ${group.name}")
-                            roomDatasource.updateGroup(group.toGroupTable()) // Assume that insertGroup does a REPLACE
-                        }
+                coroutineScope.launch(Dispatchers.IO) {
+                    snapshots?.documentChanges?.forEach { docChange ->
+                        val group = docChange.document.toObject(Group::class.java)
+                        when (docChange.type) {
+                            DocumentChange.Type.ADDED -> {
+                                Timber.d("Group added: ${group.name}")
+                                roomDatasource.insertGroup(group.toGroupTable())
+                            }
 
-                        DocumentChange.Type.REMOVED -> {
-                            Timber.d("Group deleted: ${group.name}")
-                            roomDatasource.deleteGroup(group.toGroupTable())
+                            DocumentChange.Type.MODIFIED -> {
+                                Timber.d("Group updated: ${group.name}")
+                                roomDatasource.updateGroup(group.toGroupTable())
+                            }
+
+                            DocumentChange.Type.REMOVED -> {
+                                Timber.d("Group deleted: ${group.name}")
+                                roomDatasource.deleteGroup(group.toGroupTable())
+                            }
                         }
                     }
                 }
             }
-        }
     }
 
     override fun getMyGroups(userId: String): Flow<List<Group>> = callbackFlow {
@@ -253,6 +301,11 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             .update(updateGroup)
             .addOnSuccessListener {
                 Timber.d("Group updated: ${group.name}")
+                // Immediately sync update to Room to ensure UI updates
+                // This is especially important when a user removes themselves from a group
+                coroutineScope.launch(Dispatchers.IO) {
+                    roomDatasource.updateGroup(group.toGroupTable())
+                }
                 success()
             }
             .addOnFailureListener { e ->
@@ -266,6 +319,11 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
             .delete()
             .addOnSuccessListener {
                 Timber.d("Group deleted: ${group.name}")
+                // Immediately sync deletion to Room to ensure UI updates
+                // The scoped listener won't catch this deletion because the document no longer exists
+                coroutineScope.launch(Dispatchers.IO) {
+                    roomDatasource.deleteGroup(group.toGroupTable())
+                }
                 success()
             }
             .addOnFailureListener { e ->
@@ -336,10 +394,17 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(
 
 interface FirebaseDatabaseDatasource {
     // /////////////////////////////////////////////////////////////////////////
+    // Lifecycle
+    // /////////////////////////////////////////////////////////////////////////
+    fun startListeningToUserData(userId: String)
+    fun stopListeningToUserData()
+
+    // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
     fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
     fun getUserById(userId: String, success: (User?) -> Unit)
+    suspend fun getUsersByIds(userIds: List<String>): List<User>
     fun getUserByEmail(email: String, success: (User?) -> Unit)
     fun updateUser(user: User, success: (Void?) -> Unit)
     fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)

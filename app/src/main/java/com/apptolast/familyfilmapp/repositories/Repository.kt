@@ -316,11 +316,25 @@ class RepositoryImpl @Inject constructor(
                 firebaseDatabaseDatasource.getMyGroups(userId).collect { remoteGroups ->
                     Timber.d("Received ${remoteGroups.size} groups from Firebase")
 
-                    // Sync to Room
+                    val remoteGroupIds = remoteGroups.map { it.id }.toSet()
+
+                    // Differential sync: delete local groups that no longer exist remotely
+                    try {
+                        val localGroups = roomDatasource.getMyGroups(userId).first()
+                        localGroups.forEach { localGroup ->
+                            if (localGroup.groupId !in remoteGroupIds) {
+                                roomDatasource.deleteGroup(localGroup)
+                                Timber.d("Deleted stale group from Room: ${localGroup.name}")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error during differential sync cleanup")
+                    }
+
+                    // Upsert remote groups to Room
                     remoteGroups.forEach { group ->
                         try {
                             roomDatasource.insertGroup(group.toGroupTable())
-                            Timber.d("Synced group to Room: ${group.name}")
                         } catch (e: Exception) {
                             Timber.e(e, "Error syncing group ${group.name} to Room")
                         }

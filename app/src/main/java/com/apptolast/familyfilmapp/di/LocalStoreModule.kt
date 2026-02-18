@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.apptolast.familyfilmapp.managers.SharedPreferenceManager
@@ -42,12 +43,12 @@ class LocalStoreModule {
                 when (value) {
                     is String -> encryptedPrefs.edit().putString(key, value).apply()
                     is Boolean -> encryptedPrefs.edit().putBoolean(key, value).apply()
-                    is Int -> encryptedPrefs.edit().putInt(key, value).apply()
-                    is Long -> encryptedPrefs.edit().putLong(key, value).apply()
-                    is Float -> encryptedPrefs.edit().putFloat(key, value).apply()
+                    is Int -> encryptedPrefs.edit { putInt(key, value) }
+                    is Long -> encryptedPrefs.edit { putLong(key, value) }
+                    is Float -> encryptedPrefs.edit { putFloat(key, value) }
                 }
             }
-            oldPrefs.edit().clear().apply()
+            oldPrefs.edit { clear() }
             Timber.d("Migration to encrypted SharedPreferences complete")
         }
 

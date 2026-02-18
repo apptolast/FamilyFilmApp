@@ -161,14 +161,6 @@ fun ProfileContent(
                 contentDescription = stringResource(R.string.profile_image_description),
                 modifier = Modifier.fillMaxSize(),
             )
-            // Fallback: show initial letter if avatar is a placeholder
-            if (email.isNotBlank()) {
-                Text(
-                    text = email.first().uppercase(),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

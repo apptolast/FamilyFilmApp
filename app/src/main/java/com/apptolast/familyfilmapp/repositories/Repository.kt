@@ -346,6 +346,11 @@ class RepositoryImpl @Inject constructor(
         _syncState.value = SyncState.Synced
     }
 
+    override suspend fun clearLocalData() {
+        Timber.d("Clearing all local data from Room")
+        roomDatasource.clearAllData()
+    }
+
     override fun getSyncState(): Flow<SyncState> = _syncState.asStateFlow()
 }
 
@@ -401,4 +406,10 @@ interface Repository {
      * @return Flow of SyncState updates
      */
     fun getSyncState(): Flow<SyncState>
+
+    /**
+     * Clear all local cached data from Room.
+     * Should be called on logout to prevent data leaking between user sessions.
+     */
+    suspend fun clearLocalData()
 }

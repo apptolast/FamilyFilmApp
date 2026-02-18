@@ -200,8 +200,8 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
     AnimatedVisibility(filterMovies.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
         ) {
             items(
@@ -220,8 +220,8 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
     AnimatedVisibility(filterMovies.isEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
         ) {
             items(

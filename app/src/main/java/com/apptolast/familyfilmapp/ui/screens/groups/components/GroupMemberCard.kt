@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.groups.components
 
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -7,6 +8,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,10 +19,10 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier,
+        modifier = modifier.defaultMinSize(minHeight = 48.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onSurfaceVariant, // Cambio aquí
-            contentColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp,
@@ -30,10 +32,10 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
             text = user.email,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleSmall,
-//            color = MaterialTheme.colorScheme.onPrimaryContainer, // Mejor contraste
         )
     }
 }

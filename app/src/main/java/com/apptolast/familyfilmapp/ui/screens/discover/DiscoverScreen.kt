@@ -149,7 +149,7 @@ fun DiscoverScreen(
                                     onClick = viewModel::markAsWatched,
                                 )
 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
 
                                 // Skip Button
                                 TextButton(
@@ -162,7 +162,7 @@ fun DiscoverScreen(
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
 
                                 // To Watch Button
                                 CustomStatusButton(

@@ -58,7 +58,7 @@ fun MovieItem(
                 },
                 contentDescription = Icons.Default.Favorite.toString(),
                 modifier = Modifier
-                    .padding(7.dp)
+                    .padding(8.dp)
                     .align(Alignment.TopStart),
             )
         }

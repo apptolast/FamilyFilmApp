@@ -153,349 +153,18 @@ The repository layer abstracts three datasources:
 
 Located in `/repositories/`, all datasources are injected via Hilt and exposed through the `Repository` interface.
 
-### Firebase + Room Synchronization Architecture
+### Firebase + Room Synchronization
 
-The app implements a **professional offline-first architecture** using the **Repository Mediator pattern** with **write-through cache**. This ensures data consistency, offline support, and real-time synchronization.
+The app uses an **offline-first architecture** with **Repository Mediator pattern** and **write-through cache**. Room is the single source of truth for the UI; Firebase syncs in the background.
 
-#### Architecture Diagram
+> **Full documentation**: See the `firebase-specialist` agent (`.claude/agents/firebase-specialist.md`) for architecture diagrams, code patterns, best practices, and troubleshooting.
 
-```
-┌─────────────────────────────────────────────────┐
-│              ViewModel Layer                     │
-│  • Calls startSync() on init                    │
-│  • Calls stopSync() on onCleared()              │
-│  • Observes Room (single source of truth)       │
-│  • Observes SyncState for UI feedback           │
-└────────────────┬────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────┐
-│           Repository (Mediator)                  │
-│  • Orchestrates Firebase ↔ Room sync            │
-│  • startSync(): Firebase listener → Room write  │
-│  • Write-through: Firebase write + Room update  │
-│  • Exposes SyncState Flow for observability     │
-│  • Single CoroutineScope for lifecycle          │
-└──────────┬──────────────────────┬────────────────┘
-           │                      │
-           ▼                      ▼
-┌──────────────────┐    ┌──────────────────┐
-│    Firebase      │    │      Room        │
-│  (Remote)        │    │   (Local Cache)  │
-│  • Real-time     │    │  • Single source │
-│    listeners     │    │    of truth      │
-│  • Offline       │    │  • Flow queries  │
-│    persistence   │    │  • Fast access   │
-└──────────────────┘    └──────────────────┘
-```
-
-#### Core Principles
-
-1. **Single Source of Truth**: Room is the ONLY source of truth for the UI
-   - ViewModels NEVER observe Firebase directly
-   - All UI data comes from Room Flows
-   - Ensures consistent state across the app
-
-2. **Repository as Mediator**: Repository orchestrates synchronization
-   - Manages Firebase listeners lifecycle
-   - Writes Firebase data to Room
-   - Handles bidirectional sync
-   - Maintains SyncState
-
-3. **Write-Through Pattern**: Writes update both stores immediately
-   - Write to Firebase first (source of truth for backend)
-   - Immediately write to Room (instant UI update)
-   - No waiting for listener to propagate changes
-
-4. **Layer Independence**: Datasources are decoupled
-   - `FirebaseDatabaseDatasource` has NO dependency on `RoomDatasource`
-   - `RoomDatasource` has NO knowledge of Firebase
-   - Repository is the only layer that knows about both
-
-#### Key Components
-
-##### 1. SyncState (model/local/SyncState.kt)
-
-Type-safe representation of synchronization state:
-
-```kotlin
-sealed interface SyncState {
-    data object Synced : SyncState          // All data synchronized
-    data object Syncing : SyncState         // Currently syncing
-    data class Error(                       // Sync error occurred
-        val message: String,
-        val throwable: Throwable? = null
-    ) : SyncState
-    data object Offline : SyncState         // No network connection
-}
-```
-
-**Usage in ViewModel:**
-```kotlin
-private fun observeSyncState() {
-    viewModelScope.launch {
-        repository.getSyncState().collectLatest { syncState ->
-            _state.update { it.copy(syncState = syncState) }
-        }
-    }
-}
-```
-
-##### 2. Repository Sync Lifecycle
-
-**Starting Sync (init block):**
-```kotlin
-init {
-    currentUserId = auth.currentUser?.uid
-    if (currentUserId != null) {
-        repository.startSync(currentUserId!!)
-        observeSyncState()
-    }
-}
-```
-
-**Stopping Sync (cleanup):**
-```kotlin
-override fun onCleared() {
-    repository.stopSync()
-    super.onCleared()
-}
-```
-
-##### 3. Repository Implementation (repositories/Repository.kt)
-
-**Sync Management:**
-```kotlin
-private val _syncState = MutableStateFlow<SyncState>(SyncState.Synced)
-private var syncJob: Job? = null
-
-override fun startSync(userId: String) {
-    syncJob?.cancel()
-    syncJob = coroutineScope.launch {
-        try {
-            _syncState.value = SyncState.Syncing
-            firebaseDatabaseDatasource.getMyGroups(userId)
-                .collect { remoteGroups ->
-                    remoteGroups.forEach { group ->
-                        roomDatasource.insertGroup(group.toGroupTable())
-                    }
-                    _syncState.value = SyncState.Synced
-                }
-        } catch (e: Exception) {
-            _syncState.value = SyncState.Error(
-                message = e.message ?: "Unknown error",
-                throwable = e
-            )
-        }
-    }
-}
-
-override fun stopSync() {
-    syncJob?.cancel()
-    syncJob = null
-    _syncState.value = SyncState.Synced
-}
-```
-
-**Write-Through Pattern:**
-```kotlin
-override suspend fun createGroup(
-    groupName: String,
-    userId: String
-): Result<Group> = suspendCancellableCoroutine { continuation ->
-    firebaseDatabaseDatasource.createGroup(
-        groupName = groupName,
-        user = user,
-        success = { group ->
-            // Write-through: immediately update Room
-            coroutineScope.launch {
-                try {
-                    roomDatasource.insertGroup(group.toGroupTable())
-                    Timber.d("Group created and synced to Room")
-                } catch (e: Exception) {
-                    Timber.e(e, "Error syncing to Room")
-                }
-            }
-            continuation.resume(Result.success(group))
-        },
-        failure = { error ->
-            continuation.resume(Result.failure(error))
-        }
-    )
-}
-```
-
-##### 4. Firebase Offline Persistence (di/FirebaseModule.kt)
-
-Enable Firestore offline caching:
-
-```kotlin
-@Provides
-@Singleton
-fun provideFirebaseFirestore(): FirebaseFirestore =
-    Firebase.firestore.also { firestore ->
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(true)
-            .build()
-
-        firestore.firestoreSettings = settings
-        Timber.d("Firebase offline persistence enabled")
-    }
-```
-
-##### 5. UI Sync Indicators (ui/screens/.../Screen.kt)
-
-Display sync state to users:
-
-```kotlin
-@Composable
-fun SyncStateIndicator(syncState: SyncState) {
-    AnimatedVisibility(visible = syncState !is SyncState.Synced) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            when (syncState) {
-                is SyncState.Syncing -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(16.dp),
-                        strokeWidth = 2.dp
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.sync_state_syncing),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                is SyncState.Error -> {
-                    Text(
-                        text = "Sync error: ${syncState.message}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-                is SyncState.Offline -> {
-                    Text(
-                        text = stringResource(R.string.sync_state_offline),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                else -> {}
-            }
-        }
-    }
-}
-```
-
-#### Data Flow Examples
-
-**Read Flow (ViewModel observes Room):**
-```
-1. User opens screen
-2. ViewModel observes repository.getMyGroups(userId)
-3. Repository returns Room Flow<List<Group>>
-4. UI displays data from Room
-5. Background: Firebase listener updates Room
-6. Room Flow emits new data
-7. UI automatically updates
-```
-
-**Write Flow (Write-through pattern):**
-```
-1. User creates group
-2. ViewModel calls repository.createGroup()
-3. Repository writes to Firebase
-4. Repository immediately writes to Room (write-through)
-5. UI updates instantly from Room
-6. Firebase listener eventually triggers (idempotent)
-7. Room ignores duplicate (same data)
-```
-
-#### Best Practices
-
-**DO:**
-- ✅ Always call `startSync()` in ViewModel init when user is authenticated
-- ✅ Always call `stopSync()` in ViewModel `onCleared()`
-- ✅ Observe Room Flows in ViewModels, never Firebase directly
-- ✅ Use write-through pattern for all mutations (Firebase + Room)
-- ✅ Handle SyncState in UI for user feedback
-- ✅ Use `suspendCancellableCoroutine` for callback-to-suspend conversion
-- ✅ Log sync operations with Timber for debugging
-- ✅ Use `Result<T>` return types for Repository suspend functions
-
-**DON'T:**
-- ❌ Never inject RoomDatasource into FirebaseDatabaseDatasource
-- ❌ Never inject FirebaseDatabaseDatasource into RoomDatasource
-- ❌ Never observe Firebase directly from ViewModels
-- ❌ Never write to Room without writing to Firebase first (on mutations)
-- ❌ Never forget to cancel sync on ViewModel cleanup
-- ❌ Never use callbacks in Repository interface (use suspend functions)
-- ❌ Never start listeners in datasources (Repository manages lifecycle)
-
-#### Common Patterns
-
-**Suspend Function with Write-Through:**
-```kotlin
-override suspend fun updateGroup(group: Group): Result<Unit> =
-    suspendCancellableCoroutine { continuation ->
-        firebaseDatabaseDatasource.updateGroup(
-            group = group,
-            success = {
-                // Write-through to Room
-                coroutineScope.launch {
-                    roomDatasource.insertGroup(group.toGroupTable())
-                }
-                continuation.resume(Result.success(Unit))
-            },
-            failure = { continuation.resume(Result.failure(it)) }
-        )
-    }
-```
-
-**ViewModel State with SyncState:**
-```kotlin
-data class ScreenState(
-    val data: List<Item> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val syncState: SyncState = SyncState.Synced  // Add this
-)
-```
-
-**Collecting Room Flow in ViewModel:**
-```kotlin
-private fun observeData() {
-    viewModelScope.launch {
-        repository.getData(userId).collectLatest { items ->
-            _state.update { it.copy(data = items, isLoading = false) }
-        }
-    }
-}
-```
-
-#### Troubleshooting
-
-**Issue: Data not syncing**
-- Check if `startSync()` is called in ViewModel init
-- Verify Firebase listener is active (check Timber logs)
-- Ensure user is authenticated (`auth.currentUser != null`)
-- Check network connectivity
-
-**Issue: Duplicate writes**
-- This is expected and safe (write-through + listener)
-- Room `insertGroup` is idempotent (replaces on conflict)
-- No performance impact for small datasets
-
-**Issue: Memory leaks**
-- Verify `stopSync()` is called in `onCleared()`
-- Check that syncJob is cancelled
-- Use `.collectAsStateWithLifecycle()` in Compose
-
-**Issue: UI not updating**
-- Ensure ViewModel observes Room, not Firebase
-- Check that Room DAO returns Flow, not suspend function
-- Verify `.update {}` is used for state modifications
+**Key rules** (always follow these):
+- ViewModels observe Room Flows, NEVER Firebase directly
+- Write to Firebase first, then immediately to Room (write-through)
+- Call `startSync()` in ViewModel init, `stopSync()` in `onCleared()`
+- Datasources are decoupled: Firebase and Room have NO dependency on each other
+- Repository is the ONLY layer that knows about both datasources
 
 ### Dependency Injection
 
@@ -523,30 +192,9 @@ All modules use `@InstallIn(SingletonComponent::class)` for app-scoped dependenc
 
 ## Testing
 
-### Test Structure
-
-- **Unit Tests**: `/app/src/test/` - ViewModel logic, uses MockK
-- **Instrumentation Tests**: `/app/src/androidTest/` - UI tests with Compose, uses Hilt test modules
-- **Test Runner**: `CustomHiltTestRunner` for Hilt-powered instrumentation tests
-
-### Test Modules
-
-Instrumentation tests use test DI modules in `/app/src/androidTest/java/com/apptolast/familyfilmapp/di/`:
-- `TestApplicationModule` - Replaces production dispatchers
-- `TestLocalStoreModule` - In-memory Room database
-- `TestRepositoryModule` - Injects `FakeRepository`
-
-### Key Testing Tools
-
-- **MockK**: Mocking framework
-- **Truth**: Fluent assertions
-- **Coroutines Test**: `runTest` for coroutine testing
-- **Compose Test**: `createComposeRule()` for UI testing
-- **ArchCoreTesting**: `InstantTaskExecutorRule` for LiveData
-
-### MainDispatcherRule
-
-Unit tests use `MainDispatcherRule` (in `/app/src/test/`) to replace the main dispatcher with a test dispatcher.
+- **Unit Tests**: `/app/src/test/` - ViewModel logic, MockK, Truth, `runTest`, `MainDispatcherRule`
+- **Instrumentation Tests**: `/app/src/androidTest/` - Compose UI tests with Hilt test modules (`FakeRepository`, in-memory Room)
+- **Test Runner**: `CustomHiltTestRunner`
 
 ## Code Style
 
@@ -566,21 +214,46 @@ Unit tests use `MainDispatcherRule` (in `/app/src/test/`) to replace the main di
 
 ## Firebase Integration
 
-### Authentication
+> Use the `firebase-specialist` agent for detailed Firebase architecture, sync patterns, and MCP operations.
 
-Handled by `FirebaseAuthRepository`:
-- Email/password login and registration
-- Google OAuth via Credential Manager
-- Email verification flow
-- Account deletion with re-authentication
+- **Auth** (`FirebaseAuthRepository`): Email/password, Google OAuth (Credential Manager), email verification, account deletion
+- **Firestore** (`FirebaseDatabaseDatasource`): Real-time sync to Room. Structure: `FFA/{buildType}/users|groups|movies`
+- **Crashlytics**: Enabled in release, disabled in debug (`FamilyFilmApp.kt`)
+- **MCP**: Firebase MCP server configured for direct Firestore/Auth queries from Claude Code
 
-### Firestore
+## Jira Integration
 
-User and group data stored in Firestore with real-time sync to Room database. Accessed via `FirebaseDatabaseDatasource`.
+> Use the `jira-specialist` agent (`.claude/agents/jira-specialist.md`) for ticket creation, sprint management, epic organization, and development workflow tracking.
 
-### Crashlytics
+- **Instance**: `apptolast.atlassian.net`
+- **Project Key**: `FFA`
+- **Board**: FFA board (id: 1)
+- **MCP**: Atlassian MCP server configured for direct Jira operations from Claude Code
 
-Enabled in release builds, disabled in debug. Configured in `FamilyFilmApp.kt`.
+## GitHub Integration
+
+> Use the `github-specialist` agent (`.claude/agents/github-specialist.md`) for PR management, code reviews, branch operations, and release management.
+
+- **Organization**: `apptolast`
+- **Repository**: `apptolast/FamilyFilmApp`
+- **Default Branch**: `develop`
+- **MCP**: GitHub MCP server configured for direct repo operations from Claude Code
+
+## Development Workflow
+
+> **Jira is the source of truth** for task tracking. The `FFA-XXX` codes come from Jira.
+
+1. **Create Jira ticket** → Auto-generates `FFA-XXX` key
+2. **Create branch** from `develop` → `feature/FFA-XXX-short-description`
+3. **Implement** → Commit messages reference `FFA-XXX`
+4. **Create PR** → Title: `FFA-XXX Description`, target: `develop`
+5. **Code review** → Team reviews and approves
+6. **Squash and Rebase** to `develop` → Maintains linear history
+7. **Cleanup** → Delete branch, update local `develop`
+
+**Branch naming**: `{type}/FFA-XXX-short-description` where type is `feature/`, `fix/`, `refactor/`, `test/`
+
+**Merge strategy**: Always **squash and rebase** to keep `develop` history linear and traceable via `FFA-XXX` codes.
 
 ## CI/CD
 

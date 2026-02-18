@@ -207,3 +207,5 @@ fabric.properties
 /firestore.indexes.json
 /firebase.json
 /.firebaserc
+/.mcp.json
+.claude/settings.local.json

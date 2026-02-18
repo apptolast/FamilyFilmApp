@@ -40,7 +40,6 @@ navigationCompose = "2.9.7"
 playServicesAds = "25.0.0"
 retrofit = "3.0.0"
 roomVersion = "2.8.4"
-securityCrypto = "1.1.0"
 swipe = "1.3.0"
 testCoreKtx = "1.7.0"
 testRules = "1.7.0"
@@ -112,7 +111,6 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 swipe = { group = "me.saket.swipe", name = "swipe", version.ref = "swipe" }
 test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }
 test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules" }

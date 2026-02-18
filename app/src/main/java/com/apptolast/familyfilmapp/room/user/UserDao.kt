@@ -33,4 +33,7 @@ interface UserDao {
 
     @Update
     suspend fun update(user: UserTable)
+
+    @Query("DELETE FROM $USERS_TABLE_NAME")
+    suspend fun deleteAll()
 }

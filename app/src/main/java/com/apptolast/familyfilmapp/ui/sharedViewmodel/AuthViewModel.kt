@@ -102,7 +102,9 @@ class AuthViewModel @Inject constructor(
             handleFailure(error.message ?: "Error getting the user")
         }.collectLatest { (user, isTokenValid) ->
             if (user?.isEmailVerified == true && isTokenValid) {
-                AuthState.Authenticated(user.toDomainUserModel())
+                val domainUser = user.toDomainUserModel()
+                repository.startSync(domainUser.id)
+                AuthState.Authenticated(domainUser)
             } else {
                 AuthState.Unauthenticated
             }.let { newState ->
@@ -121,6 +123,7 @@ class AuthViewModel @Inject constructor(
                 result
                     .onSuccess { user ->
                         if (user != null) {
+                            repository.startSync(user.id)
                             authState.update {
                                 AuthState.Authenticated(user)
                             }
@@ -279,8 +282,13 @@ class AuthViewModel @Inject constructor(
     }
 
     fun logOut() {
+        repository.stopSync()
         authRepository.logOut()
         clearGoogleCredentials()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            repository.clearLocalData()
+            Timber.d("Local data cleared on logout")
+        }
         authState.update { AuthState.Unauthenticated }
     }
 

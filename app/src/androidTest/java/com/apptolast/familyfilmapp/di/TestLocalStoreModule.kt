@@ -16,15 +16,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class TestLocalStoreModule {
 
-//    @Provides
-//    @Singleton
-//    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-//        context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
-//
-//    @Provides
-//    @Singleton
-//    fun provideSharedPreferencesManager(prefs: SharedPreferences) = SharedPreferenceManager(prefs)
-
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =

@@ -201,9 +201,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    // Security
-    implementation(libs.security.crypto)
-
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 

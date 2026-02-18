@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -102,7 +101,7 @@ fun MovieDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .padding(bottom = 10.dp),
+                    .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CustomStatusButton(
@@ -113,7 +112,7 @@ fun MovieDetailScreen(
                     onClick = { viewModel.updateMovieStatus(state.movie, MovieStatus.ToWatch) },
                 )
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
                 CustomStatusButton(
                     text = "Watched",
@@ -170,11 +169,11 @@ fun MovieInfo(movie: Movie) {
                     ),
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 2.dp),
+                        .padding(end = 4.dp),
                 )
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .padding(end = 8.dp),
@@ -192,7 +191,7 @@ fun MovieInfo(movie: Movie) {
             Text(
                 text = movie.overview,
                 modifier = Modifier.fillMaxWidth(),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Justify,
             )
 
@@ -216,7 +215,7 @@ fun AgeRestrictionBadge(age: Int, color: Color) {
                 shape = CircleShape,
             )
             .defaultMinSize(minWidth = 40.dp)
-            .padding(5.dp),
+            .padding(4.dp),
         textAlign = TextAlign.Center,
     )
 }
@@ -253,7 +252,7 @@ private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String) {
     Icon(
         imageVector = icon,
         contentDescription = null,
-        modifier = Modifier.padding(end = 6.dp),
+        modifier = Modifier.padding(end = 8.dp),
     )
     Text(text = text)
 }

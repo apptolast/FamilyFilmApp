@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -119,9 +120,7 @@ fun ProfileScreen(
 
             AuthState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 180.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -142,8 +141,6 @@ fun ProfileContent(
     onClickLogOut: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
-    var notificationsEnabled by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -156,13 +153,22 @@ fun ProfileContent(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFE8C4A9)),
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.profile_avatar),
                 contentDescription = stringResource(R.string.profile_image_description),
                 modifier = Modifier.fillMaxSize(),
             )
+            // Fallback: show initial letter if avatar is a placeholder
+            if (email.isNotBlank()) {
+                Text(
+                    text = email.first().uppercase(),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -174,22 +180,6 @@ fun ProfileContent(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-
-//        Spacer(modifier = Modifier.height(32.dp))
-
-        // Settings Section
-//        ProfileSection(title = stringResource(R.string.settings_title)) {
-//            // Notifications
-//            ProfileItem(
-//                title = stringResource(R.string.notifications),
-//                trailingContent = {
-//                    Switch(
-//                        checked = notificationsEnabled,
-//                        onCheckedChange = { notificationsEnabled = it },
-//                    )
-//                },
-//            )
-//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -207,8 +197,12 @@ fun ProfileContent(
                     )
                 },
             )
+        }
 
-            // Delete Account
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Danger Zone - visually separated destructive action
+        ProfileSection(title = stringResource(R.string.delete_account)) {
             ProfileItem(
                 title = stringResource(R.string.delete_account),
                 titleColor = MaterialTheme.colorScheme.error,
@@ -260,6 +254,7 @@ fun ProfileItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

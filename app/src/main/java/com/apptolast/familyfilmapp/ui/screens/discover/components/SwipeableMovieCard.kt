@@ -165,7 +165,7 @@ fun SwipeableMovieCard(
                             androidx.compose.ui.graphics.Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
                                 ),
                             ),
                         ),
@@ -216,7 +216,7 @@ fun SwipeableMovieCard(
                             .align(Alignment.CenterEnd)
                             .padding(32.dp)
                             .alpha(leftIndicatorAlpha)
-                            .size(40.dp)
+                            .size(48.dp)
                             .background(
                                 color = Color.White.copy(alpha = 0.85f),
                                 shape = androidx.compose.foundation.shape.CircleShape,
@@ -227,7 +227,7 @@ fun SwipeableMovieCard(
                             imageVector = Icons.Default.Visibility,
                             contentDescription = "Watched",
                             tint = Color.Black,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 }
@@ -239,7 +239,7 @@ fun SwipeableMovieCard(
                             .align(Alignment.CenterStart)
                             .padding(32.dp)
                             .alpha(rightIndicatorAlpha)
-                            .size(40.dp)
+                            .size(48.dp)
                             .background(
                                 color = Color.White.copy(alpha = 0.85f),
                                 shape = androidx.compose.foundation.shape.CircleShape,
@@ -250,7 +250,7 @@ fun SwipeableMovieCard(
                             imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                             contentDescription = "Want to Watch",
                             tint = Color.Black,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 }

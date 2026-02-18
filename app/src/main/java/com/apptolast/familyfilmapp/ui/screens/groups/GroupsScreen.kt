@@ -279,8 +279,8 @@ fun GroupContent(
                             selected = safeTabIndex == index,
                             onClick = { onGroupSelect(group.id) }, // Pass group ID
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
+                            selectedContentColor = MaterialTheme.colorScheme.primary,
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             text = {
                                 Text(
                                     text = group.name,
@@ -317,7 +317,7 @@ fun GroupContent(
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 6.dp),
+                                .padding(bottom = 8.dp),
                             textAlign = TextAlign.Center,
                         )
                         groupData.recommendedMovie?.let { movie ->
@@ -355,7 +355,7 @@ fun GroupContent(
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(12.dp),
                     )
                 }
 
@@ -373,7 +373,7 @@ fun GroupContent(
                     Text(
                         text = stringResource(R.string.groups_text_watched),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(12.dp),
                     )
                 }
 
@@ -408,7 +408,7 @@ fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
             },
         ) { targetState ->
             Row(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(

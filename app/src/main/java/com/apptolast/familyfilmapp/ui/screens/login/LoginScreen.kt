@@ -221,7 +221,7 @@ fun MovieAppLoginContent(
         modifier = modifier
             .imePadding() // Ajusta el espacio cuando aparece el teclado,
             .padding(horizontal = 16.dp)
-            .padding(bottom = 20.dp),
+            .padding(bottom = 24.dp),
     ) {
         // Logo
         Image(
@@ -229,7 +229,7 @@ fun MovieAppLoginContent(
             contentDescription = stringResource(R.string.login_snail_logo),
             modifier = Modifier
                 .width(130.dp)
-                .padding(14.dp),
+                .padding(16.dp),
         )
 
         // Title
@@ -249,7 +249,7 @@ fun MovieAppLoginContent(
             ),
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
-            modifier = Modifier.padding(bottom = 20.dp),
+            modifier = Modifier.padding(bottom = 24.dp),
         )
 
         AnimatedVisibility(showLoginInterface) {
@@ -310,7 +310,7 @@ fun MovieAppLoginContent(
                     onClick = { onClick(email, password) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(45.dp)
+                        .height(48.dp)
                         .testTag(TT_LOGIN_EMAIL),
                     shape = MaterialTheme.shapes.medium,
                 ) {
@@ -343,7 +343,7 @@ fun MovieAppLoginContent(
                     onClick = onClickGoogleButton,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(45.dp)
+                        .height(48.dp)
                         .testTag(TT_LOGIN_GOOGLE_BUTTON),
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),

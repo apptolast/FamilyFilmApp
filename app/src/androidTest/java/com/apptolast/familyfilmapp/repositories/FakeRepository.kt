@@ -92,4 +92,8 @@ class FakeRepository(
     override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun clearLocalData() {
+        // No-op in tests
+    }
 }

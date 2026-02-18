@@ -45,4 +45,7 @@ abstract class GroupDao {
 
     @Delete
     abstract suspend fun delete(group: GroupTable)
+
+    @Query("DELETE FROM $GROUPS_TABLE_NAME")
+    abstract suspend fun deleteAll()
 }

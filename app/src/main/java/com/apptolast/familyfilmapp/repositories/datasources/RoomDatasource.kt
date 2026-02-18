@@ -31,6 +31,11 @@ class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, pri
     override suspend fun deleteUser(user: UserTable) = userDao.delete(user)
     override suspend fun updateUser(user: UserTable) = userDao.update(user)
 
+    override suspend fun clearAllData() {
+        groupDao.deleteAll()
+        userDao.deleteAll()
+    }
+
     companion object {
         const val MINIMUM_UPDATE_TIME = 1 * 60 * 60 * 1000 // 1 hour
     }
@@ -109,4 +114,10 @@ interface RoomDatasource {
      * Update user in the data source
      */
     suspend fun updateUser(user: UserTable)
+
+    /**
+     * Clear all data from Room (groups and users).
+     * Should be called on logout to prevent data leaking between sessions.
+     */
+    suspend fun clearAllData()
 }

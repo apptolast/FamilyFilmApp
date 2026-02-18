@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,7 +66,6 @@ import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_LABEL
 import kotlinx.coroutines.flow.flowOf
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -79,7 +78,7 @@ fun HomeScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
-    val errorMessage = viewModel.homeUiState.value.errorMessage?.error
+    val errorMessage = stateUI.errorMessage?.error
 
     val animatedColor by animateColorAsState(
         targetValue = lerp(
@@ -250,40 +249,40 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
 
 @Composable
 private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (String) -> Unit) {
-    movies.apply {
-        when {
-            loadState.refresh is LoadState.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
+    val currentTriggerError by rememberUpdatedState(triggerError)
+    val refreshError = (movies.loadState.refresh as? LoadState.Error)?.error
+    val appendError = (movies.loadState.append as? LoadState.Error)?.error
 
-            loadState.refresh is LoadState.Error -> {
-                val error = movies.loadState.refresh as LoadState.Error
-                triggerError(error.error.localizedMessage!!)
-            }
+    LaunchedEffect(refreshError) {
+        refreshError?.localizedMessage?.let { currentTriggerError(it) }
+    }
 
-            loadState.append is LoadState.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
+    LaunchedEffect(appendError) {
+        appendError?.localizedMessage?.let { currentTriggerError(it) }
+    }
 
-            loadState.append is LoadState.Error -> {
-                val error = movies.loadState.append as LoadState.Error
-                triggerError(error.error.localizedMessage!!)
+    when {
+        movies.loadState.refresh is LoadState.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+
+        movies.loadState.append is LoadState.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }

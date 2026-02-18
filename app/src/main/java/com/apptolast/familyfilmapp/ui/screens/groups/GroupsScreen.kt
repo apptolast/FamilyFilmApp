@@ -43,6 +43,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -84,6 +85,7 @@ fun GroupsScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val isFabExtended by remember {
         derivedStateOf {
@@ -91,14 +93,11 @@ fun GroupsScreen(
         }
     }
 
-    if (!state.error.isNullOrBlank()) {
-        Toast.makeText(
-            LocalContext.current,
-            state.error,
-            Toast.LENGTH_SHORT,
-        ).show()
-
-        viewModel.clearError()
+    LaunchedEffect(state.error) {
+        if (!state.error.isNullOrBlank()) {
+            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
     }
 
     Scaffold(

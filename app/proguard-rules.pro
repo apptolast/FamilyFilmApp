@@ -20,9 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keepclassmembers class com.apptolast.familyfilmapp.model.** {  *; }
--keep class com.apptolast.familyfilmapp.model.local.** { *; }
--keep class com.apptolast.familyfilmapp.model.local.types.** { *; }
+# Keep all model classes (local, remote, room) for Gson deserialization and Room mapping
+-keep class com.apptolast.familyfilmapp.model.** { *; }
 
 #-include proguard-rules.pro
 -keepattributes SourceFile,LineNumberTable

@@ -89,7 +89,7 @@ class RepositoryImpl @Inject constructor(
                 groupName = groupName,
                 user = user,
                 success = { group ->
-                    // Write-through pattern: immediately update Room for instant UI response
+                    // Write-through: update Room before resuming to avoid race condition
                     coroutineScope.launch {
                         try {
                             roomDatasource.insertGroup(group.toGroupTable())
@@ -97,8 +97,8 @@ class RepositoryImpl @Inject constructor(
                         } catch (e: Exception) {
                             Timber.e(e, "Error syncing created group to Room")
                         }
+                        continuation.resume(Result.success(group))
                     }
-                    continuation.resume(Result.success(group))
                 },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
@@ -109,7 +109,7 @@ class RepositoryImpl @Inject constructor(
         firebaseDatabaseDatasource.updateGroup(
             group = group,
             success = {
-                // Write-through pattern: immediately update Room for instant UI response
+                // Write-through: update Room before resuming to avoid race condition
                 coroutineScope.launch {
                     try {
                         roomDatasource.insertGroup(group.toGroupTable())
@@ -117,8 +117,8 @@ class RepositoryImpl @Inject constructor(
                     } catch (e: Exception) {
                         Timber.e(e, "Error syncing updated group to Room")
                     }
+                    continuation.resume(Result.success(Unit))
                 }
-                continuation.resume(Result.success(Unit))
             },
             failure = { error -> continuation.resume(Result.failure(error)) },
         )
@@ -137,7 +137,7 @@ class RepositoryImpl @Inject constructor(
             firebaseDatabaseDatasource.deleteGroup(
                 group = group,
                 success = {
-                    // Write-through pattern: immediately delete from Room for instant UI response
+                    // Write-through: delete from Room before resuming to avoid race condition
                     coroutineScope.launch {
                         try {
                             roomDatasource.deleteGroup(group.toGroupTable())
@@ -145,8 +145,8 @@ class RepositoryImpl @Inject constructor(
                         } catch (e: Exception) {
                             Timber.e(e, "Error removing deleted group from Room")
                         }
+                        continuation.resume(Result.success(Unit))
                     }
-                    continuation.resume(Result.success(Unit))
                 },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
@@ -166,7 +166,23 @@ class RepositoryImpl @Inject constructor(
             firebaseDatabaseDatasource.addMember(
                 group = group,
                 email = email,
-                success = { continuation.resume(Result.success(Unit)) },
+                success = {
+                    // Write-through: look up user by email and update group in Room
+                    coroutineScope.launch {
+                        try {
+                            val userTable = roomDatasource.getUserByEmail(email).first()
+                            if (userTable != null) {
+                                val updatedUsers = group.users + userTable.toUser().id
+                                val updatedGroup = group.copy(users = updatedUsers)
+                                roomDatasource.insertGroup(updatedGroup.toGroupTable())
+                                Timber.d("Member added and group synced to Room: $email")
+                            }
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing added member to Room")
+                        }
+                        continuation.resume(Result.success(Unit))
+                    }
+                },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
         }
@@ -190,8 +206,18 @@ class RepositoryImpl @Inject constructor(
                 group = group,
                 user = user,
                 success = {
-                    // No need to enqueue sync work - real-time sync handles this
-                    continuation.resume(Result.success(Unit))
+                    // Write-through: remove user from group's users list in Room
+                    coroutineScope.launch {
+                        try {
+                            val updatedUsers = group.users - user.id
+                            val updatedGroup = group.copy(users = updatedUsers)
+                            roomDatasource.insertGroup(updatedGroup.toGroupTable())
+                            Timber.d("Member removed and group synced to Room: ${user.email}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing removed member to Room")
+                        }
+                        continuation.resume(Result.success(Unit))
+                    }
                 },
                 failure = { error -> continuation.resume(Result.failure(error)) },
             )
@@ -215,7 +241,7 @@ class RepositoryImpl @Inject constructor(
         firebaseDatabaseDatasource.updateUser(
             user = user,
             success = {
-                // Write-through pattern: immediately update Room for instant UI response
+                // Write-through: update Room before resuming to avoid race condition
                 coroutineScope.launch {
                     try {
                         roomDatasource.insertUser(user.toUserTable())
@@ -223,8 +249,8 @@ class RepositoryImpl @Inject constructor(
                     } catch (e: Exception) {
                         Timber.e(e, "Error syncing updated user to Room")
                     }
+                    continuation.resume(Result.success(Unit))
                 }
-                continuation.resume(Result.success(Unit))
             },
             failure = { error -> continuation.resume(Result.failure(error)) },
         )

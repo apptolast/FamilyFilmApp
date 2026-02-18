@@ -32,7 +32,7 @@ abstract class GroupDao {
     fun getMyGroups(userId: String): Flow<List<GroupTable>> {
         val query = SupportSQLiteQueryBuilder.builder(GROUPS_TABLE_NAME)
             .columns(arrayOf("*"))
-            .selection("users LIKE '%' || ? || '%'", arrayOf(userId))
+            .selection("users LIKE '%\"' || ? || '\"%'", arrayOf(userId))
             .create()
         return getMyGroups(query)
     }

@@ -21,7 +21,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         UserTable::class,
         GroupTable::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(

@@ -30,11 +30,7 @@ object TestRepositoryModule {
         FirebaseAuthRepositoryImpl(firebaseAuth)
 
     @Provides
-    fun provideRepository(
-        roomDatasource: RoomDatasource,
-        firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
-        tmdbDatasource: TmdbDatasource,
-    ): Repository = FakeRepository(roomDatasource, firebaseDatabaseDatasource, tmdbDatasource)
+    fun provideRepository(): Repository = FakeRepository()
 
     @Provides
     fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =

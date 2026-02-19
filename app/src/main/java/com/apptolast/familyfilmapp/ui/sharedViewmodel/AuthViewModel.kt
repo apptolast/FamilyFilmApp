@@ -193,43 +193,34 @@ class AuthViewModel @Inject constructor(
     }
 
     fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        val credential = result.credential
-
-        when (credential) {
+        when (val credential = result.credential) {
             is CustomCredential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
-                        // Use googleIdTokenCredential and extract id to validate and authenticate on your server.
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-                        viewModelScope.launch {
-                            authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first().let { result ->
-                                result
-                                    .onSuccess { user ->
-                                        repository.checkIfUserExists(user.id) { exists ->
-                                            if (!exists) {
-                                                createNewUser(user)
-                                            }
-                                            checkIsUserLogged()
-                                        }
+                        viewModelScope.launch(dispatcherProvider.io()) {
+                            authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first()
+                                .onSuccess { user ->
+                                    val exists = repository.checkIfUserExists(user.id)
+                                    if (!exists) {
+                                        createNewUser(user)
                                     }
-                                    .onFailure { error ->
-                                        handleFailure(error.message ?: "Google Login Error")
-                                    }
-                            }
+                                    checkIsUserLogged()
+                                }
+                                .onFailure { error ->
+                                    handleFailure(error.message ?: "Google Login Error")
+                                }
                         }
                     } catch (e: GoogleIdTokenParsingException) {
                         handleFailure(e.message)
                     }
                 } else {
-                    // Catch any unrecognized credential type here.
                     handleFailure("Unexpected type of credential")
                 }
             }
 
             else -> {
-                // Catch any unrecognized credential type here.
                 handleFailure("Unexpected type of credential")
             }
         }
@@ -294,54 +285,44 @@ class AuthViewModel @Inject constructor(
 
     fun deleteUser(email: String = "", password: String = "") = viewModelScope.launch(dispatcherProvider.io()) {
         val currentUser = (authState.value as? AuthState.Authenticated)?.user
-        if (currentUser != null) {
-            // Get user data from repository
-            repository.getUserById(currentUser.id).take(1).collectLatest { user ->
-                // Delete from Firestore
-                repository.deleteUser(
-                    user = user,
-                    success = {
-                        viewModelScope.launch {
-                            when (provider.value) {
-                                GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
-                                    authRepository.deleteGoogleAccount().first().let { result ->
-                                        result
-                                            .onSuccess {
-                                                clearGoogleCredentials()
-                                                authState.update { AuthState.Unauthenticated }
-                                            }
-                                            .onFailure { error ->
-                                                handleFailure("Delete User Error")
-                                            }
-                                    }
-                                }
-
-                                EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
-                                    authRepository.deleteAccountWithReAuthentication(email, password).first()
-                                        .let { result ->
-                                            result
-                                                .onSuccess {
-                                                    authState.update { AuthState.Unauthenticated }
-                                                }
-                                                .onFailure { error ->
-                                                    handleFailure("Delete User Error")
-                                                }
-                                        }
-                                }
-
-                                else -> {
-                                    Timber.w(IllegalStateException("Credential not expected"))
-                                }
-                            }
-                        }
-                    },
-                    failure = { error ->
-                        handleFailure("Delete User Error")
-                    },
-                )
-            }
-        } else {
+        if (currentUser == null) {
             handleFailure("Delete user - No user found")
+            return@launch
+        }
+
+        // Get user data from repository
+        repository.getUserById(currentUser.id).take(1).collectLatest { user ->
+            // Delete from Firestore
+            repository.deleteUser(user)
+                .onSuccess {
+                    deleteAuthAccount(email, password)
+                }
+                .onFailure {
+                    handleFailure("Delete User Error")
+                }
+        }
+    }
+
+    private suspend fun deleteAuthAccount(email: String, password: String) {
+        when (provider.value) {
+            GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
+                authRepository.deleteGoogleAccount().first()
+                    .onSuccess {
+                        clearGoogleCredentials()
+                        authState.update { AuthState.Unauthenticated }
+                    }
+                    .onFailure { handleFailure("Delete User Error") }
+            }
+
+            EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
+                authRepository.deleteAccountWithReAuthentication(email, password).first()
+                    .onSuccess { authState.update { AuthState.Unauthenticated } }
+                    .onFailure { handleFailure("Delete User Error") }
+            }
+
+            else -> {
+                Timber.w(IllegalStateException("Credential not expected"))
+            }
         }
     }
 
@@ -351,18 +332,16 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun createNewUser(user: User) {
+    private fun createNewUser(user: User) = viewModelScope.launch(dispatcherProvider.io()) {
         repository.createUser(
             User().copy(
                 id = user.id,
                 email = user.email,
                 language = Locale.getDefault().toLanguageTag(),
             ),
-            success = {},
-            failure = { error ->
-                handleFailure(error.message ?: "Create New User Error")
-            },
-        )
+        ).onFailure { error ->
+            handleFailure(error.message ?: "Create New User Error")
+        }
     }
 }
 

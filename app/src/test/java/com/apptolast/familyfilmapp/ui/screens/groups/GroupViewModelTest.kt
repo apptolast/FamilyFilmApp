@@ -61,8 +61,6 @@ class GroupViewModelTest {
         every { firebaseUser.uid } returns testUserId
         every { repository.getMyGroups(testUserId) } returns groupsFlow
         every { repository.getSyncState() } returns syncStateFlow
-        every { repository.startSync(testUserId) } returns Unit
-        every { repository.stopSync() } returns Unit
         coEvery { repository.getUsersByIds(listOf(testUserId)) } returns Result.success(listOf(testUser))
         coEvery { repository.getMoviesByIds(any()) } returns Result.success(emptyList())
     }
@@ -77,7 +75,6 @@ class GroupViewModelTest {
         createViewModel()
         advanceUntilIdle()
 
-        verify { repository.startSync(testUserId) }
         verify { repository.getMyGroups(testUserId) }
         verify { repository.getSyncState() }
 

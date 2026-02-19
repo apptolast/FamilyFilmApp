@@ -104,11 +104,10 @@ class AuthViewModel @Inject constructor(
             if (user?.isEmailVerified == true && isTokenValid) {
                 val domainUser = user.toDomainUserModel()
                 repository.startSync(domainUser.id)
-                AuthState.Authenticated(domainUser)
+                authState.update { AuthState.Authenticated(domainUser) }
             } else {
-                AuthState.Unauthenticated
-            }.let { newState ->
-                authState.update { newState }
+                repository.stopSync()
+                authState.update { AuthState.Unauthenticated }
             }
         }
     }

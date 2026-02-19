@@ -42,9 +42,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         if (currentUserId != null) {
             // Start observing groups from Room (local database)
             startObservingGroups()
-            // Start Firebase sync (syncs Firebase changes to Room)
-            repository.startSync(currentUserId!!)
-            // Observe sync state
+            // Observe sync state (sync lifecycle is managed by AuthViewModel)
             observeSyncState()
         } else {
             _state.update { it.copy(error = "User not authenticated") }
@@ -64,8 +62,6 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     override fun onCleared() {
-        // Stop Firebase sync when ViewModel is destroyed
-        repository.stopSync()
         super.onCleared()
     }
 

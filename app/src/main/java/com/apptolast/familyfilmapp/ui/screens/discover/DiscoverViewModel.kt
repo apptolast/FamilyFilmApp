@@ -58,31 +58,30 @@ class DiscoverViewModel @Inject constructor(
      * Load popular movies, filtering out already marked ones
      */
     private fun loadMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        try {
-            uiState.update { it.copy(isLoading = true) }
+        uiState.update { it.copy(isLoading = true) }
 
-            // Get popular movies from first page
-            val popularMovies = repository.getPopularMoviesList(page = currentPage)
-                .filter { movie ->
-                    // Filter out movies already marked by user
+        repository.getPopularMoviesList(page = currentPage)
+            .onSuccess { movies ->
+                val popularMovies = movies.filter { movie ->
                     val movieId = movie.id.toString()
                     !uiState.value.user.statusMovies.containsKey(movieId)
                 }
 
-            uiState.update {
-                it.copy(
-                    movies = popularMovies,
-                    isLoading = false,
-                    currentMovieIndex = 0,
-                )
-            }
+                uiState.update {
+                    it.copy(
+                        movies = popularMovies,
+                        isLoading = false,
+                        currentMovieIndex = 0,
+                    )
+                }
 
-            Timber.d("Loaded ${popularMovies.size} movies for discovery")
-        } catch (e: Exception) {
-            Timber.e(e, "Error loading movies")
-            triggerError(e.message ?: "Error loading movies")
-            uiState.update { it.copy(isLoading = false) }
-        }
+                Timber.d("Loaded ${popularMovies.size} movies for discovery")
+            }
+            .onFailure { e ->
+                Timber.e(e, "Error loading movies")
+                triggerError(e.message ?: "Error loading movies")
+                uiState.update { it.copy(isLoading = false) }
+            }
     }
 
     /**
@@ -128,26 +127,26 @@ class DiscoverViewModel @Inject constructor(
      * Load more movies when running low
      */
     private fun loadMoreMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        try {
-            Timber.d("Loading more movies...")
+        Timber.d("Loading more movies...")
 
-            // Increment page and get next batch of popular movies
-            currentPage++
-            val newMovies = repository.getPopularMoviesList(page = currentPage)
-                .filter { movie ->
+        currentPage++
+        repository.getPopularMoviesList(page = currentPage)
+            .onSuccess { movies ->
+                val newMovies = movies.filter { movie ->
                     val movieId = movie.id.toString()
                     !uiState.value.user.statusMovies.containsKey(movieId) &&
                         !uiState.value.movies.any { it.id == movie.id }
                 }
 
-            uiState.update {
-                it.copy(movies = it.movies + newMovies)
-            }
+                uiState.update {
+                    it.copy(movies = it.movies + newMovies)
+                }
 
-            Timber.d("Loaded ${newMovies.size} additional movies")
-        } catch (e: Exception) {
-            Timber.e(e, "Error loading more movies")
-        }
+                Timber.d("Loaded ${newMovies.size} additional movies")
+            }
+            .onFailure { e ->
+                Timber.e(e, "Error loading more movies")
+            }
     }
 
     /**

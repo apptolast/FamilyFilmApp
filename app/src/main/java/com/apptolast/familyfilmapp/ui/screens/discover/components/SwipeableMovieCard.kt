@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -149,7 +150,7 @@ fun SwipeableMovieCard(
             Box(modifier = Modifier.fillMaxSize()) {
                 // Poster Image
                 AsyncImage(
-                    model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                    model = "${TmdbConfig.POSTER_DETAIL}${movie.posterPath}",
                     contentDescription = movie.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,

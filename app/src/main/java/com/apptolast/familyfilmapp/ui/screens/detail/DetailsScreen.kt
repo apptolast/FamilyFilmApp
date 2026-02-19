@@ -53,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
-import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
 
@@ -133,7 +133,7 @@ fun MovieDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = "${BASE_URL}${state.movie.posterPath}",
+                model = "${TmdbConfig.POSTER_DETAIL}${state.movie.posterPath}",
                 contentDescription = "Movie Poster",
                 modifier = Modifier
                     .height(380.dp)

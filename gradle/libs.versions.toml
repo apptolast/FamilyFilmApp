@@ -149,8 +149,7 @@ android-tests = [
     "test-core-ktx",
     "mockk",
     "androidx-test-runner",
-    #    "androidx-espresso-core",
-    #    "compose-ui-test-junit4",
+    "androidx-espresso-core",
 ]
 
 [plugins]

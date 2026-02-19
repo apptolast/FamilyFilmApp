@@ -56,6 +56,8 @@ class AuthViewModelTest {
         every { authRepository.isTokenValid() } returns flowOf(false)
         every { authRepository.checkEmailVerification(any()) } returns flowOf(false)
         every { authRepository.getProvider() } returns flowOf(null)
+        // checkIsUserLogged calls stopSync() when unauthenticated
+        every { repository.stopSync() } returns Unit
     }
 
     private fun createViewModel(): AuthViewModel {
@@ -289,14 +291,7 @@ class AuthViewModelTest {
         every {
             authRepository.register("new@test.com", "pass123")
         } returns flowOf(Result.success(registeredUser))
-        // createNewUser uses callback-based repository method
-        every {
-            repository.createUser(any(), any(), any())
-        } answers {
-            // Invoke success callback
-            val successCallback = secondArg<(Void?) -> Unit>()
-            successCallback(null)
-        }
+        coEvery { repository.createUser(any()) } returns Result.success(Unit)
 
         createViewModel()
         advanceUntilIdle()

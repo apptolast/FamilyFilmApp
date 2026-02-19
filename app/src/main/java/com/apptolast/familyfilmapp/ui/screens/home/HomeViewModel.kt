@@ -63,15 +63,15 @@ class HomeViewModel @Inject constructor(
             clearError() // Clear any previous errors
             Timber.d("Search cleared, showing popular movies")
         } else {
-            try {
-                repository.searchTmdbMovieByName(movieFilter).let { movies ->
+            repository.searchTmdbMovieByName(movieFilter)
+                .onSuccess { movies ->
                     homeUiState.update { it.copy(filterMovies = movies) }
                     clearError()
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "Error searching movies")
-                triggerError(e.message ?: "Error searching movies")
-            }
+                .onFailure { e ->
+                    Timber.e(e, "Error searching movies")
+                    triggerError(e.message ?: "Error searching movies")
+                }
         }
     }
 

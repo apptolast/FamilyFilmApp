@@ -5,19 +5,14 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
-import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
-import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-class FakeRepository(
-    private val roomDatasource: RoomDatasource,
-    private val firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
-    private val tmdbDatasource: TmdbDatasource,
-) : Repository {
+class FakeRepository : Repository {
 
     override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = flowOf(
         PagingData.from(
@@ -35,65 +30,55 @@ class FakeRepository(
         ),
     )
 
-//    override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = Pager(
-//        config = PagingConfig(pageSize),
-//        pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
-//    ).flow
+    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> =
+        Result.success(emptyList())
 
-    override suspend fun searchTmdbMovieByName(string: String): List<Movie> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> =
+        Result.success(emptyList())
 
-    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> =
+        Result.success(emptyList())
 
-    override fun getMyGroups(userId: String): Flow<List<Group>> {
-        TODO("Not yet implemented")
-    }
+    override fun getMyGroups(userId: String): Flow<List<Group>> = flowOf(emptyList())
 
-    override fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun createGroup(groupName: String, userId: String): Result<Group> =
+        Result.success(Group())
 
-    override fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun updateGroup(group: Group): Result<Unit> = Result.success(Unit)
 
-    override fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteGroup(groupId: String): Result<Unit> = Result.success(Unit)
 
-    override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun addMember(groupId: String, email: String): Result<Unit> = Result.success(Unit)
 
-    override fun deleteMember(group: Group, user: User) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun removeMember(groupId: String, userId: String): Result<Unit> = Result.success(Unit)
 
-    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun createUser(user: User): Result<Unit> = Result.success(Unit)
 
     override fun getUserById(string: String): Flow<User> = flow {
-        User().copy(
-            id = "id1",
-            email = "email",
-            language = "es_ES",
-            statusMovies = mapOf(),
+        emit(
+            User().copy(
+                id = "id1",
+                email = "email",
+                language = "es_ES",
+                statusMovies = mapOf(),
+            ),
         )
     }
 
-    override fun updateUser(user: User, success: (Void?) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun updateUser(user: User): Result<Unit> = Result.success(Unit)
 
-    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteUser(user: User): Result<Unit> = Result.success(Unit)
 
-    override suspend fun clearLocalData() {
-        // No-op in tests
-    }
+    override suspend fun checkIfUserExists(userId: String): Boolean = true
+
+    override suspend fun getUsersByIds(userIds: List<String>): Result<List<User>> =
+        Result.success(emptyList())
+
+    override fun startSync(userId: String) { /* no-op */ }
+
+    override fun stopSync() { /* no-op */ }
+
+    override fun getSyncState(): Flow<SyncState> = MutableStateFlow(SyncState.Synced)
+
+    override suspend fun clearLocalData() { /* no-op */ }
 }

@@ -52,12 +52,8 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         return users
     }
 
-    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
-        usersCollection
-            .document(user.id)
-            .set(user)
-            .addOnSuccessListener(success)
-            .addOnFailureListener(failure)
+    override suspend fun createUser(user: User) {
+        usersCollection.document(user.id).set(user).await()
     }
 
     override fun getUserById(userId: String, success: (User?) -> Unit) {
@@ -116,27 +112,14 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             }
     }
 
-    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        usersCollection.document(user.id)
-            .delete()
-            .addOnSuccessListener {
-                Timber.d("User deleted from Firestore: ${user.email}")
-                success()
-            }
-            .addOnFailureListener { e ->
-                Timber.e(e, "Error deleting user from Firestore: ${user.email}")
-                failure(e)
-            }
+    override suspend fun deleteUser(user: User) {
+        usersCollection.document(user.id).delete().await()
+        Timber.d("User deleted from Firestore: ${user.email}")
     }
 
-    override fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit) {
-        usersCollection.document(userId).get()
-            .addOnSuccessListener { document ->
-                callback(document.exists())
-            }
-            .addOnFailureListener {
-                callback(false)
-            }
+    override suspend fun checkIfUserExists(userId: String): Boolean {
+        val document = usersCollection.document(userId).get().await()
+        return document.exists()
     }
 
     override fun observeUser(userId: String): Flow<User?> = callbackFlow {
@@ -314,13 +297,13 @@ interface FirebaseDatabaseDatasource {
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
-    fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
+    suspend fun createUser(user: User)
     fun getUserById(userId: String, success: (User?) -> Unit)
     suspend fun getUsersByIds(userIds: List<String>): List<User>
     fun getUserByEmail(email: String, success: (User?) -> Unit)
     fun updateUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
-    fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
-    fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
+    suspend fun deleteUser(user: User)
+    suspend fun checkIfUserExists(userId: String): Boolean
     fun observeUser(userId: String): Flow<User?>
 
     // /////////////////////////////////////////////////////////////////////////

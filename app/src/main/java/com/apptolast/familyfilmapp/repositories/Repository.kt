@@ -51,11 +51,13 @@ class RepositoryImpl @Inject constructor(
         pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
     ).flow
 
-    override suspend fun getPopularMoviesList(page: Int): List<Movie> =
+    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> = runCatching {
         tmdbDatasource.getPopularMovies(page).map { it.toDomain() }
+    }
 
-    override suspend fun searchTmdbMovieByName(string: String): List<Movie> =
+    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> = runCatching {
         tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
+    }
 
     override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
         ids.map {
@@ -227,12 +229,9 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Users
     // /////////////////////////////////////////////////////////////////////////
-    override fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) =
-        firebaseDatabaseDatasource.createUser(
-            user = user,
-            success = success,
-            failure = failure,
-        )
+    override suspend fun createUser(user: User): Result<Unit> = runCatching {
+        firebaseDatabaseDatasource.createUser(user)
+    }
 
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
@@ -256,16 +255,15 @@ class RepositoryImpl @Inject constructor(
         )
     }
 
-    override fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit) {
-        firebaseDatabaseDatasource.deleteUser(
-            user = user,
-            success = success,
-            failure = failure,
-        )
+    override suspend fun deleteUser(user: User): Result<Unit> = runCatching {
+        firebaseDatabaseDatasource.deleteUser(user)
     }
 
-    override fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit) {
-        firebaseDatabaseDatasource.checkIfUserExists(userId, callback)
+    override suspend fun checkIfUserExists(userId: String): Boolean = try {
+        firebaseDatabaseDatasource.checkIfUserExists(userId)
+    } catch (e: Exception) {
+        Timber.e(e, "Error checking if user exists: $userId")
+        false
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -398,8 +396,8 @@ interface Repository {
 
     // Movies
     fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
-    suspend fun getPopularMoviesList(page: Int = 1): List<Movie>
-    suspend fun searchTmdbMovieByName(string: String): List<Movie>
+    suspend fun getPopularMoviesList(page: Int = 1): Result<List<Movie>>
+    suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>>
     suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
 
     // Groups
@@ -411,13 +409,11 @@ interface Repository {
     suspend fun removeMember(groupId: String, userId: String): Result<Unit>
 
     // Users
-    fun createUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit)
+    suspend fun createUser(user: User): Result<Unit>
     fun getUserById(userId: String): Flow<User>
     suspend fun updateUser(user: User): Result<Unit>
-    fun deleteUser(user: User, success: () -> Unit, failure: (Exception) -> Unit)
-    fun checkIfUserExists(userId: String, callback: (Boolean) -> Unit)
-
-    // Users - New suspend function versions
+    suspend fun deleteUser(user: User): Result<Unit>
+    suspend fun checkIfUserExists(userId: String): Boolean
     suspend fun getUsersByIds(userIds: List<String>): Result<List<User>>
 
     // /////////////////////////////////////////////////////////////////////////

@@ -96,6 +96,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         val updates = mapOf(
             "email" to user.email,
             "language" to user.language,
+            "photoUrl" to user.photoUrl,
             "statusMovies" to user.statusMovies,
         )
 

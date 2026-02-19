@@ -337,6 +337,7 @@ class AuthViewModel @Inject constructor(
                 id = user.id,
                 email = user.email,
                 language = Locale.getDefault().toLanguageTag(),
+                photoUrl = user.photoUrl,
             ),
         ).onFailure { error ->
             handleFailure(error.message ?: "Create New User Error")

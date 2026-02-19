@@ -18,6 +18,7 @@ data class UserTable(
     val userId: String,
     var email: String,
     var language: String,
+    var photoUrl: String,
     @TypeConverters(MapStatusConverter::class)
     val statusMovies: Map<String, MovieStatus>,
 ) {
@@ -25,6 +26,7 @@ data class UserTable(
         userId = userId,
         email = "",
         language = "",
+        photoUrl = "",
         statusMovies = mapOf(),
     )
 }
@@ -33,6 +35,7 @@ fun UserTable.toUser() = User(
     id = userId,
     email = email,
     language = language,
+    photoUrl = photoUrl,
     statusMovies = statusMovies,
 )
 
@@ -40,5 +43,6 @@ fun User.toUserTable() = UserTable(
     userId = id,
     email = email,
     language = language,
+    photoUrl = photoUrl,
     statusMovies = statusMovies,
 )

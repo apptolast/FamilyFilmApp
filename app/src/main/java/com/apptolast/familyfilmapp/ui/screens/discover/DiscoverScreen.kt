@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +39,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.ui.screens.detail.CustomStatusButton
 import com.apptolast.familyfilmapp.ui.screens.discover.components.SwipeableMovieCard
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_EMPTY
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_LOADING
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIP_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_TO_WATCH_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_WATCHED_BUTTON
 
 /**
  * Discover Screen - Tinder-style movie discovery
@@ -77,7 +83,8 @@ fun DiscoverScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .align(Alignment.Center),
+                            .align(Alignment.Center)
+                            .testTag(TT_DISCOVER_LOADING),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -97,7 +104,8 @@ fun DiscoverScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .align(Alignment.Center),
+                            .align(Alignment.Center)
+                            .testTag(TT_DISCOVER_EMPTY),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -145,7 +153,9 @@ fun DiscoverScreen(
                                     text = stringResource(R.string.discover_watched),
                                     icon = Icons.Default.Visibility,
                                     isSelected = false,
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .testTag(TT_DISCOVER_WATCHED_BUTTON),
                                     onClick = viewModel::markAsWatched,
                                 )
 
@@ -154,7 +164,9 @@ fun DiscoverScreen(
                                 // Skip Button
                                 TextButton(
                                     onClick = viewModel::skipMovie,
-                                    modifier = Modifier.weight(0.5f),
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                        .testTag(TT_DISCOVER_SKIP_BUTTON),
                                 ) {
                                     Text(
                                         text = stringResource(R.string.discover_skip),
@@ -169,7 +181,9 @@ fun DiscoverScreen(
                                     text = stringResource(R.string.discover_want_to_watch),
                                     icon = Icons.AutoMirrored.Filled.PlaylistAdd,
                                     isSelected = false,
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .testTag(TT_DISCOVER_TO_WATCH_BUTTON),
                                     onClick = viewModel::markAsWantToWatch,
                                 )
                             }

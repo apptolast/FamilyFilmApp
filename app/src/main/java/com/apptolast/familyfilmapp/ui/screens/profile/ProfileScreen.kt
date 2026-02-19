@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
 import android.widget.Toast
+import coil.compose.AsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +59,10 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
+import com.apptolast.familyfilmapp.utils.TT_PROFILE_DELETE_ACCOUNT
+import com.apptolast.familyfilmapp.utils.TT_PROFILE_EMAIL
+import com.apptolast.familyfilmapp.utils.TT_PROFILE_LOGOUT
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 
@@ -90,6 +97,7 @@ fun ProfileScreen(
                 ) {
                     ProfileContent(
                         email = (authState as AuthState.Authenticated).user.email,
+                        photoUrl = (authState as AuthState.Authenticated).user.photoUrl,
                         onClickLogOut = { viewModel.logOut() },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
@@ -138,6 +146,7 @@ fun ProfileScreen(
 fun ProfileContent(
     email: String,
     modifier: Modifier = Modifier,
+    photoUrl: String = "",
     onClickLogOut: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
@@ -153,14 +162,26 @@ fun ProfileContent(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .testTag(TT_PROFILE_AVATAR),
             contentAlignment = Alignment.Center,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_avatar),
-                contentDescription = stringResource(R.string.profile_image_description),
-                modifier = Modifier.fillMaxSize(),
-            )
+            if (photoUrl.isNotBlank()) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = stringResource(R.string.profile_image_description),
+                    placeholder = painterResource(id = R.drawable.profile_avatar),
+                    error = painterResource(id = R.drawable.profile_avatar),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.profile_avatar),
+                    contentDescription = stringResource(R.string.profile_image_description),
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -171,6 +192,7 @@ fun ProfileContent(
             text = email,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.testTag(TT_PROFILE_EMAIL),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -180,6 +202,7 @@ fun ProfileContent(
             // Log Out
             ProfileItem(
                 title = stringResource(R.string.logout),
+                modifier = Modifier.testTag(TT_PROFILE_LOGOUT),
                 onClick = onClickLogOut,
                 trailingContent = {
                     Icon(
@@ -197,6 +220,7 @@ fun ProfileContent(
         ProfileSection(title = stringResource(R.string.delete_account)) {
             ProfileItem(
                 title = stringResource(R.string.delete_account),
+                modifier = Modifier.testTag(TT_PROFILE_DELETE_ACCOUNT),
                 titleColor = MaterialTheme.colorScheme.error,
                 onClick = onDeleteUser,
                 trailingContent = {

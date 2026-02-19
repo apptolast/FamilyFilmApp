@@ -19,7 +19,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -37,11 +36,8 @@ object TestRepositoryModule {
         RoomDatasourceImpl(groupDao, userDao)
 
     @Provides
-    fun provideFirebaseDatabaseDatasource(
-        database: FirebaseFirestore,
-        roomDatasource: RoomDatasource,
-        coroutineScope: CoroutineScope,
-    ): FirebaseDatabaseDatasource = FirebaseDatabaseDatasourceImpl(database, roomDatasource, coroutineScope)
+    fun provideFirebaseDatabaseDatasource(database: FirebaseFirestore): FirebaseDatabaseDatasource =
+        FirebaseDatabaseDatasourceImpl(database)
 
     @Provides
     fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)

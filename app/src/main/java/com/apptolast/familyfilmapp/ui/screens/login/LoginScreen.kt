@@ -73,8 +73,10 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_PASS
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -296,7 +298,8 @@ fun MovieAppLoginContent(
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .testTag(TT_LOGIN_PASS),
                     shape = MaterialTheme.shapes.small.copy(
                         bottomStart = CornerSize(0.dp),
                         bottomEnd = CornerSize(0.dp),
@@ -311,7 +314,7 @@ fun MovieAppLoginContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .testTag(TT_LOGIN_EMAIL),
+                        .testTag(TT_LOGIN_BUTTON),
                     shape = MaterialTheme.shapes.medium,
                 ) {
                     Text(text = stringResource(id = screenState.buttonText))

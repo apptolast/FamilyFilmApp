@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +57,12 @@ import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_BACK_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_OVERVIEW
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_POSTER
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_TITLE
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_TO_WATCH_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_DETAIL_WATCHED_BUTTON
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,7 +92,7 @@ fun MovieDetailScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, modifier = Modifier.testTag(TT_DETAIL_BACK_BUTTON)) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = Icons.AutoMirrored.Outlined.ArrowBack.toString(),
@@ -108,7 +115,9 @@ fun MovieDetailScreen(
                     text = "To Watch",
                     icon = if (isToWatch) Icons.Default.PlaylistAddCheckCircle else Icons.Default.PlaylistAddCircle,
                     isSelected = isToWatch,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(TT_DETAIL_TO_WATCH_BUTTON),
                     onClick = { viewModel.updateMovieStatus(state.movie, MovieStatus.ToWatch) },
                 )
 
@@ -118,7 +127,9 @@ fun MovieDetailScreen(
                     text = "Watched",
                     icon = Icons.Default.Visibility,
                     isSelected = state.user.statusMovies[state.movie.id.toString()] == MovieStatus.Watched,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(TT_DETAIL_WATCHED_BUTTON),
                     onClick = { viewModel.updateMovieStatus(state.movie, MovieStatus.Watched) },
                 )
             }
@@ -137,7 +148,8 @@ fun MovieDetailScreen(
                 contentDescription = "Movie Poster",
                 modifier = Modifier
                     .height(380.dp)
-                    .clip(MaterialTheme.shapes.small),
+                    .clip(MaterialTheme.shapes.small)
+                    .testTag(TT_DETAIL_POSTER),
                 contentScale = ContentScale.Fit,
             )
             MovieInfo(movie = state.movie)
@@ -169,7 +181,8 @@ fun MovieInfo(movie: Movie) {
                     ),
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 4.dp),
+                        .padding(end = 4.dp)
+                        .testTag(TT_DETAIL_TITLE),
                 )
 
                 Row(
@@ -190,7 +203,9 @@ fun MovieInfo(movie: Movie) {
 
             Text(
                 text = movie.overview,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(TT_DETAIL_OVERVIEW),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Justify,
             )

@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,6 +72,9 @@ import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
 import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_TAB
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
@@ -248,6 +252,7 @@ fun GroupContent(
             Text(
                 text = stringResource(R.string.groups_text_create_group),
                 style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.testTag(TT_GROUPS_EMPTY_TEXT),
             )
         }
     } else {
@@ -278,7 +283,9 @@ fun GroupContent(
                         Tab(
                             selected = safeTabIndex == index,
                             onClick = { onGroupSelect(group.id) }, // Pass group ID
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .testTag("${TT_GROUPS_TAB}_$index"),
                             selectedContentColor = MaterialTheme.colorScheme.primary,
                             unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             text = {
@@ -393,6 +400,7 @@ fun GroupContent(
 fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
+        modifier = Modifier.testTag(TT_GROUPS_FAB),
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {

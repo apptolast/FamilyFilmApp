@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.apptolast.familyfilmapp.model.local.User
@@ -8,7 +9,10 @@ import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
 import com.apptolast.familyfilmapp.room.converters.MapStatusConverter
 
-@Entity(tableName = USERS_TABLE_NAME)
+@Entity(
+    tableName = USERS_TABLE_NAME,
+    indices = [Index(value = ["email"])],
+)
 data class UserTable(
     @PrimaryKey(autoGenerate = false)
     val userId: String,

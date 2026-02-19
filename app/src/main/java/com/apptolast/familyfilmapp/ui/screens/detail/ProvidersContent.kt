@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Provider
-import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -117,7 +117,7 @@ fun ProviderItem(provider: Provider) {
                     model = if (provider.logoPath.isEmpty()) {
                         "https://picsum.photos/100/100"
                     } else {
-                        "${BASE_URL}${provider.logoPath}"
+                        "${TmdbConfig.LOGO}${provider.logoPath}"
                     },
                     contentDescription = provider.name,
                     contentScale = ContentScale.Fit,

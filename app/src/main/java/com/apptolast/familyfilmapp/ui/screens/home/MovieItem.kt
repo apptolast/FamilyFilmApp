@@ -22,9 +22,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-
-const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
 fun MovieItem(
@@ -42,9 +41,9 @@ fun MovieItem(
     ) {
         AsyncImage(
             model = if (movie.posterPath.isEmpty()) {
-                "https://picsum.photos/133/200"
+                TmdbConfig.PLACEHOLDER_URL
             } else {
-                "${BASE_URL}${movie.posterPath}"
+                "${TmdbConfig.POSTER_GRID}${movie.posterPath}"
             },
             contentDescription = movie.title,
             contentScale = ContentScale.FillHeight,

@@ -1,12 +1,16 @@
 package com.apptolast.familyfilmapp.model.room
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUPS_TABLE_NAME
 import java.util.Date
 
-@Entity(tableName = GROUPS_TABLE_NAME)
+@Entity(
+    tableName = GROUPS_TABLE_NAME,
+    indices = [Index(value = ["ownerId"])],
+)
 data class GroupTable(
     @PrimaryKey(autoGenerate = false)
     val groupId: String,

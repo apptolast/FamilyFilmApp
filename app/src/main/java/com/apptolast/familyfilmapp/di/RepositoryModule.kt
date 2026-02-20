@@ -13,6 +13,7 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasourceImpl
 import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -50,8 +51,11 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideRoomDatasource(groupDao: GroupDao, userDao: UserDao): RoomDatasource =
-        RoomDatasourceImpl(groupDao, userDao)
+    fun provideRoomDatasource(
+        groupDao: GroupDao,
+        userDao: UserDao,
+        groupMovieStatusDao: GroupMovieStatusDao,
+    ): RoomDatasource = RoomDatasourceImpl(groupDao, userDao, groupMovieStatusDao)
 
     @Singleton
     @Provides

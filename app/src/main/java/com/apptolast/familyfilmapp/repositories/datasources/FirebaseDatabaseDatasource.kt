@@ -2,7 +2,9 @@ package com.apptolast.familyfilmapp.repositories.datasources
 
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -289,6 +291,145 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         )
     }
 
+    // /////////////////////////////////////////////////////////////////////////
+    // Movie Statuses (per-group subcollection)
+    // /////////////////////////////////////////////////////////////////////////
+
+    private fun movieStatusesCollection(groupId: String) =
+        groupsCollection.document(groupId).collection("movieStatuses")
+
+    private fun movieStatusDocId(userId: String, movieId: Int) = "${userId}_$movieId"
+
+    override suspend fun setMovieStatus(
+        groupId: String,
+        userId: String,
+        movieId: Int,
+        status: MovieStatus,
+    ) {
+        val docId = movieStatusDocId(userId, movieId)
+        val data = mapOf(
+            "userId" to userId,
+            "movieId" to movieId,
+            "status" to status.name,
+        )
+        movieStatusesCollection(groupId).document(docId).set(data).await()
+        Timber.d("Movie status set: group=$groupId, user=$userId, movie=$movieId, status=$status")
+    }
+
+    override suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int) {
+        val docId = movieStatusDocId(userId, movieId)
+        movieStatusesCollection(groupId).document(docId).delete().await()
+        Timber.d("Movie status removed: group=$groupId, user=$userId, movie=$movieId")
+    }
+
+    override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>> =
+        callbackFlow {
+            val listenerRegistration = movieStatusesCollection(groupId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Timber.e(error, "Error observing movie statuses for group: $groupId")
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        val statuses = snapshot.documents.mapNotNull { document ->
+                            try {
+                                GroupMovieStatus(
+                                    groupId = groupId,
+                                    userId = document.getString("userId") ?: return@mapNotNull null,
+                                    movieId = (document.getLong("movieId") ?: return@mapNotNull null).toInt(),
+                                    status = MovieStatus.valueOf(
+                                        document.getString("status") ?: return@mapNotNull null,
+                                    ),
+                                )
+                            } catch (e: Exception) {
+                                Timber.e(e, "Error parsing movie status document: ${document.id}")
+                                null
+                            }
+                        }
+                        trySend(statuses)
+                    }
+                }
+
+            awaitClose {
+                listenerRegistration.remove()
+            }
+        }
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>) {
+        val userDoc = usersCollection.document(userId).get().await()
+        if (!userDoc.exists()) return
+
+        // Check migration guard
+        val alreadyMigrated = userDoc.getBoolean("movieStatusMigrated") ?: false
+        if (alreadyMigrated) {
+            Timber.d("Movie status migration already completed for user: $userId")
+            return
+        }
+
+        // Extract statusMovies from raw document data
+        val statusMoviesRaw = userDoc.get("statusMovies") as? Map<String, String> ?: emptyMap()
+        if (statusMoviesRaw.isEmpty()) {
+            // No movies to migrate, mark as migrated
+            usersCollection.document(userId)
+                .update("movieStatusMigrated", true)
+                .await()
+            Timber.d("No movie statuses to migrate for user: $userId")
+            return
+        }
+
+        if (groups.isEmpty()) {
+            // No groups to assign movies to, mark as migrated
+            usersCollection.document(userId)
+                .update("movieStatusMigrated", true)
+                .await()
+            Timber.d("No groups for user, skipping migration: $userId")
+            return
+        }
+
+        Timber.d("Migrating ${statusMoviesRaw.size} movie statuses to ${groups.size} groups for user: $userId")
+
+        // Build all write operations: movieId × status × groupId
+        data class MigrationEntry(val groupId: String, val movieId: String, val status: String)
+        val entries = mutableListOf<MigrationEntry>()
+        for ((movieId, status) in statusMoviesRaw) {
+            for (group in groups) {
+                entries.add(MigrationEntry(group.id, movieId, status))
+            }
+        }
+
+        // Firestore batches limited to 500 ops. Use 450-op chunks to leave room for guard update
+        val chunks = entries.chunked(450)
+        for ((index, chunk) in chunks.withIndex()) {
+            val batch = database.batch()
+
+            for (entry in chunk) {
+                val docId = movieStatusDocId(userId, entry.movieId.toIntOrNull() ?: continue)
+                val docRef = movieStatusesCollection(entry.groupId).document(docId)
+                batch.set(
+                    docRef,
+                    mapOf(
+                        "userId" to userId,
+                        "movieId" to (entry.movieId.toIntOrNull() ?: continue),
+                        "status" to entry.status,
+                    ),
+                )
+            }
+
+            // On the last chunk, set the migration guard
+            if (index == chunks.lastIndex) {
+                batch.update(usersCollection.document(userId), "movieStatusMigrated", true)
+            }
+
+            batch.commit().await()
+            Timber.d("Migration batch ${index + 1}/${chunks.size} committed")
+        }
+
+        Timber.d("Movie status migration completed for user: $userId")
+    }
+
     companion object {
         const val DB_ROOT_COLLECTION = "FFA"
     }
@@ -316,4 +457,12 @@ interface FirebaseDatabaseDatasource {
     fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
     fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
     fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit)
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Movie Statuses (per-group)
+    // /////////////////////////////////////////////////////////////////////////
+    suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MovieStatus)
+    suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int)
+    fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>>
+    suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>)
 }

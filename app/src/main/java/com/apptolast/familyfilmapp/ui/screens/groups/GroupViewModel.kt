@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -332,15 +334,19 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             if (user.id == group.ownerId) 0 else 1
         }
 
-        // Load movies to watch
-        val toWatchMovieIds = sortedMembers
-            .flatMap { user ->
-                user.statusMovies
-                    .filterValues { it == MovieStatus.ToWatch }
-                    .keys
-            }
+        // Load per-group movie statuses
+        val groupStatuses: List<GroupMovieStatus> = try {
+            repository.getMovieStatusesByGroup(groupId).first()
+        } catch (e: Exception) {
+            Timber.e(e, "Error loading movie statuses for group")
+            emptyList()
+        }
+
+        // Movies to watch (any member marked as ToWatch in this group)
+        val toWatchMovieIds = groupStatuses
+            .filter { it.status == MovieStatus.ToWatch }
+            .map { it.movieId }
             .distinct()
-            .mapNotNull { it.toIntOrNull() }
 
         val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
             repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
@@ -351,15 +357,11 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             emptyList()
         }
 
-        // Load watched movies
-        val watchedMovieIds = sortedMembers
-            .flatMap { user ->
-                user.statusMovies
-                    .filterValues { it == MovieStatus.Watched }
-                    .keys
-            }
+        // Watched movies (any member marked as Watched in this group)
+        val watchedMovieIds = groupStatuses
+            .filter { it.status == MovieStatus.Watched }
+            .map { it.movieId }
             .distinct()
-            .mapNotNull { it.toIntOrNull() }
 
         val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
             repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->

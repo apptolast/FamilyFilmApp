@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import com.apptolast.familyfilmapp.MainDispatcherRule
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
@@ -63,6 +64,7 @@ class GroupViewModelTest {
         every { repository.getSyncState() } returns syncStateFlow
         coEvery { repository.getUsersByIds(listOf(testUserId)) } returns Result.success(listOf(testUser))
         coEvery { repository.getMoviesByIds(any()) } returns Result.success(emptyList())
+        every { repository.getMovieStatusesByGroup(any()) } returns flowOf(emptyList())
     }
 
     private fun createViewModel(): GroupViewModel {
@@ -440,13 +442,12 @@ class GroupViewModelTest {
 
     @Test
     fun `loadGroupData should compute recommended movie from toWatch list`() = runTest {
-        val userWithMovies = testUser.copy(
-            statusMovies = mapOf(
-                "100" to MovieStatus.ToWatch,
-                "200" to MovieStatus.ToWatch,
-            ),
+        // Set up per-group movie statuses
+        val groupStatuses = listOf(
+            GroupMovieStatus(groupId = "group-1", userId = testUserId, movieId = 100, status = MovieStatus.ToWatch),
+            GroupMovieStatus(groupId = "group-1", userId = testUserId, movieId = 200, status = MovieStatus.ToWatch),
         )
-        coEvery { repository.getUsersByIds(listOf(testUserId)) } returns Result.success(listOf(userWithMovies))
+        every { repository.getMovieStatusesByGroup("group-1") } returns flowOf(groupStatuses)
 
         val movie1 = Movie().copy(id = 100, title = "Low Rated", voteAverage = 5.0f)
         val movie2 = Movie().copy(id = 200, title = "High Rated", voteAverage = 9.0f)

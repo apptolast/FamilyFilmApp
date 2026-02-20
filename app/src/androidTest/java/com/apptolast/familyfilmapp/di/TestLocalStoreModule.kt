@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import dagger.Module
 import dagger.Provides
@@ -26,4 +27,8 @@ class TestLocalStoreModule {
 
     @Provides
     fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
+
+    @Provides
+    fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao =
+        appDatabase.groupMovieStatusDao()
 }

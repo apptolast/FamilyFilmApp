@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -53,7 +51,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_GROUP_CARD
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
     userOwner: User,
@@ -161,8 +159,10 @@ fun GroupCard(
             }
 
             // Lista de usuarios con mejor espaciado
-            FlowColumn(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
             ) {
                 groupUsers.forEach { user ->
                     // CRITICAL: Use key(user.id) to ensure stable state per user

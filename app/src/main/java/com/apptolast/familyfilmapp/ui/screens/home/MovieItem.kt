@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -46,7 +47,8 @@ fun MovieItem(
                 "${TmdbConfig.POSTER_GRID}${movie.posterPath}"
             },
             contentDescription = movie.title,
-            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
         )
         AnimatedVisibility(status != null) {
             Icon(

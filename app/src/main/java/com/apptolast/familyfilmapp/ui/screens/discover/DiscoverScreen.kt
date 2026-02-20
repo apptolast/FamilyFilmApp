@@ -29,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -134,7 +135,7 @@ fun DiscoverScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .horizontalScroll(rememberScrollState()),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
                                 ) {
                                     uiState.groups.forEach { group ->
                                         FilterChip(
@@ -148,13 +149,15 @@ fun DiscoverScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
-                            // Swipeable Movie Card
-                            SwipeableMovieCard(
-                                movie = movie,
-                                onSwipeLeft = viewModel::markAsWatched,
-                                onSwipeRight = viewModel::markAsWantToWatch,
-                                modifier = Modifier.weight(1f),
-                            )
+                            // Swipeable Movie Card — key resets card state on movie change
+                            key(movie.id) {
+                                SwipeableMovieCard(
+                                    movie = movie,
+                                    onSwipeLeft = viewModel::markAsWatched,
+                                    onSwipeRight = viewModel::markAsWantToWatch,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(24.dp))
 

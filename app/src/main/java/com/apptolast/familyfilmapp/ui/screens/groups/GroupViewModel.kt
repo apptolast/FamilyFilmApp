@@ -108,8 +108,10 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val groupToSelect = when {
             // If no selection yet, select first
             currentSelectedId == null -> groups.first()
+
             // If current selection still exists, keep it
             groups.any { it.id == currentSelectedId } -> groups.first { it.id == currentSelectedId }
+
             // If current selection was deleted, select first
             else -> groups.first()
         }

@@ -116,7 +116,11 @@ fun MovieDetailScreen(
             ) {
                 CustomStatusButton(
                     text = stringResource(R.string.discover_want_to_watch),
-                    icon = if (state.isToWatch) Icons.Default.PlaylistAddCheckCircle else Icons.Default.PlaylistAddCircle,
+                    icon = if (state.isToWatch) {
+                        Icons.Default.PlaylistAddCheckCircle
+                    } else {
+                        Icons.Default.PlaylistAddCircle
+                    },
                     isSelected = state.isToWatch,
                     modifier = Modifier
                         .weight(1f)

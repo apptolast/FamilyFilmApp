@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -72,6 +74,7 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
@@ -87,8 +90,11 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
+    val usernameValue by viewModel.username.collectAsStateWithLifecycle()
+    val usernameValidationState by viewModel.usernameValidationState.collectAsStateWithLifecycle()
     val isEmailSent by viewModel.isEmailSent.collectAsStateWithLifecycle()
     val recoverPassState by viewModel.recoverPassState.collectAsStateWithLifecycle()
+    val shouldPromptForUsername by viewModel.shouldPromptForUsername.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
     var showLoginInterface by remember { mutableStateOf(false) }
@@ -98,23 +104,41 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             showLoginInterface = showLoginInterface,
             email = email,
             password = password,
+            username = usernameValue,
+            usernameValidationState = usernameValidationState,
             isEmailSent = isEmailSent,
             screenState = screenState,
             recoverPassState = recoverPassState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            onClick = { email, pass ->
+            onClick = { emailVal, passVal, usernameVal ->
                 when (screenState) {
-                    is LoginRegisterState.Login -> viewModel.login(email, pass)
-                    is LoginRegisterState.Register -> viewModel.registerAndSendEmail(email, pass)
+                    is LoginRegisterState.Login -> viewModel.login(emailVal, passVal)
+
+                    is LoginRegisterState.Register -> viewModel.registerAndSendEmail(
+                        emailVal,
+                        passVal,
+                        usernameVal,
+                    )
                 }
             },
+            onUsernameChange = viewModel::onUsernameChange,
             onClickGoogleButton = { viewModel.googleSignIn(context) },
             onClickScreenState = viewModel::changeScreenState,
             onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             onRecoverPassword = viewModel::recoverPassword,
         )
+
+        // Username setup dialog for new Google users
+        if (shouldPromptForUsername) {
+            com.apptolast.familyfilmapp.ui.screens.login.components.UsernameSetupDialog(
+                usernameValidationState = usernameValidationState,
+                onUsernameChange = viewModel::onUsernameChange,
+                onConfirm = viewModel::saveUsernameForNewUser,
+                onSkip = viewModel::skipUsernameSetup,
+            )
+        }
 
         when (authState) {
             is AuthState.Authenticated -> {
@@ -162,11 +186,14 @@ fun MovieAppLoginContent(
     showLoginInterface: Boolean,
     email: String,
     password: String,
+    username: String,
+    usernameValidationState: UsernameValidationState,
     isEmailSent: Boolean,
     screenState: LoginRegisterState,
     recoverPassState: RecoverPassState,
     modifier: Modifier = Modifier,
-    onClick: (String, String) -> Unit = { _, _ -> },
+    onClick: (String, String, String) -> Unit = { _, _, _ -> },
+    onUsernameChange: (String) -> Unit = {},
     onClickGoogleButton: () -> Unit = {},
     onClickScreenState: () -> Unit = {},
     onRecoveryPassUpdate: (RecoverPassState) -> Unit = {},
@@ -174,6 +201,7 @@ fun MovieAppLoginContent(
 ) {
     var email by rememberSaveable(key = email) { mutableStateOf(email) }
     var password by rememberSaveable(key = password) { mutableStateOf(password) }
+    var localUsername by rememberSaveable(key = username) { mutableStateOf(username) }
     var passwordVisible by remember { mutableStateOf(false) }
 
     // Image List of drawable images
@@ -306,11 +334,81 @@ fun MovieAppLoginContent(
                     ),
                 )
 
+                // Username field - only visible in Register mode
+                AnimatedVisibility(visible = screenState is LoginRegisterState.Register) {
+                    Column {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TextField(
+                            value = localUsername,
+                            onValueChange = {
+                                localUsername = it.trim()
+                                onUsernameChange(it.trim())
+                            },
+                            label = { Text(text = stringResource(R.string.username_label)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            isError = usernameValidationState is UsernameValidationState.Taken ||
+                                usernameValidationState is UsernameValidationState.Invalid,
+                            trailingIcon = {
+                                when (usernameValidationState) {
+                                    is UsernameValidationState.Checking ->
+                                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+
+                                    is UsernameValidationState.Available ->
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = stringResource(R.string.username_available),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+
+                                    is UsernameValidationState.Taken ->
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.username_taken),
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+
+                                    else -> {}
+                                }
+                            },
+                            supportingText = {
+                                when (usernameValidationState) {
+                                    is UsernameValidationState.Taken ->
+                                        Text(
+                                            text = stringResource(R.string.username_taken),
+                                            color = MaterialTheme.colorScheme.error,
+                                        )
+
+                                    is UsernameValidationState.Invalid ->
+                                        Text(
+                                            text = (usernameValidationState as UsernameValidationState.Invalid).reason,
+                                            color = MaterialTheme.colorScheme.error,
+                                        )
+
+                                    is UsernameValidationState.Available ->
+                                        Text(
+                                            text = stringResource(R.string.username_available),
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+
+                                    else -> {}
+                                }
+                            },
+                            shape = MaterialTheme.shapes.small.copy(
+                                bottomStart = CornerSize(0.dp),
+                                bottomEnd = CornerSize(0.dp),
+                            ),
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Login Button
+                // Login/Register Button
                 Button(
-                    onClick = { onClick(email, password) },
+                    onClick = { onClick(email, password, localUsername) },
+                    enabled = screenState is LoginRegisterState.Login ||
+                        usernameValidationState is UsernameValidationState.Available,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -439,6 +537,8 @@ private fun LoginScreenPreview() {
             showLoginInterface = true,
             email = "email@something.com",
             password = "123456",
+            username = "",
+            usernameValidationState = UsernameValidationState.Idle,
             isEmailSent = true,
             screenState = LoginRegisterState.Login(),
             recoverPassState = RecoverPassState(),

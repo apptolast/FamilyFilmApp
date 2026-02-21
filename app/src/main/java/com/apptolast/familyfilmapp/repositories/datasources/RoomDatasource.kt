@@ -31,6 +31,7 @@ class RoomDatasourceImpl @Inject constructor(
     override fun getAllUsers(): Flow<List<UserTable>> = userDao.getUsers()
     override fun getUser(id: String): Flow<UserTable?> = userDao.getUser(id)
     override fun getUserByEmail(email: String): Flow<UserTable?> = userDao.getUserByEmail(email)
+    override suspend fun getUserByUsername(username: String): UserTable? = userDao.getUserByUsername(username)
     override suspend fun getUsersByIds(userIds: List<String>): List<UserTable> = userDao.getUsersByIds(userIds)
     override suspend fun insertUser(user: UserTable) = userDao.insert(user)
     override suspend fun deleteUser(user: UserTable) = userDao.delete(user)
@@ -39,8 +40,7 @@ class RoomDatasourceImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Movie Statuses (per-group)
     // /////////////////////////////////////////////////////////////////////////
-    override suspend fun insertMovieStatus(entry: GroupMovieStatusTable) =
-        groupMovieStatusDao.insert(entry)
+    override suspend fun insertMovieStatus(entry: GroupMovieStatusTable) = groupMovieStatusDao.insert(entry)
 
     override suspend fun insertAllMovieStatuses(entries: List<GroupMovieStatusTable>) =
         groupMovieStatusDao.insertAll(entries)
@@ -51,10 +51,8 @@ class RoomDatasourceImpl @Inject constructor(
     override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatusTable>> =
         groupMovieStatusDao.getStatusesByGroup(groupId)
 
-    override fun getMovieStatusesByGroupAndUser(
-        groupId: String,
-        userId: String,
-    ): Flow<List<GroupMovieStatusTable>> = groupMovieStatusDao.getStatusesByGroupAndUser(groupId, userId)
+    override fun getMovieStatusesByGroupAndUser(groupId: String, userId: String): Flow<List<GroupMovieStatusTable>> =
+        groupMovieStatusDao.getStatusesByGroupAndUser(groupId, userId)
 
     override fun getMovieStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>> =
         groupMovieStatusDao.getStatusesByUser(userId)
@@ -62,8 +60,7 @@ class RoomDatasourceImpl @Inject constructor(
     override suspend fun getAllMovieIdsForUser(userId: String): List<Int> =
         groupMovieStatusDao.getAllMovieIdsForUser(userId)
 
-    override suspend fun deleteMovieStatusesByGroup(groupId: String) =
-        groupMovieStatusDao.deleteByGroup(groupId)
+    override suspend fun deleteMovieStatusesByGroup(groupId: String) = groupMovieStatusDao.deleteByGroup(groupId)
 
     override suspend fun deleteAllMovieStatuses() = groupMovieStatusDao.deleteAll()
 
@@ -131,6 +128,11 @@ interface RoomDatasource {
      * Retrieve an user from the given data source that matches with the [id].
      */
     fun getUserByEmail(email: String): Flow<UserTable?>
+
+    /**
+     * Retrieve a user by their username.
+     */
+    suspend fun getUserByUsername(username: String): UserTable?
 
     /**
      * Retrieve multiple users by their IDs (batch query)

@@ -109,4 +109,22 @@
     <string name="sync_state_error">Sync error</string>
     <string name="sync_state_offline">Offline mode</string>
 
+    <!-- USERNAME -->
+    <string name="username_label">Choose a username</string>
+    <string name="username_available">Available!</string>
+    <string name="username_taken">Username already taken</string>
+    <string name="username_checking">Checking…</string>
+    <string name="username_invalid_format">Letters, numbers, and underscores only</string>
+    <string name="username_too_short">Username must be at least 3 characters</string>
+    <string name="username_too_long">Username cannot exceed 20 characters</string>
+    <string name="username_must_start_with_letter">Username must start with a letter</string>
+    <string name="profile_section_username">Username</string>
+    <string name="profile_set_username">Set a username</string>
+    <string name="profile_edit_username">Edit username</string>
+    <string name="username_prompt_title">Choose your username</string>
+    <string name="username_prompt_description">Your username is how others in groups will see you.</string>
+    <string name="username_prompt_skip">Skip for now</string>
+    <string name="username_save">Save</string>
+    <string name="username_cancel">Cancel</string>
+
 </resources>

@@ -34,6 +34,9 @@ interface UserDao {
     @Update
     suspend fun update(user: UserTable)
 
+    @Query("SELECT * from $USERS_TABLE_NAME WHERE username = :username LIMIT 1")
+    suspend fun getUserByUsername(username: String): UserTable?
+
     @Query("DELETE FROM $USERS_TABLE_NAME")
     suspend fun deleteAll()
 }

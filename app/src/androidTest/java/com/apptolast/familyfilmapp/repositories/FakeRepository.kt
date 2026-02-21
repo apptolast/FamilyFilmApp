@@ -32,19 +32,15 @@ class FakeRepository : Repository {
         ),
     )
 
-    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> =
-        Result.success(emptyList())
+    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> = Result.success(emptyList())
 
-    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> =
-        Result.success(emptyList())
+    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> = Result.success(emptyList())
 
-    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> =
-        Result.success(emptyList())
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = Result.success(emptyList())
 
     override fun getMyGroups(userId: String): Flow<List<Group>> = flowOf(emptyList())
 
-    override suspend fun createGroup(groupName: String, userId: String): Result<Group> =
-        Result.success(Group())
+    override suspend fun createGroup(groupName: String, userId: String): Result<Group> = Result.success(Group())
 
     override suspend fun updateGroup(group: Group): Result<Unit> = Result.success(Unit)
 
@@ -72,8 +68,11 @@ class FakeRepository : Repository {
 
     override suspend fun checkIfUserExists(userId: String): Boolean = true
 
-    override suspend fun getUsersByIds(userIds: List<String>): Result<List<User>> =
-        Result.success(emptyList())
+    override suspend fun getUsersByIds(userIds: List<String>): Result<List<User>> = Result.success(emptyList())
+
+    override suspend fun isUsernameAvailable(username: String): Boolean = true
+
+    override suspend fun updateUsername(user: User, newUsername: String): Result<Unit> = Result.success(Unit)
 
     override suspend fun updateMovieStatus(
         groupIds: List<String>,
@@ -82,14 +81,10 @@ class FakeRepository : Repository {
         status: MovieStatus,
     ): Result<Unit> = Result.success(Unit)
 
-    override suspend fun removeMovieStatus(
-        groupIds: List<String>,
-        userId: String,
-        movieId: Int,
-    ): Result<Unit> = Result.success(Unit)
+    override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
+        Result.success(Unit)
 
-    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> =
-        flowOf(emptyList())
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> = flowOf(emptyList())
 
     override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> = emptyList()
 

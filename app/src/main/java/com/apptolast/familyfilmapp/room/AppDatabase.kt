@@ -26,7 +26,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         GroupTable::class,
         GroupMovieStatusTable::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(
@@ -113,6 +113,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE $USERS_TABLE_NAME ADD COLUMN username TEXT NOT NULL DEFAULT ''",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_username ON $USERS_TABLE_NAME (username)",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -123,7 +134,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, APP_DATABASE_NAME)
-                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                 .fallbackToDestructiveMigration()
                 .build()
     }

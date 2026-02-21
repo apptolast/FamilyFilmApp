@@ -22,16 +22,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,8 +62,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_DELETE_ACCOUNT
@@ -71,12 +79,15 @@ import com.google.firebase.auth.GoogleAuthProvider
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     onClickNav: (String) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val provider by viewModel.provider.collectAsStateWithLifecycle()
+    val usernameValidationState by profileViewModel.usernameValidationState.collectAsStateWithLifecycle()
+    val isSaving by profileViewModel.isSaving.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -95,9 +106,16 @@ fun ProfileScreen(
                         .consumeWindowInsets(paddingValues)
                         .fillMaxSize(),
                 ) {
+                    val user = (authState as AuthState.Authenticated).user
                     ProfileContent(
-                        email = (authState as AuthState.Authenticated).user.email,
-                        photoUrl = (authState as AuthState.Authenticated).user.photoUrl,
+                        user = user,
+                        usernameValidationState = usernameValidationState,
+                        isSaving = isSaving,
+                        onUsernameChange = profileViewModel::onUsernameChange,
+                        onSaveUsername = { newUsername ->
+                            profileViewModel.saveUsername(user, newUsername)
+                        },
+                        onCancelEditUsername = profileViewModel::resetValidationState,
                         onClickLogOut = { viewModel.logOut() },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
@@ -144,12 +162,19 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileContent(
-    email: String,
+    user: User,
+    usernameValidationState: UsernameValidationState,
+    isSaving: Boolean,
     modifier: Modifier = Modifier,
-    photoUrl: String = "",
+    onUsernameChange: (String) -> Unit = {},
+    onSaveUsername: (String) -> Unit = {},
+    onCancelEditUsername: () -> Unit = {},
     onClickLogOut: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
+    var isEditingUsername by rememberSaveable { mutableStateOf(false) }
+    var usernameEditValue by rememberSaveable { mutableStateOf(user.username.orEmpty()) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -166,9 +191,9 @@ fun ProfileContent(
                 .testTag(TT_PROFILE_AVATAR),
             contentAlignment = Alignment.Center,
         ) {
-            if (photoUrl.isNotBlank()) {
+            if (user.photoUrl.isNotBlank()) {
                 AsyncImage(
-                    model = photoUrl,
+                    model = user.photoUrl,
                     contentDescription = stringResource(R.string.profile_image_description),
                     placeholder = painterResource(id = R.drawable.profile_avatar),
                     error = painterResource(id = R.drawable.profile_avatar),
@@ -189,11 +214,121 @@ fun ProfileContent(
         // User Info
         Text(
             style = MaterialTheme.typography.titleMedium,
-            text = email,
+            text = user.email,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.testTag(TT_PROFILE_EMAIL),
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Username Section
+        ProfileSection(title = stringResource(R.string.profile_section_username)) {
+            if (isEditingUsername) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    OutlinedTextField(
+                        value = usernameEditValue,
+                        onValueChange = {
+                            usernameEditValue = it.trim()
+                            onUsernameChange(it.trim())
+                        },
+                        label = { Text(text = stringResource(R.string.username_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = usernameValidationState is UsernameValidationState.Taken ||
+                            usernameValidationState is UsernameValidationState.Invalid,
+                        trailingIcon = {
+                            when (usernameValidationState) {
+                                is UsernameValidationState.Checking ->
+                                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
+
+                                is UsernameValidationState.Available ->
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = stringResource(R.string.username_available),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+
+                                is UsernameValidationState.Taken ->
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.username_taken),
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
+
+                                else -> {}
+                            }
+                        },
+                        supportingText = {
+                            when (usernameValidationState) {
+                                is UsernameValidationState.Taken ->
+                                    Text(
+                                        text = stringResource(R.string.username_taken),
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+
+                                is UsernameValidationState.Invalid ->
+                                    Text(
+                                        text = usernameValidationState.reason,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+
+                                is UsernameValidationState.Available ->
+                                    Text(
+                                        text = stringResource(R.string.username_available),
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+
+                                else -> {}
+                            }
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(onClick = {
+                            isEditingUsername = false
+                            usernameEditValue = user.username.orEmpty()
+                            onCancelEditUsername()
+                        }) {
+                            Text(text = stringResource(R.string.username_cancel))
+                        }
+                        Button(
+                            onClick = {
+                                onSaveUsername(usernameEditValue)
+                                isEditingUsername = false
+                            },
+                            enabled = usernameValidationState is UsernameValidationState.Available &&
+                                !isSaving,
+                        ) {
+                            if (isSaving) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                            } else {
+                                Text(text = stringResource(R.string.username_save))
+                            }
+                        }
+                    }
+                }
+            } else {
+                ProfileItem(
+                    title = user.username?.let { "@$it" }
+                        ?: stringResource(R.string.profile_set_username),
+                    onClick = {
+                        isEditingUsername = true
+                        usernameEditValue = user.username.orEmpty()
+                    },
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.profile_edit_username),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -291,7 +426,15 @@ fun ProfileItem(
 private fun ProfileScreenPreview() {
     FamilyFilmAppTheme {
         ProfileContent(
-            email = "sophia.clark@gmail.com",
+            user = User(
+                id = "1",
+                email = "sophia.clark@gmail.com",
+                language = "en",
+                photoUrl = "",
+                username = "sophia_clark",
+            ),
+            usernameValidationState = UsernameValidationState.Idle,
+            isSaving = false,
         )
     }
 }

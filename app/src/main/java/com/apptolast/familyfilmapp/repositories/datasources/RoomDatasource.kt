@@ -1,14 +1,19 @@
 package com.apptolast.familyfilmapp.repositories.datasources
 
+import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, private val userDao: UserDao) :
-    RoomDatasource {
+class RoomDatasourceImpl @Inject constructor(
+    private val groupDao: GroupDao,
+    private val userDao: UserDao,
+    private val groupMovieStatusDao: GroupMovieStatusDao,
+) : RoomDatasource {
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
@@ -26,10 +31,44 @@ class RoomDatasourceImpl @Inject constructor(private val groupDao: GroupDao, pri
     override fun getAllUsers(): Flow<List<UserTable>> = userDao.getUsers()
     override fun getUser(id: String): Flow<UserTable?> = userDao.getUser(id)
     override fun getUserByEmail(email: String): Flow<UserTable?> = userDao.getUserByEmail(email)
+    override suspend fun getUserByUsername(username: String): UserTable? = userDao.getUserByUsername(username)
     override suspend fun getUsersByIds(userIds: List<String>): List<UserTable> = userDao.getUsersByIds(userIds)
     override suspend fun insertUser(user: UserTable) = userDao.insert(user)
     override suspend fun deleteUser(user: UserTable) = userDao.delete(user)
     override suspend fun updateUser(user: UserTable) = userDao.update(user)
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Movie Statuses (per-group)
+    // /////////////////////////////////////////////////////////////////////////
+    override suspend fun insertMovieStatus(entry: GroupMovieStatusTable) = groupMovieStatusDao.insert(entry)
+
+    override suspend fun insertAllMovieStatuses(entries: List<GroupMovieStatusTable>) =
+        groupMovieStatusDao.insertAll(entries)
+
+    override suspend fun deleteMovieStatus(groupId: String, userId: String, movieId: Int) =
+        groupMovieStatusDao.delete(groupId, userId, movieId)
+
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatusTable>> =
+        groupMovieStatusDao.getStatusesByGroup(groupId)
+
+    override fun getMovieStatusesByGroupAndUser(groupId: String, userId: String): Flow<List<GroupMovieStatusTable>> =
+        groupMovieStatusDao.getStatusesByGroupAndUser(groupId, userId)
+
+    override fun getMovieStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>> =
+        groupMovieStatusDao.getStatusesByUser(userId)
+
+    override suspend fun getAllMovieIdsForUser(userId: String): List<Int> =
+        groupMovieStatusDao.getAllMovieIdsForUser(userId)
+
+    override suspend fun deleteMovieStatusesByGroup(groupId: String) = groupMovieStatusDao.deleteByGroup(groupId)
+
+    override suspend fun deleteAllMovieStatuses() = groupMovieStatusDao.deleteAll()
+
+    override suspend fun clearAllData() {
+        groupMovieStatusDao.deleteAll()
+        groupDao.deleteAll()
+        userDao.deleteAll()
+    }
 
     companion object {
         const val MINIMUM_UPDATE_TIME = 1 * 60 * 60 * 1000 // 1 hour
@@ -91,6 +130,11 @@ interface RoomDatasource {
     fun getUserByEmail(email: String): Flow<UserTable?>
 
     /**
+     * Retrieve a user by their username.
+     */
+    suspend fun getUserByUsername(username: String): UserTable?
+
+    /**
      * Retrieve multiple users by their IDs (batch query)
      */
     suspend fun getUsersByIds(userIds: List<String>): List<UserTable>
@@ -109,4 +153,23 @@ interface RoomDatasource {
      * Update user in the data source
      */
     suspend fun updateUser(user: UserTable)
+
+    /**
+     * Clear all data from Room (groups and users).
+     * Should be called on logout to prevent data leaking between sessions.
+     */
+    suspend fun clearAllData()
+
+    // /////////////////////////////////////////////////////////////////////////
+    // Movie Statuses (per-group)
+    // /////////////////////////////////////////////////////////////////////////
+    suspend fun insertMovieStatus(entry: GroupMovieStatusTable)
+    suspend fun insertAllMovieStatuses(entries: List<GroupMovieStatusTable>)
+    suspend fun deleteMovieStatus(groupId: String, userId: String, movieId: Int)
+    fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatusTable>>
+    fun getMovieStatusesByGroupAndUser(groupId: String, userId: String): Flow<List<GroupMovieStatusTable>>
+    fun getMovieStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>>
+    suspend fun getAllMovieIdsForUser(userId: String): List<Int>
+    suspend fun deleteMovieStatusesByGroup(groupId: String)
+    suspend fun deleteAllMovieStatuses()
 }

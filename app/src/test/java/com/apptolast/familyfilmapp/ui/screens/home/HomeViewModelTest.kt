@@ -73,7 +73,7 @@ class HomeViewModelTest {
             val actualMovieName = "Matrix"
             val expectedMovies = listOf(Movie().copy(title = actualMovieName))
 
-            coEvery { repository.searchTmdbMovieByName(actualMovieName) } returns expectedMovies
+            coEvery { repository.searchTmdbMovieByName(actualMovieName) } returns Result.success(expectedMovies)
 
             viewModel.searchMovieByName(actualMovieName)
 

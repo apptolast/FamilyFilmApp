@@ -1,8 +1,8 @@
 package com.apptolast.familyfilmapp.ui.screens.groups.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,9 +17,8 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun HorizontalScrollableMovies(movies: List<Movie>, onMovieClick: (Movie) -> Unit = {}) {
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(movies) { movie ->

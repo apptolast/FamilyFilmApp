@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -22,9 +23,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-
-const val BASE_URL = "https://image.tmdb.org/t/p/original/"
 
 @Composable
 fun MovieItem(
@@ -42,12 +42,13 @@ fun MovieItem(
     ) {
         AsyncImage(
             model = if (movie.posterPath.isEmpty()) {
-                "https://picsum.photos/133/200"
+                TmdbConfig.PLACEHOLDER_URL
             } else {
-                "${BASE_URL}${movie.posterPath}"
+                "${TmdbConfig.POSTER_GRID}${movie.posterPath}"
             },
             contentDescription = movie.title,
-            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
         )
         AnimatedVisibility(status != null) {
             Icon(
@@ -58,7 +59,7 @@ fun MovieItem(
                 },
                 contentDescription = Icons.Default.Favorite.toString(),
                 modifier = Modifier
-                    .padding(7.dp)
+                    .padding(8.dp)
                     .align(Alignment.TopStart),
             )
         }

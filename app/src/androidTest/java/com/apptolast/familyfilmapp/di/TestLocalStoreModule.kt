@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import dagger.Module
 import dagger.Provides
@@ -16,15 +17,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class TestLocalStoreModule {
 
-//    @Provides
-//    @Singleton
-//    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-//        context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
-//
-//    @Provides
-//    @Singleton
-//    fun provideSharedPreferencesManager(prefs: SharedPreferences) = SharedPreferenceManager(prefs)
-
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
@@ -35,4 +27,7 @@ class TestLocalStoreModule {
 
     @Provides
     fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
+
+    @Provides
+    fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao = appDatabase.groupMovieStatusDao()
 }

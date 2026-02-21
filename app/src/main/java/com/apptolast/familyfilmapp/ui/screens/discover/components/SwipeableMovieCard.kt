@@ -38,12 +38,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -103,12 +106,10 @@ fun SwipeableMovieCard(
                                     offsetX = value
                                 }
 
-                                // Trigger callback
+                                // Trigger callback — don't reset position here.
+                                // The caller should use key(movie.id) so the card
+                                // is recreated with fresh state when the movie changes.
                                 if (offsetX > 0) onSwipeRight() else onSwipeLeft()
-
-                                // Reset position
-                                offsetX = 0f
-                                offsetY = 0f
                             } else {
                                 // Snap back to center
                                 val animatableX = Animatable(offsetX)
@@ -142,14 +143,16 @@ fun SwipeableMovieCard(
     ) {
         // Movie Card
         Card(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(TT_DISCOVER_MOVIE_CARD),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Poster Image
                 AsyncImage(
-                    model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                    model = "${TmdbConfig.POSTER_DETAIL}${movie.posterPath}",
                     contentDescription = movie.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
@@ -165,7 +168,7 @@ fun SwipeableMovieCard(
                             androidx.compose.ui.graphics.Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
                                 ),
                             ),
                         ),
@@ -216,7 +219,7 @@ fun SwipeableMovieCard(
                             .align(Alignment.CenterEnd)
                             .padding(32.dp)
                             .alpha(leftIndicatorAlpha)
-                            .size(40.dp)
+                            .size(48.dp)
                             .background(
                                 color = Color.White.copy(alpha = 0.85f),
                                 shape = androidx.compose.foundation.shape.CircleShape,
@@ -227,7 +230,7 @@ fun SwipeableMovieCard(
                             imageVector = Icons.Default.Visibility,
                             contentDescription = "Watched",
                             tint = Color.Black,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 }
@@ -239,7 +242,7 @@ fun SwipeableMovieCard(
                             .align(Alignment.CenterStart)
                             .padding(32.dp)
                             .alpha(rightIndicatorAlpha)
-                            .size(40.dp)
+                            .size(48.dp)
                             .background(
                                 color = Color.White.copy(alpha = 0.85f),
                                 shape = androidx.compose.foundation.shape.CircleShape,
@@ -250,7 +253,7 @@ fun SwipeableMovieCard(
                             imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                             contentDescription = "Want to Watch",
                             tint = Color.Black,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 }

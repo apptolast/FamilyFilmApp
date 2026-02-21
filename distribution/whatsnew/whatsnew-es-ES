@@ -1,3 +1,3 @@
-- CORREGIDO: Los botones de estado de películas (Por Ver/Vista) ahora se actualizan instantáneamente al hacer clic.
-- CORREGIDO: Las películas marcadas en la pantalla de detalles ahora aparecen correctamente en las listas de grupos.
-- MEJORADO: La sincronización en tiempo real asegura que todos los miembros del grupo vean las actualizaciones inmediatamente.
+- NUEVO: ¡Elige un nombre de usuario! Tu nombre aparecerá en los grupos en lugar de tu email.
+- NUEVO: Añade miembros a tus grupos por nombre de usuario o email.
+- CORREGIDO: Mejoras de estabilidad y corrección de errores para una experiencia más fluida.

@@ -5,12 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.converters.DateConverter
-import com.apptolast.familyfilmapp.room.converters.MapStatusConverter
+import com.apptolast.familyfilmapp.room.converters.MovieStatusConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
+import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 
 /**
@@ -20,27 +24,125 @@ import com.apptolast.familyfilmapp.room.user.UserDao
     entities = [
         UserTable::class,
         GroupTable::class,
+        GroupMovieStatusTable::class,
     ],
-    version = 2,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(
     value = [
         StringListConverter::class,
         DateConverter::class,
-        MapStatusConverter::class,
+        MovieStatusConverter::class,
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun groupDao(): GroupDao
+    abstract fun groupMovieStatusDao(): GroupMovieStatusDao
 
     companion object {
 
         private const val APP_DATABASE_NAME = "ffa_database"
+
         const val USERS_TABLE_NAME = "users_table"
         const val GROUPS_TABLE_NAME = "groups_table"
+        const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
+
+        // v1 and v2 have identical schemas (same identityHash) — no-op migration
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // No schema changes between v1 and v2
+            }
+        }
+
+        // v2 → v3: Add indexes on users_table and groups_table
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_email ON $USERS_TABLE_NAME (email)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_groups_table_ownerId ON $GROUPS_TABLE_NAME (ownerId)",
+                )
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE $USERS_TABLE_NAME ADD COLUMN photoUrl TEXT NOT NULL DEFAULT ''",
+                )
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS $GROUP_MOVIE_STATUS_TABLE_NAME (
+                        groupId TEXT NOT NULL,
+                        userId TEXT NOT NULL,
+                        movieId INTEGER NOT NULL,
+                        status TEXT NOT NULL,
+                        PRIMARY KEY(groupId, userId, movieId),
+                        FOREIGN KEY(groupId) REFERENCES $GROUPS_TABLE_NAME(groupId) ON DELETE CASCADE
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_groupId ON $GROUP_MOVIE_STATUS_TABLE_NAME (groupId)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_userId ON $GROUP_MOVIE_STATUS_TABLE_NAME (userId)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_groupId_userId ON $GROUP_MOVIE_STATUS_TABLE_NAME (groupId, userId)",
+                )
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Rebuild users_table without statusMovies column
+                // SQLite on API 26 doesn't support ALTER TABLE DROP COLUMN
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ${USERS_TABLE_NAME}_new (
+                        userId TEXT NOT NULL PRIMARY KEY,
+                        email TEXT NOT NULL,
+                        language TEXT NOT NULL,
+                        photoUrl TEXT NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO ${USERS_TABLE_NAME}_new (userId, email, language, photoUrl)
+                    SELECT userId, email, language, photoUrl FROM $USERS_TABLE_NAME
+                    """.trimIndent(),
+                )
+                db.execSQL("DROP TABLE $USERS_TABLE_NAME")
+                db.execSQL(
+                    "ALTER TABLE ${USERS_TABLE_NAME}_new RENAME TO $USERS_TABLE_NAME",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_email ON $USERS_TABLE_NAME (email)",
+                )
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE $USERS_TABLE_NAME ADD COLUMN username TEXT NOT NULL DEFAULT ''",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_username ON $USERS_TABLE_NAME (username)",
+                )
+            }
+        }
 
         // For Singleton instantiation
         @Volatile
@@ -50,55 +152,17 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: buildDatabase(context).also { instance = it }
         }
 
-        // Create and pre-populate the database. See this article for more details:
-        // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
         private fun buildDatabase(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, APP_DATABASE_NAME)
                 .addMigrations(
-                    *arrayOf(
-//                        MIGRATION_1_2,
-//                        MIGRATION_2_3,
-                    ),
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                    MIGRATION_4_5,
+                    MIGRATION_5_6,
+                    MIGRATION_6_7,
                 )
+                .fallbackToDestructiveMigration(false)
                 .build()
-
-        // /////////////////////////////////////////////////////////////////////////
-        // Migrations
-        // /////////////////////////////////////////////////////////////////////////
-//        val MIGRATION_1_2 = object : Migration(1, 2) {
-//            override fun migrate(database: SupportSQLiteDatabase) {
-//                database.execSQL("ALTER TABLE $GROUPS_TABLE_NAME ADD COLUMN lastUpdated INTEGER NULL")
-//            }
-//        }
-//        val MIGRATION_2_3 = object : Migration(2, 3) {
-//            override fun migrate(database: SupportSQLiteDatabase) {
-//                // 1. Create the new table without 'groupIds'
-//                database.execSQL(
-//                    """
-//            CREATE TABLE users_table_new (
-//                userId TEXT PRIMARY KEY NOT NULL,
-//                email TEXT NOT NULL,
-//                language TEXT NOT NULL,
-//                watched TEXT NOT NULL DEFAULT '[]',
-//                toWatch TEXT NOT NULL DEFAULT '[]'
-//            )
-//                    """.trimIndent(),
-//                )
-//
-//                // 2. Copy old data table in the new one excluding 'groupIds'
-//                database.execSQL(
-//                    """
-//            INSERT INTO users_table_new (userId, email, language, watched, toWatch)
-//            SELECT userId, email, language, '[]', '[]' FROM users_table
-//                    """.trimIndent(),
-//                )
-//
-//                // 3. Delete the old table
-//                database.execSQL("DROP TABLE users_table")
-//
-//                // 4. Rename the new table with the original one
-//                database.execSQL("ALTER TABLE users_table_new RENAME TO users_table")
-//            }
-//        }
     }
 }

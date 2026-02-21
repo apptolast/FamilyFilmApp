@@ -56,6 +56,12 @@
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
+    <!-- DETAIL -->
+    <string name="detail_mark_as">Mark as %s</string>
+    <string name="detail_select_groups">Select groups:</string>
+    <string name="detail_confirm">Confirm</string>
+    <string name="detail_select_target_groups">Select target groups</string>
+
     <!-- PROFILE -->
     <string name="profile_delete_account">Delete Account</string>
     <string name="profile_title">Profile</string>
@@ -73,6 +79,9 @@
     <string name="dialog_change_group_description">Introduce group\'s new name</string>
     <string name="dialog_add_group_member_title">Add group member</string>
     <string name="dialog_add_group_member_description">Introduce the member\'s email</string>
+    <string name="add_member_input_label">Email or username</string>
+    <string name="add_member_input_hint">Enter an email or @username</string>
+    <string name="add_member_input_invalid">Enter a valid email or username</string>
     <string name="dialog_delete_group_title">Delete Group</string>
     <string name="dialog_delete_group_description">Are you sure you want to delete the group?</string>
     <string name="dialog_delete_member_title">Delete User</string>
@@ -102,5 +111,23 @@
     <string name="sync_state_syncing">Syncing…</string>
     <string name="sync_state_error">Sync error</string>
     <string name="sync_state_offline">Offline mode</string>
+
+    <!-- USERNAME -->
+    <string name="username_label">Choose a username</string>
+    <string name="username_available">Available!</string>
+    <string name="username_taken">Username already taken</string>
+    <string name="username_checking">Checking…</string>
+    <string name="username_invalid_format">Letters, numbers, and underscores only</string>
+    <string name="username_too_short">Username must be at least 3 characters</string>
+    <string name="username_too_long">Username cannot exceed 20 characters</string>
+    <string name="username_must_start_with_letter">Username must start with a letter</string>
+    <string name="profile_section_username">Username</string>
+    <string name="profile_set_username">Set a username</string>
+    <string name="profile_edit_username">Edit username</string>
+    <string name="username_prompt_title">Choose your username</string>
+    <string name="username_prompt_description">Your username is how others in groups will see you.</string>
+    <string name="username_prompt_skip">Skip for now</string>
+    <string name="username_save">Save</string>
+    <string name="username_cancel">Cancel</string>
 
 </resources>

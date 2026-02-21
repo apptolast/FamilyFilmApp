@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
@@ -35,6 +36,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     val state: StateFlow<GroupsState> = _state.asStateFlow()
 
     private var groupsObserverJob: Job? = null
+    private var movieStatusObserverJob: Job? = null
     private var currentUserId: String? = null
 
     init {
@@ -42,9 +44,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         if (currentUserId != null) {
             // Start observing groups from Room (local database)
             startObservingGroups()
-            // Start Firebase sync (syncs Firebase changes to Room)
-            repository.startSync(currentUserId!!)
-            // Observe sync state
+            // Observe sync state (sync lifecycle is managed by AuthViewModel)
             observeSyncState()
         } else {
             _state.update { it.copy(error = "User not authenticated") }
@@ -64,8 +64,6 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     }
 
     override fun onCleared() {
-        // Stop Firebase sync when ViewModel is destroyed
-        repository.stopSync()
         super.onCleared()
     }
 
@@ -110,13 +108,23 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val groupToSelect = when {
             // If no selection yet, select first
             currentSelectedId == null -> groups.first()
+
             // If current selection still exists, keep it
             groups.any { it.id == currentSelectedId } -> groups.first { it.id == currentSelectedId }
+
             // If current selection was deleted, select first
             else -> groups.first()
         }
 
-        _state.update { it.copy(groups = groups) }
+        _state.update { currentState ->
+            // Update groups list AND refresh the group reference inside selectedGroupData
+            // so the GroupCard reflects name changes without requiring a full reload
+            val updatedGroupData = currentState.selectedGroupData?.let { data ->
+                val updatedGroup = groups.firstOrNull { it.id == data.group.id }
+                if (updatedGroup != null) data.copy(group = updatedGroup) else data
+            }
+            currentState.copy(groups = groups, selectedGroupData = updatedGroupData)
+        }
 
         // Only load group data if selection actually changed
         if (groupToSelect.id != currentSelectedId) {
@@ -303,7 +311,8 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
     /**
      * Load all data for a specific group.
-     * This is an explicit, controlled function - no automatic triggering.
+     * Loads members once, then starts a continuous observation of movie statuses
+     * so that changes from other screens (e.g. Detail) are reflected immediately.
      */
     private suspend fun loadGroupData(groupId: String) {
         Timber.d("Loading data for group: $groupId")
@@ -320,7 +329,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             return
         }
 
-        // Load members using batch query
+        // Load members using batch query (one-shot, members don't change from Detail screen)
         val membersResult = repository.getUsersByIds(group.users)
         val members = membersResult.getOrElse { error ->
             Timber.e(error, "Error loading group members")
@@ -336,69 +345,79 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             if (user.id == group.ownerId) 0 else 1
         }
 
-        // Load movies to watch
-        val toWatchMovieIds = sortedMembers
-            .flatMap { user ->
-                user.statusMovies
-                    .filterValues { it == MovieStatus.ToWatch }
-                    .keys
+        // Start observing movie statuses reactively — updates when Room data changes
+        observeMovieStatuses(groupId, sortedMembers)
+    }
+
+    /**
+     * Observe movie statuses for a group as a continuous Flow.
+     * When statuses change (e.g. from Detail screen writing to Room),
+     * the group data is recomputed automatically.
+     */
+    private fun observeMovieStatuses(groupId: String, members: List<User>) {
+        movieStatusObserverJob?.cancel()
+        movieStatusObserverJob = viewModelScope.launch {
+            repository.getMovieStatusesByGroup(groupId).collectLatest { groupStatuses ->
+                // Always read the latest group from state to avoid stale closure captures
+                val currentGroup = _state.value.groups.firstOrNull { it.id == groupId } ?: return@collectLatest
+
+                // Movies to watch (any member marked as ToWatch in this group)
+                val toWatchMovieIds = groupStatuses
+                    .filter { it.status == MovieStatus.ToWatch }
+                    .map { it.movieId }
+                    .distinct()
+
+                val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
+                    repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
+                        Timber.e(error, "Error loading movies to watch")
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
+
+                // Watched movies (any member marked as Watched in this group)
+                val watchedMovieIds = groupStatuses
+                    .filter { it.status == MovieStatus.Watched }
+                    .map { it.movieId }
+                    .distinct()
+
+                val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
+                    repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
+                        Timber.e(error, "Error loading watched movies")
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
+
+                // Find recommended movie (highest popularity from toWatch)
+                val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
+
+                Timber.d(
+                    "Loaded group '${currentGroup.name}': ${members.size} members, " +
+                        "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
+                )
+
+                // Update state with loaded data
+                val groupData = GroupData(
+                    group = currentGroup,
+                    members = members,
+                    moviesToWatch = moviesToWatch,
+                    moviesWatched = moviesWatched,
+                    recommendedMovie = recommendedMovie,
+                    currentUserId = currentUserId ?: "",
+                )
+
+                _state.update {
+                    it.copy(
+                        selectedGroupId = groupId,
+                        selectedGroupData = groupData,
+                        isLoading = false,
+                        error = null,
+                    )
+                }
             }
-            .distinct()
-            .mapNotNull { it.toIntOrNull() }
-
-        val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
-            repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading movies to watch")
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-
-        // Load watched movies
-        val watchedMovieIds = sortedMembers
-            .flatMap { user ->
-                user.statusMovies
-                    .filterValues { it == MovieStatus.Watched }
-                    .keys
-            }
-            .distinct()
-            .mapNotNull { it.toIntOrNull() }
-
-        val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
-            repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading watched movies")
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-
-        // Find recommended movie (highest popularity from toWatch)
-        val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
-
-        Timber.d(
-            "Loaded group '${group.name}': ${sortedMembers.size} members, " +
-                "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
-        )
-
-        // Update state with loaded data
-        val groupData = GroupData(
-            group = group,
-            members = sortedMembers,
-            moviesToWatch = moviesToWatch,
-            moviesWatched = moviesWatched,
-            recommendedMovie = recommendedMovie,
-            currentUserId = currentUserId ?: "",
-        )
-
-        _state.update {
-            it.copy(
-                selectedGroupId = groupId,
-                selectedGroupData = groupData,
-                isLoading = false,
-                error = null,
-            )
         }
     }
 

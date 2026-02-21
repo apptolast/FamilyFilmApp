@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Provider
-import com.apptolast.familyfilmapp.ui.screens.home.BASE_URL
+import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -84,8 +83,8 @@ fun ProvidersContent(
 @Composable
 fun ProvidersRow(providers: List<Provider>) {
     LazyRow(
-        contentPadding = PaddingValues(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(providers) { provider ->
             ProviderItem(provider = provider)
@@ -98,8 +97,7 @@ fun ProviderItem(provider: Provider) {
     Card(
         modifier = Modifier
             .size(75.dp)
-            .border(width = 1.dp, color = Color.Black, shape = RoundedCornerShape(10.dp)),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(12.dp)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
@@ -107,40 +105,27 @@ fun ProviderItem(provider: Provider) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp),
+                .padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             Box(
-                modifier = Modifier
-                    .size(70.dp),
-//                    .background(Color.White, shape = CircleShape),
+                modifier = Modifier.size(70.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
                     model = if (provider.logoPath.isEmpty()) {
                         "https://picsum.photos/100/100"
                     } else {
-                        "${BASE_URL}${provider.logoPath}"
+                        "${TmdbConfig.LOGO}${provider.logoPath}"
                     },
                     contentDescription = provider.name,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(73.dp)
-                        .clip(RoundedCornerShape(10.dp)),
+                        .size(70.dp)
+                        .clip(RoundedCornerShape(12.dp)),
                 )
             }
-
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Text(
-//                text = provider.name,
-//                style = MaterialTheme.typography.bodySmall,
-//                textAlign = TextAlign.Center,
-//                maxLines = 2,
-//                overflow = TextOverflow.Ellipsis,
-//                modifier = Modifier.fillMaxWidth(),
-//            )
         }
     }
 }

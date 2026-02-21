@@ -22,8 +22,12 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.apptolast.familyfilmapp.utils.UsernameValidator
+import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +36,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
@@ -68,11 +75,22 @@ class AuthViewModel @Inject constructor(
     val recoverPassState: StateFlow<RecoverPassState>
         field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
+    val username: StateFlow<String>
+        field: MutableStateFlow<String> = MutableStateFlow("")
+
+    val usernameValidationState: StateFlow<UsernameValidationState>
+        field: MutableStateFlow<UsernameValidationState> = MutableStateFlow(UsernameValidationState.Idle)
+
+    val shouldPromptForUsername: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     val provider: StateFlow<String?> = authRepository.getProvider().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
     )
+
+    private var usernameCheckJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -91,7 +109,32 @@ class AuthViewModel @Inject constructor(
             }
         }
 
+        // Reset username state when toggling between Login/Register
+        username.update { "" }
+        usernameCheckJob?.cancel()
+        usernameValidationState.update { UsernameValidationState.Idle }
+
         authState.update { AuthState.Unauthenticated }
+    }
+
+    fun onUsernameChange(value: String) {
+        username.update { value }
+        usernameCheckJob?.cancel()
+
+        val earlyState = UsernameValidator.validate(value).toValidationState()
+        if (earlyState != null) {
+            usernameValidationState.update { earlyState }
+            return
+        }
+
+        usernameValidationState.update { UsernameValidationState.Checking }
+        usernameCheckJob = viewModelScope.launch(dispatcherProvider.io()) {
+            delay(USERNAME_CHECK_DEBOUNCE_MS)
+            val available = repository.isUsernameAvailable(value)
+            usernameValidationState.update {
+                if (available) UsernameValidationState.Available else UsernameValidationState.Taken
+            }
+        }
     }
 
     private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -100,14 +143,20 @@ class AuthViewModel @Inject constructor(
         }.catch { error ->
             Timber.e(error, "Error getting user")
             handleFailure(error.message ?: "Error getting the user")
-        }.collectLatest { (user, isTokenValid) ->
+        }.flatMapLatest { (user, isTokenValid) ->
             if (user?.isEmailVerified == true && isTokenValid) {
-                AuthState.Authenticated(user.toDomainUserModel())
+                val domainUser = user.toDomainUserModel()
+                repository.startSync(domainUser.id)
+                // Observe Room for enriched data (username, etc.)
+                repository.getUserById(domainUser.id).map { roomUser ->
+                    AuthState.Authenticated(roomUser)
+                }
             } else {
-                AuthState.Unauthenticated
-            }.let { newState ->
-                authState.update { newState }
+                repository.stopSync()
+                flowOf(AuthState.Unauthenticated as AuthState)
             }
+        }.collectLatest { state ->
+            authState.update { state }
         }
     }
 
@@ -121,6 +170,7 @@ class AuthViewModel @Inject constructor(
                 result
                     .onSuccess { user ->
                         if (user != null) {
+                            repository.startSync(user.id)
                             authState.update {
                                 AuthState.Authenticated(user)
                             }
@@ -134,26 +184,27 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-    fun registerAndSendEmail(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        authState.update { AuthState.Loading }
-        authRepository.register(email, password)
-            .catch { error ->
-                handleFailure(error.message ?: "Error register user")
-                Timber.e(error.message ?: "Error register user")
-            }
-            .filterNotNull()
-            .collectLatest { result ->
-                result
-                    .onSuccess { user ->
-                        if (user == null) return@collectLatest
-                        createNewUser(user)
-                        isEmailSent.update { true }
-                    }
-                    .onFailure { error ->
-                        handleFailure(error.message ?: "Error register user")
-                    }
-            }
-    }
+    fun registerAndSendEmail(email: String, password: String, username: String) =
+        viewModelScope.launch(dispatcherProvider.io()) {
+            authState.update { AuthState.Loading }
+            authRepository.register(email, password)
+                .catch { error ->
+                    handleFailure(error.message ?: "Error register user")
+                    Timber.e(error.message ?: "Error register user")
+                }
+                .filterNotNull()
+                .collectLatest { result ->
+                    result
+                        .onSuccess { user ->
+                            if (user == null) return@collectLatest
+                            createNewUser(user, username)
+                            isEmailSent.update { true }
+                        }
+                        .onFailure { error ->
+                            handleFailure(error.message ?: "Error register user")
+                        }
+                }
+        }
 
     /**
      * Starts email verification polling on-demand.
@@ -190,43 +241,35 @@ class AuthViewModel @Inject constructor(
     }
 
     fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        val credential = result.credential
-
-        when (credential) {
+        when (val credential = result.credential) {
             is CustomCredential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
-                        // Use googleIdTokenCredential and extract id to validate and authenticate on your server.
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-                        viewModelScope.launch {
-                            authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first().let { result ->
-                                result
-                                    .onSuccess { user ->
-                                        repository.checkIfUserExists(user.id) { exists ->
-                                            if (!exists) {
-                                                createNewUser(user)
-                                            }
-                                            checkIsUserLogged()
-                                        }
+                        viewModelScope.launch(dispatcherProvider.io()) {
+                            authRepository.loginWithGoogle(googleIdTokenCredential.idToken).first()
+                                .onSuccess { user ->
+                                    val exists = repository.checkIfUserExists(user.id)
+                                    if (!exists) {
+                                        createNewUser(user)
+                                        shouldPromptForUsername.update { true }
                                     }
-                                    .onFailure { error ->
-                                        handleFailure(error.message ?: "Google Login Error")
-                                    }
-                            }
+                                    checkIsUserLogged()
+                                }
+                                .onFailure { error ->
+                                    handleFailure(error.message ?: "Google Login Error")
+                                }
                         }
                     } catch (e: GoogleIdTokenParsingException) {
                         handleFailure(e.message)
                     }
                 } else {
-                    // Catch any unrecognized credential type here.
                     handleFailure("Unexpected type of credential")
                 }
             }
 
             else -> {
-                // Catch any unrecognized credential type here.
                 handleFailure("Unexpected type of credential")
             }
         }
@@ -279,61 +322,56 @@ class AuthViewModel @Inject constructor(
     }
 
     fun logOut() {
+        repository.stopSync()
         authRepository.logOut()
         clearGoogleCredentials()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            repository.clearLocalData()
+            Timber.d("Local data cleared on logout")
+        }
         authState.update { AuthState.Unauthenticated }
     }
 
     fun deleteUser(email: String = "", password: String = "") = viewModelScope.launch(dispatcherProvider.io()) {
         val currentUser = (authState.value as? AuthState.Authenticated)?.user
-        if (currentUser != null) {
-            // Get user data from repository
-            repository.getUserById(currentUser.id).take(1).collectLatest { user ->
-                // Delete from Firestore
-                repository.deleteUser(
-                    user = user,
-                    success = {
-                        viewModelScope.launch {
-                            when (provider.value) {
-                                GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
-                                    authRepository.deleteGoogleAccount().first().let { result ->
-                                        result
-                                            .onSuccess {
-                                                clearGoogleCredentials()
-                                                authState.update { AuthState.Unauthenticated }
-                                            }
-                                            .onFailure { error ->
-                                                handleFailure("Delete User Error")
-                                            }
-                                    }
-                                }
-
-                                EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
-                                    authRepository.deleteAccountWithReAuthentication(email, password).first()
-                                        .let { result ->
-                                            result
-                                                .onSuccess {
-                                                    authState.update { AuthState.Unauthenticated }
-                                                }
-                                                .onFailure { error ->
-                                                    handleFailure("Delete User Error")
-                                                }
-                                        }
-                                }
-
-                                else -> {
-                                    Timber.w(IllegalStateException("Credential not expected"))
-                                }
-                            }
-                        }
-                    },
-                    failure = { error ->
-                        handleFailure("Delete User Error")
-                    },
-                )
-            }
-        } else {
+        if (currentUser == null) {
             handleFailure("Delete user - No user found")
+            return@launch
+        }
+
+        // Get user data from repository
+        repository.getUserById(currentUser.id).take(1).collectLatest { user ->
+            // Delete from Firestore
+            repository.deleteUser(user)
+                .onSuccess {
+                    deleteAuthAccount(email, password)
+                }
+                .onFailure {
+                    handleFailure("Delete User Error")
+                }
+        }
+    }
+
+    private suspend fun deleteAuthAccount(email: String, password: String) {
+        when (provider.value) {
+            GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
+                authRepository.deleteGoogleAccount().first()
+                    .onSuccess {
+                        clearGoogleCredentials()
+                        authState.update { AuthState.Unauthenticated }
+                    }
+                    .onFailure { handleFailure("Delete User Error") }
+            }
+
+            EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
+                authRepository.deleteAccountWithReAuthentication(email, password).first()
+                    .onSuccess { authState.update { AuthState.Unauthenticated } }
+                    .onFailure { handleFailure("Delete User Error") }
+            }
+
+            else -> {
+                Timber.w(IllegalStateException("Credential not expected"))
+            }
         }
     }
 
@@ -343,18 +381,48 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun createNewUser(user: User) {
-        repository.createUser(
-            User().copy(
-                id = user.id,
-                email = user.email,
-                language = Locale.getDefault().toLanguageTag(),
-            ),
-            success = {},
-            failure = { error ->
-                handleFailure(error.message ?: "Create New User Error")
-            },
+    private fun createNewUser(user: User, username: String = "") = viewModelScope.launch(dispatcherProvider.io()) {
+        // Create user without username first (Firestore user document)
+        val newUser = User(
+            id = user.id,
+            email = user.email,
+            language = Locale.getDefault().toLanguageTag(),
+            photoUrl = user.photoUrl,
         )
+
+        repository.createUser(newUser).onFailure { error ->
+            handleFailure(error.message ?: "Create New User Error")
+            return@launch
+        }
+
+        // Then atomically claim and set the username via updateUsername
+        val usernameToSet = username.takeIf { it.isNotBlank() }
+        if (usernameToSet != null) {
+            repository.updateUsername(newUser, usernameToSet)
+                .onFailure { error ->
+                    Timber.w(error, "Username '$usernameToSet' could not be claimed during registration")
+                }
+        }
+    }
+
+    fun saveUsernameForNewUser(newUsername: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        val currentUser = (authState.value as? AuthState.Authenticated)?.user ?: return@launch
+        repository.updateUsername(currentUser, newUsername)
+            .onSuccess {
+                shouldPromptForUsername.update { false }
+                Timber.d("Username saved for new user: $newUsername")
+            }
+            .onFailure { error ->
+                handleFailure(error.message ?: "Failed to save username")
+            }
+    }
+
+    fun skipUsernameSetup() {
+        shouldPromptForUsername.update { false }
+    }
+
+    companion object {
+        private const val USERNAME_CHECK_DEBOUNCE_MS = 500L
     }
 }
 

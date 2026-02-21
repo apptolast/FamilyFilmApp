@@ -14,8 +14,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -43,12 +42,14 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +71,9 @@ import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
 import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_TAB
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
@@ -84,6 +88,7 @@ fun GroupsScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val isFabExtended by remember {
         derivedStateOf {
@@ -91,14 +96,11 @@ fun GroupsScreen(
         }
     }
 
-    if (!state.error.isNullOrBlank()) {
-        Toast.makeText(
-            LocalContext.current,
-            state.error,
-            Toast.LENGTH_SHORT,
-        ).show()
-
-        viewModel.clearError()
+    LaunchedEffect(state.error) {
+        if (!state.error.isNullOrBlank()) {
+            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
     }
 
     Scaffold(
@@ -223,7 +225,7 @@ fun GroupsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupContent(
     groupData: GroupViewModel.GroupData,
@@ -249,6 +251,7 @@ fun GroupContent(
             Text(
                 text = stringResource(R.string.groups_text_create_group),
                 style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.testTag(TT_GROUPS_EMPTY_TEXT),
             )
         }
     } else {
@@ -279,9 +282,11 @@ fun GroupContent(
                         Tab(
                             selected = safeTabIndex == index,
                             onClick = { onGroupSelect(group.id) }, // Pass group ID
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            selectedContentColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unselectedContentColor = MaterialTheme.colorScheme.surfaceDim,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .testTag("${TT_GROUPS_TAB}_$index"),
+                            selectedContentColor = MaterialTheme.colorScheme.primary,
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             text = {
                                 Text(
                                     text = group.name,
@@ -308,17 +313,16 @@ fun GroupContent(
             // Recommended movie
             item {
                 AnimatedVisibility(visible = groupData.recommendedMovie != null) {
-                    FlowColumn(
+                    Column(
                         modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxSize(0.5f),
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = stringResource(R.string.group_recommended_label),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 6.dp),
+                            modifier = Modifier.padding(bottom = 8.dp),
                             textAlign = TextAlign.Center,
                         )
                         groupData.recommendedMovie?.let { movie ->
@@ -326,6 +330,7 @@ fun GroupContent(
                                 movie = movie,
                                 onClick = onMovieClick,
                                 status = null,
+                                modifier = Modifier.fillMaxWidth(0.6f),
                             )
                         }
                     }
@@ -356,7 +361,7 @@ fun GroupContent(
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(12.dp),
                     )
                 }
 
@@ -374,7 +379,7 @@ fun GroupContent(
                     Text(
                         text = stringResource(R.string.groups_text_watched),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(12.dp),
                     )
                 }
 
@@ -394,6 +399,7 @@ fun GroupContent(
 fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
+        modifier = Modifier.testTag(TT_GROUPS_FAB),
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
@@ -409,7 +415,7 @@ fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
             },
         ) { targetState ->
             Row(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -457,6 +463,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
                 is SyncState.Error -> {
                     Text(
                         text = "${stringResource(R.string.sync_state_error)}: ${syncState.message}",
@@ -464,6 +471,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+
                 is SyncState.Offline -> {
                     Text(
                         text = stringResource(R.string.sync_state_offline),
@@ -471,6 +479,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
                 is SyncState.Synced -> {
                     // Hidden when synced
                 }

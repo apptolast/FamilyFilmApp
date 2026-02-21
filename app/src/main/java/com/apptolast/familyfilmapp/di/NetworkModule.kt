@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -45,6 +46,9 @@ class NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder().apply {
+        connectTimeout(15, TimeUnit.SECONDS)
+        readTimeout(30, TimeUnit.SECONDS)
+        writeTimeout(15, TimeUnit.SECONDS)
         addInterceptor(authInterceptor)
         if (BuildConfig.DEBUG) {
             addInterceptor(

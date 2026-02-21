@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
+import com.apptolast.familyfilmapp.utils.toErrorString
 
 @Composable
 fun UsernameSetupDialog(
@@ -90,7 +91,7 @@ fun UsernameSetupDialog(
 
                             is UsernameValidationState.Invalid ->
                                 Text(
-                                    text = usernameValidationState.reason,
+                                    text = usernameValidationState.validationError.toErrorString(),
                                     color = MaterialTheme.colorScheme.error,
                                 )
 

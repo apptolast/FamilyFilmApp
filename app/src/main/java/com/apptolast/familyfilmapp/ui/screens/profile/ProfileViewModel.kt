@@ -7,6 +7,7 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.apptolast.familyfilmapp.utils.UsernameValidator
+import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,23 +38,9 @@ class ProfileViewModel @Inject constructor(
     fun onUsernameChange(value: String) {
         usernameCheckJob?.cancel()
 
-        if (value.length < 3) {
-            usernameValidationState.update { UsernameValidationState.Idle }
-            return
-        }
-
-        val validationResult = UsernameValidator.validate(value)
-        if (validationResult != UsernameValidator.Result.Valid) {
-            usernameValidationState.update {
-                UsernameValidationState.Invalid(
-                    when (validationResult) {
-                        is UsernameValidator.Result.TooLong -> "Username cannot exceed 20 characters"
-                        is UsernameValidator.Result.InvalidChars -> "Letters, numbers, and underscores only"
-                        is UsernameValidator.Result.MustStartWithLetter -> "Must start with a letter"
-                        else -> "Invalid username"
-                    },
-                )
-            }
+        val earlyState = UsernameValidator.validate(value).toValidationState()
+        if (earlyState != null) {
+            usernameValidationState.update { earlyState }
             return
         }
 

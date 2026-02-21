@@ -66,6 +66,7 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
+import com.apptolast.familyfilmapp.utils.toErrorString
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_DELETE_ACCOUNT
@@ -269,7 +270,7 @@ fun ProfileContent(
 
                                 is UsernameValidationState.Invalid ->
                                     Text(
-                                        text = usernameValidationState.reason,
+                                        text = usernameValidationState.validationError.toErrorString(),
                                         color = MaterialTheme.colorScheme.error,
                                     )
 

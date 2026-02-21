@@ -20,15 +20,15 @@ import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
-
-private val USERNAME_PATTERN = Regex("^[a-zA-Z][a-zA-Z0-9_]{2,19}$")
+import com.apptolast.familyfilmapp.utils.UsernameValidator
 
 @Composable
 fun EmailFieldDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var input by rememberSaveable { mutableStateOf("") }
 
     val isValidEmail = input.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(input).matches()
-    val isValidUsername = input.isNotBlank() && USERNAME_PATTERN.matches(input)
+    val isValidUsername = input.isNotBlank() &&
+        UsernameValidator.validate(input) == UsernameValidator.Result.Valid
     val isValid = isValidEmail || isValidUsername
 
     AlertDialog(

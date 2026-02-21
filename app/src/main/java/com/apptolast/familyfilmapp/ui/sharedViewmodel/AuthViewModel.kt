@@ -23,6 +23,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.apptolast.familyfilmapp.utils.UsernameValidator
+import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -35,6 +36,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
@@ -117,23 +121,9 @@ class AuthViewModel @Inject constructor(
         username.update { value }
         usernameCheckJob?.cancel()
 
-        if (value.length < 3) {
-            usernameValidationState.update { UsernameValidationState.Idle }
-            return
-        }
-
-        val validationResult = UsernameValidator.validate(value)
-        if (validationResult != UsernameValidator.Result.Valid) {
-            usernameValidationState.update {
-                UsernameValidationState.Invalid(
-                    when (validationResult) {
-                        is UsernameValidator.Result.TooLong -> "Username cannot exceed 20 characters"
-                        is UsernameValidator.Result.InvalidChars -> "Letters, numbers, and underscores only"
-                        is UsernameValidator.Result.MustStartWithLetter -> "Must start with a letter"
-                        else -> "Invalid username"
-                    },
-                )
-            }
+        val earlyState = UsernameValidator.validate(value).toValidationState()
+        if (earlyState != null) {
+            usernameValidationState.update { earlyState }
             return
         }
 
@@ -153,20 +143,20 @@ class AuthViewModel @Inject constructor(
         }.catch { error ->
             Timber.e(error, "Error getting user")
             handleFailure(error.message ?: "Error getting the user")
-        }.collectLatest { (user, isTokenValid) ->
+        }.flatMapLatest { (user, isTokenValid) ->
             if (user?.isEmailVerified == true && isTokenValid) {
                 val domainUser = user.toDomainUserModel()
                 repository.startSync(domainUser.id)
-                // Set initial state from Firebase Auth immediately
-                authState.update { AuthState.Authenticated(domainUser) }
-                // Then observe Room for enriched data (username, etc.)
-                repository.getUserById(domainUser.id).collectLatest { roomUser ->
-                    authState.update { AuthState.Authenticated(roomUser) }
+                // Observe Room for enriched data (username, etc.)
+                repository.getUserById(domainUser.id).map { roomUser ->
+                    AuthState.Authenticated(roomUser)
                 }
             } else {
                 repository.stopSync()
-                authState.update { AuthState.Unauthenticated }
+                flowOf(AuthState.Unauthenticated as AuthState)
             }
+        }.collectLatest { state ->
+            authState.update { state }
         }
     }
 
@@ -392,26 +382,26 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun createNewUser(user: User, username: String = "") = viewModelScope.launch(dispatcherProvider.io()) {
-        val usernameToSet = username.takeIf { it.isNotBlank() }
-
-        // If a username was provided, try to claim it atomically
-        if (usernameToSet != null) {
-            val claimed = repository.isUsernameAvailable(usernameToSet)
-            if (!claimed) {
-                Timber.w("Username '$usernameToSet' was taken during registration, proceeding without it")
-            }
-        }
-
+        // Create user without username first (Firestore user document)
         val newUser = User(
             id = user.id,
             email = user.email,
             language = Locale.getDefault().toLanguageTag(),
             photoUrl = user.photoUrl,
-            username = usernameToSet,
         )
 
         repository.createUser(newUser).onFailure { error ->
             handleFailure(error.message ?: "Create New User Error")
+            return@launch
+        }
+
+        // Then atomically claim and set the username via updateUsername
+        val usernameToSet = username.takeIf { it.isNotBlank() }
+        if (usernameToSet != null) {
+            repository.updateUsername(newUser, usernameToSet)
+                .onFailure { error ->
+                    Timber.w(error, "Username '$usernameToSet' could not be claimed during registration")
+                }
         }
     }
 

@@ -75,6 +75,7 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
+import com.apptolast.familyfilmapp.utils.toErrorString
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
@@ -381,7 +382,7 @@ fun MovieAppLoginContent(
 
                                     is UsernameValidationState.Invalid ->
                                         Text(
-                                            text = (usernameValidationState as UsernameValidationState.Invalid).reason,
+                                            text = usernameValidationState.validationError.toErrorString(),
                                             color = MaterialTheme.colorScheme.error,
                                         )
 

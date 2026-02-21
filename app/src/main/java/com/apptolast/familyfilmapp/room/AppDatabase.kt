@@ -11,7 +11,6 @@ import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.converters.DateConverter
-import com.apptolast.familyfilmapp.room.converters.MapStatusConverter
 import com.apptolast.familyfilmapp.room.converters.MovieStatusConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
@@ -27,14 +26,13 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         GroupTable::class,
         GroupMovieStatusTable::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(
     value = [
         StringListConverter::class,
         DateConverter::class,
-        MapStatusConverter::class,
         MovieStatusConverter::class,
     ],
 )
@@ -85,6 +83,36 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Rebuild users_table without statusMovies column
+                // SQLite on API 26 doesn't support ALTER TABLE DROP COLUMN
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ${USERS_TABLE_NAME}_new (
+                        userId TEXT NOT NULL PRIMARY KEY,
+                        email TEXT NOT NULL,
+                        language TEXT NOT NULL,
+                        photoUrl TEXT NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO ${USERS_TABLE_NAME}_new (userId, email, language, photoUrl)
+                    SELECT userId, email, language, photoUrl FROM $USERS_TABLE_NAME
+                    """.trimIndent(),
+                )
+                db.execSQL("DROP TABLE $USERS_TABLE_NAME")
+                db.execSQL(
+                    "ALTER TABLE ${USERS_TABLE_NAME}_new RENAME TO $USERS_TABLE_NAME",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_email ON $USERS_TABLE_NAME (email)",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -95,7 +123,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, APP_DATABASE_NAME)
-                .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .fallbackToDestructiveMigration()
                 .build()
     }

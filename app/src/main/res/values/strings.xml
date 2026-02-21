@@ -56,6 +56,12 @@
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
+    <!-- DETAIL -->
+    <string name="detail_mark_as">Mark as %s</string>
+    <string name="detail_select_groups">Select groups:</string>
+    <string name="detail_confirm">Confirm</string>
+    <string name="detail_select_target_groups">Select target groups</string>
+
     <!-- PROFILE -->
     <string name="profile_delete_account">Delete Account</string>
     <string name="profile_title">Profile</string>

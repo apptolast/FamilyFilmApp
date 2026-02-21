@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.discover
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -45,10 +48,6 @@ import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIP_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_TO_WATCH_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_WATCHED_BUTTON
 
-/**
- * Discover Screen - Tinder-style movie discovery
- * Users can swipe or tap buttons to mark movies as Watched or Want to Watch
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoverScreen(
@@ -79,7 +78,6 @@ fun DiscoverScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    // Loading state
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -100,7 +98,6 @@ fun DiscoverScreen(
                 }
 
                 uiState.isOutOfMovies -> {
-                    // No more movies
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -126,12 +123,31 @@ fun DiscoverScreen(
                 }
 
                 else -> {
-                    // Movie card with buttons
                     uiState.currentMovie?.let { movie ->
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
+                            // Group selection chips
+                            if (uiState.groups.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState()),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    uiState.groups.forEach { group ->
+                                        FilterChip(
+                                            selected = group.id in uiState.selectedGroupIds,
+                                            onClick = { viewModel.toggleGroupSelection(group.id) },
+                                            label = { Text(text = group.name) },
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
                             // Swipeable Movie Card
                             SwipeableMovieCard(
                                 movie = movie,
@@ -148,7 +164,6 @@ fun DiscoverScreen(
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                // Watched Button
                                 CustomStatusButton(
                                     text = stringResource(R.string.discover_watched),
                                     icon = Icons.Default.Visibility,
@@ -161,7 +176,6 @@ fun DiscoverScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // Skip Button
                                 TextButton(
                                     onClick = viewModel::skipMovie,
                                     modifier = Modifier
@@ -176,7 +190,6 @@ fun DiscoverScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // To Watch Button
                                 CustomStatusButton(
                                     text = stringResource(R.string.discover_want_to_watch),
                                     icon = Icons.AutoMirrored.Filled.PlaylistAdd,

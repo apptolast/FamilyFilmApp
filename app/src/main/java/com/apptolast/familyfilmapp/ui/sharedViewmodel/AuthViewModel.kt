@@ -157,7 +157,12 @@ class AuthViewModel @Inject constructor(
             if (user?.isEmailVerified == true && isTokenValid) {
                 val domainUser = user.toDomainUserModel()
                 repository.startSync(domainUser.id)
+                // Set initial state from Firebase Auth immediately
                 authState.update { AuthState.Authenticated(domainUser) }
+                // Then observe Room for enriched data (username, etc.)
+                repository.getUserById(domainUser.id).collectLatest { roomUser ->
+                    authState.update { AuthState.Authenticated(roomUser) }
+                }
             } else {
                 repository.stopSync()
                 authState.update { AuthState.Unauthenticated }

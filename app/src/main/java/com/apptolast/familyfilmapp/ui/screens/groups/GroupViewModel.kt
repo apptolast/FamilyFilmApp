@@ -116,7 +116,15 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             else -> groups.first()
         }
 
-        _state.update { it.copy(groups = groups) }
+        _state.update { currentState ->
+            // Update groups list AND refresh the group reference inside selectedGroupData
+            // so the GroupCard reflects name changes without requiring a full reload
+            val updatedGroupData = currentState.selectedGroupData?.let { data ->
+                val updatedGroup = groups.firstOrNull { it.id == data.group.id }
+                if (updatedGroup != null) data.copy(group = updatedGroup) else data
+            }
+            currentState.copy(groups = groups, selectedGroupData = updatedGroupData)
+        }
 
         // Only load group data if selection actually changed
         if (groupToSelect.id != currentSelectedId) {

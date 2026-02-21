@@ -108,13 +108,23 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         val groupToSelect = when {
             // If no selection yet, select first
             currentSelectedId == null -> groups.first()
+
             // If current selection still exists, keep it
             groups.any { it.id == currentSelectedId } -> groups.first { it.id == currentSelectedId }
+
             // If current selection was deleted, select first
             else -> groups.first()
         }
 
-        _state.update { it.copy(groups = groups) }
+        _state.update { currentState ->
+            // Update groups list AND refresh the group reference inside selectedGroupData
+            // so the GroupCard reflects name changes without requiring a full reload
+            val updatedGroupData = currentState.selectedGroupData?.let { data ->
+                val updatedGroup = groups.firstOrNull { it.id == data.group.id }
+                if (updatedGroup != null) data.copy(group = updatedGroup) else data
+            }
+            currentState.copy(groups = groups, selectedGroupData = updatedGroupData)
+        }
 
         // Only load group data if selection actually changed
         if (groupToSelect.id != currentSelectedId) {
@@ -336,7 +346,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         }
 
         // Start observing movie statuses reactively — updates when Room data changes
-        observeMovieStatuses(groupId, group, sortedMembers)
+        observeMovieStatuses(groupId, sortedMembers)
     }
 
     /**
@@ -344,10 +354,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
      * When statuses change (e.g. from Detail screen writing to Room),
      * the group data is recomputed automatically.
      */
-    private fun observeMovieStatuses(groupId: String, group: Group, members: List<User>) {
+    private fun observeMovieStatuses(groupId: String, members: List<User>) {
         movieStatusObserverJob?.cancel()
         movieStatusObserverJob = viewModelScope.launch {
             repository.getMovieStatusesByGroup(groupId).collectLatest { groupStatuses ->
+                // Always read the latest group from state to avoid stale closure captures
+                val currentGroup = _state.value.groups.firstOrNull { it.id == groupId } ?: return@collectLatest
+
                 // Movies to watch (any member marked as ToWatch in this group)
                 val toWatchMovieIds = groupStatuses
                     .filter { it.status == MovieStatus.ToWatch }
@@ -382,13 +395,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
                 val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
 
                 Timber.d(
-                    "Loaded group '${group.name}': ${members.size} members, " +
+                    "Loaded group '${currentGroup.name}': ${members.size} members, " +
                         "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
                 )
 
                 // Update state with loaded data
                 val groupData = GroupData(
-                    group = group,
+                    group = currentGroup,
                     members = members,
                     moviesToWatch = moviesToWatch,
                     moviesWatched = moviesWatched,

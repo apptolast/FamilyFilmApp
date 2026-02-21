@@ -26,7 +26,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         GroupTable::class,
         GroupMovieStatusTable::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(
@@ -46,6 +46,29 @@ abstract class AppDatabase : RoomDatabase() {
 
         private const val APP_DATABASE_NAME = "ffa_database"
 
+        const val USERS_TABLE_NAME = "users_table"
+        const val GROUPS_TABLE_NAME = "groups_table"
+        const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
+
+        // v1 and v2 have identical schemas (same identityHash) — no-op migration
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // No schema changes between v1 and v2
+            }
+        }
+
+        // v2 → v3: Add indexes on users_table and groups_table
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_email ON $USERS_TABLE_NAME (email)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_groups_table_ownerId ON $GROUPS_TABLE_NAME (ownerId)",
+                )
+            }
+        }
+
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
@@ -53,9 +76,6 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
-        const val USERS_TABLE_NAME = "users_table"
-        const val GROUPS_TABLE_NAME = "groups_table"
-        const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
 
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -113,6 +133,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE $USERS_TABLE_NAME ADD COLUMN username TEXT NOT NULL DEFAULT ''",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_users_table_username ON $USERS_TABLE_NAME (username)",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -123,8 +154,15 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, APP_DATABASE_NAME)
-                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
-                .fallbackToDestructiveMigration()
+                .addMigrations(
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                    MIGRATION_4_5,
+                    MIGRATION_5_6,
+                    MIGRATION_6_7,
+                )
+                .fallbackToDestructiveMigration(false)
                 .build()
     }
 }

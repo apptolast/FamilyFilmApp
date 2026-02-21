@@ -8,7 +8,10 @@ import com.apptolast.familyfilmapp.room.AppDatabase.Companion.USERS_TABLE_NAME
 
 @Entity(
     tableName = USERS_TABLE_NAME,
-    indices = [Index(value = ["email"])],
+    indices = [
+        Index(value = ["email"]),
+        Index(value = ["username"]),
+    ],
 )
 data class UserTable(
     @PrimaryKey(autoGenerate = false)
@@ -16,12 +19,14 @@ data class UserTable(
     var email: String,
     var language: String,
     var photoUrl: String,
+    var username: String = "",
 ) {
     constructor(userId: String) : this(
         userId = userId,
         email = "",
         language = "",
         photoUrl = "",
+        username = "",
     )
 }
 
@@ -30,6 +35,7 @@ fun UserTable.toUser() = User(
     email = email,
     language = language,
     photoUrl = photoUrl,
+    username = username.takeIf { it.isNotBlank() },
 )
 
 fun User.toUserTable() = UserTable(
@@ -37,4 +43,5 @@ fun User.toUserTable() = UserTable(
     email = email,
     language = language,
     photoUrl = photoUrl,
+    username = username.orEmpty(),
 )

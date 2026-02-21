@@ -20,6 +20,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
 
     val rootDatabase = database.collection(DB_ROOT_COLLECTION).document(BuildConfig.BUILD_TYPE)
     val usersCollection = rootDatabase.collection("users")
+    val usernamesCollection = rootDatabase.collection("usernames")
 
     val groupsCollection = rootDatabase.collection("groups")
     val moviesCollection = rootDatabase.collection("movies")
@@ -55,6 +56,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override suspend fun createUser(user: User) {
+        require(user.id.isNotBlank()) { "Cannot create user with blank ID" }
         usersCollection.document(user.id).set(user).await()
     }
 
@@ -94,11 +96,18 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override fun updateUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
+        if (user.id.isBlank()) {
+            failure(IllegalArgumentException("Cannot update user with blank ID"))
+            return
+        }
+
         // Update fields
         val updates = mapOf(
             "email" to user.email,
             "language" to user.language,
             "photoUrl" to user.photoUrl,
+            "username" to (user.username ?: ""),
+            "usernameLower" to (user.username?.lowercase() ?: ""),
         )
 
         usersCollection
@@ -115,6 +124,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override suspend fun deleteUser(user: User) {
+        require(user.id.isNotBlank()) { "Cannot delete user with blank ID" }
         usersCollection.document(user.id).delete().await()
         Timber.d("User deleted from Firestore: ${user.email}")
     }
@@ -235,42 +245,80 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             }
     }
 
-    override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) {
+    override fun addMember(group: Group, identifier: String, success: () -> Unit, failure: (Exception) -> Unit) {
+        val isEmail = identifier.contains("@")
+
+        if (isEmail) {
+            resolveUserByEmail(identifier, group, success, failure)
+        } else {
+            resolveUserByUsername(identifier, group, success, failure)
+        }
+    }
+
+    private fun resolveUserByEmail(email: String, group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
         usersCollection.whereEqualTo("email", email).get()
             .addOnSuccessListener { querySnapshot ->
                 if (querySnapshot.isEmpty) {
                     failure(IllegalArgumentException("User with email $email not found"))
                     return@addOnSuccessListener
                 }
-
                 val user = querySnapshot.documents[0].toObject(User::class.java)
                 if (user == null) {
                     failure(NullPointerException("Failed to convert document to User object"))
                     return@addOnSuccessListener
                 }
+                addUserToGroup(user, group, success, failure)
+            }
+            .addOnFailureListener { e -> failure(e) }
+    }
 
-                val updatedUsers = group.users.toMutableList()
-                // If the email is not found in the group's user list, add it
-                if (user.id !in updatedUsers) {
-                    updatedUsers.add(user.id)
-
-                    val updatedGroup = group.copy(
-                        users = updatedUsers,
-                        lastUpdated = Calendar.getInstance().time,
-                    )
-
-                    this@FirebaseDatabaseDatasourceImpl.updateGroup(
-                        group = updatedGroup,
-                        success = success,
-                        failure = failure,
-                    )
-                } else {
-                    failure(IllegalArgumentException("User with email $email is already a member of this group"))
+    private fun resolveUserByUsername(
+        username: String,
+        group: Group,
+        success: () -> Unit,
+        failure: (Exception) -> Unit,
+    ) {
+        usernamesCollection.document(username.lowercase()).get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    failure(IllegalArgumentException("User with username @$username not found"))
+                    return@addOnSuccessListener
                 }
+                val userId = document.getString("userId")
+                if (userId == null) {
+                    failure(IllegalArgumentException("Invalid username record for @$username"))
+                    return@addOnSuccessListener
+                }
+                usersCollection.document(userId).get()
+                    .addOnSuccessListener { userDoc ->
+                        val user = userDoc.toObject(User::class.java)
+                        if (user == null) {
+                            failure(IllegalArgumentException("User with username @$username not found"))
+                            return@addOnSuccessListener
+                        }
+                        addUserToGroup(user, group, success, failure)
+                    }
+                    .addOnFailureListener { e -> failure(e) }
             }
-            .addOnFailureListener { e ->
-                failure(e)
-            }
+            .addOnFailureListener { e -> failure(e) }
+    }
+
+    private fun addUserToGroup(user: User, group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
+        val updatedUsers = group.users.toMutableList()
+        if (user.id !in updatedUsers) {
+            updatedUsers.add(user.id)
+            val updatedGroup = group.copy(
+                users = updatedUsers,
+                lastUpdated = Calendar.getInstance().time,
+            )
+            this@FirebaseDatabaseDatasourceImpl.updateGroup(
+                group = updatedGroup,
+                success = success,
+                failure = failure,
+            )
+        } else {
+            failure(IllegalArgumentException("User is already a member of this group"))
+        }
     }
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
@@ -299,12 +347,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
 
     private fun movieStatusDocId(userId: String, movieId: Int) = "${userId}_$movieId"
 
-    override suspend fun setMovieStatus(
-        groupId: String,
-        userId: String,
-        movieId: Int,
-        status: MovieStatus,
-    ) {
+    override suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MovieStatus) {
         val docId = movieStatusDocId(userId, movieId)
         val data = mapOf(
             "userId" to userId,
@@ -321,40 +364,39 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         Timber.d("Movie status removed: group=$groupId, user=$userId, movie=$movieId")
     }
 
-    override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>> =
-        callbackFlow {
-            val listenerRegistration = movieStatusesCollection(groupId)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        Timber.e(error, "Error observing movie statuses for group: $groupId")
-                        close(error)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null) {
-                        val statuses = snapshot.documents.mapNotNull { document ->
-                            try {
-                                GroupMovieStatus(
-                                    groupId = groupId,
-                                    userId = document.getString("userId") ?: return@mapNotNull null,
-                                    movieId = (document.getLong("movieId") ?: return@mapNotNull null).toInt(),
-                                    status = MovieStatus.valueOf(
-                                        document.getString("status") ?: return@mapNotNull null,
-                                    ),
-                                )
-                            } catch (e: Exception) {
-                                Timber.e(e, "Error parsing movie status document: ${document.id}")
-                                null
-                            }
-                        }
-                        trySend(statuses)
-                    }
+    override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>> = callbackFlow {
+        val listenerRegistration = movieStatusesCollection(groupId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Timber.e(error, "Error observing movie statuses for group: $groupId")
+                    close(error)
+                    return@addSnapshotListener
                 }
 
-            awaitClose {
-                listenerRegistration.remove()
+                if (snapshot != null) {
+                    val statuses = snapshot.documents.mapNotNull { document ->
+                        try {
+                            GroupMovieStatus(
+                                groupId = groupId,
+                                userId = document.getString("userId") ?: return@mapNotNull null,
+                                movieId = (document.getLong("movieId") ?: return@mapNotNull null).toInt(),
+                                status = MovieStatus.valueOf(
+                                    document.getString("status") ?: return@mapNotNull null,
+                                ),
+                            )
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error parsing movie status document: ${document.id}")
+                            null
+                        }
+                    }
+                    trySend(statuses)
+                }
             }
+
+        awaitClose {
+            listenerRegistration.remove()
         }
+    }
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>) {
@@ -429,6 +471,49 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         Timber.d("Movie status migration completed for user: $userId")
     }
 
+    // /////////////////////////////////////////////////////////////////////////
+    // Usernames (uniqueness collection)
+    // /////////////////////////////////////////////////////////////////////////
+
+    override suspend fun claimUsername(username: String, userId: String): Boolean {
+        val usernameLower = username.lowercase()
+        val docRef = usernamesCollection.document(usernameLower)
+        return try {
+            database.runTransaction { transaction ->
+                val snapshot = transaction.get(docRef)
+                if (snapshot.exists()) {
+                    val existingUserId = snapshot.getString("userId")
+                    if (existingUserId == userId) {
+                        // Already claimed by this user (reclaim after partial failure)
+                        return@runTransaction
+                    }
+                    throw Exception("Username already taken")
+                }
+                transaction.set(docRef, mapOf("userId" to userId))
+            }.await()
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to claim username: $username")
+            false
+        }
+    }
+
+    override suspend fun releaseUsername(username: String) {
+        val usernameLower = username.lowercase()
+        try {
+            usernamesCollection.document(usernameLower).delete().await()
+            Timber.d("Released username: $username")
+        } catch (e: Exception) {
+            Timber.e(e, "Error releasing username: $username")
+        }
+    }
+
+    override suspend fun isUsernameAvailable(username: String): Boolean {
+        val usernameLower = username.lowercase()
+        val doc = usernamesCollection.document(usernameLower).get().await()
+        return !doc.exists()
+    }
+
     companion object {
         const val DB_ROOT_COLLECTION = "FFA"
     }
@@ -446,6 +531,9 @@ interface FirebaseDatabaseDatasource {
     suspend fun deleteUser(user: User)
     suspend fun checkIfUserExists(userId: String): Boolean
     fun observeUser(userId: String): Flow<User?>
+    suspend fun claimUsername(username: String, userId: String): Boolean
+    suspend fun releaseUsername(username: String)
+    suspend fun isUsernameAvailable(username: String): Boolean
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups
@@ -454,7 +542,7 @@ interface FirebaseDatabaseDatasource {
     fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
     fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit)
     fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
-    fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
+    fun addMember(group: Group, identifier: String, success: () -> Unit, failure: (Exception) -> Unit)
     fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit)
 
     // /////////////////////////////////////////////////////////////////////////

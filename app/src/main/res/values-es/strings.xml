@@ -74,6 +74,9 @@
     <string name="dialog_change_group_description">Introduce el nuevo nombre del grupo</string>
     <string name="dialog_add_group_member_title">Añadir miembro al grupo</string>
     <string name="dialog_add_group_member_description">Introduce el correo electrónico del miembro</string>
+    <string name="add_member_input_label">Email o nombre de usuario</string>
+    <string name="add_member_input_hint">Introduce un email o nombre de usuario</string>
+    <string name="add_member_input_invalid">Introduce un email o nombre de usuario válido</string>
     <string name="dialog_delete_group_title">Eliminar Grupo</string>
     <string name="dialog_delete_group_description">¿Estás seguro de que quieres eliminar el grupo?</string>
     <string name="dialog_delete_member_title">Eliminar Usuario</string>
@@ -99,9 +102,33 @@
     <string name="login_text_email_sent">Email de verificación enviado</string>
     <string name="login_text_check_your_email_to_verify_your_account">Revise su correo electrónico para verificar su cuenta.</string>
 
+    <!-- DETAIL -->
+    <string name="detail_mark_as">Marcar como %s</string>
+    <string name="detail_select_groups">Selecciona grupos:</string>
+    <string name="detail_confirm">Confirmar</string>
+    <string name="detail_select_target_groups">Selecciona grupos de destino</string>
+
     <!-- Sync State -->
     <string name="sync_state_syncing">Sincronizando…</string>
     <string name="sync_state_error">Error de sincronización</string>
     <string name="sync_state_offline">Modo Offline</string>
+
+    <!-- USERNAME -->
+    <string name="username_label">Elige un nombre de usuario</string>
+    <string name="username_available">¡Disponible!</string>
+    <string name="username_taken">Nombre de usuario no disponible</string>
+    <string name="username_checking">Comprobando…</string>
+    <string name="username_invalid_format">Solo letras, números y guiones bajos</string>
+    <string name="username_too_short">El nombre de usuario debe tener al menos 3 caracteres</string>
+    <string name="username_too_long">El nombre de usuario no puede superar los 20 caracteres</string>
+    <string name="username_must_start_with_letter">El nombre de usuario debe empezar con una letra</string>
+    <string name="profile_section_username">Nombre de usuario</string>
+    <string name="profile_set_username">Establecer nombre de usuario</string>
+    <string name="profile_edit_username">Editar nombre de usuario</string>
+    <string name="username_prompt_title">Elige tu nombre de usuario</string>
+    <string name="username_prompt_description">Tu nombre de usuario es como te verán los demás en los grupos.</string>
+    <string name="username_prompt_skip">Ahora no</string>
+    <string name="username_save">Guardar</string>
+    <string name="username_cancel">Cancelar</string>
 
 </resources>

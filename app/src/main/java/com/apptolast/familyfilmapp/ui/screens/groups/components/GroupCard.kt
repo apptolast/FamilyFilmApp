@@ -64,6 +64,7 @@ fun GroupCard(
     onDeleteUser: (User) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val cannotDeleteOwnerMsg = stringResource(R.string.cannot_delete_owner)
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -182,7 +183,7 @@ fun GroupCard(
                                             if (group.ownerId == user.id) {
                                                 Toast.makeText(
                                                     context,
-                                                    context.getString(R.string.cannot_delete_owner),
+                                                    cannotDeleteOwnerMsg,
                                                     Toast.LENGTH_SHORT,
                                                 ).show()
                                             }

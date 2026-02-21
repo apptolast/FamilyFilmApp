@@ -29,7 +29,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
         ),
     ) {
         Text(
-            text = user.email,
+            text = user.displayName,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -45,7 +45,23 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier) {
 private fun GroupMemberCardPreview() {
     FamilyFilmAppTheme {
         GroupMemberCard(
-            user = User().copy(email = "Email 1"),
+            user = User(
+                id = "1",
+                email = "user@example.com",
+                language = "en",
+                photoUrl = "",
+                username = "alice_wonder",
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GroupMemberCardNoUsernamePreview() {
+    FamilyFilmAppTheme {
+        GroupMemberCard(
+            user = User().copy(email = "user@example.com"),
         )
     }
 }

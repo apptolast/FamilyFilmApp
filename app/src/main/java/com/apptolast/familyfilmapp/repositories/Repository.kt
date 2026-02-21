@@ -159,7 +159,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addMember(groupId: String, email: String): Result<Unit> {
+    override suspend fun addMember(groupId: String, identifier: String): Result<Unit> {
         val group = runCatching {
             roomDatasource.getGroupById(groupId).first()?.toGroup()
         }.getOrNull()
@@ -171,17 +171,21 @@ class RepositoryImpl @Inject constructor(
         return suspendCancellableCoroutine { continuation ->
             firebaseDatabaseDatasource.addMember(
                 group = group,
-                email = email,
+                identifier = identifier,
                 success = {
-                    // Write-through: look up user by email and update group in Room
+                    // Write-through: look up user in Room and update group
                     coroutineScope.launch {
                         try {
-                            val userTable = roomDatasource.getUserByEmail(email).first()
+                            val userTable = if (identifier.contains("@")) {
+                                roomDatasource.getUserByEmail(identifier).first()
+                            } else {
+                                roomDatasource.getUserByUsername(identifier)
+                            }
                             if (userTable != null) {
                                 val updatedUsers = group.users + userTable.toUser().id
                                 val updatedGroup = group.copy(users = updatedUsers)
                                 roomDatasource.insertGroup(updatedGroup.toGroupTable())
-                                Timber.d("Member added and group synced to Room: $email")
+                                Timber.d("Member added and group synced to Room: $identifier")
                             }
                         } catch (e: Exception) {
                             Timber.e(e, "Error syncing added member to Room")
@@ -240,23 +244,29 @@ class RepositoryImpl @Inject constructor(
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override suspend fun updateUser(user: User): Result<Unit> = suspendCancellableCoroutine { continuation ->
-        firebaseDatabaseDatasource.updateUser(
-            user = user,
-            success = {
-                // Write-through: update Room before resuming to avoid race condition
-                coroutineScope.launch {
-                    try {
-                        roomDatasource.insertUser(user.toUserTable())
-                        Timber.d("User updated and synced to Room: ${user.email}")
-                    } catch (e: Exception) {
-                        Timber.e(e, "Error syncing updated user to Room")
+    override suspend fun updateUser(user: User): Result<Unit> {
+        if (user.id.isBlank()) {
+            Timber.e("Attempted to update user with blank ID, ignoring")
+            return Result.failure(IllegalArgumentException("Cannot update user with blank ID"))
+        }
+        return suspendCancellableCoroutine { continuation ->
+            firebaseDatabaseDatasource.updateUser(
+                user = user,
+                success = {
+                    // Write-through: update Room before resuming to avoid race condition
+                    coroutineScope.launch {
+                        try {
+                            roomDatasource.insertUser(user.toUserTable())
+                            Timber.d("User updated and synced to Room: ${user.email}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing updated user to Room")
+                        }
+                        continuation.resume(Result.success(Unit))
                     }
-                    continuation.resume(Result.success(Unit))
-                }
-            },
-            failure = { error -> continuation.resume(Result.failure(error)) },
-        )
+                },
+                failure = { error -> continuation.resume(Result.failure(error)) },
+            )
+        }
     }
 
     override suspend fun deleteUser(user: User): Result<Unit> = runCatching {
@@ -268,6 +278,40 @@ class RepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Timber.e(e, "Error checking if user exists: $userId")
         false
+    }
+
+    override suspend fun isUsernameAvailable(username: String): Boolean = try {
+        firebaseDatabaseDatasource.isUsernameAvailable(username)
+    } catch (e: Exception) {
+        Timber.e(e, "Error checking username availability")
+        false // Fail closed: treat as unavailable on error
+    }
+
+    override suspend fun updateUsername(user: User, newUsername: String): Result<Unit> = runCatching {
+        val oldUsername = user.username
+
+        // Step 1: Atomically claim the new username in Firestore
+        val claimed = firebaseDatabaseDatasource.claimUsername(newUsername, user.id)
+        if (!claimed) throw Exception("Username '$newUsername' is already taken")
+
+        // Step 2: Update the user document with the new username
+        val updatedUser = user.copy(username = newUsername)
+        suspendCancellableCoroutine { continuation ->
+            firebaseDatabaseDatasource.updateUser(
+                user = updatedUser,
+                success = { continuation.resume(Unit) },
+                failure = { e -> continuation.resume(throw e) },
+            )
+        }
+
+        // Step 3: Release the old username slot (if they had one)
+        if (!oldUsername.isNullOrBlank()) {
+            firebaseDatabaseDatasource.releaseUsername(oldUsername)
+        }
+
+        // Step 4: Write-through to Room
+        roomDatasource.insertUser(updatedUser.toUserTable())
+        Timber.d("Username updated: ${user.id} -> $newUsername")
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -326,17 +370,14 @@ class RepositoryImpl @Inject constructor(
         Timber.d("Movie status updated in ${groupIds.size} groups: movie=$movieId, status=$status")
     }
 
-    override suspend fun removeMovieStatus(
-        groupIds: List<String>,
-        userId: String,
-        movieId: Int,
-    ): Result<Unit> = runCatching {
-        for (groupId in groupIds) {
-            firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
-            roomDatasource.deleteMovieStatus(groupId, userId, movieId)
+    override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
+        runCatching {
+            for (groupId in groupIds) {
+                firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
+                roomDatasource.deleteMovieStatus(groupId, userId, movieId)
+            }
+            Timber.d("Movie status removed from ${groupIds.size} groups: movie=$movieId")
         }
-        Timber.d("Movie status removed from ${groupIds.size} groups: movie=$movieId")
-    }
 
     override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> =
         roomDatasource.getMovieStatusesByGroup(groupId).map { tables ->
@@ -480,7 +521,7 @@ interface Repository {
     suspend fun createGroup(groupName: String, userId: String): Result<Group>
     suspend fun updateGroup(group: Group): Result<Unit>
     suspend fun deleteGroup(groupId: String): Result<Unit>
-    suspend fun addMember(groupId: String, email: String): Result<Unit>
+    suspend fun addMember(groupId: String, identifier: String): Result<Unit>
     suspend fun removeMember(groupId: String, userId: String): Result<Unit>
 
     // Users
@@ -490,6 +531,8 @@ interface Repository {
     suspend fun deleteUser(user: User): Result<Unit>
     suspend fun checkIfUserExists(userId: String): Boolean
     suspend fun getUsersByIds(userIds: List<String>): Result<List<User>>
+    suspend fun isUsernameAvailable(username: String): Boolean
+    suspend fun updateUsername(user: User, newUsername: String): Result<Unit>
 
     // Movie Statuses (per-group)
     suspend fun updateMovieStatus(
@@ -499,11 +542,7 @@ interface Repository {
         status: MovieStatus,
     ): Result<Unit>
 
-    suspend fun removeMovieStatus(
-        groupIds: List<String>,
-        userId: String,
-        movieId: Int,
-    ): Result<Unit>
+    suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit>
 
     fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>>
     suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int>

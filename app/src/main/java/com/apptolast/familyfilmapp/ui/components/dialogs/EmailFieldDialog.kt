@@ -20,21 +20,28 @@ import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.ui.screens.login.components.SupportingErrorText
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.UsernameValidator
 
 @Composable
 fun EmailFieldDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
-    var email by rememberSaveable { mutableStateOf("") }
+    var input by rememberSaveable { mutableStateOf("") }
+
+    val isValidEmail = input.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(input).matches()
+    val isValidUsername = input.isNotBlank() &&
+        UsernameValidator.validate(input) == UsernameValidator.Result.Valid
+    val isValid = isValidEmail || isValidUsername
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (email.isNotBlank()) {
-                        onConfirm(email)
+                    if (isValid) {
+                        onConfirm(input)
                         onDismiss()
                     }
                 },
+                enabled = isValid,
             ) {
                 Text(stringResource(id = android.R.string.ok))
             }
@@ -54,17 +61,19 @@ fun EmailFieldDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -
         },
         text = {
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it.trim() },
-                label = { Text(text = stringResource(R.string.login_text_field_email)) },
+                value = input,
+                onValueChange = { input = it.trim() },
+                label = { Text(text = stringResource(R.string.add_member_input_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(25.dp),
-                isError = email.isBlank() || Patterns.EMAIL_ADDRESS.matcher(email).matches().not(),
+                isError = input.isNotBlank() && !isValid,
                 supportingText = {
-                    if (email.isBlank()) {
-                        SupportingErrorText(errorMessage = stringResource(id = R.string.error_email_blank))
-                    } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        SupportingErrorText(errorMessage = stringResource(id = R.string.error_email_not_valid))
+                    if (input.isBlank()) {
+                        Text(text = stringResource(R.string.add_member_input_hint))
+                    } else if (!isValid) {
+                        SupportingErrorText(
+                            errorMessage = stringResource(R.string.add_member_input_invalid),
+                        )
                     }
                 },
             )

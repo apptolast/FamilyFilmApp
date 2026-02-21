@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
+import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_DELETE_ACCOUNT
@@ -30,8 +32,9 @@ class ProfileScreenTest {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 ProfileContent(
-                    email = email,
-                    photoUrl = photoUrl,
+                    user = User().copy(email = email, photoUrl = photoUrl),
+                    usernameValidationState = UsernameValidationState.Idle,
+                    isSaving = false,
                     onClickLogOut = onClickLogOut,
                     onDeleteUser = onDeleteUser,
                 )

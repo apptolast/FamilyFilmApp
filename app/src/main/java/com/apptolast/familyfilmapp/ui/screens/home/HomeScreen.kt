@@ -208,11 +208,9 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
                 items = filterMovies,
                 key = { movie -> "filter_${movie.id}" },
             ) { movie ->
-                val status = stateUi.user.statusMovies[movie.id.toString()]
                 MovieItem(
                     movie = movie,
                     onClick = onMovieClick,
-                    status = status,
                 )
             }
         }
@@ -235,11 +233,9 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
                     }
                 },
             ) { index ->
-                val status = stateUi.user.statusMovies[movies[index]?.id.toString()]
                 MovieItem(
                     movie = movies[index]!!,
                     onClick = onMovieClick,
-                    status = status,
                     modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$index"),
                 )
             }

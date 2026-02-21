@@ -62,7 +62,6 @@ class FakeRepository : Repository {
                 id = "id1",
                 email = "email",
                 language = "es_ES",
-                statusMovies = mapOf(),
             ),
         )
     }

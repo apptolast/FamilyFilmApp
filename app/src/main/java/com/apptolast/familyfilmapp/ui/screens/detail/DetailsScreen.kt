@@ -23,16 +23,19 @@ import androidx.compose.material.icons.filled.PlaylistAddCheckCircle
 import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -43,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,6 +56,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.network.TmdbConfig
@@ -102,8 +107,6 @@ fun MovieDetailScreen(
             )
         },
         bottomBar = {
-            val isToWatch = state.user.statusMovies[state.movie.id.toString()] == MovieStatus.ToWatch
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,25 +115,25 @@ fun MovieDetailScreen(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CustomStatusButton(
-                    text = "To Watch",
-                    icon = if (isToWatch) Icons.Default.PlaylistAddCheckCircle else Icons.Default.PlaylistAddCircle,
-                    isSelected = isToWatch,
+                    text = stringResource(R.string.discover_want_to_watch),
+                    icon = if (state.isToWatch) Icons.Default.PlaylistAddCheckCircle else Icons.Default.PlaylistAddCircle,
+                    isSelected = state.isToWatch,
                     modifier = Modifier
                         .weight(1f)
                         .testTag(TT_DETAIL_TO_WATCH_BUTTON),
-                    onClick = { viewModel.updateMovieStatus(state.movie, MovieStatus.ToWatch) },
+                    onClick = { viewModel.onStatusButtonClick(MovieStatus.ToWatch) },
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 CustomStatusButton(
-                    text = "Watched",
+                    text = stringResource(R.string.discover_watched),
                     icon = Icons.Default.Visibility,
-                    isSelected = state.user.statusMovies[state.movie.id.toString()] == MovieStatus.Watched,
+                    isSelected = state.isWatched,
                     modifier = Modifier
                         .weight(1f)
                         .testTag(TT_DETAIL_WATCHED_BUTTON),
-                    onClick = { viewModel.updateMovieStatus(state.movie, MovieStatus.Watched) },
+                    onClick = { viewModel.onStatusButtonClick(MovieStatus.Watched) },
                 )
             }
         },
@@ -153,6 +156,73 @@ fun MovieDetailScreen(
                 contentScale = ContentScale.Fit,
             )
             MovieInfo(movie = state.movie)
+        }
+    }
+
+    // Bottom Sheet for group selection
+    if (state.showBottomSheet) {
+        val sheetState = rememberModalBottomSheetState()
+        val statusLabel = when (state.bottomSheetStatus) {
+            MovieStatus.ToWatch -> stringResource(R.string.discover_want_to_watch)
+            MovieStatus.Watched -> stringResource(R.string.discover_watched)
+            else -> ""
+        }
+
+        ModalBottomSheet(
+            onDismissRequest = viewModel::onBottomSheetDismiss,
+            sheetState = sheetState,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.detail_mark_as, statusLabel),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+
+                Text(
+                    text = stringResource(R.string.detail_select_groups),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+
+                state.groups.forEach { group ->
+                    val isChecked = group.id in state.selectedGroupIds
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = { checked ->
+                                viewModel.onGroupSelectionChanged(group.id, checked)
+                            },
+                        )
+                        Text(
+                            text = group.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = viewModel::confirmMovieStatus,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(text = stringResource(R.string.detail_confirm))
+                }
+            }
         }
     }
 }

@@ -56,6 +56,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override suspend fun createUser(user: User) {
+        require(user.id.isNotBlank()) { "Cannot create user with blank ID" }
         usersCollection.document(user.id).set(user).await()
     }
 
@@ -95,6 +96,11 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override fun updateUser(user: User, success: (Void?) -> Unit, failure: (Exception) -> Unit) {
+        if (user.id.isBlank()) {
+            failure(IllegalArgumentException("Cannot update user with blank ID"))
+            return
+        }
+
         // Update fields
         val updates = mapOf(
             "email" to user.email,
@@ -118,6 +124,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
     }
 
     override suspend fun deleteUser(user: User) {
+        require(user.id.isNotBlank()) { "Cannot delete user with blank ID" }
         usersCollection.document(user.id).delete().await()
         Timber.d("User deleted from Firestore: ${user.email}")
     }

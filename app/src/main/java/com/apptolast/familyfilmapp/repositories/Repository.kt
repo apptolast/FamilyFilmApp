@@ -244,23 +244,29 @@ class RepositoryImpl @Inject constructor(
     override fun getUserById(userId: String): Flow<User> =
         roomDatasource.getUser(userId).filterNotNull().map { it.toUser() }
 
-    override suspend fun updateUser(user: User): Result<Unit> = suspendCancellableCoroutine { continuation ->
-        firebaseDatabaseDatasource.updateUser(
-            user = user,
-            success = {
-                // Write-through: update Room before resuming to avoid race condition
-                coroutineScope.launch {
-                    try {
-                        roomDatasource.insertUser(user.toUserTable())
-                        Timber.d("User updated and synced to Room: ${user.email}")
-                    } catch (e: Exception) {
-                        Timber.e(e, "Error syncing updated user to Room")
+    override suspend fun updateUser(user: User): Result<Unit> {
+        if (user.id.isBlank()) {
+            Timber.e("Attempted to update user with blank ID, ignoring")
+            return Result.failure(IllegalArgumentException("Cannot update user with blank ID"))
+        }
+        return suspendCancellableCoroutine { continuation ->
+            firebaseDatabaseDatasource.updateUser(
+                user = user,
+                success = {
+                    // Write-through: update Room before resuming to avoid race condition
+                    coroutineScope.launch {
+                        try {
+                            roomDatasource.insertUser(user.toUserTable())
+                            Timber.d("User updated and synced to Room: ${user.email}")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing updated user to Room")
+                        }
+                        continuation.resume(Result.success(Unit))
                     }
-                    continuation.resume(Result.success(Unit))
-                }
-            },
-            failure = { error -> continuation.resume(Result.failure(error)) },
-        )
+                },
+                failure = { error -> continuation.resume(Result.failure(error)) },
+            )
+        }
     }
 
     override suspend fun deleteUser(user: User): Result<Unit> = runCatching {

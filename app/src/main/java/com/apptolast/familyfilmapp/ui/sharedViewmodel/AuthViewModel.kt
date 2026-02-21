@@ -22,8 +22,12 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.apptolast.familyfilmapp.utils.UsernameValidator
+import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +36,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
@@ -68,11 +75,22 @@ class AuthViewModel @Inject constructor(
     val recoverPassState: StateFlow<RecoverPassState>
         field: MutableStateFlow<RecoverPassState> = MutableStateFlow(RecoverPassState())
 
+    val username: StateFlow<String>
+        field: MutableStateFlow<String> = MutableStateFlow("")
+
+    val usernameValidationState: StateFlow<UsernameValidationState>
+        field: MutableStateFlow<UsernameValidationState> = MutableStateFlow(UsernameValidationState.Idle)
+
+    val shouldPromptForUsername: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     val provider: StateFlow<String?> = authRepository.getProvider().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
     )
+
+    private var usernameCheckJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -91,7 +109,32 @@ class AuthViewModel @Inject constructor(
             }
         }
 
+        // Reset username state when toggling between Login/Register
+        username.update { "" }
+        usernameCheckJob?.cancel()
+        usernameValidationState.update { UsernameValidationState.Idle }
+
         authState.update { AuthState.Unauthenticated }
+    }
+
+    fun onUsernameChange(value: String) {
+        username.update { value }
+        usernameCheckJob?.cancel()
+
+        val earlyState = UsernameValidator.validate(value).toValidationState()
+        if (earlyState != null) {
+            usernameValidationState.update { earlyState }
+            return
+        }
+
+        usernameValidationState.update { UsernameValidationState.Checking }
+        usernameCheckJob = viewModelScope.launch(dispatcherProvider.io()) {
+            delay(USERNAME_CHECK_DEBOUNCE_MS)
+            val available = repository.isUsernameAvailable(value)
+            usernameValidationState.update {
+                if (available) UsernameValidationState.Available else UsernameValidationState.Taken
+            }
+        }
     }
 
     private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -100,15 +143,20 @@ class AuthViewModel @Inject constructor(
         }.catch { error ->
             Timber.e(error, "Error getting user")
             handleFailure(error.message ?: "Error getting the user")
-        }.collectLatest { (user, isTokenValid) ->
+        }.flatMapLatest { (user, isTokenValid) ->
             if (user?.isEmailVerified == true && isTokenValid) {
                 val domainUser = user.toDomainUserModel()
                 repository.startSync(domainUser.id)
-                authState.update { AuthState.Authenticated(domainUser) }
+                // Observe Room for enriched data (username, etc.)
+                repository.getUserById(domainUser.id).map { roomUser ->
+                    AuthState.Authenticated(roomUser)
+                }
             } else {
                 repository.stopSync()
-                authState.update { AuthState.Unauthenticated }
+                flowOf(AuthState.Unauthenticated as AuthState)
             }
+        }.collectLatest { state ->
+            authState.update { state }
         }
     }
 
@@ -136,26 +184,27 @@ class AuthViewModel @Inject constructor(
             }
     }
 
-    fun registerAndSendEmail(email: String, password: String) = viewModelScope.launch(dispatcherProvider.io()) {
-        authState.update { AuthState.Loading }
-        authRepository.register(email, password)
-            .catch { error ->
-                handleFailure(error.message ?: "Error register user")
-                Timber.e(error.message ?: "Error register user")
-            }
-            .filterNotNull()
-            .collectLatest { result ->
-                result
-                    .onSuccess { user ->
-                        if (user == null) return@collectLatest
-                        createNewUser(user)
-                        isEmailSent.update { true }
-                    }
-                    .onFailure { error ->
-                        handleFailure(error.message ?: "Error register user")
-                    }
-            }
-    }
+    fun registerAndSendEmail(email: String, password: String, username: String) =
+        viewModelScope.launch(dispatcherProvider.io()) {
+            authState.update { AuthState.Loading }
+            authRepository.register(email, password)
+                .catch { error ->
+                    handleFailure(error.message ?: "Error register user")
+                    Timber.e(error.message ?: "Error register user")
+                }
+                .filterNotNull()
+                .collectLatest { result ->
+                    result
+                        .onSuccess { user ->
+                            if (user == null) return@collectLatest
+                            createNewUser(user, username)
+                            isEmailSent.update { true }
+                        }
+                        .onFailure { error ->
+                            handleFailure(error.message ?: "Error register user")
+                        }
+                }
+        }
 
     /**
      * Starts email verification polling on-demand.
@@ -204,6 +253,7 @@ class AuthViewModel @Inject constructor(
                                     val exists = repository.checkIfUserExists(user.id)
                                     if (!exists) {
                                         createNewUser(user)
+                                        shouldPromptForUsername.update { true }
                                     }
                                     checkIsUserLogged()
                                 }
@@ -331,17 +381,48 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun createNewUser(user: User) = viewModelScope.launch(dispatcherProvider.io()) {
-        repository.createUser(
-            User().copy(
-                id = user.id,
-                email = user.email,
-                language = Locale.getDefault().toLanguageTag(),
-                photoUrl = user.photoUrl,
-            ),
-        ).onFailure { error ->
+    private fun createNewUser(user: User, username: String = "") = viewModelScope.launch(dispatcherProvider.io()) {
+        // Create user without username first (Firestore user document)
+        val newUser = User(
+            id = user.id,
+            email = user.email,
+            language = Locale.getDefault().toLanguageTag(),
+            photoUrl = user.photoUrl,
+        )
+
+        repository.createUser(newUser).onFailure { error ->
             handleFailure(error.message ?: "Create New User Error")
+            return@launch
         }
+
+        // Then atomically claim and set the username via updateUsername
+        val usernameToSet = username.takeIf { it.isNotBlank() }
+        if (usernameToSet != null) {
+            repository.updateUsername(newUser, usernameToSet)
+                .onFailure { error ->
+                    Timber.w(error, "Username '$usernameToSet' could not be claimed during registration")
+                }
+        }
+    }
+
+    fun saveUsernameForNewUser(newUsername: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        val currentUser = (authState.value as? AuthState.Authenticated)?.user ?: return@launch
+        repository.updateUsername(currentUser, newUsername)
+            .onSuccess {
+                shouldPromptForUsername.update { false }
+                Timber.d("Username saved for new user: $newUsername")
+            }
+            .onFailure { error ->
+                handleFailure(error.message ?: "Failed to save username")
+            }
+    }
+
+    fun skipUsernameSetup() {
+        shouldPromptForUsername.update { false }
+    }
+
+    companion object {
+        private const val USERNAME_CHECK_DEBOUNCE_MS = 500L
     }
 }
 

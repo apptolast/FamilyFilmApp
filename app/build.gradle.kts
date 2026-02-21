@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -36,8 +37,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 21
-        versionName = "0.4.2"
+        versionCode = 22
+        versionName = "0.4.3"
 
 //        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
@@ -80,10 +81,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
     buildFeatures {
         buildConfig = true
         compose = true
@@ -108,12 +105,6 @@ android {
                 "**/junit-jupiter-*.jar/META-INF/LICENSE-notice.md",
             )
         }
-//        exclude "**/junit-jupiter-engine-*.jar/META-INF/LICENSE-notice.md"
-//        exclude "**/junit-jupiter-params-*.jar/META-INF/LICENSE-notice.md"
-//        exclude "**/junit-jupiter-api-*.jar/META-INF/LICENSE-notice.md"
-//        exclude "**/junit-platform-engine-*.jar/META-INF/LICENSE-notice.md"
-//        exclude "**/junit-platform-commons-*.jar/META-INF/LICENSE-notice.md"
-//        exclude "**/junit-jupiter-*.jar/META-INF/LICENSE-notice.md"
     }
 
     room {
@@ -223,7 +214,7 @@ dependencies {
 }
 
 ktlint {
-    version = "1.4.1"
+    version = "1.8.0"
     debug = true
     verbose = true
     android = false
@@ -256,5 +247,12 @@ ksp {
 kotlin {
     sourceSets.configureEach {
         languageSettings.enableLanguageFeature("ExplicitBackingFields")
+    }
+
+    // Extension level
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("11")
+//        languageVersion = KotlinVersion.fromVersion("2.3")
+//        apiVersion = KotlinVersion.fromVersion("2.3")
     }
 }

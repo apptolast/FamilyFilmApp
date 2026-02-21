@@ -14,6 +14,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -21,6 +22,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
 
     private lateinit var viewModel: AuthViewModel
@@ -84,9 +86,11 @@ class AuthViewModelTest {
         every { firebaseUser.isEmailVerified } returns true
         every { firebaseUser.uid } returns testUserId
         every { firebaseUser.email } returns "auth@test.com"
+        every { firebaseUser.photoUrl } returns null
         every { authRepository.getUser() } returns flowOf(firebaseUser)
         every { authRepository.isTokenValid() } returns flowOf(true)
         every { repository.startSync(testUserId) } returns Unit
+        every { repository.getUserById(testUserId) } returns flowOf(testUser)
 
         createViewModel()
         advanceUntilIdle()
@@ -296,7 +300,7 @@ class AuthViewModelTest {
         createViewModel()
         advanceUntilIdle()
 
-        viewModel.registerAndSendEmail("new@test.com", "pass123")
+        viewModel.registerAndSendEmail("new@test.com", "pass123", "")
         advanceUntilIdle()
 
         assertThat(viewModel.isEmailSent.value).isTrue()
@@ -311,7 +315,7 @@ class AuthViewModelTest {
         createViewModel()
         advanceUntilIdle()
 
-        viewModel.registerAndSendEmail("dup@test.com", "pass")
+        viewModel.registerAndSendEmail("dup@test.com", "pass", "")
         advanceUntilIdle()
 
         val state = viewModel.authState.value

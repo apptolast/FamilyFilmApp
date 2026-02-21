@@ -35,11 +35,7 @@ class DiscoverScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun setDiscoverButtons(
-        onWatched: () -> Unit = {},
-        onSkip: () -> Unit = {},
-        onToWatch: () -> Unit = {},
-    ) {
+    private fun setDiscoverButtons(onWatched: () -> Unit = {}, onSkip: () -> Unit = {}, onToWatch: () -> Unit = {}) {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 Row(

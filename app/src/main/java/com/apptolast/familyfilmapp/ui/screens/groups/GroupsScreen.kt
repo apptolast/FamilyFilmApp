@@ -463,6 +463,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
                 is SyncState.Error -> {
                     Text(
                         text = "${stringResource(R.string.sync_state_error)}: ${syncState.message}",
@@ -470,6 +471,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+
                 is SyncState.Offline -> {
                     Text(
                         text = stringResource(R.string.sync_state_offline),
@@ -477,6 +479,7 @@ fun SyncStateIndicator(syncState: SyncState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
                 is SyncState.Synced -> {
                     // Hidden when synced
                 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
@@ -30,7 +31,7 @@ class LoginScreenTest {
         screenState: LoginRegisterState = LoginRegisterState.Login(),
         email: String = "",
         password: String = "",
-        onClick: (String, String) -> Unit = { _, _ -> },
+        onClick: (String, String, String) -> Unit = { _, _, _ -> },
         onClickGoogleButton: () -> Unit = {},
         onClickScreenState: () -> Unit = {},
     ) {
@@ -40,6 +41,8 @@ class LoginScreenTest {
                     showLoginInterface = true,
                     email = email,
                     password = password,
+                    username = "",
+                    usernameValidationState = UsernameValidationState.Idle,
                     isEmailSent = false,
                     screenState = screenState,
                     recoverPassState = RecoverPassState(),
@@ -101,7 +104,7 @@ class LoginScreenTest {
     @Test
     fun loginContent_loginButtonCallsOnClick() {
         var clicked = false
-        setLoginContent(onClick = { _, _ -> clicked = true })
+        setLoginContent(onClick = { _, _, _ -> clicked = true })
         composeTestRule.onNodeWithTag(TT_LOGIN_BUTTON).performClick()
         assertThat(clicked).isTrue()
     }

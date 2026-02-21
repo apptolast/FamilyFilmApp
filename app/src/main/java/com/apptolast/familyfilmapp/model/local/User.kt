@@ -8,13 +8,17 @@ data class User(
     val email: String,
     val language: String,
     val photoUrl: String,
+    val username: String? = null,
 ) {
     constructor() : this(
         id = "",
         email = "",
         language = "",
         photoUrl = "",
+        username = null,
     )
+
+    val displayName: String get() = username?.takeIf { it.isNotBlank() } ?: email
 }
 
 fun FirebaseUser.toDomainUserModel(): User = User(

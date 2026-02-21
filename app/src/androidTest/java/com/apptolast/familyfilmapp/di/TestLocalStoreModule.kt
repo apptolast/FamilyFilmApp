@@ -29,6 +29,5 @@ class TestLocalStoreModule {
     fun provideGardenPlantingDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
 
     @Provides
-    fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao =
-        appDatabase.groupMovieStatusDao()
+    fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao = appDatabase.groupMovieStatusDao()
 }

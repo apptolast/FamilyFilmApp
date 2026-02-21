@@ -17,7 +17,9 @@ interface GroupMovieStatusDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entries: List<GroupMovieStatusTable>)
 
-    @Query("DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId AND userId = :userId AND movieId = :movieId")
+    @Query(
+        "DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId AND userId = :userId AND movieId = :movieId",
+    )
     suspend fun delete(groupId: String, userId: String, movieId: Int)
 
     @Query("SELECT * FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId")

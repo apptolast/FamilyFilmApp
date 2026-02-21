@@ -4,9 +4,11 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -73,6 +75,24 @@ class FakeRepository : Repository {
 
     override suspend fun getUsersByIds(userIds: List<String>): Result<List<User>> =
         Result.success(emptyList())
+
+    override suspend fun updateMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        status: MovieStatus,
+    ): Result<Unit> = Result.success(Unit)
+
+    override suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+    ): Result<Unit> = Result.success(Unit)
+
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> =
+        flowOf(emptyList())
+
+    override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> = emptyList()
 
     override fun startSync(userId: String) { /* no-op */ }
 

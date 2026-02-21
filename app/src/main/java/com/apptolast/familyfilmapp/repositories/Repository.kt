@@ -5,11 +5,15 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
 import com.apptolast.familyfilmapp.model.local.Movie
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
+import com.apptolast.familyfilmapp.model.local.types.MovieStatus
 import com.apptolast.familyfilmapp.model.room.toGroup
+import com.apptolast.familyfilmapp.model.room.toGroupMovieStatus
+import com.apptolast.familyfilmapp.model.room.toGroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
@@ -303,6 +307,46 @@ class RepositoryImpl @Inject constructor(
     }
 
     // /////////////////////////////////////////////////////////////////////////
+    // Movie Statuses (per-group)
+    // /////////////////////////////////////////////////////////////////////////
+
+    override suspend fun updateMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        status: MovieStatus,
+    ): Result<Unit> = runCatching {
+        // Write to Firebase first, then Room (write-through)
+        for (groupId in groupIds) {
+            firebaseDatabaseDatasource.setMovieStatus(groupId, userId, movieId, status)
+            roomDatasource.insertMovieStatus(
+                GroupMovieStatus(groupId, userId, movieId, status).toGroupMovieStatusTable(),
+            )
+        }
+        Timber.d("Movie status updated in ${groupIds.size} groups: movie=$movieId, status=$status")
+    }
+
+    override suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+    ): Result<Unit> = runCatching {
+        for (groupId in groupIds) {
+            firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
+            roomDatasource.deleteMovieStatus(groupId, userId, movieId)
+        }
+        Timber.d("Movie status removed from ${groupIds.size} groups: movie=$movieId")
+    }
+
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> =
+        roomDatasource.getMovieStatusesByGroup(groupId).map { tables ->
+            tables.map { it.toGroupMovieStatus() }
+        }
+
+    override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> =
+        roomDatasource.getAllMovieIdsForUser(userId)
+
+    // /////////////////////////////////////////////////////////////////////////
     // Sync Lifecycle Management
     // /////////////////////////////////////////////////////////////////////////
 
@@ -364,6 +408,25 @@ class RepositoryImpl @Inject constructor(
                         }
                     }
 
+                    // Migrate old statusMovies to per-group subcollections (one-time)
+                    try {
+                        firebaseDatabaseDatasource.migrateMovieStatusesIfNeeded(
+                            userId,
+                            remoteGroups,
+                        )
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error during movie status migration")
+                    }
+
+                    // Sync movie statuses from Firebase to Room for each group
+                    remoteGroups.forEach { group ->
+                        try {
+                            syncMovieStatusesForGroup(group.id)
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error syncing movie statuses for group: ${group.name}")
+                        }
+                    }
+
                     // Update sync state to synced
                     _syncState.value = SyncState.Synced
                 }
@@ -375,6 +438,18 @@ class RepositoryImpl @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun syncMovieStatusesForGroup(groupId: String) {
+        val remoteStatuses = firebaseDatabaseDatasource.observeMovieStatusesForGroup(groupId).first()
+        // Replace all local statuses for this group with remote data
+        roomDatasource.deleteMovieStatusesByGroup(groupId)
+        if (remoteStatuses.isNotEmpty()) {
+            roomDatasource.insertAllMovieStatuses(
+                remoteStatuses.map { it.toGroupMovieStatusTable() },
+            )
+        }
+        Timber.d("Synced ${remoteStatuses.size} movie statuses for group: $groupId")
     }
 
     override fun stopSync() {
@@ -415,6 +490,23 @@ interface Repository {
     suspend fun deleteUser(user: User): Result<Unit>
     suspend fun checkIfUserExists(userId: String): Boolean
     suspend fun getUsersByIds(userIds: List<String>): Result<List<User>>
+
+    // Movie Statuses (per-group)
+    suspend fun updateMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        status: MovieStatus,
+    ): Result<Unit>
+
+    suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+    ): Result<Unit>
+
+    fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>>
+    suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int>
 
     // /////////////////////////////////////////////////////////////////////////
     // Sync Lifecycle Management

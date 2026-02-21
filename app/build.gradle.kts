@@ -37,8 +37,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 21
-        versionName = "0.4.2"
+        versionCode = 22
+        versionName = "0.4.3"
 
 //        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
@@ -52,14 +52,14 @@ android {
         resValue("string", "admob_app_id", admobAppId)
     }
 
-//    signingConfigs {
-//        create("release") {
-//            storeFile = file(localProperties.getProperty("storeFile"))
-//            storePassword = localProperties.getProperty("storePassword")
-//            keyAlias = localProperties.getProperty("keyAlias")
-//            keyPassword = localProperties.getProperty("keyPassword")
-//        }
-//    }
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("storeFile"))
+            storePassword = localProperties.getProperty("storePassword")
+            keyAlias = localProperties.getProperty("keyAlias")
+            keyPassword = localProperties.getProperty("keyPassword")
+        }
+    }
 
     buildTypes {
         getByName("debug") { }

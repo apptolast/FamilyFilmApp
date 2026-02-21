@@ -159,7 +159,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addMember(groupId: String, email: String): Result<Unit> {
+    override suspend fun addMember(groupId: String, identifier: String): Result<Unit> {
         val group = runCatching {
             roomDatasource.getGroupById(groupId).first()?.toGroup()
         }.getOrNull()
@@ -171,17 +171,21 @@ class RepositoryImpl @Inject constructor(
         return suspendCancellableCoroutine { continuation ->
             firebaseDatabaseDatasource.addMember(
                 group = group,
-                email = email,
+                identifier = identifier,
                 success = {
-                    // Write-through: look up user by email and update group in Room
+                    // Write-through: look up user in Room and update group
                     coroutineScope.launch {
                         try {
-                            val userTable = roomDatasource.getUserByEmail(email).first()
+                            val userTable = if (identifier.contains("@")) {
+                                roomDatasource.getUserByEmail(identifier).first()
+                            } else {
+                                roomDatasource.getUserByUsername(identifier)
+                            }
                             if (userTable != null) {
                                 val updatedUsers = group.users + userTable.toUser().id
                                 val updatedGroup = group.copy(users = updatedUsers)
                                 roomDatasource.insertGroup(updatedGroup.toGroupTable())
-                                Timber.d("Member added and group synced to Room: $email")
+                                Timber.d("Member added and group synced to Room: $identifier")
                             }
                         } catch (e: Exception) {
                             Timber.e(e, "Error syncing added member to Room")
@@ -511,7 +515,7 @@ interface Repository {
     suspend fun createGroup(groupName: String, userId: String): Result<Group>
     suspend fun updateGroup(group: Group): Result<Unit>
     suspend fun deleteGroup(groupId: String): Result<Unit>
-    suspend fun addMember(groupId: String, email: String): Result<Unit>
+    suspend fun addMember(groupId: String, identifier: String): Result<Unit>
     suspend fun removeMember(groupId: String, userId: String): Result<Unit>
 
     // Users

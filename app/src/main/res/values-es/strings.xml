@@ -74,6 +74,9 @@
     <string name="dialog_change_group_description">Introduce el nuevo nombre del grupo</string>
     <string name="dialog_add_group_member_title">Añadir miembro al grupo</string>
     <string name="dialog_add_group_member_description">Introduce el correo electrónico del miembro</string>
+    <string name="add_member_input_label">Email o nombre de usuario</string>
+    <string name="add_member_input_hint">Introduce un email o @nombre de usuario</string>
+    <string name="add_member_input_invalid">Introduce un email o nombre de usuario válido</string>
     <string name="dialog_delete_group_title">Eliminar Grupo</string>
     <string name="dialog_delete_group_description">¿Estás seguro de que quieres eliminar el grupo?</string>
     <string name="dialog_delete_member_title">Eliminar Usuario</string>

@@ -238,42 +238,80 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             }
     }
 
-    override fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit) {
+    override fun addMember(group: Group, identifier: String, success: () -> Unit, failure: (Exception) -> Unit) {
+        val isEmail = identifier.contains("@")
+
+        if (isEmail) {
+            resolveUserByEmail(identifier, group, success, failure)
+        } else {
+            resolveUserByUsername(identifier, group, success, failure)
+        }
+    }
+
+    private fun resolveUserByEmail(email: String, group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
         usersCollection.whereEqualTo("email", email).get()
             .addOnSuccessListener { querySnapshot ->
                 if (querySnapshot.isEmpty) {
                     failure(IllegalArgumentException("User with email $email not found"))
                     return@addOnSuccessListener
                 }
-
                 val user = querySnapshot.documents[0].toObject(User::class.java)
                 if (user == null) {
                     failure(NullPointerException("Failed to convert document to User object"))
                     return@addOnSuccessListener
                 }
+                addUserToGroup(user, group, success, failure)
+            }
+            .addOnFailureListener { e -> failure(e) }
+    }
 
-                val updatedUsers = group.users.toMutableList()
-                // If the email is not found in the group's user list, add it
-                if (user.id !in updatedUsers) {
-                    updatedUsers.add(user.id)
-
-                    val updatedGroup = group.copy(
-                        users = updatedUsers,
-                        lastUpdated = Calendar.getInstance().time,
-                    )
-
-                    this@FirebaseDatabaseDatasourceImpl.updateGroup(
-                        group = updatedGroup,
-                        success = success,
-                        failure = failure,
-                    )
-                } else {
-                    failure(IllegalArgumentException("User with email $email is already a member of this group"))
+    private fun resolveUserByUsername(
+        username: String,
+        group: Group,
+        success: () -> Unit,
+        failure: (Exception) -> Unit,
+    ) {
+        usernamesCollection.document(username.lowercase()).get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    failure(IllegalArgumentException("User with username @$username not found"))
+                    return@addOnSuccessListener
                 }
+                val userId = document.getString("userId")
+                if (userId == null) {
+                    failure(IllegalArgumentException("Invalid username record for @$username"))
+                    return@addOnSuccessListener
+                }
+                usersCollection.document(userId).get()
+                    .addOnSuccessListener { userDoc ->
+                        val user = userDoc.toObject(User::class.java)
+                        if (user == null) {
+                            failure(IllegalArgumentException("User with username @$username not found"))
+                            return@addOnSuccessListener
+                        }
+                        addUserToGroup(user, group, success, failure)
+                    }
+                    .addOnFailureListener { e -> failure(e) }
             }
-            .addOnFailureListener { e ->
-                failure(e)
-            }
+            .addOnFailureListener { e -> failure(e) }
+    }
+
+    private fun addUserToGroup(user: User, group: Group, success: () -> Unit, failure: (Exception) -> Unit) {
+        val updatedUsers = group.users.toMutableList()
+        if (user.id !in updatedUsers) {
+            updatedUsers.add(user.id)
+            val updatedGroup = group.copy(
+                users = updatedUsers,
+                lastUpdated = Calendar.getInstance().time,
+            )
+            this@FirebaseDatabaseDatasourceImpl.updateGroup(
+                group = updatedGroup,
+                success = success,
+                failure = failure,
+            )
+        } else {
+            failure(IllegalArgumentException("User is already a member of this group"))
+        }
     }
 
     override fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit) {
@@ -497,7 +535,7 @@ interface FirebaseDatabaseDatasource {
     fun updateGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
     fun createGroup(groupName: String, user: User, success: (Group) -> Unit, failure: (Exception) -> Unit)
     fun deleteGroup(group: Group, success: () -> Unit, failure: (Exception) -> Unit)
-    fun addMember(group: Group, email: String, success: () -> Unit, failure: (Exception) -> Unit)
+    fun addMember(group: Group, identifier: String, success: () -> Unit, failure: (Exception) -> Unit)
     fun deleteMember(group: Group, user: User, success: () -> Unit, failure: (Exception) -> Unit)
 
     // /////////////////////////////////////////////////////////////////////////

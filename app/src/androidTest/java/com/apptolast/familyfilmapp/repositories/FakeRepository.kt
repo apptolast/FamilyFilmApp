@@ -46,7 +46,7 @@ class FakeRepository : Repository {
 
     override suspend fun deleteGroup(groupId: String): Result<Unit> = Result.success(Unit)
 
-    override suspend fun addMember(groupId: String, email: String): Result<Unit> = Result.success(Unit)
+    override suspend fun addMember(groupId: String, identifier: String): Result<Unit> = Result.success(Unit)
 
     override suspend fun removeMember(groupId: String, userId: String): Result<Unit> = Result.success(Unit)
 

@@ -2,7 +2,7 @@ package com.apptolast.familyfilmapp.utils
 
 object UsernameValidator {
 
-    private val VALID_PATTERN = Regex("^[a-zA-Z][a-zA-Z0-9_]{2,19}$")
+    private val VALID_PATTERN = Regex("^[a-zA-Z][a-zA-Z0-9_.]{2,19}$")
 
     sealed class Result {
         data object Valid : Result()

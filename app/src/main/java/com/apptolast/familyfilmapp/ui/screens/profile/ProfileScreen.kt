@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
 import android.widget.Toast
-import coil.compose.AsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,9 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,10 +58,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
-import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
@@ -313,7 +313,7 @@ fun ProfileContent(
                 }
             } else {
                 ProfileItem(
-                    title = user.username?.let { "@$it" }
+                    title = user.username
                         ?: stringResource(R.string.profile_set_username),
                     onClick = {
                         isEditingUsername = true

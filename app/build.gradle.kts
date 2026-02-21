@@ -251,7 +251,7 @@ kotlin {
 
     // Extension level
     compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("17")
+        jvmTarget = JvmTarget.fromTarget("11")
 //        languageVersion = KotlinVersion.fromVersion("2.3")
 //        apiVersion = KotlinVersion.fromVersion("2.3")
     }

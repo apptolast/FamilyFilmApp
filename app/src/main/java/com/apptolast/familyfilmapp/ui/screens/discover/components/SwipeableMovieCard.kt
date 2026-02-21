@@ -106,12 +106,10 @@ fun SwipeableMovieCard(
                                     offsetX = value
                                 }
 
-                                // Trigger callback
+                                // Trigger callback — don't reset position here.
+                                // The caller should use key(movie.id) so the card
+                                // is recreated with fresh state when the movie changes.
                                 if (offsetX > 0) onSwipeRight() else onSwipeLeft()
-
-                                // Reset position
-                                offsetX = 0f
-                                offsetY = 0f
                             } else {
                                 // Snap back to center
                                 val animatableX = Animatable(offsetX)

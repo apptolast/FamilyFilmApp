@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -37,6 +36,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     val state: StateFlow<GroupsState> = _state.asStateFlow()
 
     private var groupsObserverJob: Job? = null
+    private var movieStatusObserverJob: Job? = null
     private var currentUserId: String? = null
 
     init {
@@ -301,7 +301,8 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
     /**
      * Load all data for a specific group.
-     * This is an explicit, controlled function - no automatic triggering.
+     * Loads members once, then starts a continuous observation of movie statuses
+     * so that changes from other screens (e.g. Detail) are reflected immediately.
      */
     private suspend fun loadGroupData(groupId: String) {
         Timber.d("Loading data for group: $groupId")
@@ -318,7 +319,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             return
         }
 
-        // Load members using batch query
+        // Load members using batch query (one-shot, members don't change from Detail screen)
         val membersResult = repository.getUsersByIds(group.users)
         val members = membersResult.getOrElse { error ->
             Timber.e(error, "Error loading group members")
@@ -334,69 +335,76 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             if (user.id == group.ownerId) 0 else 1
         }
 
-        // Load per-group movie statuses
-        val groupStatuses: List<GroupMovieStatus> = try {
-            repository.getMovieStatusesByGroup(groupId).first()
-        } catch (e: Exception) {
-            Timber.e(e, "Error loading movie statuses for group")
-            emptyList()
-        }
+        // Start observing movie statuses reactively — updates when Room data changes
+        observeMovieStatuses(groupId, group, sortedMembers)
+    }
 
-        // Movies to watch (any member marked as ToWatch in this group)
-        val toWatchMovieIds = groupStatuses
-            .filter { it.status == MovieStatus.ToWatch }
-            .map { it.movieId }
-            .distinct()
+    /**
+     * Observe movie statuses for a group as a continuous Flow.
+     * When statuses change (e.g. from Detail screen writing to Room),
+     * the group data is recomputed automatically.
+     */
+    private fun observeMovieStatuses(groupId: String, group: Group, members: List<User>) {
+        movieStatusObserverJob?.cancel()
+        movieStatusObserverJob = viewModelScope.launch {
+            repository.getMovieStatusesByGroup(groupId).collectLatest { groupStatuses ->
+                // Movies to watch (any member marked as ToWatch in this group)
+                val toWatchMovieIds = groupStatuses
+                    .filter { it.status == MovieStatus.ToWatch }
+                    .map { it.movieId }
+                    .distinct()
 
-        val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
-            repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading movies to watch")
-                emptyList()
+                val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
+                    repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
+                        Timber.e(error, "Error loading movies to watch")
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
+
+                // Watched movies (any member marked as Watched in this group)
+                val watchedMovieIds = groupStatuses
+                    .filter { it.status == MovieStatus.Watched }
+                    .map { it.movieId }
+                    .distinct()
+
+                val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
+                    repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
+                        Timber.e(error, "Error loading watched movies")
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
+
+                // Find recommended movie (highest popularity from toWatch)
+                val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
+
+                Timber.d(
+                    "Loaded group '${group.name}': ${members.size} members, " +
+                        "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
+                )
+
+                // Update state with loaded data
+                val groupData = GroupData(
+                    group = group,
+                    members = members,
+                    moviesToWatch = moviesToWatch,
+                    moviesWatched = moviesWatched,
+                    recommendedMovie = recommendedMovie,
+                    currentUserId = currentUserId ?: "",
+                )
+
+                _state.update {
+                    it.copy(
+                        selectedGroupId = groupId,
+                        selectedGroupData = groupData,
+                        isLoading = false,
+                        error = null,
+                    )
+                }
             }
-        } else {
-            emptyList()
-        }
-
-        // Watched movies (any member marked as Watched in this group)
-        val watchedMovieIds = groupStatuses
-            .filter { it.status == MovieStatus.Watched }
-            .map { it.movieId }
-            .distinct()
-
-        val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
-            repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
-                Timber.e(error, "Error loading watched movies")
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-
-        // Find recommended movie (highest popularity from toWatch)
-        val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
-
-        Timber.d(
-            "Loaded group '${group.name}': ${sortedMembers.size} members, " +
-                "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
-        )
-
-        // Update state with loaded data
-        val groupData = GroupData(
-            group = group,
-            members = sortedMembers,
-            moviesToWatch = moviesToWatch,
-            moviesWatched = moviesWatched,
-            recommendedMovie = recommendedMovie,
-            currentUserId = currentUserId ?: "",
-        )
-
-        _state.update {
-            it.copy(
-                selectedGroupId = groupId,
-                selectedGroupData = groupData,
-                isLoading = false,
-                error = null,
-            )
         }
     }
 

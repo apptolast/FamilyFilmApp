@@ -14,8 +14,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -226,7 +225,7 @@ fun GroupsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupContent(
     groupData: GroupViewModel.GroupData,
@@ -314,17 +313,16 @@ fun GroupContent(
             // Recommended movie
             item {
                 AnimatedVisibility(visible = groupData.recommendedMovie != null) {
-                    FlowColumn(
+                    Column(
                         modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxSize(0.5f),
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = stringResource(R.string.group_recommended_label),
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp),
+                            modifier = Modifier.padding(bottom = 8.dp),
                             textAlign = TextAlign.Center,
                         )
                         groupData.recommendedMovie?.let { movie ->
@@ -332,6 +330,7 @@ fun GroupContent(
                                 movie = movie,
                                 onClick = onMovieClick,
                                 status = null,
+                                modifier = Modifier.fillMaxWidth(0.6f),
                             )
                         }
                     }

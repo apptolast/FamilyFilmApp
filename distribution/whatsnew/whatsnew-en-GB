@@ -1,3 +1,3 @@
-- NEW: Choose a username! Your name will now appear in groups instead of your email.
-- NEW: Add group members by username or email.
-- FIXED: Stability improvements and crash fixes for a smoother experience.
+- NEW: Select your country in Profile to get movie info and streaming providers in your language.
+- NEW: All group members can now align on the same region for consistent movie data.
+- IMPROVED: Your region preference is saved locally for instant access on app start.

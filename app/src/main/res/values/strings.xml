@@ -130,4 +130,10 @@
     <string name="username_save">Save</string>
     <string name="username_cancel">Cancel</string>
 
+    <!-- REGION -->
+    <string name="region_section_title">Region</string>
+    <string name="region_select_title">Select your country</string>
+    <string name="region_search_hint">Search country</string>
+    <string name="region_edit">Change region</string>
+
 </resources>

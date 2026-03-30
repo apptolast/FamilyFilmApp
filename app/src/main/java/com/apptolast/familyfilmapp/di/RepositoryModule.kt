@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.di
 
 import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.network.TmdbApi
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -41,12 +42,14 @@ object RepositoryModule {
         tmdbDatasource: TmdbDatasource,
         workManager: WorkManager,
         coroutineScope: CoroutineScope,
+        tmdbLocaleManager: TmdbLocaleManager,
     ): Repository = RepositoryImpl(
         roomDatasource,
         firebaseDatabaseDatasource,
         tmdbDatasource,
         workManager,
         coroutineScope,
+        tmdbLocaleManager,
     )
 
     @Singleton

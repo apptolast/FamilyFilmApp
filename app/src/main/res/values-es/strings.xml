@@ -131,4 +131,10 @@
     <string name="username_save">Guardar</string>
     <string name="username_cancel">Cancelar</string>
 
+    <!-- REGION -->
+    <string name="region_section_title">Región</string>
+    <string name="region_select_title">Selecciona tu país</string>
+    <string name="region_search_hint">Buscar país</string>
+    <string name="region_edit">Cambiar región</string>
+
 </resources>

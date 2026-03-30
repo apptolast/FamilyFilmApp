@@ -1,6 +1,8 @@
 package com.apptolast.familyfilmapp.di
 
 import android.content.Context
+import android.content.SharedPreferences
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
@@ -28,4 +30,9 @@ class LocalStoreModule {
 
     @Provides
     fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao = appDatabase.groupMovieStatusDao()
+
+    @Singleton
+    @Provides
+    fun provideTmdbLocalePrefs(@ApplicationContext context: Context): SharedPreferences =
+        context.getSharedPreferences(TmdbLocaleManager.PREFS_NAME, Context.MODE_PRIVATE)
 }

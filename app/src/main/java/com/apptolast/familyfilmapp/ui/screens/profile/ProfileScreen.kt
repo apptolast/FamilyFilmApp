@@ -63,9 +63,11 @@ import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.Routes
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
+import com.apptolast.familyfilmapp.ui.screens.profile.components.CountryPickerDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
+import com.apptolast.familyfilmapp.utils.countryCodeToFlag
 import com.apptolast.familyfilmapp.utils.toErrorString
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
@@ -74,6 +76,7 @@ import com.apptolast.familyfilmapp.utils.TT_PROFILE_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_LOGOUT
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,6 +120,9 @@ fun ProfileScreen(
                             profileViewModel.saveUsername(user, newUsername)
                         },
                         onCancelEditUsername = profileViewModel::resetValidationState,
+                        onSaveLanguage = { languageTag ->
+                            profileViewModel.saveLanguage(user, languageTag)
+                        },
                         onClickLogOut = { viewModel.logOut() },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
@@ -170,11 +176,13 @@ fun ProfileContent(
     onUsernameChange: (String) -> Unit = {},
     onSaveUsername: (String) -> Unit = {},
     onCancelEditUsername: () -> Unit = {},
+    onSaveLanguage: (String) -> Unit = {},
     onClickLogOut: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
     var isEditingUsername by rememberSaveable { mutableStateOf(false) }
     var usernameEditValue by rememberSaveable { mutableStateOf(user.username.orEmpty()) }
+    var showCountryPicker by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -329,6 +337,39 @@ fun ProfileContent(
                     },
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Region Section
+        val currentCountryCode = user.language
+            .substringAfter("-", Locale.getDefault().country)
+        val currentFlag = countryCodeToFlag(currentCountryCode)
+        val currentCountryName = Locale.Builder().setRegion(currentCountryCode).build()
+            .getDisplayCountry(Locale.getDefault())
+
+        ProfileSection(title = stringResource(R.string.region_section_title)) {
+            ProfileItem(
+                title = "$currentFlag $currentCountryName",
+                onClick = { showCountryPicker = true },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.region_edit),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
+        }
+
+        if (showCountryPicker) {
+            CountryPickerDialog(
+                currentCountryCode = currentCountryCode,
+                onSelectRegion = { region ->
+                    onSaveLanguage(region.languageTag)
+                },
+                onDismiss = { showCountryPicker = false },
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

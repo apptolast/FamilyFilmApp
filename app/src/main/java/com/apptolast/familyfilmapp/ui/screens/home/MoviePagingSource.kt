@@ -8,7 +8,8 @@ import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import retrofit2.HttpException
 import java.io.IOException
 
-class MoviePagingSource(private val tmdbDatasource: TmdbDatasource) : PagingSource<Int, Movie>() {
+class MoviePagingSource(private val tmdbDatasource: TmdbDatasource, private val countryCode: String) :
+    PagingSource<Int, Movie>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         return try {
@@ -18,7 +19,7 @@ class MoviePagingSource(private val tmdbDatasource: TmdbDatasource) : PagingSour
             )
 
             LoadResult.Page(
-                data = movies.distinct().map { it.toDomain() },
+                data = movies.distinct().map { it.toDomain(countryCode) },
                 prevKey = if (currentPage == 1) null else currentPage - 1,
                 nextKey = if (movies.isEmpty()) null else currentPage + 1,
             )

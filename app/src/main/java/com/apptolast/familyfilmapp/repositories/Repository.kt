@@ -11,6 +11,7 @@ import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.model.room.toGroup
 import com.apptolast.familyfilmapp.model.room.toGroupMovieStatus
 import com.apptolast.familyfilmapp.model.room.toGroupMovieStatusTable
@@ -41,6 +42,7 @@ class RepositoryImpl @Inject constructor(
     private val tmdbDatasource: TmdbDatasource,
     private val workManager: WorkManager,
     private val coroutineScope: CoroutineScope,
+    private val tmdbLocaleManager: TmdbLocaleManager,
 ) : Repository {
 
     // Sync state management
@@ -52,20 +54,20 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = Pager(
         config = PagingConfig(pageSize),
-        pagingSourceFactory = { MoviePagingSource(tmdbDatasource) },
+        pagingSourceFactory = { MoviePagingSource(tmdbDatasource, tmdbLocaleManager.countryCode) },
     ).flow
 
     override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> = runCatching {
-        tmdbDatasource.getPopularMovies(page).map { it.toDomain() }
+        tmdbDatasource.getPopularMovies(page).map { it.toDomain(tmdbLocaleManager.countryCode) }
     }
 
     override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> = runCatching {
-        tmdbDatasource.searchMovieByName(string).map { it.toDomain() }
+        tmdbDatasource.searchMovieByName(string).map { it.toDomain(tmdbLocaleManager.countryCode) }
     }
 
     override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
         ids.map {
-            tmdbDatasource.searchMovieById(it).toDomain()
+            tmdbDatasource.searchMovieById(it).toDomain(tmdbLocaleManager.countryCode)
         }
     }
 
@@ -413,6 +415,7 @@ class RepositoryImpl @Inject constructor(
                 if (authenticatedUser != null) {
                     try {
                         roomDatasource.insertUser(authenticatedUser.toUserTable())
+                        tmdbLocaleManager.update(authenticatedUser.language)
                         Timber.d("Authenticated user synced to Room: ${authenticatedUser.email}")
                     } catch (e: Exception) {
                         Timber.e(e, "Error syncing authenticated user to Room")

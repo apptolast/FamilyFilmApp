@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
+    private val tmdbLocaleManager: TmdbLocaleManager,
 ) : ViewModel() {
 
     val usernameValidationState: StateFlow<UsernameValidationState>
@@ -74,6 +76,18 @@ class ProfileViewModel @Inject constructor(
         usernameCheckJob?.cancel()
         usernameValidationState.update { UsernameValidationState.Idle }
         saveError.update { null }
+    }
+
+    fun saveLanguage(user: User, languageTag: String) = viewModelScope.launch(dispatcherProvider.io()) {
+        val updatedUser = user.copy(language = languageTag)
+        repository.updateUser(updatedUser)
+            .onSuccess {
+                tmdbLocaleManager.update(languageTag)
+                Timber.d("Language updated to: $languageTag")
+            }
+            .onFailure { error ->
+                Timber.e(error, "Error saving language")
+            }
     }
 
     companion object {

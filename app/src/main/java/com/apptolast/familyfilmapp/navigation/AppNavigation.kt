@@ -87,7 +87,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                     title = {
                         Text(
                             text = stringResource(titleRes),
-                            style = MaterialTheme.typography.headlineLarge,
+                            style = MaterialTheme.typography.headlineMedium,
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(

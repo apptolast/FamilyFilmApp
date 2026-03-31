@@ -3,7 +3,6 @@ package com.apptolast.familyfilmapp.model.local
 import android.os.Parcelable
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
 import kotlinx.parcelize.Parcelize
-import java.util.Locale
 
 @Parcelize
 data class Movie(
@@ -40,38 +39,34 @@ data class Movie(
     )
 }
 
-fun TmdbMovieRemote.toDomain(): Movie {
-    val deviceCountryCode = Locale.getDefault().country
-
-    return Movie(
-        id = id,
-        adult = adult,
-        title = title ?: "",
-        popularity = popularity ?: 0f,
-        voteAverage = voteAverage ?: 0f,
-        streamProviders = providers?.results?.get(deviceCountryCode)?.stream?.map { provider ->
-            Provider(
-                providerId = provider.providerId,
-                name = provider.providerName,
-                logoPath = provider.logoPath,
-            )
-        } ?: emptyList(),
-        buyProviders = providers?.results?.get(deviceCountryCode)?.buy?.map { provider ->
-            Provider(
-                providerId = provider.providerId,
-                name = provider.providerName,
-                logoPath = provider.logoPath,
-            )
-        } ?: emptyList(),
-        rentProviders = providers?.results?.get(deviceCountryCode)?.rent?.map { provider ->
-            Provider(
-                providerId = provider.providerId,
-                name = provider.providerName,
-                logoPath = provider.logoPath,
-            )
-        } ?: emptyList(),
-        overview = overview ?: "",
-        releaseDate = releaseDate ?: "",
-        posterPath = posterPath ?: "",
-    )
-}
+fun TmdbMovieRemote.toDomain(countryCode: String): Movie = Movie(
+    id = id,
+    adult = adult,
+    title = title ?: "",
+    popularity = popularity ?: 0f,
+    voteAverage = voteAverage ?: 0f,
+    streamProviders = providers?.results?.get(countryCode)?.stream?.map { provider ->
+        Provider(
+            providerId = provider.providerId,
+            name = provider.providerName,
+            logoPath = provider.logoPath,
+        )
+    } ?: emptyList(),
+    buyProviders = providers?.results?.get(countryCode)?.buy?.map { provider ->
+        Provider(
+            providerId = provider.providerId,
+            name = provider.providerName,
+            logoPath = provider.logoPath,
+        )
+    } ?: emptyList(),
+    rentProviders = providers?.results?.get(countryCode)?.rent?.map { provider ->
+        Provider(
+            providerId = provider.providerId,
+            name = provider.providerName,
+            logoPath = provider.logoPath,
+        )
+    } ?: emptyList(),
+    overview = overview ?: "",
+    releaseDate = releaseDate ?: "",
+    posterPath = posterPath ?: "",
+)

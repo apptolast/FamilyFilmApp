@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.di
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.interceptors.AuthInterceptor
+import com.apptolast.familyfilmapp.network.interceptors.TmdbLocaleInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -45,11 +46,15 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder().apply {
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        tmdbLocaleInterceptor: TmdbLocaleInterceptor,
+    ): OkHttpClient = OkHttpClient.Builder().apply {
         connectTimeout(15, TimeUnit.SECONDS)
         readTimeout(30, TimeUnit.SECONDS)
         writeTimeout(15, TimeUnit.SECONDS)
         addInterceptor(authInterceptor)
+        addInterceptor(tmdbLocaleInterceptor)
         if (BuildConfig.DEBUG) {
             addInterceptor(
                 HttpLoggingInterceptor().apply {

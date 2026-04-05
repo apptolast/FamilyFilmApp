@@ -4,11 +4,11 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.flowOf
 
 class FakeRepository : Repository {
 
-    override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = flowOf(
+    override fun getPopularMovies(pageSize: Int): Flow<PagingData<Media>> = flowOf(
         PagingData.from(
             listOf(
-                Movie().copy(
+                Media().copy(
                     title = "Matrix",
                     overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
@@ -32,11 +32,24 @@ class FakeRepository : Repository {
         ),
     )
 
-    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> = Result.success(emptyList())
+    override suspend fun getPopularMoviesList(page: Int): Result<List<Media>> = Result.success(emptyList())
 
-    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> = Result.success(emptyList())
+    override suspend fun searchTmdbMovieByName(string: String): Result<List<Media>> = Result.success(emptyList())
 
-    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = Result.success(emptyList())
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Media>> = Result.success(emptyList())
+
+    override fun getPopularTvShows(pageSize: Int): Flow<PagingData<Media>> = flowOf(
+        PagingData.from(
+            emptyList(),
+            sourceLoadStates = LoadStates(LoadState.Loading, LoadState.Loading, LoadState.Loading),
+        ),
+    )
+
+    override suspend fun getPopularTvShowsList(page: Int): Result<List<Media>> = Result.success(emptyList())
+
+    override suspend fun searchMulti(query: String): Result<List<Media>> = Result.success(emptyList())
+
+    override suspend fun getTvShowsByIds(ids: List<Int>): Result<List<Media>> = Result.success(emptyList())
 
     override fun getMyGroups(userId: String): Flow<List<Group>> = flowOf(emptyList())
 
@@ -78,13 +91,13 @@ class FakeRepository : Repository {
         groupIds: List<String>,
         userId: String,
         movieId: Int,
-        status: MovieStatus,
+        status: MediaStatus,
     ): Result<Unit> = Result.success(Unit)
 
     override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
         Result.success(Unit)
 
-    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> = flowOf(emptyList())
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>> = flowOf(emptyList())
 
     override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> = emptyList()
 

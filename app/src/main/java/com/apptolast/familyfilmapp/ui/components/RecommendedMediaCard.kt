@@ -26,23 +26,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateToDetailsScreen: (Movie) -> Unit) {
+fun RecommendedMediaCard(media: Media, modifier: Modifier = Modifier, navigateToDetailsScreen: (Media) -> Unit) {
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable {
-                    navigateToDetailsScreen(movie)
+                    navigateToDetailsScreen(media)
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             AsyncImage(
-                model = movie.posterPath,
-                contentDescription = movie.title,
+                model = media.posterPath,
+                contentDescription = media.title,
                 contentScale = ContentScale.Inside,
             )
             Column(
@@ -52,43 +52,13 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                 verticalArrangement = Arrangement.Top,
             ) {
                 Text(
-                    text = movie.title,
+                    text = media.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
                 )
-//                Row(
-//                    modifier = Modifier.padding(vertical = 10.dp),
-//                    horizontalArrangement = Arrangement.Start,
-//                    verticalAlignment = Alignment.CenterVertically,
-//                ) {
-//                    Text(
-//                        text = "${
-//                            Calendar.getInstance().apply { time = movie.releaseDate }.get(Calendar.YEAR).plus(1900)
-//                        }",
-//                        style = MaterialTheme.typography.labelSmall,
-//                        textAlign = TextAlign.Left,
-//                    )
-//                    if (movie.voteAverage != 0f) {
-//                        Text(
-//                            text = "|",
-//                            style = MaterialTheme.typography.labelSmall,
-//                            textAlign = TextAlign.Left,
-//                        )
-//                        Icon(
-//                            imageVector = Icons.Default.Star,
-//                            contentDescription = "Start",
-//                            modifier = Modifier.height(12.dp),
-//                        )
-//                        Text(
-//                            text = "${movie.voteAverage}",
-//                            style = MaterialTheme.typography.labelSmall,
-//                            textAlign = TextAlign.Left,
-//                        )
-//                    }
-//                }
                 Text(
-                    text = movie.overview,
+                    text = media.overview,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -100,11 +70,10 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     Button(
-                        onClick = { navigateToDetailsScreen(movie) },
+                        onClick = { navigateToDetailsScreen(media) },
                         modifier = Modifier
                             .width(200.dp)
                             .height(35.dp),
-
                     ) {
                         Text(text = stringResource(id = R.string.text_read_more))
                     }
@@ -116,14 +85,14 @@ fun RecommendedMovieCard(movie: Movie, modifier: Modifier = Modifier, navigateTo
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun RecommendedMovieCardPreview() {
+private fun PreviewRecommendedMediaCard() {
     FamilyFilmAppTheme {
-        RecommendedMovieCard(
+        RecommendedMediaCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
-            movie = Movie(
-                title = "Movie Title",
+            media = Media(
+                title = "Media Title",
                 posterPath = "https://image.tmdb.org/t/p/original/ar2h87jlTfMlrDZefR3VFz1SfgH.jpg",
             ),
             navigateToDetailsScreen = {},

@@ -10,22 +10,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
+import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.ui.screens.home.MediaItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun HorizontalScrollableMovies(movies: List<Movie>, onMovieClick: (Movie) -> Unit = {}) {
+fun HorizontalScrollableMedia(mediaList: List<Media>, onMediaClick: (Media) -> Unit = {}) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        items(movies) { movie ->
-            MovieItem(
-                movie = movie,
+        items(mediaList) { media ->
+            MediaItem(
+                media = media,
                 modifier = Modifier.width(130.dp),
-                onClick = onMovieClick,
+                onClick = onMediaClick,
             )
         }
     }
@@ -33,13 +33,13 @@ fun HorizontalScrollableMovies(movies: List<Movie>, onMovieClick: (Movie) -> Uni
 
 @Preview(showBackground = true)
 @Composable
-private fun HorizontalScrollableMoviesPreview() {
+private fun PreviewHorizontalScrollableMedia() {
     FamilyFilmAppTheme {
-        HorizontalScrollableMovies(
-            movies = listOf(
-                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
-                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
-                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
+        HorizontalScrollableMedia(
+            mediaList = listOf(
+                Media().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Media().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Media().copy(id = 3, title = "Title 3", overview = "Description 3"),
             ),
         )
     }

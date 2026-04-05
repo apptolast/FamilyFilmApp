@@ -4,14 +4,16 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverters
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUP_MOVIE_STATUS_TABLE_NAME
-import com.apptolast.familyfilmapp.room.converters.MovieStatusConverter
+import com.apptolast.familyfilmapp.room.converters.MediaStatusConverter
+import com.apptolast.familyfilmapp.room.converters.MediaTypeConverter
 
 @Entity(
     tableName = GROUP_MOVIE_STATUS_TABLE_NAME,
-    primaryKeys = ["groupId", "userId", "movieId"],
+    primaryKeys = ["groupId", "userId", "movieId", "mediaType"],
     indices = [
         Index(value = ["groupId"]),
         Index(value = ["userId"]),
@@ -30,20 +32,24 @@ data class GroupMovieStatusTable(
     val groupId: String,
     val userId: String,
     val movieId: Int,
-    @TypeConverters(MovieStatusConverter::class)
-    val status: MovieStatus,
+    @TypeConverters(MediaStatusConverter::class)
+    val status: MediaStatus,
+    @TypeConverters(MediaTypeConverter::class)
+    val mediaType: String = MediaType.MOVIE.name,
 )
 
-fun GroupMovieStatusTable.toGroupMovieStatus() = GroupMovieStatus(
+fun GroupMovieStatusTable.toGroupMediaStatus() = GroupMediaStatus(
     groupId = groupId,
     userId = userId,
-    movieId = movieId,
+    mediaId = movieId,
     status = status,
+    mediaType = MediaType.valueOf(mediaType),
 )
 
-fun GroupMovieStatus.toGroupMovieStatusTable() = GroupMovieStatusTable(
+fun GroupMediaStatus.toGroupMediaStatusTable() = GroupMovieStatusTable(
     groupId = groupId,
     userId = userId,
-    movieId = movieId,
+    movieId = mediaId,
     status = status,
+    mediaType = mediaType.name,
 )

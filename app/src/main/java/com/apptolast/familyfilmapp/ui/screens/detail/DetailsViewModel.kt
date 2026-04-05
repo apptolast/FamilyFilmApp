@@ -4,10 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -30,7 +29,7 @@ class DetailsViewModel @AssistedInject constructor(
     private val repository: Repository,
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
-    @Assisted private val movieId: Int,
+    @Assisted private val mediaId: Int,
 ) : ViewModel() {
 
     val state: StateFlow<DetailUiState>
@@ -51,44 +50,43 @@ class DetailsViewModel @AssistedInject constructor(
                     }
                 },
                 async {
-                    repository.getMoviesByIds(arrayListOf(movieId)).getOrNull()?.first()?.let { movie ->
-                        state.update { it.copy(movie = movie) }
+                    repository.getMoviesByIds(arrayListOf(mediaId)).getOrNull()?.first()?.let { media ->
+                        state.update { it.copy(media = media) }
                     }
                 },
                 async {
                     repository.getMyGroups(userId).collectLatest { groups ->
                         state.update { it.copy(groups = groups) }
-                        // Load statuses for each group to know where this movie is assigned
-                        loadMovieGroupStatuses(groups, userId)
+                        loadMediaGroupStatuses(groups, userId)
                     }
                 },
             )
         }
     }
 
-    private suspend fun loadMovieGroupStatuses(groups: List<Group>, userId: String) {
-        val movieStatuses = mutableMapOf<String, MovieStatus>()
+    private suspend fun loadMediaGroupStatuses(groups: List<Group>, userId: String) {
+        val mediaStatuses = mutableMapOf<String, MediaStatus>()
         for (group in groups) {
             try {
                 val statuses = repository.getMovieStatusesByGroup(group.id).first()
-                val statusForMovie = statuses.firstOrNull { it.movieId == movieId && it.userId == userId }
-                if (statusForMovie != null) {
-                    movieStatuses[group.id] = statusForMovie.status
+                val statusForMedia = statuses.firstOrNull { it.mediaId == mediaId && it.userId == userId }
+                if (statusForMedia != null) {
+                    mediaStatuses[group.id] = statusForMedia.status
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error loading statuses for group: ${group.id}")
             }
         }
-        state.update { it.copy(movieGroupStatuses = movieStatuses) }
+        state.update { it.copy(mediaGroupStatuses = mediaStatuses) }
     }
 
-    fun onStatusButtonClick(status: MovieStatus) {
+    fun onStatusButtonClick(status: MediaStatus) {
         state.update {
             it.copy(
                 bottomSheetStatus = status,
                 showBottomSheet = true,
                 selectedGroupIds = it.groups
-                    .filter { group -> it.movieGroupStatuses[group.id] == status }
+                    .filter { group -> it.mediaGroupStatuses[group.id] == status }
                     .map { group -> group.id }
                     .toSet(),
             )
@@ -106,36 +104,33 @@ class DetailsViewModel @AssistedInject constructor(
         }
     }
 
-    fun confirmMovieStatus() {
+    fun confirmMediaStatus() {
         val currentState = state.value
         val status = currentState.bottomSheetStatus ?: return
         val userId = auth.uid ?: return
 
         viewModelScope.launch(dispatcherProvider.io()) {
-            // Groups to add the status to
             val groupsToAdd = currentState.selectedGroupIds.filter { groupId ->
-                currentState.movieGroupStatuses[groupId] != status
+                currentState.mediaGroupStatuses[groupId] != status
             }
-            // Groups to remove the status from (were checked before, now unchecked)
-            val groupsToRemove = currentState.movieGroupStatuses
+            val groupsToRemove = currentState.mediaGroupStatuses
                 .filter { (_, existingStatus) -> existingStatus == status }
                 .keys
                 .filter { it !in currentState.selectedGroupIds }
 
             if (groupsToAdd.isNotEmpty()) {
-                repository.updateMovieStatus(groupsToAdd, userId, movieId, status)
+                repository.updateMovieStatus(groupsToAdd, userId, mediaId, status)
                     .onSuccess { Timber.d("Status set in ${groupsToAdd.size} groups") }
-                    .onFailure { Timber.e(it, "Error setting movie status") }
+                    .onFailure { Timber.e(it, "Error setting media status") }
             }
 
             if (groupsToRemove.isNotEmpty()) {
-                repository.removeMovieStatus(groupsToRemove.toList(), userId, movieId)
+                repository.removeMovieStatus(groupsToRemove.toList(), userId, mediaId)
                     .onSuccess { Timber.d("Status removed from ${groupsToRemove.size} groups") }
-                    .onFailure { Timber.e(it, "Error removing movie status") }
+                    .onFailure { Timber.e(it, "Error removing media status") }
             }
 
-            // Reload statuses
-            loadMovieGroupStatuses(currentState.groups, userId)
+            loadMediaGroupStatuses(currentState.groups, userId)
 
             state.update { it.copy(showBottomSheet = false, bottomSheetStatus = null) }
         }
@@ -147,42 +142,42 @@ class DetailsViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface DetailsViewModelFactory {
-        fun create(movieId: Int): DetailsViewModel
+        fun create(mediaId: Int): DetailsViewModel
     }
 
     companion object {
-        fun provideFactory(assistedFactory: DetailsViewModelFactory, movieId: Int): ViewModelProvider.Factory =
+        fun provideFactory(assistedFactory: DetailsViewModelFactory, mediaId: Int): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T = assistedFactory.create(movieId) as T
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = assistedFactory.create(mediaId) as T
             }
     }
 }
 
 data class DetailUiState(
     val user: User,
-    val movie: Movie,
+    val media: Media,
     val groups: List<Group>,
-    val movieGroupStatuses: Map<String, MovieStatus>,
+    val mediaGroupStatuses: Map<String, MediaStatus>,
     val showBottomSheet: Boolean,
-    val bottomSheetStatus: MovieStatus?,
+    val bottomSheetStatus: MediaStatus?,
     val selectedGroupIds: Set<String>,
 ) {
     constructor() : this(
         user = User(),
-        movie = Movie(),
+        media = Media(),
         groups = emptyList(),
-        movieGroupStatuses = emptyMap(),
+        mediaGroupStatuses = emptyMap(),
         showBottomSheet = false,
         bottomSheetStatus = null,
         selectedGroupIds = emptySet(),
     )
 
     val isToWatch: Boolean
-        get() = movieGroupStatuses.values.any { it == MovieStatus.ToWatch }
+        get() = mediaGroupStatuses.values.any { it == MediaStatus.ToWatch }
 
     val isWatched: Boolean
-        get() = movieGroupStatuses.values.any { it == MovieStatus.Watched }
+        get() = mediaGroupStatuses.values.any { it == MediaStatus.Watched }
 }
 
 @HiltViewModel

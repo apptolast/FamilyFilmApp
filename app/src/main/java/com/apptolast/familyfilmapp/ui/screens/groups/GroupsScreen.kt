@@ -59,7 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
@@ -68,8 +68,8 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
-import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMovies
-import com.apptolast.familyfilmapp.ui.screens.home.MovieItem
+import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMedia
+import com.apptolast.familyfilmapp.ui.screens.home.MediaItem
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
@@ -153,14 +153,13 @@ fun GroupsScreen(
                     onGroupSelect = { groupId ->
                         viewModel.selectGroup(groupId)
                     },
-                    onMovieClick = { movie ->
-                        onClickNav(DetailNavTypeDestination.getDestination(movie))
+                    onMediaClick = { media ->
+                        onClickNav(DetailNavTypeDestination.getDestination(media))
                     },
                 )
             }
         }
 
-        // Show dialog
         when (state.showDialog) {
             GroupScreenDialogs.CreateGroup -> {
                 TextFieldDialog(
@@ -239,7 +238,7 @@ fun GroupContent(
     onDeleteGroup: (String) -> Unit = {},
     onDeleteUser: (String, String) -> Unit = { _, _ -> },
     onGroupSelect: (String) -> Unit = {},
-    onMovieClick: (Movie) -> Unit = {},
+    onMediaClick: (Media) -> Unit = {},
 ) {
     if (groups.isEmpty()) {
         Box(
@@ -261,10 +260,7 @@ fun GroupContent(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Group tabs
             stickyHeader {
-                // CRITICAL: Validate against the ACTUAL groups list we have in this composition
-                // This prevents crashes when selectedGroupIndex hasn't updated yet
                 val safeTabIndex = when {
                     groups.isEmpty() -> 0
                     selectedGroupIndex >= groups.size -> groups.size - 1
@@ -281,7 +277,7 @@ fun GroupContent(
                     groups.forEachIndexed { index, group ->
                         Tab(
                             selected = safeTabIndex == index,
-                            onClick = { onGroupSelect(group.id) }, // Pass group ID
+                            onClick = { onGroupSelect(group.id) },
                             modifier = Modifier
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .testTag("${TT_GROUPS_TAB}_$index"),
@@ -305,14 +301,13 @@ fun GroupContent(
                 }
             }
 
-            // Sync state indicator
             item {
                 SyncStateIndicator(syncState = syncState)
             }
 
-            // Recommended movie
+            // Recommended media
             item {
-                AnimatedVisibility(visible = groupData.recommendedMovie != null) {
+                AnimatedVisibility(visible = groupData.recommendedMedia != null) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -325,10 +320,10 @@ fun GroupContent(
                             modifier = Modifier.padding(bottom = 8.dp),
                             textAlign = TextAlign.Center,
                         )
-                        groupData.recommendedMovie?.let { movie ->
-                            MovieItem(
-                                movie = movie,
-                                onClick = onMovieClick,
+                        groupData.recommendedMedia?.let { media ->
+                            MediaItem(
+                                media = media,
+                                onClick = onMediaClick,
                                 status = null,
                                 modifier = Modifier.fillMaxWidth(0.6f),
                             )
@@ -339,7 +334,6 @@ fun GroupContent(
 
             // Group card
             item {
-                // Find authenticated user by ID (not by position)
                 val currentUser = groupData.members.firstOrNull { it.id == groupData.currentUserId }
                 if (currentUser != null) {
                     GroupCard(
@@ -355,8 +349,8 @@ fun GroupContent(
                 }
             }
 
-            // Movies to watch
-            if (groupData.moviesToWatch.isNotEmpty()) {
+            // Media to watch
+            if (groupData.mediaToWatch.isNotEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_to_watch),
@@ -366,15 +360,15 @@ fun GroupContent(
                 }
 
                 item {
-                    HorizontalScrollableMovies(
-                        movies = groupData.moviesToWatch,
-                        onMovieClick = onMovieClick,
+                    HorizontalScrollableMedia(
+                        mediaList = groupData.mediaToWatch,
+                        onMediaClick = onMediaClick,
                     )
                 }
             }
 
-            // Movies watched
-            if (groupData.moviesWatched.isNotEmpty()) {
+            // Media watched
+            if (groupData.mediaWatched.isNotEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.groups_text_watched),
@@ -384,9 +378,9 @@ fun GroupContent(
                 }
 
                 item {
-                    HorizontalScrollableMovies(
-                        movies = groupData.moviesWatched,
-                        onMovieClick = onMovieClick,
+                    HorizontalScrollableMedia(
+                        mediaList = groupData.mediaWatched,
+                        onMediaClick = onMediaClick,
                     )
                 }
             }
@@ -435,10 +429,6 @@ fun ExpandableFAB(isExtended: Boolean, onClick: () -> Unit) {
     }
 }
 
-/**
- * Displays a subtle sync state indicator below the group tabs.
- * Shows syncing progress, errors, or offline state.
- */
 @Composable
 fun SyncStateIndicator(syncState: SyncState) {
     AnimatedVisibility(
@@ -491,7 +481,7 @@ fun SyncStateIndicator(syncState: SyncState) {
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
-private fun GroupContentPreview() {
+private fun PreviewGroupContent() {
     FamilyFilmAppTheme {
         val testGroup = Group().copy(id = "1", name = "Test Group")
         val testGroupData = GroupViewModel.GroupData(
@@ -500,15 +490,15 @@ private fun GroupContentPreview() {
                 User().copy(id = "1", email = "a@a.com"),
                 User().copy(id = "2", email = "b@b.com"),
             ),
-            moviesToWatch = listOf(
-                Movie().copy(id = 1, title = "Title 1", overview = "Description 1"),
-                Movie().copy(id = 2, title = "Title 2", overview = "Description 2"),
-                Movie().copy(id = 3, title = "Title 3", overview = "Description 3"),
+            mediaToWatch = listOf(
+                Media().copy(id = 1, title = "Title 1", overview = "Description 1"),
+                Media().copy(id = 2, title = "Title 2", overview = "Description 2"),
+                Media().copy(id = 3, title = "Title 3", overview = "Description 3"),
             ),
-            moviesWatched = listOf(
-                Movie().copy(id = 4, title = "Title 4", overview = "Description 4"),
+            mediaWatched = listOf(
+                Media().copy(id = 4, title = "Title 4", overview = "Description 4"),
             ),
-            recommendedMovie = Movie().copy(id = 1, title = "Recommended", overview = "Top pick"),
+            recommendedMedia = Media().copy(id = 1, title = "Recommended", overview = "Top pick"),
             currentUserId = "1",
         )
 

@@ -11,7 +11,8 @@ import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.converters.DateConverter
-import com.apptolast.familyfilmapp.room.converters.MovieStatusConverter
+import com.apptolast.familyfilmapp.room.converters.MediaStatusConverter
+import com.apptolast.familyfilmapp.room.converters.MediaTypeConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
@@ -26,14 +27,15 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         GroupTable::class,
         GroupMovieStatusTable::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(
     value = [
         StringListConverter::class,
         DateConverter::class,
-        MovieStatusConverter::class,
+        MediaStatusConverter::class,
+        MediaTypeConverter::class,
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -144,6 +146,46 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v7 → v8: Add mediaType column to group_movie_status_table and rebuild with new PK
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // SQLite can't ALTER PRIMARY KEY, so we rebuild the table
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ${GROUP_MOVIE_STATUS_TABLE_NAME}_new (
+                        groupId TEXT NOT NULL,
+                        userId TEXT NOT NULL,
+                        movieId INTEGER NOT NULL,
+                        status TEXT NOT NULL,
+                        mediaType TEXT NOT NULL DEFAULT 'MOVIE',
+                        PRIMARY KEY(groupId, userId, movieId, mediaType),
+                        FOREIGN KEY(groupId) REFERENCES $GROUPS_TABLE_NAME(groupId) ON DELETE CASCADE
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO ${GROUP_MOVIE_STATUS_TABLE_NAME}_new (groupId, userId, movieId, status, mediaType)
+                    SELECT groupId, userId, movieId, status, 'MOVIE' FROM $GROUP_MOVIE_STATUS_TABLE_NAME
+                    """.trimIndent(),
+                )
+                db.execSQL("DROP TABLE $GROUP_MOVIE_STATUS_TABLE_NAME")
+                db.execSQL(
+                    "ALTER TABLE ${GROUP_MOVIE_STATUS_TABLE_NAME}_new RENAME TO $GROUP_MOVIE_STATUS_TABLE_NAME",
+                )
+                // Recreate indexes
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_groupId ON $GROUP_MOVIE_STATUS_TABLE_NAME (groupId)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_userId ON $GROUP_MOVIE_STATUS_TABLE_NAME (userId)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_group_movie_status_table_groupId_userId ON $GROUP_MOVIE_STATUS_TABLE_NAME (groupId, userId)",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -161,6 +203,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
+                    MIGRATION_7_8,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()

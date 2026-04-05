@@ -47,6 +47,11 @@
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
 
+    <!-- MEDIA FILTER -->
+    <string name="filter_all">Todo</string>
+    <string name="filter_movies">Películas</string>
+    <string name="filter_tv_shows">Series</string>
+
     <!-- DISCOVER -->
     <string name="discover_watched">Watched</string>
     <string name="discover_want_to_watch">To Watch</string>

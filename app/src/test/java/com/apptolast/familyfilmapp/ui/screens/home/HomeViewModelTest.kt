@@ -5,7 +5,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.MainDispatcherRule
 import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.common.truth.Truth.assertThat
@@ -47,7 +47,7 @@ class HomeViewModelTest {
         coEvery { repository.getPopularMovies() } returns flowOf(
             PagingData.from(
                 listOf(
-                    Movie().copy(
+                    Media().copy(
                         title = "Matrix",
                         overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
@@ -68,26 +68,26 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `searchMovieByName should return the movie when it is contained in the list`() =
+    fun `searchMediaByName should return the media when it is contained in the list`() =
         runTest(dispatcher.testDispatcherProvider.io()) {
             val actualMovieName = "Matrix"
-            val expectedMovies = listOf(Movie().copy(title = actualMovieName))
+            val expectedMovies = listOf(Media().copy(title = actualMovieName))
 
-            coEvery { repository.searchTmdbMovieByName(actualMovieName) } returns Result.success(expectedMovies)
+            coEvery { repository.searchMulti(actualMovieName) } returns Result.success(expectedMovies)
 
-            viewModel.searchMovieByName(actualMovieName)
+            viewModel.searchMediaByName(actualMovieName)
 
-            assertThat(viewModel.homeUiState.value.filterMovies).isEqualTo(expectedMovies)
+            assertThat(viewModel.homeUiState.value.filterMedia).isEqualTo(expectedMovies)
         }
 
     @Test
-    fun `searchMovieByName should return EMPTY LIST when filter is EMPTY`() = runTest {
+    fun `searchMediaByName should return EMPTY LIST when filter is EMPTY`() = runTest {
         val actualMovieName = ""
 
-        viewModel.searchMovieByName(actualMovieName)
+        viewModel.searchMediaByName(actualMovieName)
         testScheduler.advanceUntilIdle()
 
-        assertThat(viewModel.homeUiState.value.filterMovies).isEqualTo(emptyList<Movie>())
+        assertThat(viewModel.homeUiState.value.filterMedia).isEqualTo(emptyList<Media>())
         assertThat(viewModel.homeUiState.value.errorMessage).isEqualTo(CustomException.GenericException(null))
     }
 

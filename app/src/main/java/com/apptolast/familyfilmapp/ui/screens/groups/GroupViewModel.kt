@@ -5,11 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -363,49 +363,49 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
 
                 // Movies to watch (any member marked as ToWatch in this group)
                 val toWatchMovieIds = groupStatuses
-                    .filter { it.status == MovieStatus.ToWatch }
-                    .map { it.movieId }
+                    .filter { it.status == MediaStatus.ToWatch }
+                    .map { it.mediaId }
                     .distinct()
 
-                val moviesToWatch = if (toWatchMovieIds.isNotEmpty()) {
+                val mediaToWatch = if (toWatchMovieIds.isNotEmpty()) {
                     repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
-                        Timber.e(error, "Error loading movies to watch")
+                        Timber.e(error, "Error loading media to watch")
                         emptyList()
                     }
                 } else {
                     emptyList()
                 }
 
-                // Watched movies (any member marked as Watched in this group)
+                // Watched media (any member marked as Watched in this group)
                 val watchedMovieIds = groupStatuses
-                    .filter { it.status == MovieStatus.Watched }
-                    .map { it.movieId }
+                    .filter { it.status == MediaStatus.Watched }
+                    .map { it.mediaId }
                     .distinct()
 
-                val moviesWatched = if (watchedMovieIds.isNotEmpty()) {
+                val mediaWatched = if (watchedMovieIds.isNotEmpty()) {
                     repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
-                        Timber.e(error, "Error loading watched movies")
+                        Timber.e(error, "Error loading watched media")
                         emptyList()
                     }
                 } else {
                     emptyList()
                 }
 
-                // Find recommended movie (highest popularity from toWatch)
-                val recommendedMovie = moviesToWatch.maxByOrNull { it.voteAverage }
+                // Find recommended media (highest vote average from toWatch)
+                val recommendedMedia = mediaToWatch.maxByOrNull { it.voteAverage }
 
                 Timber.d(
                     "Loaded group '${currentGroup.name}': ${members.size} members, " +
-                        "${moviesToWatch.size} to watch, ${moviesWatched.size} watched",
+                        "${mediaToWatch.size} to watch, ${mediaWatched.size} watched",
                 )
 
                 // Update state with loaded data
                 val groupData = GroupData(
                     group = currentGroup,
                     members = members,
-                    moviesToWatch = moviesToWatch,
-                    moviesWatched = moviesWatched,
-                    recommendedMovie = recommendedMovie,
+                    mediaToWatch = mediaToWatch,
+                    mediaWatched = mediaWatched,
+                    recommendedMedia = recommendedMedia,
                     currentUserId = currentUserId ?: "",
                 )
 
@@ -463,9 +463,9 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
     data class GroupData(
         val group: Group,
         val members: List<User>,
-        val moviesToWatch: List<Movie>,
-        val moviesWatched: List<Movie>,
-        val recommendedMovie: Movie?,
+        val mediaToWatch: List<Media>,
+        val mediaWatched: List<Media>,
+        val recommendedMedia: Media?,
         val currentUserId: String,
     )
 

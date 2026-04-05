@@ -41,8 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apptolast.familyfilmapp.R
+import com.apptolast.familyfilmapp.ui.components.MediaFilterChips
 import com.apptolast.familyfilmapp.ui.screens.detail.CustomStatusButton
-import com.apptolast.familyfilmapp.ui.screens.discover.components.SwipeableMovieCard
+import com.apptolast.familyfilmapp.ui.screens.discover.components.SwipeableMediaCard
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_EMPTY
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_LOADING
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIP_BUTTON
@@ -98,7 +99,7 @@ fun DiscoverScreen(
                     }
                 }
 
-                uiState.isOutOfMovies -> {
+                uiState.isOutOfMedia -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -124,11 +125,19 @@ fun DiscoverScreen(
                 }
 
                 else -> {
-                    uiState.currentMovie?.let { movie ->
+                    uiState.currentMedia?.let { media ->
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
+                            // Media type filter chips
+                            MediaFilterChips(
+                                selectedFilter = uiState.selectedFilter,
+                                onFilterSelected = viewModel::setMediaFilter,
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
                             // Group selection chips
                             if (uiState.groups.isNotEmpty()) {
                                 Row(
@@ -149,10 +158,10 @@ fun DiscoverScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
-                            // Swipeable Movie Card — key resets card state on movie change
-                            key(movie.id) {
-                                SwipeableMovieCard(
-                                    movie = movie,
+                            // Swipeable Media Card — key resets card state on media change
+                            key(media.id) {
+                                SwipeableMediaCard(
+                                    media = media,
                                     onSwipeLeft = viewModel::markAsWatched,
                                     onSwipeRight = viewModel::markAsWantToWatch,
                                     modifier = Modifier.weight(1f),
@@ -180,7 +189,7 @@ fun DiscoverScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
 
                                 TextButton(
-                                    onClick = viewModel::skipMovie,
+                                    onClick = viewModel::skipMedia,
                                     modifier = Modifier
                                         .weight(0.5f)
                                         .testTag(TT_DISCOVER_SKIP_BUTTON),

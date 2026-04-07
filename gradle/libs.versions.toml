@@ -12,6 +12,7 @@ composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
 composeBom = "2026.03.01"
 composeUiTextGoogleFonts = "1.10.6"
+concurrentFutures = "1.2.0"
 coreSplashscreen = "1.2.0"
 coroutines = "1.10.2"
 credentials = "1.5.0"
@@ -89,6 +90,7 @@ compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }

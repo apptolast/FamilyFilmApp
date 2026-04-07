@@ -5,6 +5,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -347,16 +348,22 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
 
     private fun movieStatusDocId(userId: String, movieId: Int) = "${userId}_$movieId"
 
-    override suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MediaStatus) {
+    override suspend fun setMovieStatus(
+        groupId: String,
+        userId: String,
+        movieId: Int,
+        status: MediaStatus,
+        mediaType: com.apptolast.familyfilmapp.model.local.types.MediaType,
+    ) {
         val docId = movieStatusDocId(userId, movieId)
         val data = mapOf(
             "userId" to userId,
             "movieId" to movieId,
             "status" to status.name,
-            "mediaType" to "MOVIE",
+            "mediaType" to mediaType.name,
         )
         movieStatusesCollection(groupId).document(docId).set(data).await()
-        Timber.d("Media status set: group=$groupId, user=$userId, media=$movieId, status=$status")
+        Timber.d("Media status set: group=$groupId, user=$userId, media=$movieId, type=$mediaType, status=$status")
     }
 
     override suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int) {
@@ -556,7 +563,13 @@ interface FirebaseDatabaseDatasource {
     // /////////////////////////////////////////////////////////////////////////
     // Movie Statuses (per-group)
     // /////////////////////////////////////////////////////////////////////////
-    suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MediaStatus)
+    suspend fun setMovieStatus(
+        groupId: String,
+        userId: String,
+        movieId: Int,
+        status: MediaStatus,
+        mediaType: MediaType = MediaType.MOVIE,
+    )
     suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int)
     fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>>
     suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>)

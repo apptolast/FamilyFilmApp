@@ -7,6 +7,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,7 @@ class DetailsViewModel @AssistedInject constructor(
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
     @Assisted private val mediaId: Int,
+    @Assisted private val mediaType: MediaType,
 ) : ViewModel() {
 
     val state: StateFlow<DetailUiState>
@@ -50,7 +52,11 @@ class DetailsViewModel @AssistedInject constructor(
                     }
                 },
                 async {
-                    repository.getMoviesByIds(arrayListOf(mediaId)).getOrNull()?.first()?.let { media ->
+                    val result = when (mediaType) {
+                        MediaType.MOVIE -> repository.getMoviesByIds(listOf(mediaId))
+                        MediaType.TV_SHOW -> repository.getTvShowsByIds(listOf(mediaId))
+                    }
+                    result.getOrNull()?.firstOrNull()?.let { media ->
                         state.update { it.copy(media = media) }
                     }
                 },
@@ -119,13 +125,13 @@ class DetailsViewModel @AssistedInject constructor(
                 .filter { it !in currentState.selectedGroupIds }
 
             if (groupsToAdd.isNotEmpty()) {
-                repository.updateMovieStatus(groupsToAdd, userId, mediaId, status)
+                repository.updateMovieStatus(groupsToAdd, userId, mediaId, status, mediaType)
                     .onSuccess { Timber.d("Status set in ${groupsToAdd.size} groups") }
                     .onFailure { Timber.e(it, "Error setting media status") }
             }
 
             if (groupsToRemove.isNotEmpty()) {
-                repository.removeMovieStatus(groupsToRemove.toList(), userId, mediaId)
+                repository.removeMovieStatus(groupsToRemove.toList(), userId, mediaId, mediaType)
                     .onSuccess { Timber.d("Status removed from ${groupsToRemove.size} groups") }
                     .onFailure { Timber.e(it, "Error removing media status") }
             }
@@ -142,15 +148,19 @@ class DetailsViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface DetailsViewModelFactory {
-        fun create(mediaId: Int): DetailsViewModel
+        fun create(mediaId: Int, mediaType: MediaType): DetailsViewModel
     }
 
     companion object {
-        fun provideFactory(assistedFactory: DetailsViewModelFactory, mediaId: Int): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T = assistedFactory.create(mediaId) as T
-            }
+        fun provideFactory(
+            assistedFactory: DetailsViewModelFactory,
+            mediaId: Int,
+            mediaType: MediaType,
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                assistedFactory.create(mediaId, mediaType) as T
+        }
     }
 }
 

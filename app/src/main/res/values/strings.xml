@@ -59,6 +59,9 @@
     <string name="discover_no_more_movies">No more movies! Check back later</string>
     <string name="discover_loading">Loading movies…</string>
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
+    <string name="discover_groups_label">Groups: %1$s</string>
+    <string name="discover_groups_select">Select groups</string>
+    <string name="discover_groups_all">All groups</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
     <!-- DETAIL -->

@@ -11,6 +11,7 @@ import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.model.room.toGroup
 import com.apptolast.familyfilmapp.model.room.toGroupMediaStatus
@@ -382,25 +383,30 @@ class RepositoryImpl @Inject constructor(
         userId: String,
         movieId: Int,
         status: MediaStatus,
+        mediaType: MediaType,
     ): Result<Unit> = runCatching {
         // Write to Firebase first, then Room (write-through)
         for (groupId in groupIds) {
-            firebaseDatabaseDatasource.setMovieStatus(groupId, userId, movieId, status)
+            firebaseDatabaseDatasource.setMovieStatus(groupId, userId, movieId, status, mediaType)
             roomDatasource.insertMovieStatus(
-                GroupMediaStatus(groupId, userId, movieId, status).toGroupMediaStatusTable(),
+                GroupMediaStatus(groupId, userId, movieId, status, mediaType).toGroupMediaStatusTable(),
             )
         }
-        Timber.d("Movie status updated in ${groupIds.size} groups: movie=$movieId, status=$status")
+        Timber.d("Media status updated in ${groupIds.size} groups: media=$movieId, type=$mediaType, status=$status")
     }
 
-    override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
-        runCatching {
-            for (groupId in groupIds) {
-                firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
-                roomDatasource.deleteMovieStatus(groupId, userId, movieId)
-            }
-            Timber.d("Movie status removed from ${groupIds.size} groups: movie=$movieId")
+    override suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        mediaType: MediaType,
+    ): Result<Unit> = runCatching {
+        for (groupId in groupIds) {
+            firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
+            roomDatasource.deleteMovieStatus(groupId, userId, movieId, mediaType.name)
         }
+        Timber.d("Media status removed from ${groupIds.size} groups: media=$movieId, type=$mediaType")
+    }
 
     override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>> =
         roomDatasource.getMovieStatusesByGroup(groupId).map { tables ->
@@ -562,15 +568,21 @@ interface Repository {
     suspend fun isUsernameAvailable(username: String): Boolean
     suspend fun updateUsername(user: User, newUsername: String): Result<Unit>
 
-    // Movie Statuses (per-group)
+    // Media Statuses (per-group)
     suspend fun updateMovieStatus(
         groupIds: List<String>,
         userId: String,
         movieId: Int,
         status: MediaStatus,
+        mediaType: MediaType = MediaType.MOVIE,
     ): Result<Unit>
 
-    suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit>
+    suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        mediaType: MediaType = MediaType.MOVIE,
+    ): Result<Unit>
 
     fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>>
     suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int>

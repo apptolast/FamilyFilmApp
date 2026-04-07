@@ -18,7 +18,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun MediaFilterChips(
     selectedFilter: MediaFilter,
-    onFilterSelected: (MediaFilter) -> Unit,
+    onFilterSelect: (MediaFilter) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -29,17 +29,17 @@ fun MediaFilterChips(
     ) {
         FilterChip(
             selected = selectedFilter == MediaFilter.ALL,
-            onClick = { onFilterSelected(MediaFilter.ALL) },
+            onClick = { onFilterSelect(MediaFilter.ALL) },
             label = { Text(text = stringResource(R.string.filter_all)) },
         )
         FilterChip(
             selected = selectedFilter == MediaFilter.MOVIES,
-            onClick = { onFilterSelected(MediaFilter.MOVIES) },
+            onClick = { onFilterSelect(MediaFilter.MOVIES) },
             label = { Text(text = stringResource(R.string.filter_movies)) },
         )
         FilterChip(
             selected = selectedFilter == MediaFilter.TV_SHOWS,
-            onClick = { onFilterSelected(MediaFilter.TV_SHOWS) },
+            onClick = { onFilterSelect(MediaFilter.TV_SHOWS) },
             label = { Text(text = stringResource(R.string.filter_tv_shows)) },
         )
     }
@@ -51,7 +51,7 @@ private fun PreviewMediaFilterChips() {
     FamilyFilmAppTheme {
         MediaFilterChips(
             selectedFilter = MediaFilter.ALL,
-            onFilterSelected = {},
+            onFilterSelect = {},
         )
     }
 }

@@ -59,10 +59,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.Media
-import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.MediaFilterChips
-import com.apptolast.familyfilmapp.ui.components.MediaTypeBadge
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
@@ -199,7 +197,7 @@ fun HomeContent(
 
     MediaFilterChips(
         selectedFilter = stateUI.selectedFilter,
-        onFilterSelected = onFilterSelected,
+        onFilterSelect = onFilterSelected,
         modifier = Modifier.padding(top = 72.dp),
     )
 }

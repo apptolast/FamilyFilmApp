@@ -80,7 +80,7 @@ class DiscoverViewModel @Inject constructor(
             }
         }
 
-        repository.getPopularMoviesList(page = currentPage)
+        fetchPopularMedia(currentPage)
             .onSuccess { mediaList ->
                 val popularMedia = mediaList.filter { media ->
                     media.id !in markedMediaIds
@@ -101,6 +101,18 @@ class DiscoverViewModel @Inject constructor(
                 triggerError(e.message ?: "Error loading media")
                 uiState.update { it.copy(isLoading = false) }
             }
+    }
+
+    private suspend fun fetchPopularMedia(page: Int): Result<List<Media>> = when (uiState.value.selectedFilter) {
+        MediaFilter.ALL -> {
+            val movies = repository.getPopularMoviesList(page).getOrDefault(emptyList())
+            val tvShows = repository.getPopularTvShowsList(page).getOrDefault(emptyList())
+            Result.success((movies + tvShows).sortedByDescending { it.popularity })
+        }
+
+        MediaFilter.MOVIES -> repository.getPopularMoviesList(page)
+
+        MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList(page)
     }
 
     fun toggleGroupSelection(groupId: String) {
@@ -144,7 +156,7 @@ class DiscoverViewModel @Inject constructor(
         Timber.d("Loading more media...")
 
         currentPage++
-        repository.getPopularMoviesList(page = currentPage)
+        fetchPopularMedia(currentPage)
             .onSuccess { mediaList ->
                 val newMedia = mediaList.filter { media ->
                     media.id !in markedMediaIds &&
@@ -172,7 +184,7 @@ class DiscoverViewModel @Inject constructor(
                 return
             }
 
-            repository.updateMovieStatus(selectedGroups, userId, media.id, status)
+            repository.updateMovieStatus(selectedGroups, userId, media.id, status, media.mediaType)
                 .onSuccess {
                     markedMediaIds = markedMediaIds + media.id
                     Timber.d("Media ${media.title} marked as $status in ${selectedGroups.size} groups")

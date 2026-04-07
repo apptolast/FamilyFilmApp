@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.discover
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,30 +12,37 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,8 +65,8 @@ fun DiscoverScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showGroupSheet by remember { mutableStateOf(false) }
 
-    // Show error as snackbar
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.error?.let { error ->
             snackbarHostState.showSnackbar(error)
@@ -133,32 +139,36 @@ fun DiscoverScreen(
                             // Media type filter chips
                             MediaFilterChips(
                                 selectedFilter = uiState.selectedFilter,
-                                onFilterSelected = viewModel::setMediaFilter,
+                                onFilterSelect = viewModel::setMediaFilter,
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Group selection chips
+                            // Group selector button (compact dropdown)
                             if (uiState.groups.isNotEmpty()) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState()),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                val groupSummary = buildGroupSummaryText(uiState)
+
+                                OutlinedButton(
+                                    onClick = { showGroupSheet = true },
+                                    modifier = Modifier.fillMaxWidth(),
                                 ) {
-                                    uiState.groups.forEach { group ->
-                                        FilterChip(
-                                            selected = group.id in uiState.selectedGroupIds,
-                                            onClick = { viewModel.toggleGroupSelection(group.id) },
-                                            label = { Text(text = group.name) },
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Outlined.Groups,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = groupSummary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
                                 }
 
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
-                            // Swipeable Media Card — key resets card state on media change
+                            // Swipeable Media Card
                             key(media.id) {
                                 SwipeableMediaCard(
                                     media = media,
@@ -219,5 +229,66 @@ fun DiscoverScreen(
                 }
             }
         }
+    }
+
+    // Group selection BottomSheet
+    if (showGroupSheet) {
+        val sheetState = rememberModalBottomSheetState()
+
+        ModalBottomSheet(
+            onDismissRequest = { showGroupSheet = false },
+            sheetState = sheetState,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.discover_groups_select),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+
+                uiState.groups.forEach { group ->
+                    val isChecked = group.id in uiState.selectedGroupIds
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = { viewModel.toggleGroupSelection(group.id) },
+                        )
+                        Text(
+                            text = group.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun buildGroupSummaryText(uiState: DiscoverUiState): String {
+    val selectedGroups = uiState.groups.filter { it.id in uiState.selectedGroupIds }
+    return when {
+        selectedGroups.size == uiState.groups.size -> stringResource(R.string.discover_groups_all)
+
+        selectedGroups.isEmpty() -> stringResource(R.string.discover_groups_select)
+
+        selectedGroups.size == 1 -> stringResource(R.string.discover_groups_label, selectedGroups.first().name)
+
+        else -> stringResource(
+            R.string.discover_groups_label,
+            "${selectedGroups.first().name}, +${selectedGroups.size - 1}",
+        )
     }
 }

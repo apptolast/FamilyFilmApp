@@ -166,6 +166,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
                 MediaDetailScreen(
                     mediaId = movie.id,
+                    mediaType = movie.mediaType,
                     onBack = { navController.navigateUp() },
                 )
             }

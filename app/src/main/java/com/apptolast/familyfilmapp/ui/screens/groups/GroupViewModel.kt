@@ -10,6 +10,7 @@ import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -361,35 +362,13 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
                 // Always read the latest group from state to avoid stale closure captures
                 val currentGroup = _state.value.groups.firstOrNull { it.id == groupId } ?: return@collectLatest
 
-                // Movies to watch (any member marked as ToWatch in this group)
-                val toWatchMovieIds = groupStatuses
-                    .filter { it.status == MediaStatus.ToWatch }
-                    .map { it.mediaId }
-                    .distinct()
-
-                val mediaToWatch = if (toWatchMovieIds.isNotEmpty()) {
-                    repository.getMoviesByIds(toWatchMovieIds).getOrElse { error ->
-                        Timber.e(error, "Error loading media to watch")
-                        emptyList()
-                    }
-                } else {
-                    emptyList()
-                }
+                // Media to watch (any member marked as ToWatch in this group)
+                val toWatchStatuses = groupStatuses.filter { it.status == MediaStatus.ToWatch }
+                val mediaToWatch = resolveMediaByType(toWatchStatuses)
 
                 // Watched media (any member marked as Watched in this group)
-                val watchedMovieIds = groupStatuses
-                    .filter { it.status == MediaStatus.Watched }
-                    .map { it.mediaId }
-                    .distinct()
-
-                val mediaWatched = if (watchedMovieIds.isNotEmpty()) {
-                    repository.getMoviesByIds(watchedMovieIds).getOrElse { error ->
-                        Timber.e(error, "Error loading watched media")
-                        emptyList()
-                    }
-                } else {
-                    emptyList()
-                }
+                val watchedStatuses = groupStatuses.filter { it.status == MediaStatus.Watched }
+                val mediaWatched = resolveMediaByType(watchedStatuses)
 
                 // Find recommended media (highest vote average from toWatch)
                 val recommendedMedia = mediaToWatch.maxByOrNull { it.voteAverage }
@@ -419,6 +398,34 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
                 }
             }
         }
+    }
+
+    /**
+     * Resolve media IDs to Media objects, separating by type to call the correct TMDB endpoint.
+     */
+    private suspend fun resolveMediaByType(statuses: List<GroupMediaStatus>): List<Media> {
+        val movieIds = statuses.filter { it.mediaType == MediaType.MOVIE }.map { it.mediaId }.distinct()
+        val tvIds = statuses.filter { it.mediaType == MediaType.TV_SHOW }.map { it.mediaId }.distinct()
+
+        val movies = if (movieIds.isNotEmpty()) {
+            repository.getMoviesByIds(movieIds).getOrElse { error ->
+                Timber.e(error, "Error loading movies")
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+
+        val tvShows = if (tvIds.isNotEmpty()) {
+            repository.getTvShowsByIds(tvIds).getOrElse { error ->
+                Timber.e(error, "Error loading TV shows")
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+
+        return movies + tvShows
     }
 
     // ===== UI HELPERS =====

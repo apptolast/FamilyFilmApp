@@ -92,10 +92,15 @@ class FakeRepository : Repository {
         userId: String,
         movieId: Int,
         status: MediaStatus,
+        mediaType: com.apptolast.familyfilmapp.model.local.types.MediaType,
     ): Result<Unit> = Result.success(Unit)
 
-    override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
-        Result.success(Unit)
+    override suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        mediaType: com.apptolast.familyfilmapp.model.local.types.MediaType,
+    ): Result<Unit> = Result.success(Unit)
 
     override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>> = flowOf(emptyList())
 

@@ -74,12 +74,14 @@ import com.apptolast.familyfilmapp.utils.TT_DETAIL_WATCHED_BUTTON
 @Composable
 fun MediaDetailScreen(
     mediaId: Int,
+    mediaType: MediaType = MediaType.MOVIE,
     modifier: Modifier = Modifier,
     factoryProvider: DetailsViewModelFactoryProvider = hiltViewModel(),
     viewModel: DetailsViewModel = viewModel(
         factory = DetailsViewModel.provideFactory(
             assistedFactory = factoryProvider.detailsViewModelFactory,
             mediaId = mediaId,
+            mediaType = mediaType,
         ),
     ),
     onBack: () -> Unit = {},

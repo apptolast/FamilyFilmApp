@@ -24,11 +24,11 @@ if (localFile.exists()) {
     localProperties.load(FileInputStream(localFile))
 }
 
-val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT")
-val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN")
-val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID")
-val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID")
-val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID")
+val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT") ?: ""
+val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN") ?: ""
+val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID") ?: ""
+val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID") ?: ""
+val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID") ?: ""
 
 android {
     namespace = "com.apptolast.familyfilmapp"

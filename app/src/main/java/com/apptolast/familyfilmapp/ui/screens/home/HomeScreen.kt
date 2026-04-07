@@ -114,7 +114,7 @@ fun HomeScreen(
                     onClickNav(DetailNavTypeDestination.getDestination(media))
                 },
                 searchMediaByName = viewModel::searchMediaByName,
-                onFilterSelected = viewModel::setMediaFilter,
+                onFilterSelect = viewModel::setMediaFilter,
                 stateUI = stateUI,
             )
 
@@ -133,7 +133,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     onMediaClick: (Media) -> Unit = {},
     searchMediaByName: (String) -> Unit = {},
-    onFilterSelected: (com.apptolast.familyfilmapp.model.local.types.MediaFilter) -> Unit = {},
+    onFilterSelect: (com.apptolast.familyfilmapp.model.local.types.MediaFilter) -> Unit = {},
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -197,7 +197,7 @@ fun HomeContent(
 
     MediaFilterChips(
         selectedFilter = stateUI.selectedFilter,
-        onFilterSelect = onFilterSelected,
+        onFilterSelect = onFilterSelect,
         modifier = Modifier.padding(top = 72.dp),
     )
 }

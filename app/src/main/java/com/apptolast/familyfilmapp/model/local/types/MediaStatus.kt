@@ -1,6 +1,6 @@
 package com.apptolast.familyfilmapp.model.local.types
 
-enum class MovieStatus {
+enum class MediaStatus {
     Watched,
     ToWatch,
 }

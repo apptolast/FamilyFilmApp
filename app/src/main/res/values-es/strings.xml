@@ -47,6 +47,11 @@
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
 
+    <!-- MEDIA FILTER -->
+    <string name="filter_all">Todo</string>
+    <string name="filter_movies">Películas</string>
+    <string name="filter_tv_shows">Series</string>
+
     <!-- DISCOVER -->
     <string name="discover_watched">Watched</string>
     <string name="discover_want_to_watch">To Watch</string>
@@ -55,6 +60,9 @@
     <string name="discover_no_more_movies">¡No hay más películas! Vuelve más tarde</string>
     <string name="discover_loading">Cargando películas…</string>
     <string name="discover_swipe_left">Desliza a la izquierda para marcar como vista</string>
+    <string name="discover_groups_label">Grupos: %1$s</string>
+    <string name="discover_groups_select">Seleccionar grupos</string>
+    <string name="discover_groups_all">Todos los grupos</string>
     <string name="discover_swipe_right">Desliza a la derecha para añadir a tu lista</string>
 
     <!-- PROFILE -->

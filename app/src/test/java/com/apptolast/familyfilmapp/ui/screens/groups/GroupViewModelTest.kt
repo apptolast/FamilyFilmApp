@@ -2,11 +2,11 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 
 import com.apptolast.familyfilmapp.MainDispatcherRule
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseAuth
@@ -443,25 +443,25 @@ class GroupViewModelTest {
     }
 
     @Test
-    fun `loadGroupData should compute recommended movie from toWatch list`() = runTest {
+    fun `loadGroupData should compute recommended media from toWatch list`() = runTest {
         // Set up per-group movie statuses
         val groupStatuses = listOf(
-            GroupMovieStatus(groupId = "group-1", userId = testUserId, movieId = 100, status = MovieStatus.ToWatch),
-            GroupMovieStatus(groupId = "group-1", userId = testUserId, movieId = 200, status = MovieStatus.ToWatch),
+            GroupMediaStatus(groupId = "group-1", userId = testUserId, mediaId = 100, status = MediaStatus.ToWatch),
+            GroupMediaStatus(groupId = "group-1", userId = testUserId, mediaId = 200, status = MediaStatus.ToWatch),
         )
         every { repository.getMovieStatusesByGroup("group-1") } returns flowOf(groupStatuses)
 
-        val movie1 = Movie().copy(id = 100, title = "Low Rated", voteAverage = 5.0f)
-        val movie2 = Movie().copy(id = 200, title = "High Rated", voteAverage = 9.0f)
-        coEvery { repository.getMoviesByIds(any()) } returns Result.success(listOf(movie1, movie2))
+        val media1 = Media().copy(id = 100, title = "Low Rated", voteAverage = 5.0f)
+        val media2 = Media().copy(id = 200, title = "High Rated", voteAverage = 9.0f)
+        coEvery { repository.getMoviesByIds(any()) } returns Result.success(listOf(media1, media2))
 
         createViewModel()
         advanceUntilIdle()
 
         val groupData = viewModel.state.value.selectedGroupData
         assertThat(groupData).isNotNull()
-        assertThat(groupData?.recommendedMovie?.title).isEqualTo("High Rated")
-        assertThat(groupData?.moviesToWatch).hasSize(2)
+        assertThat(groupData?.recommendedMedia?.title).isEqualTo("High Rated")
+        assertThat(groupData?.mediaToWatch).hasSize(2)
     }
 
     @Test

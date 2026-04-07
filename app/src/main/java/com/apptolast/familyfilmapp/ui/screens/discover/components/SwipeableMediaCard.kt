@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
 import kotlinx.coroutines.launch
@@ -55,14 +55,14 @@ import kotlin.math.roundToInt
  * Swipeable Movie Card Component
  * Allows user to swipe left (Watched) or right (Want to Watch)
  *
- * @param movie Movie to display
+ * @param media Movie to display
  * @param onSwipeLeft Callback when swiped left (Watched)
  * @param onSwipeRight Callback when swiped right (Want to Watch)
  * @param modifier Modifier
  */
 @Composable
-fun SwipeableMovieCard(
-    movie: Movie,
+fun SwipeableMediaCard(
+    media: Media,
     onSwipeLeft: () -> Unit,
     onSwipeRight: () -> Unit,
     modifier: Modifier = Modifier,
@@ -107,8 +107,8 @@ fun SwipeableMovieCard(
                                 }
 
                                 // Trigger callback — don't reset position here.
-                                // The caller should use key(movie.id) so the card
-                                // is recreated with fresh state when the movie changes.
+                                // The caller should use key(media.id) so the card
+                                // is recreated with fresh state when the media changes.
                                 if (offsetX > 0) onSwipeRight() else onSwipeLeft()
                             } else {
                                 // Snap back to center
@@ -152,8 +152,8 @@ fun SwipeableMovieCard(
             Box(modifier = Modifier.fillMaxSize()) {
                 // Poster Image
                 AsyncImage(
-                    model = "${TmdbConfig.POSTER_DETAIL}${movie.posterPath}",
-                    contentDescription = movie.title,
+                    model = "${TmdbConfig.POSTER_DETAIL}${media.posterPath}",
+                    contentDescription = media.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                 )
@@ -182,7 +182,7 @@ fun SwipeableMovieCard(
                         .fillMaxWidth(),
                 ) {
                     Text(
-                        text = movie.title,
+                        text = media.title,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
@@ -194,8 +194,8 @@ fun SwipeableMovieCard(
 
                     Text(
                         text = buildString {
-                            append("⭐ ${movie.voteAverage}")
-                            movie.releaseDate?.let { append(" • ${it.take(4)}") }
+                            append("⭐ ${media.voteAverage}")
+                            media.releaseDate?.let { append(" • ${it.take(4)}") }
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.9f),
@@ -204,7 +204,7 @@ fun SwipeableMovieCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = movie.overview,
+                        text = media.overview,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.8f),
                         maxLines = 3,

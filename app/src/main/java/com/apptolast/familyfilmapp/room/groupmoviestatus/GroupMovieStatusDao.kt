@@ -18,9 +18,9 @@ interface GroupMovieStatusDao {
     suspend fun insertAll(entries: List<GroupMovieStatusTable>)
 
     @Query(
-        "DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId AND userId = :userId AND movieId = :movieId",
+        "DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId AND userId = :userId AND movieId = :movieId AND mediaType = :mediaType",
     )
-    suspend fun delete(groupId: String, userId: String, movieId: Int)
+    suspend fun delete(groupId: String, userId: String, movieId: Int, mediaType: String = "MOVIE")
 
     @Query("SELECT * FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId")
     fun getStatusesByGroup(groupId: String): Flow<List<GroupMovieStatusTable>>

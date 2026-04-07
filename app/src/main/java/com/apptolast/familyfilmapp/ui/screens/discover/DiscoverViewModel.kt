@@ -3,9 +3,9 @@ package com.apptolast.familyfilmapp.ui.screens.discover
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.exceptions.CustomException
-import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.model.local.types.MediaFilter
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -29,12 +29,12 @@ class DiscoverViewModel @Inject constructor(
         field: MutableStateFlow<DiscoverUiState> = MutableStateFlow(DiscoverUiState())
 
     private var currentPage = 1
-    private var markedMovieIds: Set<Int> = emptySet()
+    private var markedMediaIds: Set<Int> = emptySet()
 
     init {
         loadUser()
         loadGroups()
-        loadMovies()
+        loadMedia()
     }
 
     private fun loadUser() = viewModelScope.launch {
@@ -67,41 +67,52 @@ class DiscoverViewModel @Inject constructor(
         }
     }
 
-    private fun loadMovies() = viewModelScope.launch(dispatcherProvider.io()) {
+    private fun loadMedia() = viewModelScope.launch(dispatcherProvider.io()) {
         uiState.update { it.copy(isLoading = true) }
 
-        // Load marked movie IDs for the user
         val userId = auth.uid
         if (userId != null) {
-            markedMovieIds = try {
+            markedMediaIds = try {
                 repository.getAllMarkedMovieIdsForUser(userId).toSet()
             } catch (e: Exception) {
-                Timber.e(e, "Error loading marked movie IDs")
+                Timber.e(e, "Error loading marked media IDs")
                 emptySet()
             }
         }
 
-        repository.getPopularMoviesList(page = currentPage)
-            .onSuccess { movies ->
-                val popularMovies = movies.filter { movie ->
-                    movie.id !in markedMovieIds
+        fetchPopularMedia(currentPage)
+            .onSuccess { mediaList ->
+                val popularMedia = mediaList.filter { media ->
+                    media.id !in markedMediaIds
                 }
 
                 uiState.update {
                     it.copy(
-                        movies = popularMovies,
+                        mediaList = popularMedia,
                         isLoading = false,
-                        currentMovieIndex = 0,
+                        currentMediaIndex = 0,
                     )
                 }
 
-                Timber.d("Loaded ${popularMovies.size} movies for discovery")
+                Timber.d("Loaded ${popularMedia.size} media items for discovery")
             }
             .onFailure { e ->
-                Timber.e(e, "Error loading movies")
-                triggerError(e.message ?: "Error loading movies")
+                Timber.e(e, "Error loading media")
+                triggerError(e.message ?: "Error loading media")
                 uiState.update { it.copy(isLoading = false) }
             }
+    }
+
+    private suspend fun fetchPopularMedia(page: Int): Result<List<Media>> = when (uiState.value.selectedFilter) {
+        MediaFilter.ALL -> {
+            val movies = repository.getPopularMoviesList(page).getOrDefault(emptyList())
+            val tvShows = repository.getPopularTvShowsList(page).getOrDefault(emptyList())
+            Result.success((movies + tvShows).sortedByDescending { it.popularity })
+        }
+
+        MediaFilter.MOVIES -> repository.getPopularMoviesList(page)
+
+        MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList(page)
     }
 
     fun toggleGroupSelection(groupId: String) {
@@ -116,54 +127,54 @@ class DiscoverViewModel @Inject constructor(
     }
 
     fun markAsWatched() = viewModelScope.launch(dispatcherProvider.io()) {
-        val currentMovie = uiState.value.currentMovie ?: return@launch
-        updateMovieStatus(currentMovie, MovieStatus.Watched)
+        val currentMedia = uiState.value.currentMedia ?: return@launch
+        updateMediaStatus(currentMedia, MediaStatus.Watched)
         moveToNext()
     }
 
     fun markAsWantToWatch() = viewModelScope.launch(dispatcherProvider.io()) {
-        val currentMovie = uiState.value.currentMovie ?: return@launch
-        updateMovieStatus(currentMovie, MovieStatus.ToWatch)
+        val currentMedia = uiState.value.currentMedia ?: return@launch
+        updateMediaStatus(currentMedia, MediaStatus.ToWatch)
         moveToNext()
     }
 
-    fun skipMovie() {
+    fun skipMedia() {
         moveToNext()
     }
 
     private fun moveToNext() {
         uiState.update {
-            it.copy(currentMovieIndex = it.currentMovieIndex + 1)
+            it.copy(currentMediaIndex = it.currentMediaIndex + 1)
         }
 
-        if (uiState.value.currentMovieIndex >= uiState.value.movies.size - 3) {
-            loadMoreMovies()
+        if (uiState.value.currentMediaIndex >= uiState.value.mediaList.size - 3) {
+            loadMoreMedia()
         }
     }
 
-    private fun loadMoreMovies() = viewModelScope.launch(dispatcherProvider.io()) {
-        Timber.d("Loading more movies...")
+    private fun loadMoreMedia() = viewModelScope.launch(dispatcherProvider.io()) {
+        Timber.d("Loading more media...")
 
         currentPage++
-        repository.getPopularMoviesList(page = currentPage)
-            .onSuccess { movies ->
-                val newMovies = movies.filter { movie ->
-                    movie.id !in markedMovieIds &&
-                        !uiState.value.movies.any { it.id == movie.id }
+        fetchPopularMedia(currentPage)
+            .onSuccess { mediaList ->
+                val newMedia = mediaList.filter { media ->
+                    media.id !in markedMediaIds &&
+                        !uiState.value.mediaList.any { it.id == media.id }
                 }
 
                 uiState.update {
-                    it.copy(movies = it.movies + newMovies)
+                    it.copy(mediaList = it.mediaList + newMedia)
                 }
 
-                Timber.d("Loaded ${newMovies.size} additional movies")
+                Timber.d("Loaded ${newMedia.size} additional media items")
             }
             .onFailure { e ->
-                Timber.e(e, "Error loading more movies")
+                Timber.e(e, "Error loading more media")
             }
     }
 
-    private suspend fun updateMovieStatus(movie: Movie, status: MovieStatus) {
+    private suspend fun updateMediaStatus(media: Media, status: MediaStatus) {
         try {
             val userId = auth.uid ?: return
             val selectedGroups = uiState.value.selectedGroupIds.toList()
@@ -173,23 +184,29 @@ class DiscoverViewModel @Inject constructor(
                 return
             }
 
-            repository.updateMovieStatus(selectedGroups, userId, movie.id, status)
+            repository.updateMovieStatus(selectedGroups, userId, media.id, status, media.mediaType)
                 .onSuccess {
-                    markedMovieIds = markedMovieIds + movie.id
-                    Timber.d("Movie ${movie.title} marked as $status in ${selectedGroups.size} groups")
+                    markedMediaIds = markedMediaIds + media.id
+                    Timber.d("Media ${media.title} marked as $status in ${selectedGroups.size} groups")
                 }
                 .onFailure { e ->
-                    Timber.e(e, "Error updating movie status")
-                    triggerError("Error updating movie status")
+                    Timber.e(e, "Error updating media status")
+                    triggerError("Error updating media status")
                 }
         } catch (e: Exception) {
-            Timber.e(e, "Error updating movie status")
-            triggerError("Error updating movie status")
+            Timber.e(e, "Error updating media status")
+            triggerError("Error updating media status")
         }
     }
 
     private fun triggerError(message: String) {
         uiState.update { it.copy(errorMessage = CustomException.GenericException(message)) }
+    }
+
+    fun setMediaFilter(filter: MediaFilter) {
+        uiState.update { it.copy(selectedFilter = filter, mediaList = emptyList(), currentMediaIndex = 0) }
+        currentPage = 1
+        loadMedia()
     }
 
     fun clearError() {

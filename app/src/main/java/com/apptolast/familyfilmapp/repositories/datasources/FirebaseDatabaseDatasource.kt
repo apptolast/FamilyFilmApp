@@ -2,9 +2,10 @@ package com.apptolast.familyfilmapp.repositories.datasources
 
 import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
 import com.apptolast.familyfilmapp.model.local.User
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -347,15 +348,22 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
 
     private fun movieStatusDocId(userId: String, movieId: Int) = "${userId}_$movieId"
 
-    override suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MovieStatus) {
+    override suspend fun setMovieStatus(
+        groupId: String,
+        userId: String,
+        movieId: Int,
+        status: MediaStatus,
+        mediaType: com.apptolast.familyfilmapp.model.local.types.MediaType,
+    ) {
         val docId = movieStatusDocId(userId, movieId)
         val data = mapOf(
             "userId" to userId,
             "movieId" to movieId,
             "status" to status.name,
+            "mediaType" to mediaType.name,
         )
         movieStatusesCollection(groupId).document(docId).set(data).await()
-        Timber.d("Movie status set: group=$groupId, user=$userId, movie=$movieId, status=$status")
+        Timber.d("Media status set: group=$groupId, user=$userId, media=$movieId, type=$mediaType, status=$status")
     }
 
     override suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int) {
@@ -364,7 +372,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         Timber.d("Movie status removed: group=$groupId, user=$userId, movie=$movieId")
     }
 
-    override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>> = callbackFlow {
+    override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>> = callbackFlow {
         val listenerRegistration = movieStatusesCollection(groupId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -376,16 +384,23 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
                 if (snapshot != null) {
                     val statuses = snapshot.documents.mapNotNull { document ->
                         try {
-                            GroupMovieStatus(
+                            val mediaTypeStr = document.getString("mediaType") ?: "MOVIE"
+                            val mediaType = try {
+                                com.apptolast.familyfilmapp.model.local.types.MediaType.valueOf(mediaTypeStr)
+                            } catch (_: IllegalArgumentException) {
+                                com.apptolast.familyfilmapp.model.local.types.MediaType.MOVIE
+                            }
+                            GroupMediaStatus(
                                 groupId = groupId,
                                 userId = document.getString("userId") ?: return@mapNotNull null,
-                                movieId = (document.getLong("movieId") ?: return@mapNotNull null).toInt(),
-                                status = MovieStatus.valueOf(
+                                mediaId = (document.getLong("movieId") ?: return@mapNotNull null).toInt(),
+                                status = MediaStatus.valueOf(
                                     document.getString("status") ?: return@mapNotNull null,
                                 ),
+                                mediaType = mediaType,
                             )
                         } catch (e: Exception) {
-                            Timber.e(e, "Error parsing movie status document: ${document.id}")
+                            Timber.e(e, "Error parsing media status document: ${document.id}")
                             null
                         }
                     }
@@ -548,8 +563,14 @@ interface FirebaseDatabaseDatasource {
     // /////////////////////////////////////////////////////////////////////////
     // Movie Statuses (per-group)
     // /////////////////////////////////////////////////////////////////////////
-    suspend fun setMovieStatus(groupId: String, userId: String, movieId: Int, status: MovieStatus)
+    suspend fun setMovieStatus(
+        groupId: String,
+        userId: String,
+        movieId: Int,
+        status: MediaStatus,
+        mediaType: MediaType = MediaType.MOVIE,
+    )
     suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int)
-    fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMovieStatus>>
+    fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>>
     suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>)
 }

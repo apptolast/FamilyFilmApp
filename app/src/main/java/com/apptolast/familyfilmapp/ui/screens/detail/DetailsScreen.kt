@@ -57,8 +57,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Movie
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
@@ -71,14 +72,16 @@ import com.apptolast.familyfilmapp.utils.TT_DETAIL_WATCHED_BUTTON
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieDetailScreen(
-    movieId: Int,
+fun MediaDetailScreen(
+    mediaId: Int,
     modifier: Modifier = Modifier,
+    mediaType: MediaType = MediaType.MOVIE,
     factoryProvider: DetailsViewModelFactoryProvider = hiltViewModel(),
     viewModel: DetailsViewModel = viewModel(
         factory = DetailsViewModel.provideFactory(
             assistedFactory = factoryProvider.detailsViewModelFactory,
-            movieId = movieId,
+            mediaId = mediaId,
+            mediaType = mediaType,
         ),
     ),
     onBack: () -> Unit = {},
@@ -91,7 +94,7 @@ fun MovieDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = state.movie.title,
+                        text = state.media.title,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -125,7 +128,7 @@ fun MovieDetailScreen(
                     modifier = Modifier
                         .weight(1f)
                         .testTag(TT_DETAIL_TO_WATCH_BUTTON),
-                    onClick = { viewModel.onStatusButtonClick(MovieStatus.ToWatch) },
+                    onClick = { viewModel.onStatusButtonClick(MediaStatus.ToWatch) },
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -137,7 +140,7 @@ fun MovieDetailScreen(
                     modifier = Modifier
                         .weight(1f)
                         .testTag(TT_DETAIL_WATCHED_BUTTON),
-                    onClick = { viewModel.onStatusButtonClick(MovieStatus.Watched) },
+                    onClick = { viewModel.onStatusButtonClick(MediaStatus.Watched) },
                 )
             }
         },
@@ -151,24 +154,23 @@ fun MovieDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = "${TmdbConfig.POSTER_DETAIL}${state.movie.posterPath}",
-                contentDescription = "Movie Poster",
+                model = "${TmdbConfig.POSTER_DETAIL}${state.media.posterPath}",
+                contentDescription = "Media Poster",
                 modifier = Modifier
                     .height(380.dp)
                     .clip(MaterialTheme.shapes.small)
                     .testTag(TT_DETAIL_POSTER),
                 contentScale = ContentScale.Fit,
             )
-            MovieInfo(movie = state.movie)
+            MediaInfo(media = state.media)
         }
     }
 
-    // Bottom Sheet for group selection
     if (state.showBottomSheet) {
         val sheetState = rememberModalBottomSheetState()
         val statusLabel = when (state.bottomSheetStatus) {
-            MovieStatus.ToWatch -> stringResource(R.string.discover_want_to_watch)
-            MovieStatus.Watched -> stringResource(R.string.discover_watched)
+            MediaStatus.ToWatch -> stringResource(R.string.discover_want_to_watch)
+            MediaStatus.Watched -> stringResource(R.string.discover_watched)
             else -> ""
         }
 
@@ -221,7 +223,7 @@ fun MovieDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = viewModel::confirmMovieStatus,
+                    onClick = viewModel::confirmMediaStatus,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = stringResource(R.string.detail_confirm))
@@ -232,7 +234,7 @@ fun MovieDetailScreen(
 }
 
 @Composable
-fun MovieInfo(movie: Movie) {
+fun MediaInfo(media: Media) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -247,7 +249,7 @@ fun MovieInfo(movie: Movie) {
                 verticalAlignment = Alignment.Top,
             ) {
                 Text(
-                    text = movie.title,
+                    text = media.title,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall.copy(
@@ -265,8 +267,8 @@ fun MovieInfo(movie: Movie) {
                     modifier = Modifier
                         .padding(end = 8.dp),
                 ) {
-                    Text(text = movie.releaseDate.take(4), fontWeight = FontWeight.Bold)
-                    AnimatedVisibility(movie.adult) {
+                    Text(text = media.releaseDate.take(4), fontWeight = FontWeight.Bold)
+                    AnimatedVisibility(media.adult) {
                         AgeRestrictionBadge(
                             age = 18,
                             color = redAgeMovie,
@@ -275,8 +277,31 @@ fun MovieInfo(movie: Movie) {
                 }
             }
 
+            // TV show info (seasons/episodes)
+            if (media.mediaType == MediaType.TV_SHOW) {
+                Row(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    media.numberOfSeasons?.let { seasons ->
+                        Text(
+                            text = "$seasons temporadas",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    media.numberOfEpisodes?.let { episodes ->
+                        Text(
+                            text = "$episodes episodios",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
             Text(
-                text = movie.overview,
+                text = media.overview,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(TT_DETAIL_OVERVIEW),
@@ -285,9 +310,9 @@ fun MovieInfo(movie: Movie) {
             )
 
             ProvidersContent(
-                streamProviders = movie.streamProviders,
-                buyProviders = movie.buyProviders,
-                rentProviders = movie.rentProviders,
+                streamProviders = media.streamProviders,
+                buyProviders = media.buyProviders,
+                rentProviders = media.rentProviders,
             )
         }
     }
@@ -348,10 +373,10 @@ private fun RowScope.DetailsButtonContent(icon: ImageVector, text: String) {
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-private fun DetailsScreenPreview() {
+private fun PreviewMediaInfo() {
     FamilyFilmAppTheme {
-        MovieInfo(
-            Movie().copy(
+        MediaInfo(
+            Media().copy(
                 title = "Esto es un titulo muy largo que no cabe en el cuadro",
                 posterPath = "",
                 releaseDate = "2022",

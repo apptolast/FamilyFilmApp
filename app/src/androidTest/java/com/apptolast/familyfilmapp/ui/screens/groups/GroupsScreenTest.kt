@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -45,14 +45,14 @@ class GroupsScreenTest {
     private val testGroupData = GroupViewModel.GroupData(
         group = testGroup1,
         members = listOf(testUser1, testUser2),
-        moviesToWatch = listOf(
-            Movie().copy(id = 1, title = "Inception", overview = "A thief enters dreams"),
-            Movie().copy(id = 2, title = "Matrix", overview = "A programmer discovers reality is fake"),
+        mediaToWatch = listOf(
+            Media().copy(id = 1, title = "Inception", overview = "A thief enters dreams"),
+            Media().copy(id = 2, title = "Matrix", overview = "A programmer discovers reality is fake"),
         ),
-        moviesWatched = listOf(
-            Movie().copy(id = 3, title = "Interstellar", overview = "Space exploration"),
+        mediaWatched = listOf(
+            Media().copy(id = 3, title = "Interstellar", overview = "Space exploration"),
         ),
-        recommendedMovie = Movie().copy(id = 1, title = "Inception", voteAverage = 8.8f),
+        recommendedMedia = Media().copy(id = 1, title = "Inception", voteAverage = 8.8f),
         currentUserId = "user-1",
     )
 

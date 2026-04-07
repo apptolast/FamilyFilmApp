@@ -46,6 +46,11 @@
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
 
+    <!-- MEDIA FILTER -->
+    <string name="filter_all">All</string>
+    <string name="filter_movies">Movies</string>
+    <string name="filter_tv_shows">Series</string>
+
     <!-- DISCOVER -->
     <string name="discover_watched">Watched</string>
     <string name="discover_want_to_watch">To Watch</string>
@@ -54,6 +59,9 @@
     <string name="discover_no_more_movies">No more movies! Check back later</string>
     <string name="discover_loading">Loading movies…</string>
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
+    <string name="discover_groups_label">Groups: %1$s</string>
+    <string name="discover_groups_select">Select groups</string>
+    <string name="discover_groups_all">All groups</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
     <!-- DETAIL -->

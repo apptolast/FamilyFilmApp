@@ -5,23 +5,25 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.GroupMovieStatus
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
-import com.apptolast.familyfilmapp.model.local.types.MovieStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.model.room.toGroup
-import com.apptolast.familyfilmapp.model.room.toGroupMovieStatus
-import com.apptolast.familyfilmapp.model.room.toGroupMovieStatusTable
+import com.apptolast.familyfilmapp.model.room.toGroupMediaStatus
+import com.apptolast.familyfilmapp.model.room.toGroupMediaStatusTable
 import com.apptolast.familyfilmapp.model.room.toGroupTable
 import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
-import com.apptolast.familyfilmapp.ui.screens.home.MoviePagingSource
+import com.apptolast.familyfilmapp.ui.screens.home.MediaPagingSource
+import com.apptolast.familyfilmapp.ui.screens.home.TvShowPagingSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -52,23 +54,43 @@ class RepositoryImpl @Inject constructor(
     // /////////////////////////////////////////////////////////////////////////
     // Movies
     // /////////////////////////////////////////////////////////////////////////
-    override fun getPopularMovies(pageSize: Int): Flow<PagingData<Movie>> = Pager(
+    override fun getPopularMovies(pageSize: Int): Flow<PagingData<Media>> = Pager(
         config = PagingConfig(pageSize),
-        pagingSourceFactory = { MoviePagingSource(tmdbDatasource, tmdbLocaleManager.countryCode) },
+        pagingSourceFactory = { MediaPagingSource(tmdbDatasource, tmdbLocaleManager.countryCode) },
     ).flow
 
-    override suspend fun getPopularMoviesList(page: Int): Result<List<Movie>> = runCatching {
+    override suspend fun getPopularMoviesList(page: Int): Result<List<Media>> = runCatching {
         tmdbDatasource.getPopularMovies(page).map { it.toDomain(tmdbLocaleManager.countryCode) }
     }
 
-    override suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>> = runCatching {
+    override suspend fun searchTmdbMovieByName(string: String): Result<List<Media>> = runCatching {
         tmdbDatasource.searchMovieByName(string).map { it.toDomain(tmdbLocaleManager.countryCode) }
     }
 
-    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>> = runCatching {
+    override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Media>> = runCatching {
         ids.map {
             tmdbDatasource.searchMovieById(it).toDomain(tmdbLocaleManager.countryCode)
         }
+    }
+
+    // /////////////////////////////////////////////////////////////////////////
+    // TV Shows
+    // /////////////////////////////////////////////////////////////////////////
+    override fun getPopularTvShows(pageSize: Int): Flow<PagingData<Media>> = Pager(
+        config = PagingConfig(pageSize),
+        pagingSourceFactory = { TvShowPagingSource(tmdbDatasource, tmdbLocaleManager.countryCode) },
+    ).flow
+
+    override suspend fun getPopularTvShowsList(page: Int): Result<List<Media>> = runCatching {
+        tmdbDatasource.getPopularTvShows(page).map { it.toDomain(tmdbLocaleManager.countryCode) }
+    }
+
+    override suspend fun searchMulti(query: String): Result<List<Media>> = runCatching {
+        tmdbDatasource.searchMulti(query).mapNotNull { it.toDomain(tmdbLocaleManager.countryCode) }
+    }
+
+    override suspend fun getTvShowsByIds(ids: List<Int>): Result<List<Media>> = runCatching {
+        ids.map { tmdbDatasource.getTvShowById(it).toDomain(tmdbLocaleManager.countryCode) }
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -360,30 +382,35 @@ class RepositoryImpl @Inject constructor(
         groupIds: List<String>,
         userId: String,
         movieId: Int,
-        status: MovieStatus,
+        status: MediaStatus,
+        mediaType: MediaType,
     ): Result<Unit> = runCatching {
         // Write to Firebase first, then Room (write-through)
         for (groupId in groupIds) {
-            firebaseDatabaseDatasource.setMovieStatus(groupId, userId, movieId, status)
+            firebaseDatabaseDatasource.setMovieStatus(groupId, userId, movieId, status, mediaType)
             roomDatasource.insertMovieStatus(
-                GroupMovieStatus(groupId, userId, movieId, status).toGroupMovieStatusTable(),
+                GroupMediaStatus(groupId, userId, movieId, status, mediaType).toGroupMediaStatusTable(),
             )
         }
-        Timber.d("Movie status updated in ${groupIds.size} groups: movie=$movieId, status=$status")
+        Timber.d("Media status updated in ${groupIds.size} groups: media=$movieId, type=$mediaType, status=$status")
     }
 
-    override suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit> =
-        runCatching {
-            for (groupId in groupIds) {
-                firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
-                roomDatasource.deleteMovieStatus(groupId, userId, movieId)
-            }
-            Timber.d("Movie status removed from ${groupIds.size} groups: movie=$movieId")
+    override suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        mediaType: MediaType,
+    ): Result<Unit> = runCatching {
+        for (groupId in groupIds) {
+            firebaseDatabaseDatasource.removeMovieStatus(groupId, userId, movieId)
+            roomDatasource.deleteMovieStatus(groupId, userId, movieId, mediaType.name)
         }
+        Timber.d("Media status removed from ${groupIds.size} groups: media=$movieId, type=$mediaType")
+    }
 
-    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>> =
+    override fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>> =
         roomDatasource.getMovieStatusesByGroup(groupId).map { tables ->
-            tables.map { it.toGroupMovieStatus() }
+            tables.map { it.toGroupMediaStatus() }
         }
 
     override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> =
@@ -490,7 +517,7 @@ class RepositoryImpl @Inject constructor(
         roomDatasource.deleteMovieStatusesByGroup(groupId)
         if (remoteStatuses.isNotEmpty()) {
             roomDatasource.insertAllMovieStatuses(
-                remoteStatuses.map { it.toGroupMovieStatusTable() },
+                remoteStatuses.map { it.toGroupMediaStatusTable() },
             )
         }
         Timber.d("Synced ${remoteStatuses.size} movie statuses for group: $groupId")
@@ -513,11 +540,15 @@ class RepositoryImpl @Inject constructor(
 
 interface Repository {
 
-    // Movies
-    fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Movie>>
-    suspend fun getPopularMoviesList(page: Int = 1): Result<List<Movie>>
-    suspend fun searchTmdbMovieByName(string: String): Result<List<Movie>>
-    suspend fun getMoviesByIds(ids: List<Int>): Result<List<Movie>>
+    // Media (Movies + TV Shows)
+    fun getPopularMovies(pageSize: Int = 1): Flow<PagingData<Media>>
+    suspend fun getPopularMoviesList(page: Int = 1): Result<List<Media>>
+    suspend fun searchTmdbMovieByName(string: String): Result<List<Media>>
+    suspend fun getMoviesByIds(ids: List<Int>): Result<List<Media>>
+    fun getPopularTvShows(pageSize: Int = 1): Flow<PagingData<Media>>
+    suspend fun getPopularTvShowsList(page: Int = 1): Result<List<Media>>
+    suspend fun searchMulti(query: String): Result<List<Media>>
+    suspend fun getTvShowsByIds(ids: List<Int>): Result<List<Media>>
 
     // Groups
     fun getMyGroups(userId: String): Flow<List<Group>>
@@ -537,17 +568,23 @@ interface Repository {
     suspend fun isUsernameAvailable(username: String): Boolean
     suspend fun updateUsername(user: User, newUsername: String): Result<Unit>
 
-    // Movie Statuses (per-group)
+    // Media Statuses (per-group)
     suspend fun updateMovieStatus(
         groupIds: List<String>,
         userId: String,
         movieId: Int,
-        status: MovieStatus,
+        status: MediaStatus,
+        mediaType: MediaType = MediaType.MOVIE,
     ): Result<Unit>
 
-    suspend fun removeMovieStatus(groupIds: List<String>, userId: String, movieId: Int): Result<Unit>
+    suspend fun removeMovieStatus(
+        groupIds: List<String>,
+        userId: String,
+        movieId: Int,
+        mediaType: MediaType = MediaType.MOVIE,
+    ): Result<Unit>
 
-    fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatus>>
+    fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>>
     suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int>
 
     // /////////////////////////////////////////////////////////////////////////

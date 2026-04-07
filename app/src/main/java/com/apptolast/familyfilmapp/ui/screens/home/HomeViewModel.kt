@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -35,10 +34,10 @@ class HomeViewModel @Inject constructor(
     val homeUiState: StateFlow<HomeUiState>
         field: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
 
-    private val _selectedFilter = MutableStateFlow(MediaFilter.ALL)
+    private val selectedFilter = MutableStateFlow(MediaFilter.ALL)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherProvider.io()) {
             homeUiState.update { it.copy(isLoading = true) }
             val userId = auth.uid
             if (userId == null) {
@@ -58,7 +57,7 @@ class HomeViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val media: Flow<PagingData<Media>> = _selectedFilter
+    val media: Flow<PagingData<Media>> = selectedFilter
         .flatMapLatest { filter ->
             when (filter) {
                 MediaFilter.ALL -> repository.getPopularMovies()
@@ -74,7 +73,7 @@ class HomeViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun setMediaFilter(filter: MediaFilter) {
-        _selectedFilter.value = filter
+        selectedFilter.value = filter
         homeUiState.update { it.copy(selectedFilter = filter, filterMedia = emptyList()) }
     }
 

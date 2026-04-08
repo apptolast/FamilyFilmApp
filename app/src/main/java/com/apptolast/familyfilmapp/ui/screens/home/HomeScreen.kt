@@ -2,8 +2,10 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -58,8 +60,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.R
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
+import com.apptolast.familyfilmapp.ui.components.MediaFilterChips
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
@@ -74,7 +77,7 @@ fun HomeScreen(
     onClickNav: (String) -> Unit = {},
 ) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
-    val movies: LazyPagingItems<Movie> = viewModel.movies.collectAsLazyPagingItems()
+    val mediaItems: LazyPagingItems<Media> = viewModel.media.collectAsLazyPagingItems()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -92,7 +95,7 @@ fun HomeScreen(
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
-            viewModel.clearError() // Clear error after showing
+            viewModel.clearError()
         }
     }
 
@@ -108,16 +111,17 @@ fun HomeScreen(
                 .padding(horizontal = 8.dp),
         ) {
             HomeContent(
-                movies = movies,
-                onMovieClick = { movie ->
-                    onClickNav(DetailNavTypeDestination.getDestination(movie))
+                mediaItems = mediaItems,
+                onMediaClick = { media ->
+                    onClickNav(DetailNavTypeDestination.getDestination(media))
                 },
-                searchMovieByNameBody = viewModel::searchMovieByName,
+                searchMediaByName = viewModel::searchMediaByName,
+                onFilterSelect = viewModel::setMediaFilter,
                 stateUI = stateUI,
             )
 
             LoadStateContent(
-                movies = movies,
+                mediaItems = mediaItems,
                 triggerError = viewModel::triggerError,
             )
         }
@@ -127,115 +131,135 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     stateUI: HomeUiState,
-    movies: LazyPagingItems<Movie>,
+    mediaItems: LazyPagingItems<Media>,
     modifier: Modifier = Modifier,
-    onMovieClick: (Movie) -> Unit = {},
-    searchMovieByNameBody: (String) -> Unit = {},
+    onMediaClick: (Media) -> Unit = {},
+    searchMediaByName: (String) -> Unit = {},
+    onFilterSelect: (com.apptolast.familyfilmapp.model.local.types.MediaFilter) -> Unit = {},
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    MovieGridList(
-        movies = movies,
-        stateUi = stateUI,
-        onMovieClick = onMovieClick,
-    )
-
-    OutlinedTextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .testTag(TT_HOME_SEARCH_TEXT_FIELD),
-        value = searchQuery,
-        onValueChange = {
-            searchQuery = it
-            searchMovieByNameBody(it)
-        },
-        shape = MaterialTheme.shapes.small,
-        leadingIcon = {
-            Icon(imageVector = Icons.Filled.Search, contentDescription = "")
-        },
-        trailingIcon = {
-            AnimatedVisibility(searchQuery.isNotEmpty()) {
-                IconButton(
-                    onClick = {
-                        searchQuery = ""
-                        searchMovieByNameBody("") // Notify ViewModel to clear filter
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Borrar texto",
+    Column(modifier = modifier.fillMaxSize()) {
+        // Fixed header: search + filter chips with opaque background
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .testTag(TT_HOME_SEARCH_TEXT_FIELD),
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    searchMediaByName(it)
+                },
+                shape = MaterialTheme.shapes.small,
+                leadingIcon = {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+                },
+                trailingIcon = {
+                    AnimatedVisibility(searchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                searchQuery = ""
+                                searchMediaByName("")
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Borrar texto",
+                            )
+                        }
+                    }
+                },
+                label = {
+                    Text(
+                        text = stringResource(R.string.search_film_or_series),
+                        modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
                     )
-                }
-            }
-        },
-        label = {
-            Text(
-                text = stringResource(R.string.search_film_or_series),
-                modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Search,
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        searchMediaByName(searchQuery)
+                    },
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    errorContainerColor = MaterialTheme.colorScheme.background,
+                ),
             )
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Search,
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                searchMovieByNameBody(searchQuery)
-            },
-        ),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            disabledContainerColor = MaterialTheme.colorScheme.background,
-            errorContainerColor = MaterialTheme.colorScheme.background,
-        ),
-    )
+
+            MediaFilterChips(
+                selectedFilter = stateUI.selectedFilter,
+                onFilterSelect = onFilterSelect,
+            )
+        }
+
+        // Scrollable media grid
+        MediaGridList(
+            mediaItems = mediaItems,
+            stateUi = stateUI,
+            onMediaClick = onMediaClick,
+        )
+    }
 }
 
 @Composable
-private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, onMovieClick: (Movie) -> Unit = {}) {
-    val filterMovies = stateUi.filterMovies
+private fun MediaGridList(
+    mediaItems: LazyPagingItems<Media>,
+    stateUi: HomeUiState,
+    onMediaClick: (Media) -> Unit = {},
+) {
+    val filterMedia = stateUi.filterMedia
 
-    AnimatedVisibility(filterMovies.isNotEmpty()) {
+    AnimatedVisibility(filterMedia.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
         ) {
             items(
-                items = filterMovies,
-                key = { movie -> "filter_${movie.id}" },
-            ) { movie ->
-                MovieItem(
-                    movie = movie,
-                    onClick = onMovieClick,
+                items = filterMedia,
+                key = { media -> "filter_${media.id}" },
+            ) { media ->
+                MediaItem(
+                    media = media,
+                    onClick = onMediaClick,
                 )
             }
         }
     }
-    AnimatedVisibility(filterMovies.isEmpty()) {
+    AnimatedVisibility(filterMedia.isEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 80.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
         ) {
             items(
-                count = movies.itemCount,
+                count = mediaItems.itemCount,
                 key = { index ->
-                    val movie = movies[index]
-                    if (movie != null) {
-                        "paging_${movie.id}_$index"
+                    val media = mediaItems[index]
+                    if (media != null) {
+                        "paging_${media.id}_$index"
                     } else {
                         "loading_$index"
                     }
                 },
             ) { index ->
-                MovieItem(
-                    movie = movies[index]!!,
-                    onClick = onMovieClick,
+                MediaItem(
+                    media = mediaItems[index]!!,
+                    onClick = onMediaClick,
                     modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$index"),
                 )
             }
@@ -244,10 +268,10 @@ private fun MovieGridList(movies: LazyPagingItems<Movie>, stateUi: HomeUiState, 
 }
 
 @Composable
-private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (String) -> Unit) {
+private fun LoadStateContent(mediaItems: LazyPagingItems<Media>, triggerError: (String) -> Unit) {
     val currentTriggerError by rememberUpdatedState(triggerError)
-    val refreshError = (movies.loadState.refresh as? LoadState.Error)?.error
-    val appendError = (movies.loadState.append as? LoadState.Error)?.error
+    val refreshError = (mediaItems.loadState.refresh as? LoadState.Error)?.error
+    val appendError = (mediaItems.loadState.append as? LoadState.Error)?.error
 
     LaunchedEffect(refreshError) {
         refreshError?.localizedMessage?.let { currentTriggerError(it) }
@@ -258,7 +282,7 @@ private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (Stri
     }
 
     when {
-        movies.loadState.refresh is LoadState.Loading -> {
+        mediaItems.loadState.refresh is LoadState.Loading -> {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize(),
@@ -270,7 +294,7 @@ private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (Stri
             }
         }
 
-        movies.loadState.append is LoadState.Loading -> {
+        mediaItems.loadState.append is LoadState.Loading -> {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize(),
@@ -286,13 +310,13 @@ private fun LoadStateContent(movies: LazyPagingItems<Movie>, triggerError: (Stri
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-private fun HomeContentPreview() {
+private fun PreviewHomeContent() {
     FamilyFilmAppTheme {
         HomeContent(
-            movies = flowOf(
+            mediaItems = flowOf(
                 PagingData.from(
                     listOf(
-                        Movie().copy(
+                        Media().copy(
                             title = "Matrix",
                             overview = """
                         "Trata sobre un programador que descubre que la realidad en la que vive es
@@ -305,15 +329,15 @@ private fun HomeContentPreview() {
                 ),
             ).collectAsLazyPagingItems(),
             stateUI = HomeUiState().copy(
-                filterMovies = arrayListOf(
-                    Movie(
+                filterMedia = arrayListOf(
+                    Media(
                         title = "title",
                         posterPath = "",
                     ),
                 ),
             ),
-            onMovieClick = {},
-            searchMovieByNameBody = {},
+            onMediaClick = {},
+            searchMediaByName = {},
         )
     }
 }

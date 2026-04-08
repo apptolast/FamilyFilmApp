@@ -16,10 +16,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarWrapper(
-    title: String,
-    onClickLogOut: () -> Unit = {},
-) {
+fun TopAppBarWrapper(title: String, onClickLogOut: () -> Unit = {}) {
     val customTopAppBarColors = TopAppBarDefaults.topAppBarColors(
         containerColor = MaterialTheme.colorScheme.outlineVariant,
     )

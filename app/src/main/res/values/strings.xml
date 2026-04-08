@@ -42,9 +42,18 @@
     <string name="groups_text_watched">Watched</string>
     <string name="group_recommended_label">Recommended</string>
     <string name="cannot_delete_owner">Cannot delete group owner. Delete the group instead.</string>
+    <string name="groups_tooltip_edit_name">Edit group name</string>
+    <string name="groups_tooltip_add_member">Add member</string>
+    <string name="groups_tooltip_delete_group">Delete group</string>
+    <string name="groups_member_count">%1$d members</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
+
+    <!-- MEDIA FILTER -->
+    <string name="filter_all">All</string>
+    <string name="filter_movies">Movies</string>
+    <string name="filter_tv_shows">Series</string>
 
     <!-- DISCOVER -->
     <string name="discover_watched">Watched</string>
@@ -54,6 +63,9 @@
     <string name="discover_no_more_movies">No more movies! Check back later</string>
     <string name="discover_loading">Loading movies…</string>
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
+    <string name="discover_groups_label">Groups: %1$s</string>
+    <string name="discover_groups_select">Select groups</string>
+    <string name="discover_groups_all">All groups</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
 
     <!-- DETAIL -->
@@ -135,5 +147,18 @@
     <string name="region_select_title">Select your country</string>
     <string name="region_search_hint">Search country</string>
     <string name="region_edit">Change region</string>
+
+    <!-- SUBSCRIPTION -->
+    <string name="subscription_section_title">Subscription</string>
+    <string name="subscription_remove_ads">Remove Ads</string>
+    <string name="subscription_remove_ads_subtitle">Enjoy the app without ads</string>
+    <string name="subscription_restore_purchases">Restore Purchases</string>
+    <string name="subscription_restore_purchases_subtitle">Recover your previous purchases</string>
+    <string name="purchase_loading">Processing…</string>
+    <string name="purchase_success">Ads removed successfully. Thank you!</string>
+    <string name="purchase_error">Purchase could not be completed. Please try again.</string>
+    <string name="restore_success">Purchase restored successfully. Ads removed!</string>
+    <string name="restore_nothing_found">No previous purchases found.</string>
+    <string name="restore_error">Could not restore purchases. Please try again.</string>
 
 </resources>

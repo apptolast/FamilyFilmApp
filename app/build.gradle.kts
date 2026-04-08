@@ -24,10 +24,13 @@ if (localFile.exists()) {
     localProperties.load(FileInputStream(localFile))
 }
 
-val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT")
-val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN")
-val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID")
-val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID")
+val webIdClient: String = localProperties.getProperty("WEB_ID_CLIENT") ?: ""
+val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN") ?: ""
+val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID") ?: ""
+val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID") ?: ""
+val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID") ?: ""
+val revenueCatApiKey: String = localProperties.getProperty("REVENUECAT_API_KEY") ?: ""
+val revenueCatTestApiKey: String = localProperties.getProperty("REVENUECAT_TEST_API_KEY") ?: ""
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -37,10 +40,9 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 23
-        versionName = "0.4.4"
+        versionCode = 25
+        versionName = "0.5.1"
 
-//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -48,6 +50,9 @@ android {
         buildConfigField("String", "TMDB_ACCESS_TOKEN", "\"$tmdbApiKey\"")
         buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
         buildConfigField("String", "ADMOB_BOTTOM_BANNER_ID", "\"$admobBottomBanner\"")
+        buildConfigField("String", "ADMOB_APP_OPEN_ID", "\"$admobAppOpenId\"")
+        buildConfigField("String", "REVENUECAT_API_KEY", "\"$revenueCatApiKey\"")
+        buildConfigField("String", "REVENUECAT_TEST_API_KEY", "\"$revenueCatTestApiKey\"")
 
         resValue("string", "admob_app_id", admobAppId)
     }
@@ -113,6 +118,10 @@ android {
 }
 
 dependencies {
+
+    // Align coroutines versions across all configurations (fixes consistent resolution conflicts)
+    implementation(platform(libs.coroutines.bom))
+    androidTestImplementation(platform(libs.coroutines.bom))
 
     // Androidx
     implementation(libs.androidx.core.ktx)
@@ -197,6 +206,11 @@ dependencies {
 
     // Admob
     implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
+    implementation(libs.androidx.lifecycle.process)
+
+    // RevenueCat
+    implementation(libs.revenuecat.purchases)
 
     // Turbine
 //    testImplementation(libs.turbine)
@@ -211,6 +225,12 @@ dependencies {
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.bundles.android.tests)
+
+    // Force concurrent-futures alignment (fixes consistent resolution conflicts with espresso/hilt-testing)
+    constraints {
+        implementation("androidx.concurrent:concurrent-futures:1.2.0")
+        implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    }
 }
 
 ktlint {

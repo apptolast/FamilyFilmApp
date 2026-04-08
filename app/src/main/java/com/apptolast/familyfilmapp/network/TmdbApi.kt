@@ -2,6 +2,9 @@ package com.apptolast.familyfilmapp.network
 
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieWrapperRemote
+import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMultiSearchWrapperRemote
+import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowRemote
+import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowWrapperRemote
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -32,6 +35,29 @@ interface TmdbApi {
         @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
     ): TmdbMovieRemote
 
+    @GET(TV_POPULAR)
+    suspend fun getPopularTvShows(
+        @Query(PARAM_PAGE) page: Int,
+        @Query(PARAM_ADULT) adult: Boolean = false,
+        @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
+        @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
+    ): TmdbTvShowWrapperRemote
+
+    @GET("$TV/{$PARAM_TV_ID}")
+    suspend fun getTvShowById(
+        @Path(PARAM_TV_ID) tvId: Int,
+        @Query(PARAM_ADULT) adult: Boolean = false,
+        @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
+        @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
+    ): TmdbTvShowRemote
+
+    @GET(SEARCH_MULTI)
+    suspend fun searchMulti(
+        @Query(PARAM_MOVIE_NAME) query: String,
+        @Query(PARAM_ADULT) adult: Boolean = false,
+        @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
+    ): TmdbMultiSearchWrapperRemote
+
     companion object {
         // Params
         const val PARAM_PAGE = "page"
@@ -46,5 +72,9 @@ interface TmdbApi {
         const val MOVIES_POPULAR = "movie/popular"
         const val SEARCH_MOVIE = "search/movie"
         const val MOVIE = "movie"
+        const val TV_POPULAR = "tv/popular"
+        const val TV = "tv"
+        const val PARAM_TV_ID = "tv_id"
+        const val SEARCH_MULTI = "search/multi"
     }
 }

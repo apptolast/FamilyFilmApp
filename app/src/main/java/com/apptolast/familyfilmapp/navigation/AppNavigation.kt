@@ -22,7 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
-import com.apptolast.familyfilmapp.ui.screens.detail.MovieDetailScreen
+import com.apptolast.familyfilmapp.ui.screens.detail.MediaDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
@@ -99,8 +99,11 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         },
         bottomBar = {
             if (showBottomBar) {
+                val user = (authState as? AuthState.Authenticated)?.user
                 Column {
-                    AdaptiveBanner()
+                    if (user?.hasRemovedAds != true) {
+                        AdaptiveBanner()
+                    }
                     BottomNavigationBar(
                         navController = navController,
                     )
@@ -164,8 +167,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 arguments = DetailNavTypeDestination.argumentList,
             ) { backStackEntry ->
                 val (movie) = DetailNavTypeDestination.parseArguments(backStackEntry)
-                MovieDetailScreen(
-                    movieId = movie.id,
+                MediaDetailScreen(
+                    mediaId = movie.id,
+                    mediaType = movie.mediaType,
                     onBack = { navController.navigateUp() },
                 )
             }

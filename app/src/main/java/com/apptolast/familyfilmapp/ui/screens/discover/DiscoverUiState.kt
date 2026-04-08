@@ -3,35 +3,38 @@ package com.apptolast.familyfilmapp.ui.screens.discover
 import com.apptolast.familyfilmapp.BaseUiState
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Group
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 
 data class DiscoverUiState(
     val user: User,
-    val movies: List<Movie>,
-    val currentMovieIndex: Int,
+    val mediaList: List<Media>,
+    val currentMediaIndex: Int,
     val groups: List<Group>,
     val selectedGroupIds: Set<String>,
+    val selectedFilter: MediaFilter = MediaFilter.ALL,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
 
     constructor() : this(
         user = User(),
-        movies = emptyList(),
-        currentMovieIndex = 0,
+        mediaList = emptyList(),
+        currentMediaIndex = 0,
         groups = emptyList(),
         selectedGroupIds = emptySet(),
+        selectedFilter = MediaFilter.ALL,
         isLoading = false,
         errorMessage = null,
     )
 
-    val currentMovie: Movie?
-        get() = movies.getOrNull(currentMovieIndex)
+    val currentMedia: Media?
+        get() = mediaList.getOrNull(currentMediaIndex)
 
-    val hasMoreMovies: Boolean
-        get() = currentMovieIndex < movies.size - 1
+    val hasMoreMedia: Boolean
+        get() = currentMediaIndex < mediaList.size - 1
 
-    val isOutOfMovies: Boolean
-        get() = movies.isEmpty() || currentMovieIndex >= movies.size
+    val isOutOfMedia: Boolean
+        get() = mediaList.isEmpty() || currentMediaIndex >= mediaList.size
 }

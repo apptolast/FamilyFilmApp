@@ -1,43 +1,46 @@
 [versions]
-activityCompose = "1.12.4"
+activityCompose = "1.13.0"
 androidxArchCoreTesting = "2.2.0"
-androidApplication = "9.0.1"
-androidxCoreKtx = "1.17.0"
+androidApplication = "9.1.0"
+androidxCoreKtx = "1.18.0"
 androidxLifecycleCompose = "2.10.0"
-androidxPagingVersion = "3.4.1"
+androidxPagingVersion = "3.4.2"
 androidxTestRunner = "1.7.0"
 androidxTestExtJunit = "1.3.0"
 coil = "2.7.0"
 composeAnnotation = "1.0.3"
 composeAnnotationProcessor = "1.0.6"
-composeBom = "2026.02.00"
-composeUiTextGoogleFonts = "1.10.3"
+composeBom = "2026.03.01"
+composeUiTextGoogleFonts = "1.10.6"
+concurrentFutures = "1.2.0"
 coreSplashscreen = "1.2.0"
 coroutines = "1.10.2"
 credentials = "1.5.0"
 espressoCore = "3.7.0"
-firebaseBom = "34.9.0"
+firebaseBom = "34.11.0"
 firebaseCrashlytics = "3.0.6"
 googleid = "1.2.0"
 googleServices = "4.4.4"
 gson = "2.13.2"
 hiltCompilerVersion = "1.3.0"
 hiltNavigationCompose = "1.3.0"
-hiltVersion = "2.59.1"
+hiltVersion = "2.59.2"
 hiltCompiler = "1.3.0"
 junit = "4.13.2"
 junitJupiter = "6.0.3"
-kotlin = "2.2.21"
+kotlin = "2.3.20"
 ktlint = "0.5.6"
-ktlintJlleitschuh = "14.0.1"
+ktlintJlleitschuh = "14.2.0"
 ksp = "2.3.2"
 loggingInterceptor = "5.3.2"
-mockitoCore = "5.21.0"
+mockitoCore = "5.23.0"
 mockitoInline = "5.2.0"
-mockitoKotlin = "6.2.3"
+mockitoKotlin = "6.3.0"
 mockk = "1.14.9"
 navigationCompose = "2.9.7"
-playServicesAds = "25.0.0"
+playServicesAds = "25.1.0"
+userMessagingPlatform = "4.0.0"
+revenueCat = "9.29.0"
 retrofit = "3.0.0"
 roomVersion = "2.8.4"
 swipe = "1.3.0"
@@ -46,7 +49,7 @@ testRules = "1.7.0"
 timber = "5.0.1"
 truth = "1.4.5"
 turbine = "1.2.1"
-workRuntimeKtx = "2.11.1"
+workRuntimeKtx = "2.11.2"
 
 materialAlpha = "1.4.0"
 
@@ -61,6 +64,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycleCompose" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycleCompose" }
 androidx-lifecycle-viewModel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleCompose" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationCompose" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPagingVersion" }
@@ -87,6 +91,7 @@ compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
@@ -110,6 +115,8 @@ mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", versio
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenueCat" }
+user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 swipe = { group = "me.saket.swipe", name = "swipe", version.ref = "swipe" }
 test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }

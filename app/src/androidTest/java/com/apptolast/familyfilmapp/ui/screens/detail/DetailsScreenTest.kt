@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.filters.MediumTest
-import com.apptolast.familyfilmapp.model.local.Movie
+import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DETAIL_OVERVIEW
 import com.apptolast.familyfilmapp.utils.TT_DETAIL_TITLE
@@ -19,7 +19,7 @@ class DetailsScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val testMovie = Movie().copy(
+    private val testMedia = Media().copy(
         id = 100,
         title = "The Matrix",
         overview = "A computer programmer discovers reality is a simulation.",
@@ -28,7 +28,7 @@ class DetailsScreenTest {
         voteAverage = 8.7f,
     )
 
-    private val adultMovie = Movie().copy(
+    private val adultMedia = Media().copy(
         id = 200,
         title = "Adult Film",
         overview = "An adult-rated movie.",
@@ -38,10 +38,10 @@ class DetailsScreenTest {
     )
 
     @Test
-    fun movieInfo_displaysTitle() {
+    fun mediaInfo_displaysTitle() {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
-                MovieInfo(movie = testMovie)
+                MediaInfo(media = testMedia)
             }
         }
         composeTestRule.onNodeWithTag(TT_DETAIL_TITLE).assertIsDisplayed()
@@ -49,10 +49,10 @@ class DetailsScreenTest {
     }
 
     @Test
-    fun movieInfo_displaysOverview() {
+    fun mediaInfo_displaysOverview() {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
-                MovieInfo(movie = testMovie)
+                MediaInfo(media = testMedia)
             }
         }
         composeTestRule.onNodeWithTag(TT_DETAIL_OVERVIEW).assertIsDisplayed()
@@ -61,30 +61,30 @@ class DetailsScreenTest {
     }
 
     @Test
-    fun movieInfo_displaysReleaseYear() {
+    fun mediaInfo_displaysReleaseYear() {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
-                MovieInfo(movie = testMovie)
+                MediaInfo(media = testMedia)
             }
         }
         composeTestRule.onNodeWithText("1999").assertIsDisplayed()
     }
 
     @Test
-    fun movieInfo_displaysAdultBadge() {
+    fun mediaInfo_displaysAdultBadge() {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
-                MovieInfo(movie = adultMovie)
+                MediaInfo(media = adultMedia)
             }
         }
         composeTestRule.onNodeWithText("+18").assertIsDisplayed()
     }
 
     @Test
-    fun movieInfo_hidesAdultBadgeForNonAdult() {
+    fun mediaInfo_hidesAdultBadgeForNonAdult() {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
-                MovieInfo(movie = testMovie)
+                MediaInfo(media = testMedia)
             }
         }
         composeTestRule.onNodeWithText("+18").assertDoesNotExist()

@@ -109,6 +109,7 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
             "photoUrl" to user.photoUrl,
             "username" to (user.username ?: ""),
             "usernameLower" to (user.username?.lowercase() ?: ""),
+            "hasRemovedAds" to user.hasRemovedAds,
         )
 
         usersCollection
@@ -529,6 +530,13 @@ class FirebaseDatabaseDatasourceImpl @Inject constructor(private val database: F
         return !doc.exists()
     }
 
+    override suspend fun updateHasRemovedAds(userId: String, hasRemovedAds: Boolean) {
+        usersCollection.document(userId)
+            .update("hasRemovedAds", hasRemovedAds)
+            .await()
+        Timber.d("Updated hasRemovedAds=$hasRemovedAds for user: $userId")
+    }
+
     companion object {
         const val DB_ROOT_COLLECTION = "FFA"
     }
@@ -549,6 +557,7 @@ interface FirebaseDatabaseDatasource {
     suspend fun claimUsername(username: String, userId: String): Boolean
     suspend fun releaseUsername(username: String)
     suspend fun isUsernameAvailable(username: String): Boolean
+    suspend fun updateHasRemovedAds(userId: String, hasRemovedAds: Boolean)
 
     // /////////////////////////////////////////////////////////////////////////
     // Groups

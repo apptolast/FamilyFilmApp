@@ -27,7 +27,7 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         GroupTable::class,
         GroupMovieStatusTable::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(
@@ -186,6 +186,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v8 → v9: Add hasRemovedAds column to users_table
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE $USERS_TABLE_NAME ADD COLUMN hasRemovedAds INTEGER NOT NULL DEFAULT 0",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -204,6 +213,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_5_6,
                     MIGRATION_6_7,
                     MIGRATION_7_8,
+                    MIGRATION_8_9,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()

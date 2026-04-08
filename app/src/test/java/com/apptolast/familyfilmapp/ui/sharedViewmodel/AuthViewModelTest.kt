@@ -4,6 +4,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.apptolast.familyfilmapp.MainDispatcherRule
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.common.truth.Truth.assertThat
@@ -15,6 +16,7 @@ import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -45,6 +47,9 @@ class AuthViewModelTest {
     @RelaxedMockK
     lateinit var credentialRequest: GetCredentialRequest
 
+    @MockK
+    lateinit var purchaseManager: PurchaseManager
+
     @RelaxedMockK
     lateinit var firebaseUser: FirebaseUser
 
@@ -60,6 +65,10 @@ class AuthViewModelTest {
         every { authRepository.getProvider() } returns flowOf(null)
         // checkIsUserLogged calls stopSync() when unauthenticated
         every { repository.stopSync() } returns Unit
+        // PurchaseManager default
+        every { purchaseManager.hasRemovedAds } returns MutableStateFlow(false)
+        every { purchaseManager.initialize(any()) } returns Unit
+        every { purchaseManager.setAdsRemoved(any()) } returns Unit
     }
 
     private fun createViewModel(): AuthViewModel {
@@ -69,6 +78,7 @@ class AuthViewModelTest {
             dispatcher.testDispatcherProvider,
             credentialManager,
             credentialRequest,
+            purchaseManager,
         )
         return viewModel
     }

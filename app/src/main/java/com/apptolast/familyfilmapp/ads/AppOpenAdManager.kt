@@ -23,9 +23,14 @@ class AppOpenAdManager(private val context: Context) {
     private var isLoadingAd = false
     var isShowingAd = false
         private set
+    var adsRemoved: Boolean = false
     private var loadTime: Long = 0
 
     fun loadAd() {
+        if (adsRemoved) {
+            Timber.d("$TAG loadAd() skip — ads removed by purchase")
+            return
+        }
         if (isLoadingAd || isAdAvailable()) {
             Timber.d("$TAG loadAd() skip — loading=$isLoadingAd, available=${isAdAvailable()}")
             return
@@ -70,6 +75,11 @@ class AppOpenAdManager(private val context: Context) {
                 "canRequestAds=${consentManager.canRequestAds}, " +
                 "activity=${activity.javaClass.simpleName}",
         )
+
+        if (adsRemoved) {
+            Timber.d("$TAG showAdIfAvailable skip — ads removed by purchase")
+            return
+        }
 
         if (isShowingAd) {
             Timber.d("$TAG skip — already showing")

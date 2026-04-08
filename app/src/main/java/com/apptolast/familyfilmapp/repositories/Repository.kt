@@ -311,6 +311,17 @@ class RepositoryImpl @Inject constructor(
         false // Fail closed: treat as unavailable on error
     }
 
+    override suspend fun updateHasRemovedAds(userId: String, hasRemovedAds: Boolean): Result<Unit> = runCatching {
+        // Firebase first (write-through)
+        firebaseDatabaseDatasource.updateHasRemovedAds(userId, hasRemovedAds)
+        // Then Room
+        val userTable = roomDatasource.getUser(userId).first()
+        if (userTable != null) {
+            roomDatasource.insertUser(userTable.copy(hasRemovedAds = hasRemovedAds))
+        }
+        Timber.d("hasRemovedAds updated: userId=$userId, value=$hasRemovedAds")
+    }
+
     override suspend fun updateUsername(user: User, newUsername: String): Result<Unit> = runCatching {
         val oldUsername = user.username
 
@@ -567,6 +578,7 @@ interface Repository {
     suspend fun getUsersByIds(userIds: List<String>): Result<List<User>>
     suspend fun isUsernameAvailable(username: String): Boolean
     suspend fun updateUsername(user: User, newUsername: String): Result<Unit>
+    suspend fun updateHasRemovedAds(userId: String, hasRemovedAds: Boolean): Result<Unit>
 
     // Media Statuses (per-group)
     suspend fun updateMovieStatus(

@@ -98,6 +98,7 @@ fun ProfileScreen(
     val provider by viewModel.provider.collectAsStateWithLifecycle()
     val usernameValidationState by profileViewModel.usernameValidationState.collectAsStateWithLifecycle()
     val isSaving by profileViewModel.isSaving.collectAsStateWithLifecycle()
+    val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -177,6 +178,11 @@ fun ProfileScreen(
                             showDeleteDialog = false
                         },
                     )
+                }
+
+                // Loading dialog while purchase/restore is in progress
+                if (isPurchaseLoading) {
+                    PurchaseLoadingDialog()
                 }
             }
 
@@ -407,11 +413,12 @@ fun ProfileContent(
             )
         }
 
-        // Subscription Section — only show if ads are NOT already removed
-        if (!user.hasRemovedAds) {
-            Spacer(modifier = Modifier.height(16.dp))
+        // Subscription Section
+        Spacer(modifier = Modifier.height(16.dp))
 
-            ProfileSection(title = stringResource(R.string.subscription_section_title)) {
+        ProfileSection(title = stringResource(R.string.subscription_section_title)) {
+            // Only show "Remove Ads" if user hasn't purchased yet
+            if (!user.hasRemovedAds) {
                 ProfileItem(
                     title = stringResource(R.string.subscription_remove_ads),
                     subtitle = stringResource(R.string.subscription_remove_ads_subtitle),
@@ -425,20 +432,21 @@ fun ProfileContent(
                         )
                     },
                 )
-                ProfileItem(
-                    title = stringResource(R.string.subscription_restore_purchases),
-                    subtitle = stringResource(R.string.subscription_restore_purchases_subtitle),
-                    leadingIcon = Icons.Outlined.Restore,
-                    onClick = onRestorePurchase,
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                )
             }
+            // "Restore Purchases" is always visible
+            ProfileItem(
+                title = stringResource(R.string.subscription_restore_purchases),
+                subtitle = stringResource(R.string.subscription_restore_purchases_subtitle),
+                leadingIcon = Icons.Outlined.Restore,
+                onClick = onRestorePurchase,
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -554,6 +562,29 @@ fun ProfileItem(
         }
 
         trailingContent?.invoke()
+    }
+}
+
+@Composable
+private fun PurchaseLoadingDialog() {
+    androidx.compose.ui.window.Dialog(onDismissRequest = {}) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        ) {
+            Row(
+                modifier = Modifier.padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                Text(
+                    text = stringResource(R.string.purchase_loading),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        }
     }
 }
 

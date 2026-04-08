@@ -25,6 +25,13 @@ class RevenueCatPurchaseManager(private val context: Context) :
 
     private var isConfigured = false
 
+    override fun setAdsRemoved(removed: Boolean) {
+        if (removed && !_hasRemovedAds.value) {
+            _hasRemovedAds.value = true
+            Timber.d("PurchaseManager: adsRemoved set to true from persisted state")
+        }
+    }
+
     override fun initialize(userId: String) {
         if (isConfigured) return
 
@@ -65,7 +72,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
         )
     }
 
-    override suspend fun purchaseRemoveAds(activity: Activity): Result<Unit> =
+    override suspend fun purchaseRemoveAds(activity: Activity, onPurchaseStart: () -> Unit): Result<Unit> =
         suspendCancellableCoroutine { continuation ->
             if (!isConfigured) {
                 continuation.resume(Result.failure(IllegalStateException("RevenueCat not configured")))
@@ -83,6 +90,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
                             return
                         }
 
+                        onPurchaseStart()
                         Purchases.sharedInstance.purchase(
                             com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy)
                                 .build(),

@@ -57,14 +57,14 @@ android {
         resValue("string", "admob_app_id", admobAppId)
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = file(localProperties.getProperty("storeFile"))
-            storePassword = localProperties.getProperty("storePassword")
-            keyAlias = localProperties.getProperty("keyAlias")
-            keyPassword = localProperties.getProperty("keyPassword")
-        }
-    }
+//    signingConfigs {
+//        create("release") {
+//            storeFile = file(localProperties.getProperty("storeFile"))
+//            storePassword = localProperties.getProperty("storePassword")
+//            keyAlias = localProperties.getProperty("keyAlias")
+//            keyPassword = localProperties.getProperty("keyPassword")
+//        }
+//    }
 
     buildTypes {
         getByName("debug") { }
@@ -77,7 +77,7 @@ android {
                 "proguard-rules.pro",
             )
 
-            signingConfig = signingConfigs.getByName("release")
+//            signingConfig = signingConfigs.getByName("release")
         }
     }
 

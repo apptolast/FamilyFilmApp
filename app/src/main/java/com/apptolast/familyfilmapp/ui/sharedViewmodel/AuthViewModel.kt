@@ -163,6 +163,8 @@ class AuthViewModel @Inject constructor(
                 purchaseManager.initialize(domainUser.id)
                 // Observe Room for enriched data (username, etc.)
                 repository.getUserById(domainUser.id).map { roomUser ->
+                    // Sync persisted purchase state to PurchaseManager
+                    purchaseManager.setAdsRemoved(roomUser.hasRemovedAds)
                     AuthState.Authenticated(roomUser)
                 }
             } else {

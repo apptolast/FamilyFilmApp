@@ -41,6 +41,9 @@ class ProfileViewModel @Inject constructor(
     val saveError: StateFlow<String?>
         field: MutableStateFlow<String?> = MutableStateFlow(null)
 
+    val isPurchaseLoading: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
 
@@ -100,7 +103,12 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun purchaseRemoveAds(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
-        purchaseManager.purchaseRemoveAds(activity)
+        if (isPurchaseLoading.value) return@launch
+        isPurchaseLoading.update { true }
+        purchaseManager.purchaseRemoveAds(
+            activity = activity,
+            onPurchaseStart = { isPurchaseLoading.update { false } },
+        )
             .onSuccess {
                 Timber.d("Remove ads purchase successful")
                 _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess)
@@ -112,9 +120,12 @@ class ProfileViewModel @Inject constructor(
                     _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
                 }
             }
+        isPurchaseLoading.update { false }
     }
 
     fun restorePurchases() = viewModelScope.launch(dispatcherProvider.io()) {
+        if (isPurchaseLoading.value) return@launch
+        isPurchaseLoading.update { true }
         purchaseManager.restorePurchases()
             .onSuccess { restored ->
                 Timber.d("Restore purchases result: adsRemoved=$restored")
@@ -128,6 +139,7 @@ class ProfileViewModel @Inject constructor(
                 Timber.e(error, "Restore purchases failed")
                 _purchaseEvent.emit(PurchaseEvent.RestoreError(error.message))
             }
+        isPurchaseLoading.update { false }
     }
 
     companion object {

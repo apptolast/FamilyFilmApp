@@ -148,6 +148,9 @@ class FamilyFilmApp :
             currentActivity = activity
         }
 
+        // Sync adsRemoved flag before deciding whether to show ad
+        appOpenAdManager.adsRemoved = purchaseManager.hasRemovedAds.value
+
         if (++activityReferences == 1 && !isActivityChangingConfigurations) {
             // App came to foreground
             Timber.d("$TAG APP FOREGROUND — activity=${activity.javaClass.simpleName}")

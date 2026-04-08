@@ -104,24 +104,22 @@ fun ProfileScreen(
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
 
+    // Resolve strings in composable scope for use in LaunchedEffect
+    val purchaseSuccessMsg = stringResource(R.string.purchase_success)
+    val purchaseErrorMsg = stringResource(R.string.purchase_error)
+    val restoreSuccessMsg = stringResource(R.string.restore_success)
+    val restoreNothingMsg = stringResource(R.string.restore_nothing_found)
+    val restoreErrorMsg = stringResource(R.string.restore_error)
+
     // Collect purchase events and show snackbar messages
     LaunchedEffect(Unit) {
         profileViewModel.purchaseEvent.collect { event ->
             val message = when (event) {
-                is PurchaseEvent.PurchaseSuccess ->
-                    context.getString(R.string.purchase_success)
-
-                is PurchaseEvent.PurchaseError ->
-                    context.getString(R.string.purchase_error)
-
-                is PurchaseEvent.RestoreSuccess ->
-                    context.getString(R.string.restore_success)
-
-                is PurchaseEvent.RestoreNothingFound ->
-                    context.getString(R.string.restore_nothing_found)
-
-                is PurchaseEvent.RestoreError ->
-                    context.getString(R.string.restore_error)
+                is PurchaseEvent.PurchaseSuccess -> purchaseSuccessMsg
+                is PurchaseEvent.PurchaseError -> purchaseErrorMsg
+                is PurchaseEvent.RestoreSuccess -> restoreSuccessMsg
+                is PurchaseEvent.RestoreNothingFound -> restoreNothingMsg
+                is PurchaseEvent.RestoreError -> restoreErrorMsg
             }
             snackBarHostState.showSnackbar(message)
         }

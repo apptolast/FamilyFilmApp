@@ -1,5 +1,105 @@
 # Release Notes
 
+## v.0.5.1
+
+### New Features
+- Added one-time purchase to remove all ads permanently via RevenueCat
+- Added App Open Ads on app foreground transitions
+- Added unique username feature with real-time availability checking
+- Added region selection in Profile for localized movie data
+- Added media filter chips (Movies, TV Shows, All) on Home screen
+- Added per-group movie and TV show watch status tracking
+- Added TV Shows support alongside Movies throughout the app
+
+### Bug Fixes
+- Fixed Home screen filter chips overlapping with movie grid on scroll
+- Fixed purchase loading dialog race condition with payment UI
+- Fixed App Open Ads still showing after user purchased ad removal
+- Fixed dependency version conflicts in CI build (coroutines, concurrent-futures)
+
+### Improvements
+- Redesigned Groups card: compact member list, inline action icons with tooltips
+- Redesigned Profile screen with subscription section and restore purchases
+- Modernized repository layer from callbacks to suspend functions
+- Implemented differential sync for remotely deleted groups
+- Added comprehensive unit and instrumented test coverage
+
+## v.0.5.0
+
+### New Features
+- Added region selection in Profile for localized movie and provider data
+- Added App Open Ads on app foreground transitions
+- Added unique username feature with real-time availability checking
+- Added per-group movie and TV show watch status tracking
+- Added TV Shows support alongside Movies throughout the app
+- Added media filter chips (Movies, TV Shows, All) on Home screen
+
+### Bug Fixes
+- Fixed dependency version conflicts in CI (coroutines, concurrent-futures)
+- Fixed missing ADMOB_APP_OPEN_ID in deploy workflow
+
+### Improvements
+- Redesigned Groups card with compact member list
+- Added comprehensive unit and instrumented test coverage
+- Added UI test tags for instrumented tests
+
+## v.0.4.2
+
+### New Features
+- Added movie recommendation algorithm per group
+- Added Discovery screen for browsing new content
+- Added Crashlytics integration and structured logging with Timber
+
+### Bug Fixes
+- Fixed group sync issues and fragile LIKE query in GroupDao
+- Fixed Room database migration strategy
+- Fixed write-through cache consistency in Repository
+- Fixed hardcoded email and crashlytics configuration issues
+
+### Improvements
+- Full UI/UX redesign following Material Design 3 guidelines
+- Modernized repository layer from callbacks to suspend functions
+- Centralized sync lifecycle management in AuthViewModel
+- Implemented differential sync for remotely deleted groups
+- Added Room table indexes for better query performance
+- Migrated token storage to EncryptedSharedPreferences
+
+## v.0.4.1
+
+### New Features
+- Added AdMob banner ads on authenticated screens
+- Added Spanish translations for entire app
+- Added privacy policy screen
+- Added Google Credential Manager for modern sign-in flow
+
+### Bug Fixes
+- Fixed Google Sign-In on latest Android versions
+- Fixed login flow issues and production crashes
+- Fixed TMDB movie language not matching user locale
+- Fixed user ID vs UID inconsistency
+
+### Improvements
+- Refactored Home screen, Details screen, and Login UI
+- Refactored TopAppBar and StatusBar for consistency
+- Improved auth error handling and user-facing messages
+- Updated deploy workflow and dependencies
+
+## v.0.4.0
+
+### New Features
+- Migrated backend to Firebase (Auth + Firestore)
+- Added version catalog for dependency management
+- Implemented Discover feature for movie exploration
+
+### Bug Fixes
+- Fixed group creation and sync issues
+- Fixed production base URL configuration
+
+### Improvements
+- Major dependency update and migration to version catalog
+- Refactored Group Screen UI and logic
+- Updated Home screen to integrate search functionality
+
 ## v.0.3.14
 
 ### New Features

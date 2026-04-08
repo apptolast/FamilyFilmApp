@@ -43,6 +43,10 @@
     <string name="groups_text_watched">Vistas</string>
     <string name="group_recommended_label">Recomendada</string>
     <string name="cannot_delete_owner">No se puede eliminar al propietario del grupo. Elimina el grupo en su lugar.</string>
+    <string name="groups_tooltip_edit_name">Editar nombre del grupo</string>
+    <string name="groups_tooltip_add_member">Añadir miembro</string>
+    <string name="groups_tooltip_delete_group">Eliminar grupo</string>
+    <string name="groups_member_count">%1$d miembros</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
@@ -144,5 +148,18 @@
     <string name="region_select_title">Selecciona tu país</string>
     <string name="region_search_hint">Buscar país</string>
     <string name="region_edit">Cambiar región</string>
+
+    <!-- SUBSCRIPTION -->
+    <string name="subscription_section_title">Suscripción</string>
+    <string name="subscription_remove_ads">Quitar Publicidad</string>
+    <string name="subscription_remove_ads_subtitle">Disfruta sin anuncios</string>
+    <string name="subscription_restore_purchases">Restaurar Compras</string>
+    <string name="subscription_restore_purchases_subtitle">Recupera tus compras anteriores</string>
+    <string name="purchase_loading">Procesando…</string>
+    <string name="purchase_success">Anuncios eliminados correctamente. ¡Gracias!</string>
+    <string name="purchase_error">No se pudo completar la compra. Inténtalo de nuevo.</string>
+    <string name="restore_success">Compra restaurada correctamente. ¡Anuncios eliminados!</string>
+    <string name="restore_nothing_found">No se encontraron compras anteriores.</string>
+    <string name="restore_error">No se pudieron restaurar las compras. Inténtalo de nuevo.</string>
 
 </resources>

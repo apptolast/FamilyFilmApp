@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomainUserModel
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
@@ -55,6 +56,7 @@ class AuthViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val credentialManager: CredentialManager,
     private val credentialRequest: GetCredentialRequest,
+    private val purchaseManager: PurchaseManager,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -98,6 +100,17 @@ class AuthViewModel @Inject constructor(
                 async { checkIsUserLogged() },
                 async { verifyEmail() },
             )
+        }
+
+        // Persist purchase state changes to Firebase+Room
+        viewModelScope.launch(dispatcherProvider.io()) {
+            purchaseManager.hasRemovedAds.collectLatest { adsRemoved ->
+                val currentUser = (authState.value as? AuthState.Authenticated)?.user
+                    ?: return@collectLatest
+                if (currentUser.hasRemovedAds != adsRemoved) {
+                    repository.updateHasRemovedAds(currentUser.id, adsRemoved)
+                }
+            }
         }
     }
 
@@ -147,8 +160,11 @@ class AuthViewModel @Inject constructor(
             if (user?.isEmailVerified == true && isTokenValid) {
                 val domainUser = user.toDomainUserModel()
                 repository.startSync(domainUser.id)
+                purchaseManager.initialize(domainUser.id)
                 // Observe Room for enriched data (username, etc.)
                 repository.getUserById(domainUser.id).map { roomUser ->
+                    // Sync persisted purchase state to PurchaseManager
+                    purchaseManager.setAdsRemoved(roomUser.hasRemovedAds)
                     AuthState.Authenticated(roomUser)
                 }
             } else {

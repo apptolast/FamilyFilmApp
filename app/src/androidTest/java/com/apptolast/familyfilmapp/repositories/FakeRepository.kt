@@ -87,6 +87,9 @@ class FakeRepository : Repository {
 
     override suspend fun updateUsername(user: User, newUsername: String): Result<Unit> = Result.success(Unit)
 
+    override suspend fun updateHasRemovedAds(userId: String, hasRemovedAds: Boolean): Result<Unit> =
+        Result.success(Unit)
+
     override suspend fun updateMovieStatus(
         groupIds: List<String>,
         userId: String,

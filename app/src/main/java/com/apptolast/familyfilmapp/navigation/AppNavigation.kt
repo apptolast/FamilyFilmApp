@@ -99,8 +99,11 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         },
         bottomBar = {
             if (showBottomBar) {
+                val user = (authState as? AuthState.Authenticated)?.user
                 Column {
-                    AdaptiveBanner()
+                    if (user?.hasRemovedAds != true) {
+                        AdaptiveBanner()
+                    }
                     BottomNavigationBar(
                         navController = navController,
                     )

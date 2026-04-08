@@ -8,12 +8,17 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.apptolast.familyfilmapp.ads.AppOpenAdManager
 import com.apptolast.familyfilmapp.ads.GoogleMobileAdsConsentManager
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.utils.ReleaseTree
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import java.util.concurrent.atomic.AtomicBoolean
@@ -31,6 +36,8 @@ class FamilyFilmApp :
     Configuration.Provider,
     Application.ActivityLifecycleCallbacks {
 
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
@@ -42,6 +49,9 @@ class FamilyFilmApp :
 
     @Inject
     lateinit var appOpenAdManager: AppOpenAdManager
+
+    @Inject
+    lateinit var purchaseManager: PurchaseManager
 
     private var currentActivity: Activity? = null
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
@@ -63,12 +73,23 @@ class FamilyFilmApp :
 
         Timber.d("$TAG onCreate — registering ActivityLifecycleCallbacks")
         registerActivityLifecycleCallbacks(this)
+
+        // Observe purchase state to disable app open ads when user has paid
+        applicationScope.launch {
+            purchaseManager.hasRemovedAds.collect { removed ->
+                appOpenAdManager.adsRemoved = removed
+            }
+        }
     }
 
     /**
      * Called from MainActivity.onCreate() to gather consent and then initialize ads.
      */
     fun gatherConsentAndInitializeAds(activity: Activity) {
+        if (purchaseManager.hasRemovedAds.value) {
+            Timber.d("$TAG gatherConsentAndInitializeAds — skipped, ads removed by purchase")
+            return
+        }
         Timber.d("$TAG gatherConsentAndInitializeAds — starting consent flow")
 
         val consentManager = GoogleMobileAdsConsentManager.getInstance(applicationContext)
@@ -126,6 +147,9 @@ class FamilyFilmApp :
         if (!appOpenAdManager.isShowingAd) {
             currentActivity = activity
         }
+
+        // Sync adsRemoved flag before deciding whether to show ad
+        appOpenAdManager.adsRemoved = purchaseManager.hasRemovedAds.value
 
         if (++activityReferences == 1 && !isActivityChangingConfigurations) {
             // App came to foreground

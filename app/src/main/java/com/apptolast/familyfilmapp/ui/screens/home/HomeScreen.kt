@@ -2,8 +2,10 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -137,69 +139,78 @@ fun HomeContent(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    MediaGridList(
-        mediaItems = mediaItems,
-        stateUi = stateUI,
-        onMediaClick = onMediaClick,
-    )
-
-    OutlinedTextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .testTag(TT_HOME_SEARCH_TEXT_FIELD),
-        value = searchQuery,
-        onValueChange = {
-            searchQuery = it
-            searchMediaByName(it)
-        },
-        shape = MaterialTheme.shapes.small,
-        leadingIcon = {
-            Icon(imageVector = Icons.Filled.Search, contentDescription = "")
-        },
-        trailingIcon = {
-            AnimatedVisibility(searchQuery.isNotEmpty()) {
-                IconButton(
-                    onClick = {
-                        searchQuery = ""
-                        searchMediaByName("")
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Borrar texto",
+    Column(modifier = modifier.fillMaxSize()) {
+        // Fixed header: search + filter chips with opaque background
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .testTag(TT_HOME_SEARCH_TEXT_FIELD),
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    searchMediaByName(it)
+                },
+                shape = MaterialTheme.shapes.small,
+                leadingIcon = {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = "")
+                },
+                trailingIcon = {
+                    AnimatedVisibility(searchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                searchQuery = ""
+                                searchMediaByName("")
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Borrar texto",
+                            )
+                        }
+                    }
+                },
+                label = {
+                    Text(
+                        text = stringResource(R.string.search_film_or_series),
+                        modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
                     )
-                }
-            }
-        },
-        label = {
-            Text(
-                text = stringResource(R.string.search_film_or_series),
-                modifier = Modifier.testTag(TT_HOME_SEARCH_TEXT_LABEL),
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Search,
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        searchMediaByName(searchQuery)
+                    },
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    disabledContainerColor = MaterialTheme.colorScheme.background,
+                    errorContainerColor = MaterialTheme.colorScheme.background,
+                ),
             )
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Search,
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                searchMediaByName(searchQuery)
-            },
-        ),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            disabledContainerColor = MaterialTheme.colorScheme.background,
-            errorContainerColor = MaterialTheme.colorScheme.background,
-        ),
-    )
 
-    MediaFilterChips(
-        selectedFilter = stateUI.selectedFilter,
-        onFilterSelect = onFilterSelect,
-        modifier = Modifier.padding(top = 72.dp),
-    )
+            MediaFilterChips(
+                selectedFilter = stateUI.selectedFilter,
+                onFilterSelect = onFilterSelect,
+            )
+        }
+
+        // Scrollable media grid
+        MediaGridList(
+            mediaItems = mediaItems,
+            stateUi = stateUI,
+            onMediaClick = onMediaClick,
+        )
+    }
 }
 
 @Composable
@@ -215,7 +226,7 @@ private fun MediaGridList(
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 120.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
         ) {
             items(
                 items = filterMedia,
@@ -233,7 +244,7 @@ private fun MediaGridList(
             columns = GridCells.Adaptive(100.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 120.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
         ) {
             items(
                 count = mediaItems.itemCount,

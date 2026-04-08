@@ -1,9 +1,11 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -12,8 +14,11 @@ import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -24,6 +29,7 @@ class ProfileViewModel @Inject constructor(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
+    private val purchaseManager: PurchaseManager,
 ) : ViewModel() {
 
     val usernameValidationState: StateFlow<UsernameValidationState>
@@ -34,6 +40,9 @@ class ProfileViewModel @Inject constructor(
 
     val saveError: StateFlow<String?>
         field: MutableStateFlow<String?> = MutableStateFlow(null)
+
+    private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
+    val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
 
     private var usernameCheckJob: Job? = null
 
@@ -90,7 +99,46 @@ class ProfileViewModel @Inject constructor(
             }
     }
 
+    fun purchaseRemoveAds(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
+        purchaseManager.purchaseRemoveAds(activity)
+            .onSuccess {
+                Timber.d("Remove ads purchase successful")
+                _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess)
+            }
+            .onFailure { error ->
+                Timber.e(error, "Remove ads purchase failed")
+                val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
+                if (!isCancelled) {
+                    _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
+                }
+            }
+    }
+
+    fun restorePurchases() = viewModelScope.launch(dispatcherProvider.io()) {
+        purchaseManager.restorePurchases()
+            .onSuccess { restored ->
+                Timber.d("Restore purchases result: adsRemoved=$restored")
+                if (restored) {
+                    _purchaseEvent.emit(PurchaseEvent.RestoreSuccess)
+                } else {
+                    _purchaseEvent.emit(PurchaseEvent.RestoreNothingFound)
+                }
+            }
+            .onFailure { error ->
+                Timber.e(error, "Restore purchases failed")
+                _purchaseEvent.emit(PurchaseEvent.RestoreError(error.message))
+            }
+    }
+
     companion object {
         private const val USERNAME_CHECK_DEBOUNCE_MS = 500L
     }
+}
+
+sealed interface PurchaseEvent {
+    data object PurchaseSuccess : PurchaseEvent
+    data class PurchaseError(val message: String?) : PurchaseEvent
+    data object RestoreSuccess : PurchaseEvent
+    data object RestoreNothingFound : PurchaseEvent
+    data class RestoreError(val message: String?) : PurchaseEvent
 }

@@ -29,6 +29,8 @@ val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN") ?: ""
 val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID") ?: ""
 val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID") ?: ""
 val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID") ?: ""
+val revenueCatApiKey: String = localProperties.getProperty("REVENUECAT_API_KEY") ?: ""
+val revenueCatTestApiKey: String = localProperties.getProperty("REVENUECAT_TEST_API_KEY") ?: ""
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -38,8 +40,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "1.0.0"
+        versionCode = 25
+        versionName = "0.5.1"
 
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -49,18 +51,20 @@ android {
         buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
         buildConfigField("String", "ADMOB_BOTTOM_BANNER_ID", "\"$admobBottomBanner\"")
         buildConfigField("String", "ADMOB_APP_OPEN_ID", "\"$admobAppOpenId\"")
+        buildConfigField("String", "REVENUECAT_API_KEY", "\"$revenueCatApiKey\"")
+        buildConfigField("String", "REVENUECAT_TEST_API_KEY", "\"$revenueCatTestApiKey\"")
 
         resValue("string", "admob_app_id", admobAppId)
     }
 
-//    signingConfigs {
-//        create("release") {
-//            storeFile = file(localProperties.getProperty("storeFile"))
-//            storePassword = localProperties.getProperty("storePassword")
-//            keyAlias = localProperties.getProperty("keyAlias")
-//            keyPassword = localProperties.getProperty("keyPassword")
-//        }
-//    }
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("storeFile"))
+            storePassword = localProperties.getProperty("storePassword")
+            keyAlias = localProperties.getProperty("keyAlias")
+            keyPassword = localProperties.getProperty("keyPassword")
+        }
+    }
 
     buildTypes {
         getByName("debug") { }
@@ -73,7 +77,7 @@ android {
                 "proguard-rules.pro",
             )
 
-//            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -204,6 +208,9 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.user.messaging.platform)
     implementation(libs.androidx.lifecycle.process)
+
+    // RevenueCat
+    implementation(libs.revenuecat.purchases)
 
     // Turbine
 //    testImplementation(libs.turbine)

@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +26,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +42,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -97,6 +103,29 @@ fun ProfileScreen(
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
 
+    // Collect purchase events and show snackbar messages
+    LaunchedEffect(Unit) {
+        profileViewModel.purchaseEvent.collect { event ->
+            val message = when (event) {
+                is PurchaseEvent.PurchaseSuccess ->
+                    context.getString(R.string.purchase_success)
+
+                is PurchaseEvent.PurchaseError ->
+                    context.getString(R.string.purchase_error)
+
+                is PurchaseEvent.RestoreSuccess ->
+                    context.getString(R.string.restore_success)
+
+                is PurchaseEvent.RestoreNothingFound ->
+                    context.getString(R.string.restore_nothing_found)
+
+                is PurchaseEvent.RestoreError ->
+                    context.getString(R.string.restore_error)
+            }
+            snackBarHostState.showSnackbar(message)
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         contentColor = MaterialTheme.colorScheme.background,
@@ -124,6 +153,10 @@ fun ProfileScreen(
                             profileViewModel.saveLanguage(user, languageTag)
                         },
                         onClickLogOut = { viewModel.logOut() },
+                        onRemoveAds = {
+                            profileViewModel.purchaseRemoveAds(context as Activity)
+                        },
+                        onRestorePurchase = { profileViewModel.restorePurchases() },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
                             // Delete user straight away if user has used google provider
@@ -178,6 +211,8 @@ fun ProfileContent(
     onCancelEditUsername: () -> Unit = {},
     onSaveLanguage: (String) -> Unit = {},
     onClickLogOut: () -> Unit = {},
+    onRemoveAds: () -> Unit = {},
+    onRestorePurchase: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
     var isEditingUsername by rememberSaveable { mutableStateOf(false) }
@@ -372,6 +407,40 @@ fun ProfileContent(
             )
         }
 
+        // Subscription Section — only show if ads are NOT already removed
+        if (!user.hasRemovedAds) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ProfileSection(title = stringResource(R.string.subscription_section_title)) {
+                ProfileItem(
+                    title = stringResource(R.string.subscription_remove_ads),
+                    subtitle = stringResource(R.string.subscription_remove_ads_subtitle),
+                    leadingIcon = Icons.Outlined.Block,
+                    onClick = onRemoveAds,
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                )
+                ProfileItem(
+                    title = stringResource(R.string.subscription_restore_purchases),
+                    subtitle = stringResource(R.string.subscription_restore_purchases_subtitle),
+                    leadingIcon = Icons.Outlined.Restore,
+                    onClick = onRestorePurchase,
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Account Section
@@ -440,6 +509,8 @@ fun ProfileSection(title: String, content: @Composable () -> Unit) {
 fun ProfileItem(
     title: String,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    leadingIcon: ImageVector? = null,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
@@ -453,11 +524,34 @@ fun ProfileItem(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = titleColor,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f),
+        ) {
+            if (leadingIcon != null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = titleColor,
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
 
         trailingContent?.invoke()
     }

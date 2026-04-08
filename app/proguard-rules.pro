@@ -38,3 +38,6 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
+# RevenueCat
+-keep class com.revenuecat.purchases.** { *; }
+

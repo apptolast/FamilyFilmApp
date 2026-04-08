@@ -20,6 +20,7 @@ data class UserTable(
     var language: String,
     var photoUrl: String,
     var username: String = "",
+    var hasRemovedAds: Boolean = false,
 ) {
     constructor(userId: String) : this(
         userId = userId,
@@ -27,6 +28,7 @@ data class UserTable(
         language = "",
         photoUrl = "",
         username = "",
+        hasRemovedAds = false,
     )
 }
 
@@ -36,6 +38,7 @@ fun UserTable.toUser() = User(
     language = language,
     photoUrl = photoUrl,
     username = username.takeIf { it.isNotBlank() },
+    hasRemovedAds = hasRemovedAds,
 )
 
 fun User.toUserTable() = UserTable(
@@ -44,4 +47,5 @@ fun User.toUserTable() = UserTable(
     language = language,
     photoUrl = photoUrl,
     username = username.orEmpty(),
+    hasRemovedAds = hasRemovedAds,
 )

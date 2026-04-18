@@ -142,6 +142,10 @@
     <string name="username_save">Save</string>
     <string name="username_cancel">Cancel</string>
 
+    <string name="profile_section_user">Profile</string>
+    <string name="adult_content_title">Adult Content</string>
+    <string name="adult_content_subtitle">Show adult content in search results</string>
+
     <!-- REGION -->
     <string name="region_section_title">Region</string>
     <string name="region_select_title">Select your country</string>

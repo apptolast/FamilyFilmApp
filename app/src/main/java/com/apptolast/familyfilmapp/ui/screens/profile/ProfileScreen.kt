@@ -33,12 +33,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -99,6 +101,7 @@ fun ProfileScreen(
     val usernameValidationState by profileViewModel.usernameValidationState.collectAsStateWithLifecycle()
     val isSaving by profileViewModel.isSaving.collectAsStateWithLifecycle()
     val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsStateWithLifecycle()
+    val includeAdult by profileViewModel.includeAdult.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -143,6 +146,8 @@ fun ProfileScreen(
                         user = user,
                         usernameValidationState = usernameValidationState,
                         isSaving = isSaving,
+                        includeAdult = includeAdult,
+                        onIncludeAdultChange = profileViewModel::saveIncludeAdult,
                         onUsernameChange = profileViewModel::onUsernameChange,
                         onSaveUsername = { newUsername ->
                             profileViewModel.saveUsername(user, newUsername)
@@ -209,7 +214,9 @@ fun ProfileContent(
     user: User,
     usernameValidationState: UsernameValidationState,
     isSaving: Boolean,
+    includeAdult: Boolean,
     modifier: Modifier = Modifier,
+    onIncludeAdultChange: (Boolean) -> Unit = {},
     onUsernameChange: (String) -> Unit = {},
     onSaveUsername: (String) -> Unit = {},
     onCancelEditUsername: () -> Unit = {},
@@ -222,6 +229,11 @@ fun ProfileContent(
     var isEditingUsername by rememberSaveable { mutableStateOf(false) }
     var usernameEditValue by rememberSaveable { mutableStateOf(user.username.orEmpty()) }
     var showCountryPicker by rememberSaveable { mutableStateOf(false) }
+
+    val currentCountryCode = user.language.substringAfter("-", Locale.getDefault().country)
+    val currentFlag = countryCodeToFlag(currentCountryCode)
+    val currentCountryName = Locale.Builder().setRegion(currentCountryCode).build()
+        .getDisplayCountry(Locale.getDefault())
 
     Column(
         modifier = modifier
@@ -259,7 +271,6 @@ fun ProfileContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // User Info
         Text(
             style = MaterialTheme.typography.titleMedium,
             text = user.email,
@@ -270,8 +281,8 @@ fun ProfileContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Username Section
-        ProfileSection(title = stringResource(R.string.profile_section_username)) {
+        // Section 1: User profile settings (username, region, adult content)
+        ProfileSection(title = stringResource(R.string.profile_section_user)) {
             if (isEditingUsername) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     OutlinedTextField(
@@ -361,8 +372,7 @@ fun ProfileContent(
                 }
             } else {
                 ProfileItem(
-                    title = user.username
-                        ?: stringResource(R.string.profile_set_username),
+                    title = user.username ?: stringResource(R.string.profile_set_username),
                     onClick = {
                         isEditingUsername = true
                         usernameEditValue = user.username.orEmpty()
@@ -376,18 +386,9 @@ fun ProfileContent(
                     },
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider()
 
-        // Region Section
-        val currentCountryCode = user.language
-            .substringAfter("-", Locale.getDefault().country)
-        val currentFlag = countryCodeToFlag(currentCountryCode)
-        val currentCountryName = Locale.Builder().setRegion(currentCountryCode).build()
-            .getDisplayCountry(Locale.getDefault())
-
-        ProfileSection(title = stringResource(R.string.region_section_title)) {
             ProfileItem(
                 title = "$currentFlag $currentCountryName",
                 onClick = { showCountryPicker = true },
@@ -398,6 +399,15 @@ fun ProfileContent(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
+            )
+
+            HorizontalDivider()
+
+            ProfileSwitchItem(
+                title = stringResource(R.string.adult_content_title),
+                subtitle = stringResource(R.string.adult_content_subtitle),
+                checked = includeAdult,
+                onCheckedChange = onIncludeAdultChange,
             )
         }
 
@@ -411,11 +421,10 @@ fun ProfileContent(
             )
         }
 
-        // Subscription Section
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Section 2: Payments & subscriptions
         ProfileSection(title = stringResource(R.string.subscription_section_title)) {
-            // Only show "Remove Ads" if user hasn't purchased yet
             if (!user.hasRemovedAds) {
                 ProfileItem(
                     title = stringResource(R.string.subscription_remove_ads),
@@ -430,8 +439,8 @@ fun ProfileContent(
                         )
                     },
                 )
+                HorizontalDivider()
             }
-            // "Restore Purchases" is always visible
             ProfileItem(
                 title = stringResource(R.string.subscription_restore_purchases),
                 subtitle = stringResource(R.string.subscription_restore_purchases_subtitle),
@@ -449,9 +458,8 @@ fun ProfileContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Account Section
+        // Section 3: Account actions (logout + delete)
         ProfileSection(title = stringResource(R.string.account_title)) {
-            // Log Out
             ProfileItem(
                 title = stringResource(R.string.logout),
                 modifier = Modifier.testTag(TT_PROFILE_LOGOUT),
@@ -464,12 +472,7 @@ fun ProfileContent(
                     )
                 },
             )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Danger Zone - visually separated destructive action
-        ProfileSection(title = stringResource(R.string.delete_account)) {
+            HorizontalDivider()
             ProfileItem(
                 title = stringResource(R.string.delete_account),
                 modifier = Modifier.testTag(TT_PROFILE_DELETE_ACCOUNT),
@@ -484,6 +487,8 @@ fun ProfileContent(
                 },
             )
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -564,6 +569,44 @@ fun ProfileItem(
 }
 
 @Composable
+fun ProfileSwitchItem(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+        )
+    }
+}
+
+@Composable
 private fun PurchaseLoadingDialog() {
     androidx.compose.ui.window.Dialog(onDismissRequest = {}) {
         Card(
@@ -594,12 +637,13 @@ private fun ProfileScreenPreview() {
             user = User(
                 id = "1",
                 email = "sophia.clark@gmail.com",
-                language = "en",
+                language = "en-US",
                 photoUrl = "",
                 username = "sophia_clark",
             ),
             usernameValidationState = UsernameValidationState.Idle,
             isSaving = false,
+            includeAdult = false,
         )
     }
 }

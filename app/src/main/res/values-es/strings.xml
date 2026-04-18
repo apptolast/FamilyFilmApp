@@ -143,6 +143,10 @@
     <string name="username_save">Guardar</string>
     <string name="username_cancel">Cancelar</string>
 
+    <string name="profile_section_user">Perfil</string>
+    <string name="adult_content_title">Contenido para adultos</string>
+    <string name="adult_content_subtitle">Mostrar contenido adulto en los resultados</string>
+
     <!-- REGION -->
     <string name="region_section_title">Región</string>
     <string name="region_select_title">Selecciona tu país</string>

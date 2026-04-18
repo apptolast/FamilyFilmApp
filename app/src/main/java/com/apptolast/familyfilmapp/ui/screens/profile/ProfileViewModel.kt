@@ -44,6 +44,8 @@ class ProfileViewModel @Inject constructor(
     val isPurchaseLoading: StateFlow<Boolean>
         field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    val includeAdult: StateFlow<Boolean> = tmdbLocaleManager.includeAdult
+
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
 
@@ -88,6 +90,10 @@ class ProfileViewModel @Inject constructor(
         usernameCheckJob?.cancel()
         usernameValidationState.update { UsernameValidationState.Idle }
         saveError.update { null }
+    }
+
+    fun saveIncludeAdult(value: Boolean) {
+        tmdbLocaleManager.updateIncludeAdult(value)
     }
 
     fun saveLanguage(user: User, languageTag: String) = viewModelScope.launch(dispatcherProvider.io()) {

@@ -214,6 +214,9 @@ dependencies {
     // RevenueCat
     implementation(libs.revenuecat.purchases)
 
+    // Play In-App Review
+    implementation(libs.play.review.ktx)
+
     // Turbine
 //    testImplementation(libs.turbine)
 

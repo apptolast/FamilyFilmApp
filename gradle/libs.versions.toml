@@ -39,6 +39,7 @@ mockitoKotlin = "6.3.0"
 mockk = "1.14.9"
 navigationCompose = "2.9.7"
 playServicesAds = "25.2.0"
+playReview = "2.0.2"
 userMessagingPlatform = "4.0.0"
 revenueCat = "10.1.2"
 retrofit = "3.0.0"
@@ -115,6 +116,7 @@ mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", versio
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "playReview" }
 revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenueCat" }
 user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

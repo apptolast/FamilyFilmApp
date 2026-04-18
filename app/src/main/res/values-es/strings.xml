@@ -166,4 +166,8 @@
     <string name="restore_nothing_found">No se encontraron compras anteriores.</string>
     <string name="restore_error">No se pudieron restaurar las compras. Inténtalo de nuevo.</string>
 
+    <!-- VALORAR APP -->
+    <string name="rate_app_title">Valora la App</string>
+    <string name="rate_app_subtitle">Comparte tu experiencia con nosotros</string>
+
 </resources>

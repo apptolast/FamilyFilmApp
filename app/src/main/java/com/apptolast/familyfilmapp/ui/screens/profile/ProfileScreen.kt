@@ -1,7 +1,14 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewManagerFactory
+import timber.log.Timber
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +35,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Restore
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -102,6 +110,7 @@ fun ProfileScreen(
     val isSaving by profileViewModel.isSaving.collectAsStateWithLifecycle()
     val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val includeAdult by profileViewModel.includeAdult.collectAsStateWithLifecycle()
+    val hasRatedApp by profileViewModel.hasRatedApp.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -147,6 +156,7 @@ fun ProfileScreen(
                         usernameValidationState = usernameValidationState,
                         isSaving = isSaving,
                         includeAdult = includeAdult,
+                        hasRatedApp = hasRatedApp,
                         onIncludeAdultChange = profileViewModel::saveIncludeAdult,
                         onUsernameChange = profileViewModel::onUsernameChange,
                         onSaveUsername = { newUsername ->
@@ -161,6 +171,12 @@ fun ProfileScreen(
                             profileViewModel.purchaseRemoveAds(context as Activity)
                         },
                         onRestorePurchase = { profileViewModel.restorePurchases() },
+                        onRateApp = {
+                            launchRateAppFlow(
+                                activity = context as Activity,
+                                onRated = { profileViewModel.markAppAsRated() },
+                            )
+                        },
                         onDeleteUser = {
                             // Show dialog only when the user has used email/pass provider
                             // Delete user straight away if user has used google provider
@@ -215,6 +231,7 @@ fun ProfileContent(
     usernameValidationState: UsernameValidationState,
     isSaving: Boolean,
     includeAdult: Boolean,
+    hasRatedApp: Boolean,
     modifier: Modifier = Modifier,
     onIncludeAdultChange: (Boolean) -> Unit = {},
     onUsernameChange: (String) -> Unit = {},
@@ -224,6 +241,7 @@ fun ProfileContent(
     onClickLogOut: () -> Unit = {},
     onRemoveAds: () -> Unit = {},
     onRestorePurchase: () -> Unit = {},
+    onRateApp: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
 ) {
     var isEditingUsername by rememberSaveable { mutableStateOf(false) }
@@ -454,6 +472,22 @@ fun ProfileContent(
                     )
                 },
             )
+            if (!hasRatedApp) {
+                HorizontalDivider()
+                ProfileItem(
+                    title = stringResource(R.string.rate_app_title),
+                    subtitle = stringResource(R.string.rate_app_subtitle),
+                    leadingIcon = Icons.Outlined.StarOutline,
+                    onClick = onRateApp,
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -644,6 +678,61 @@ private fun ProfileScreenPreview() {
             usernameValidationState = UsernameValidationState.Idle,
             isSaving = false,
             includeAdult = false,
+            hasRatedApp = false,
+        )
+    }
+}
+
+/**
+ * Launches the Google Play In-App Review flow.
+ *
+ * The Play Core API does not tell us whether the user actually rated (or whether
+ * the dialog was even shown — Google silently skips it when quota is exhausted).
+ * We therefore treat "flow completed" as "user has been given the chance to rate"
+ * and mark the app as rated so the entry is hidden from Settings.
+ *
+ * If `requestReviewFlow()` fails (e.g. Play Store unavailable) we fall back to
+ * opening the Play Store listing directly — this way the button never feels broken.
+ */
+private fun launchRateAppFlow(activity: Activity, onRated: () -> Unit) {
+    val manager = ReviewManagerFactory.create(activity)
+    manager.requestReviewFlow().addOnCompleteListener { request ->
+        if (request.isSuccessful) {
+            manager.launchReviewFlow(activity, request.result)
+                .addOnCompleteListener {
+                    Timber.d("In-app review flow finished")
+                    onRated()
+                }
+        } else {
+            val errorCode = (request.exception as? ReviewException)?.errorCode
+            Timber.w(request.exception, "requestReviewFlow failed (code=$errorCode). Falling back to Play Store.")
+            openPlayStoreListing(activity)
+            onRated()
+        }
+    }
+}
+
+private fun openPlayStoreListing(context: Context) {
+    val packageName = context.packageName
+    val marketIntent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("market://details?id=$packageName"),
+    ).apply {
+        addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_NO_HISTORY or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK,
+        )
+    }
+    try {
+        context.startActivity(marketIntent)
+    } catch (e: ActivityNotFoundException) {
+        Timber.w(e, "Play Store app not installed, opening web URL instead")
+        context.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
+            ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) },
         )
     }
 }

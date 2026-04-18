@@ -165,4 +165,8 @@
     <string name="restore_nothing_found">No previous purchases found.</string>
     <string name="restore_error">Could not restore purchases. Please try again.</string>
 
+    <!-- RATE APP -->
+    <string name="rate_app_title">Rate the App</string>
+    <string name="rate_app_subtitle">Share your experience with us</string>
+
 </resources>

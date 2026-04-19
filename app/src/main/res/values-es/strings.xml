@@ -33,6 +33,7 @@
     <string name="screen_title_search">Buscar</string>
     <string name="screen_title_details">Detalles</string>
     <string name="screen_title_login">Iniciar Sesión</string>
+    <string name="screen_title_chat">Chat</string>
 
     <!-- GROUPS -->
     <string name="groups_text_create_group">Crear Grupo</string>
@@ -169,5 +170,20 @@
     <!-- VALORAR APP -->
     <string name="rate_app_title">Valora la App</string>
     <string name="rate_app_subtitle">Comparte tu experiencia con nosotros</string>
+
+    <!-- CHAT -->
+    <string name="chat_input_placeholder">Pregunta cualquier cosa sobre cine…</string>
+    <string name="chat_send_content_description">Enviar mensaje</string>
+    <string name="chat_empty_state_title">Tu asistente de cine</string>
+    <string name="chat_empty_state_subtitle">Pide recomendaciones, pregunta por actores, directores, géneros o cualquier cosa sobre películas y series.</string>
+    <string name="chat_suggestion_1">Recomiéndame 5 películas de ciencia ficción imprescindibles</string>
+    <string name="chat_suggestion_2">¿Qué ha dirigido Christopher Nolan?</string>
+    <string name="chat_suggestion_3">Películas parecidas a \"El Gran Hotel Budapest\"</string>
+    <string name="chat_suggestion_4">Mejores dramas ganadores del Oscar de la última década</string>
+    <string name="chat_error_generic">Algo ha fallado. Inténtalo de nuevo.</string>
+    <string name="chat_error_network">Sin conexión a internet. Comprueba tu red e inténtalo de nuevo.</string>
+    <string name="chat_typing_indicator_description">El asistente está escribiendo</string>
+    <string name="chat_system_prompt">Eres un asistente experto en cine y series de TV. Solo respondes preguntas sobre películas, series, actores, directores, géneros y recomendaciones audiovisuales. Si la pregunta no es sobre cine, declina amablemente y redirige la conversación al cine. Responde siempre en el idioma del usuario: %1$s. Sé conciso. %2$s Formatea con Markdown ligero cuando ayude.</string>
+    <string name="chat_system_prompt_no_adult">No recomiendes contenido para adultos explícito.</string>
 
 </resources>

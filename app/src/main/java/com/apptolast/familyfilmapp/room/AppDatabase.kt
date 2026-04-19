@@ -7,9 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.apptolast.familyfilmapp.model.room.ChatMessageTable
 import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.UserTable
+import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.room.converters.DateConverter
 import com.apptolast.familyfilmapp.room.converters.MediaStatusConverter
 import com.apptolast.familyfilmapp.room.converters.MediaTypeConverter
@@ -26,8 +28,9 @@ import com.apptolast.familyfilmapp.room.user.UserDao
         UserTable::class,
         GroupTable::class,
         GroupMovieStatusTable::class,
+        ChatMessageTable::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(
@@ -43,6 +46,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun groupDao(): GroupDao
     abstract fun groupMovieStatusDao(): GroupMovieStatusDao
+    abstract fun chatMessageDao(): ChatMessageDao
 
     companion object {
 
@@ -51,6 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
         const val USERS_TABLE_NAME = "users_table"
         const val GROUPS_TABLE_NAME = "groups_table"
         const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
+        const val CHAT_MESSAGES_TABLE_NAME = "chat_messages_table"
 
         // v1 and v2 have identical schemas (same identityHash) — no-op migration
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -195,6 +200,30 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v9 → v10: Add chat_messages_table for the Gemini chatbot conversation history.
+        // Brand-new table — no existing data is touched.
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS $CHAT_MESSAGES_TABLE_NAME (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        userId TEXT NOT NULL,
+                        role TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_${CHAT_MESSAGES_TABLE_NAME}_userId ON $CHAT_MESSAGES_TABLE_NAME (userId)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_${CHAT_MESSAGES_TABLE_NAME}_userId_timestamp ON $CHAT_MESSAGES_TABLE_NAME (userId, timestamp)",
+                )
+            }
+        }
+
         // For Singleton instantiation
         @Volatile
         private var instance: AppDatabase? = null
@@ -214,6 +243,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_6_7,
                     MIGRATION_7_8,
                     MIGRATION_8_9,
+                    MIGRATION_9_10,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()

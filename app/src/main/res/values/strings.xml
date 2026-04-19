@@ -32,6 +32,7 @@
     <string name="screen_title_search">Search</string>
     <string name="screen_title_details">Details</string>
     <string name="screen_title_login">Login</string>
+    <string name="screen_title_chat">Chat</string>
 
     <!-- GROUPS -->
     <string name="groups_text_create_group">Create Group</string>
@@ -168,5 +169,20 @@
     <!-- RATE APP -->
     <string name="rate_app_title">Rate the App</string>
     <string name="rate_app_subtitle">Share your experience with us</string>
+
+    <!-- CHAT -->
+    <string name="chat_input_placeholder">Ask anything about movies…</string>
+    <string name="chat_send_content_description">Send message</string>
+    <string name="chat_empty_state_title">Your movie assistant</string>
+    <string name="chat_empty_state_subtitle">Ask for recommendations, actors, directors, genres or anything about films and series.</string>
+    <string name="chat_suggestion_1">Recommend me 5 must-watch sci-fi films</string>
+    <string name="chat_suggestion_2">What did Christopher Nolan direct?</string>
+    <string name="chat_suggestion_3">Films like \"The Grand Budapest Hotel\"</string>
+    <string name="chat_suggestion_4">Best Oscar-winning dramas of the last decade</string>
+    <string name="chat_error_generic">Something went wrong. Try again.</string>
+    <string name="chat_error_network">No internet connection. Check your network and try again.</string>
+    <string name="chat_typing_indicator_description">Assistant is typing</string>
+    <string name="chat_system_prompt">You are a cinema and TV series expert. You only answer questions about films, series, actors, directors, genres and audiovisual recommendations. If the user asks about anything else, politely decline and redirect to cinema. Always answer in the user\'s language: %1$s. Be concise. %2$s Format with light Markdown when helpful.</string>
+    <string name="chat_system_prompt_no_adult">Do not recommend explicit adult content.</string>
 
 </resources>

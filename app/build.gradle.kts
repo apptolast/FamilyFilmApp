@@ -41,8 +41,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 26
-        versionName = "1.0.0"
+        versionCode = 27
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -59,14 +59,14 @@ android {
         resValue("string", "admob_app_id", admobAppId)
     }
 
-//    signingConfigs {
-//        create("release") {
-//            storeFile = file(localProperties.getProperty("storeFile"))
-//            storePassword = localProperties.getProperty("storePassword")
-//            keyAlias = localProperties.getProperty("keyAlias")
-//            keyPassword = localProperties.getProperty("keyPassword")
-//        }
-//    }
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("storeFile"))
+            storePassword = localProperties.getProperty("storePassword")
+            keyAlias = localProperties.getProperty("keyAlias")
+            keyPassword = localProperties.getProperty("keyPassword")
+        }
+    }
 
     buildTypes {
         getByName("debug") { }
@@ -79,7 +79,7 @@ android {
                 "proguard-rules.pro",
             )
 
-//            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -188,6 +188,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.ai)
 
     // Timber
     implementation(libs.timber)

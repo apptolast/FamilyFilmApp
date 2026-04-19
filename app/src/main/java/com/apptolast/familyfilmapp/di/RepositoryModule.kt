@@ -3,6 +3,9 @@ package com.apptolast.familyfilmapp.di
 import androidx.work.WorkManager
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
+import com.apptolast.familyfilmapp.ai.GeminiChatService
+import com.apptolast.familyfilmapp.repositories.ChatRepository
+import com.apptolast.familyfilmapp.repositories.ChatRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -13,6 +16,7 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasourceImpl
+import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
@@ -69,4 +73,9 @@ object RepositoryModule {
     @Provides
     fun provideTmdbDatasource(tmdbApi: TmdbApi, tmdbLocaleManager: TmdbLocaleManager): TmdbDatasource =
         TmdbDatasourceImpl(tmdbApi, tmdbLocaleManager)
+
+    @Singleton
+    @Provides
+    fun provideChatRepository(geminiChatService: GeminiChatService, chatMessageDao: ChatMessageDao): ChatRepository =
+        ChatRepositoryImpl(geminiChatService, chatMessageDao)
 }

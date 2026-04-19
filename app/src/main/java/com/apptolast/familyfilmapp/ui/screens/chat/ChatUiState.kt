@@ -9,6 +9,9 @@ data class ChatUiState(
     val isStreaming: Boolean = false,
     val error: ChatError? = null,
     val quota: ChatQuota? = null,
+    val isChatPremium: Boolean = false,
+    val showPaywall: Boolean = false,
+    val isPurchasing: Boolean = false,
 ) {
     val allMessages: List<ChatMessage>
         get() = if (streamingMessage != null) messages + streamingMessage else messages
@@ -19,4 +22,4 @@ data class ChatUiState(
         get() = !isStreaming && quota?.isExceeded != true
 }
 
-enum class ChatError { GENERIC, NETWORK, QUOTA_EXCEEDED }
+enum class ChatError { GENERIC, NETWORK, QUOTA_EXCEEDED, PAYWALL_PURCHASE_FAILED }

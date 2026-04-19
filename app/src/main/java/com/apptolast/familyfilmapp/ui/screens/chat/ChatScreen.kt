@@ -52,6 +52,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.app.Activity
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
 import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -59,11 +70,18 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 fun ChatScreen(modifier: Modifier = Modifier, viewModel: ChatViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
     ChatContent(
         state = state,
         onSend = viewModel::sendMessage,
         onSuggestionClick = viewModel::sendMessage,
         onErrorDismiss = viewModel::clearError,
+        onPaywallConfirm = {
+            val activity = context as? Activity ?: return@ChatContent
+            viewModel.requestChatPremiumPurchase(activity)
+        },
+        onPaywallDismiss = viewModel::dismissPaywall,
         modifier = modifier,
     )
 }
@@ -74,20 +92,23 @@ private fun ChatContent(
     onSend: (String) -> Unit,
     onSuggestionClick: (String) -> Unit,
     onErrorDismiss: () -> Unit,
+    onPaywallConfirm: () -> Unit,
+    onPaywallDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val errorGeneric = stringResource(R.string.chat_error_generic)
     val errorNetwork = stringResource(R.string.chat_error_network)
-    val currentOnErrorDismiss by rememberUpdatedState(onErrorDismiss)
-
     val errorQuota = stringResource(R.string.chat_error_quota_exceeded)
+    val errorPaywall = stringResource(R.string.chat_paywall_error)
+    val currentOnErrorDismiss by rememberUpdatedState(onErrorDismiss)
 
     LaunchedEffect(state.error) {
         val message = when (state.error) {
             ChatError.QUOTA_EXCEEDED -> errorQuota
             ChatError.GENERIC -> errorGeneric
             ChatError.NETWORK -> errorNetwork
+            ChatError.PAYWALL_PURCHASE_FAILED -> errorPaywall
             null -> null
         }
         if (message != null) {
@@ -125,6 +146,83 @@ private fun ChatContent(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter),
         ) { Snackbar(snackbarData = it) }
+
+        if (state.showPaywall) {
+            ChatPremiumPaywallDialog(
+                isPurchasing = state.isPurchasing,
+                onConfirm = onPaywallConfirm,
+                onDismiss = onPaywallDismiss,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChatPremiumPaywallDialog(isPurchasing: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { if (!isPurchasing) onDismiss() },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Chat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(stringResource(R.string.chat_paywall_title))
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = stringResource(R.string.chat_paywall_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                PaywallBullet(stringResource(R.string.chat_paywall_bullet_questions))
+                PaywallBullet(stringResource(R.string.chat_paywall_bullet_priority))
+                PaywallBullet(stringResource(R.string.chat_paywall_bullet_cancel))
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !isPurchasing,
+                modifier = Modifier.heightIn(min = 44.dp),
+            ) {
+                if (isPurchasing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text(stringResource(R.string.chat_paywall_cta))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isPurchasing) {
+                Text(stringResource(R.string.chat_paywall_dismiss))
+            }
+        },
+    )
+}
+
+@Composable
+private fun PaywallBullet(text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Outlined.CheckCircle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
@@ -358,6 +456,8 @@ private fun PreviewChatEmpty() {
             onSend = {},
             onSuggestionClick = {},
             onErrorDismiss = {},
+            onPaywallConfirm = {},
+            onPaywallDismiss = {},
         )
     }
 }
@@ -386,6 +486,8 @@ private fun PreviewChatWithMessages() {
             onSend = {},
             onSuggestionClick = {},
             onErrorDismiss = {},
+            onPaywallConfirm = {},
+            onPaywallDismiss = {},
         )
     }
 }

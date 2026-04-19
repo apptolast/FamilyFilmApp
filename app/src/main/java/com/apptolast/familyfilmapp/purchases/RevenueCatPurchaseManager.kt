@@ -23,6 +23,9 @@ class RevenueCatPurchaseManager(private val context: Context) :
     private val _hasRemovedAds = MutableStateFlow(false)
     override val hasRemovedAds: StateFlow<Boolean> = _hasRemovedAds.asStateFlow()
 
+    private val _hasChatPremium = MutableStateFlow(false)
+    override val hasChatPremium: StateFlow<Boolean> = _hasChatPremium.asStateFlow()
+
     private var isConfigured = false
 
     override fun setAdsRemoved(removed: Boolean) {
@@ -62,7 +65,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
         Purchases.sharedInstance.getCustomerInfo(
             object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
                 override fun onReceived(customerInfo: CustomerInfo) {
-                    updateAdsRemovedState(customerInfo)
+                    updateEntitlementState(customerInfo)
                 }
 
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) {
@@ -73,60 +76,84 @@ class RevenueCatPurchaseManager(private val context: Context) :
     }
 
     override suspend fun purchaseRemoveAds(activity: Activity, onPurchaseStart: () -> Unit): Result<Unit> =
-        suspendCancellableCoroutine { continuation ->
-            if (!isConfigured) {
-                continuation.resume(Result.failure(IllegalStateException("RevenueCat not configured")))
-                return@suspendCancellableCoroutine
-            }
+        launchPurchaseFlow(
+            activity = activity,
+            offeringId = null, // null → uses offerings.current (legacy remove_ads flow)
+            onPurchaseStart = onPurchaseStart,
+        )
 
-            Purchases.sharedInstance.getOfferings(
-                object : com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback {
-                    override fun onReceived(offerings: com.revenuecat.purchases.Offerings) {
-                        val packageToBuy = offerings.current?.availablePackages?.firstOrNull()
-                        if (packageToBuy == null) {
-                            continuation.resume(
-                                Result.failure(IllegalStateException("No offering available")),
-                            )
-                            return
-                        }
+    override suspend fun purchaseChatPremium(activity: Activity, onPurchaseStart: () -> Unit): Result<Unit> =
+        launchPurchaseFlow(
+            activity = activity,
+            offeringId = CHAT_PREMIUM_OFFERING_ID,
+            onPurchaseStart = onPurchaseStart,
+        )
 
-                        onPurchaseStart()
-                        Purchases.sharedInstance.purchase(
-                            com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy)
-                                .build(),
-                            object : com.revenuecat.purchases.interfaces.PurchaseCallback {
-                                override fun onCompleted(
-                                    storeTransaction: StoreTransaction,
-                                    customerInfo: CustomerInfo,
-                                ) {
-                                    updateAdsRemovedState(customerInfo)
-                                    continuation.resume(Result.success(Unit))
-                                }
-
-                                override fun onError(
-                                    error: com.revenuecat.purchases.PurchasesError,
-                                    userCancelled: Boolean,
-                                ) {
-                                    if (userCancelled) {
-                                        continuation.resume(
-                                            Result.failure(Exception("Purchase cancelled")),
-                                        )
-                                    } else {
-                                        continuation.resume(
-                                            Result.failure(Exception(error.message)),
-                                        )
-                                    }
-                                }
-                            },
-                        )
-                    }
-
-                    override fun onError(error: com.revenuecat.purchases.PurchasesError) {
-                        continuation.resume(Result.failure(Exception(error.message)))
-                    }
-                },
-            )
+    /**
+     * Shared purchase flow. When [offeringId] is null we fall back to `offerings.current`
+     * for backwards compatibility with the pre-existing Remove Ads purchase.
+     */
+    private suspend fun launchPurchaseFlow(
+        activity: Activity,
+        offeringId: String?,
+        onPurchaseStart: () -> Unit,
+    ): Result<Unit> = suspendCancellableCoroutine { continuation ->
+        if (!isConfigured) {
+            continuation.resume(Result.failure(IllegalStateException("RevenueCat not configured")))
+            return@suspendCancellableCoroutine
         }
+
+        Purchases.sharedInstance.getOfferings(
+            object : com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback {
+                override fun onReceived(offerings: com.revenuecat.purchases.Offerings) {
+                    val offering = if (offeringId != null) {
+                        offerings[offeringId]
+                    } else {
+                        offerings.current
+                    }
+                    val packageToBuy = offering?.availablePackages?.firstOrNull()
+                    if (packageToBuy == null) {
+                        val label = offeringId ?: "current"
+                        continuation.resume(
+                            Result.failure(IllegalStateException("No package in offering '$label'")),
+                        )
+                        return
+                    }
+
+                    onPurchaseStart()
+                    Purchases.sharedInstance.purchase(
+                        com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy)
+                            .build(),
+                        object : com.revenuecat.purchases.interfaces.PurchaseCallback {
+                            override fun onCompleted(storeTransaction: StoreTransaction, customerInfo: CustomerInfo) {
+                                updateEntitlementState(customerInfo)
+                                continuation.resume(Result.success(Unit))
+                            }
+
+                            override fun onError(
+                                error: com.revenuecat.purchases.PurchasesError,
+                                userCancelled: Boolean,
+                            ) {
+                                if (userCancelled) {
+                                    continuation.resume(
+                                        Result.failure(Exception("Purchase cancelled")),
+                                    )
+                                } else {
+                                    continuation.resume(
+                                        Result.failure(Exception(error.message)),
+                                    )
+                                }
+                            }
+                        },
+                    )
+                }
+
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    continuation.resume(Result.failure(Exception(error.message)))
+                }
+            },
+        )
+    }
 
     override suspend fun restorePurchases(): Result<Boolean> = suspendCancellableCoroutine { continuation ->
         if (!isConfigured) {
@@ -137,10 +164,11 @@ class RevenueCatPurchaseManager(private val context: Context) :
         Purchases.sharedInstance.restorePurchases(
             object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
                 override fun onReceived(customerInfo: CustomerInfo) {
-                    val isActive =
-                        customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
-                    _hasRemovedAds.value = isActive
-                    continuation.resume(Result.success(isActive))
+                    updateEntitlementState(customerInfo)
+                    val restoredSomething =
+                        customerInfo.entitlements[AD_FREE_ENTITLEMENT]?.isActive == true ||
+                            customerInfo.entitlements[CHAT_PREMIUM_ENTITLEMENT]?.isActive == true
+                    continuation.resume(Result.success(restoredSomething))
                 }
 
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) {
@@ -151,16 +179,20 @@ class RevenueCatPurchaseManager(private val context: Context) :
     }
 
     override fun onReceived(customerInfo: CustomerInfo) {
-        updateAdsRemovedState(customerInfo)
+        updateEntitlementState(customerInfo)
     }
 
-    private fun updateAdsRemovedState(customerInfo: CustomerInfo) {
-        val isActive = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
-        _hasRemovedAds.value = isActive
-        Timber.d("RevenueCat entitlement update: ad_free=$isActive")
+    private fun updateEntitlementState(customerInfo: CustomerInfo) {
+        val adFree = customerInfo.entitlements[AD_FREE_ENTITLEMENT]?.isActive == true
+        val chatPremium = customerInfo.entitlements[CHAT_PREMIUM_ENTITLEMENT]?.isActive == true
+        _hasRemovedAds.value = adFree
+        _hasChatPremium.value = chatPremium
+        Timber.d("RevenueCat entitlement update: ad_free=$adFree chat_premium=$chatPremium")
     }
 
     companion object {
-        private const val ENTITLEMENT_ID = "ad_free"
+        private const val AD_FREE_ENTITLEMENT = "ad_free"
+        private const val CHAT_PREMIUM_ENTITLEMENT = "chat_premium"
+        private const val CHAT_PREMIUM_OFFERING_ID = "chat_premium"
     }
 }

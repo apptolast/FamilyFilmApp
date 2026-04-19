@@ -50,6 +50,8 @@ class ProfileViewModel @Inject constructor(
 
     val hasRatedApp: StateFlow<Boolean> = rateAppManager.hasRatedApp
 
+    val hasChatPremium: StateFlow<Boolean> = purchaseManager.hasChatPremium
+
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
 
@@ -129,6 +131,27 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 Timber.e(error, "Remove ads purchase failed")
+                val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
+                if (!isCancelled) {
+                    _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
+                }
+            }
+        isPurchaseLoading.update { false }
+    }
+
+    fun purchaseChatPremium(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
+        if (isPurchaseLoading.value) return@launch
+        isPurchaseLoading.update { true }
+        purchaseManager.purchaseChatPremium(
+            activity = activity,
+            onPurchaseStart = { isPurchaseLoading.update { false } },
+        )
+            .onSuccess {
+                Timber.d("Chat premium purchase successful")
+                _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess)
+            }
+            .onFailure { error ->
+                Timber.e(error, "Chat premium purchase failed")
                 val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
                 if (!isCancelled) {
                     _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))

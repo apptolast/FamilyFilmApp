@@ -186,6 +186,20 @@
     <string name="chat_quota_banner">%1$d/%2$d preguntas este mes</string>
     <string name="chat_quota_banner_premium">%1$d/%2$d preguntas este mes · Premium</string>
     <string name="chat_quota_exceeded_subtitle">Tu límite se reinicia el mes que viene. Mejora a Premium para 50 preguntas/mes.</string>
+
+    <!-- CHAT PREMIUM PAYWALL -->
+    <string name="chat_paywall_title">Desbloquea 50 preguntas al mes</string>
+    <string name="chat_paywall_subtitle">Suscríbete a Chat Premium para recomendaciones de cine sin límite — cancela cuando quieras.</string>
+    <string name="chat_paywall_bullet_questions">50 preguntas al mes con Gemini</string>
+    <string name="chat_paywall_bullet_priority">Acceso prioritario al modelo</string>
+    <string name="chat_paywall_bullet_cancel">Cancela cuando quieras desde Google Play</string>
+    <string name="chat_paywall_cta">Suscribirse</string>
+    <string name="chat_paywall_dismiss">Ahora no</string>
+    <string name="chat_paywall_error">No se pudo iniciar la compra. Inténtalo en un momento.</string>
+    <string name="chat_premium_active_title">Chat Premium activo</string>
+    <string name="chat_premium_active_subtitle">Gestiona tu suscripción en Google Play</string>
+    <string name="chat_premium_upsell_title">Chat Premium</string>
+    <string name="chat_premium_upsell_subtitle">50 preguntas al mes</string>
     <string name="chat_typing_indicator_description">El asistente está escribiendo</string>
     <string name="chat_system_prompt">Eres un asistente experto en cine y series de TV. Solo respondes preguntas sobre películas, series, actores, directores, géneros y recomendaciones audiovisuales. Si la pregunta no es sobre cine, declina amablemente y redirige la conversación al cine. Responde siempre en el idioma del usuario: %1$s. Sé conciso. %2$s Formatea con Markdown ligero cuando ayude.</string>
     <string name="chat_system_prompt_no_adult">No recomiendes contenido para adultos explícito.</string>

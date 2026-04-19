@@ -6,3 +6,4 @@
  */
 
 export {chatComplete} from "./chatComplete";
+export {revenueCatWebhook} from "./revenueCatWebhook";

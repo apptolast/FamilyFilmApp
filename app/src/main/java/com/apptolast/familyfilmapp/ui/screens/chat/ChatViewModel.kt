@@ -1,11 +1,13 @@
 package com.apptolast.familyfilmapp.ui.screens.chat
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.ai.ChatStreamEvent
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.ChatRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -26,21 +28,24 @@ import javax.inject.Inject
 /**
  * ViewModel for the Gemini cinema chat.
  *
- * Phase 3: the LLM call goes through a Cloud Function. The quota lives server-side in Firestore;
- * we observe it via [ChatRepository.observeQuota] to render the "X/Y remaining" banner.
- * When the server returns `resource-exhausted`, the [GeminiChatService] maps it to
- * [ChatStreamEvent.QuotaExceeded] and we surface it to the UI as [ChatError.QUOTA_EXCEEDED].
+ * Phase 4: integrates the Chat Premium subscription paywall. When the server returns
+ * `resource-exhausted` (QuotaExceeded) AND the user is NOT premium, we surface a paywall
+ * dialog that drives a RevenueCat purchase flow. The resulting entitlement update flows
+ * from the RevenueCat SDK → `PurchaseManager.hasChatPremium` → Firestore mirror (via
+ * webhook) so the next server call applies the 50-msg limit.
  */
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val dispatcherProvider: DispatcherProvider,
+    private val purchaseManager: PurchaseManager,
     auth: FirebaseAuth,
 ) : ViewModel() {
 
     private val userId: String? = auth.uid
 
     private val streamingState = MutableStateFlow(StreamingState())
+    private val paywallState = MutableStateFlow(PaywallState())
 
     private val persistedMessages = if (userId != null) {
         chatRepository.observeMessages(userId)
@@ -58,13 +63,18 @@ class ChatViewModel @Inject constructor(
         persistedMessages,
         streamingState,
         quotaFlow,
-    ) { messages, streaming, quota ->
+        purchaseManager.hasChatPremium,
+        paywallState,
+    ) { messages, streaming, quota, isPremium, paywall ->
         ChatUiState(
             messages = messages,
             streamingMessage = streaming.streamingMessage,
             isStreaming = streaming.isStreaming,
-            error = streaming.error,
+            error = streaming.error ?: paywall.error,
             quota = quota,
+            isChatPremium = isPremium,
+            showPaywall = paywall.shown,
+            isPurchasing = paywall.isPurchasing,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -128,9 +138,46 @@ class ChatViewModel @Inject constructor(
 
                     ChatStreamEvent.QuotaExceeded -> {
                         streamingState.update { StreamingState(error = ChatError.QUOTA_EXCEEDED) }
+                        // Surface the paywall only when the user is NOT already premium.
+                        // Server may return QuotaExceeded to premium users too (limit of 50).
+                        if (!purchaseManager.hasChatPremium.value) {
+                            paywallState.update { it.copy(shown = true, error = null) }
+                        }
                     }
                 }
             }
+        }
+    }
+
+    fun requestChatPremiumPurchase(activity: Activity) {
+        if (paywallState.value.isPurchasing) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            paywallState.update { it.copy(isPurchasing = true, error = null) }
+            purchaseManager.purchaseChatPremium(activity)
+                .onSuccess {
+                    Timber.d("Chat premium purchased successfully")
+                    paywallState.update { PaywallState() }
+                }
+                .onFailure { error ->
+                    Timber.w(error, "Chat premium purchase failed")
+                    val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
+                    paywallState.update {
+                        it.copy(
+                            isPurchasing = false,
+                            error = if (isCancelled) null else ChatError.PAYWALL_PURCHASE_FAILED,
+                        )
+                    }
+                }
+        }
+    }
+
+    fun dismissPaywall() {
+        paywallState.update { PaywallState() }
+    }
+
+    fun showPaywallManually() {
+        if (!purchaseManager.hasChatPremium.value) {
+            paywallState.update { it.copy(shown = true, error = null) }
         }
     }
 
@@ -143,6 +190,7 @@ class ChatViewModel @Inject constructor(
 
     fun clearError() {
         streamingState.update { it.copy(error = null) }
+        paywallState.update { it.copy(error = null) }
     }
 
     override fun onCleared() {
@@ -153,6 +201,12 @@ class ChatViewModel @Inject constructor(
     private data class StreamingState(
         val streamingMessage: ChatMessage? = null,
         val isStreaming: Boolean = false,
+        val error: ChatError? = null,
+    )
+
+    private data class PaywallState(
+        val shown: Boolean = false,
+        val isPurchasing: Boolean = false,
         val error: ChatError? = null,
     )
 

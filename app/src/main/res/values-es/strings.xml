@@ -143,6 +143,10 @@
     <string name="username_save">Guardar</string>
     <string name="username_cancel">Cancelar</string>
 
+    <string name="profile_section_user">Perfil</string>
+    <string name="adult_content_title">Contenido para adultos</string>
+    <string name="adult_content_subtitle">Mostrar contenido adulto en los resultados</string>
+
     <!-- REGION -->
     <string name="region_section_title">Región</string>
     <string name="region_select_title">Selecciona tu país</string>
@@ -161,5 +165,9 @@
     <string name="restore_success">Compra restaurada correctamente. ¡Anuncios eliminados!</string>
     <string name="restore_nothing_found">No se encontraron compras anteriores.</string>
     <string name="restore_error">No se pudieron restaurar las compras. Inténtalo de nuevo.</string>
+
+    <!-- VALORAR APP -->
+    <string name="rate_app_title">Valora la App</string>
+    <string name="rate_app_subtitle">Comparte tu experiencia con nosotros</string>
 
 </resources>

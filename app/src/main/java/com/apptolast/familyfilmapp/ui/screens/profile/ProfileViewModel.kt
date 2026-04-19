@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.rating.RateAppManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -30,6 +31,7 @@ class ProfileViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
     private val purchaseManager: PurchaseManager,
+    private val rateAppManager: RateAppManager,
 ) : ViewModel() {
 
     val usernameValidationState: StateFlow<UsernameValidationState>
@@ -43,6 +45,10 @@ class ProfileViewModel @Inject constructor(
 
     val isPurchaseLoading: StateFlow<Boolean>
         field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    val includeAdult: StateFlow<Boolean> = tmdbLocaleManager.includeAdult
+
+    val hasRatedApp: StateFlow<Boolean> = rateAppManager.hasRatedApp
 
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
@@ -88,6 +94,14 @@ class ProfileViewModel @Inject constructor(
         usernameCheckJob?.cancel()
         usernameValidationState.update { UsernameValidationState.Idle }
         saveError.update { null }
+    }
+
+    fun saveIncludeAdult(value: Boolean) {
+        tmdbLocaleManager.updateIncludeAdult(value)
+    }
+
+    fun markAppAsRated() {
+        rateAppManager.markAsRated()
     }
 
     fun saveLanguage(user: User, languageTag: String) = viewModelScope.launch(dispatcherProvider.io()) {

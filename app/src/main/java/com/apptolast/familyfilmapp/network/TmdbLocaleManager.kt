@@ -19,6 +19,9 @@ class TmdbLocaleManager @Inject constructor(private val prefs: SharedPreferences
     )
     val languageTag: StateFlow<String> = _languageTag.asStateFlow()
 
+    private val _includeAdult = MutableStateFlow(prefs.getBoolean(PREF_INCLUDE_ADULT, false))
+    val includeAdult: StateFlow<Boolean> = _includeAdult.asStateFlow()
+
     val countryCode: String
         get() {
             val tag = _languageTag.value
@@ -34,8 +37,15 @@ class TmdbLocaleManager @Inject constructor(private val prefs: SharedPreferences
         Timber.d("TmdbLocaleManager updated: languageTag=$effective, countryCode=$countryCode")
     }
 
+    fun updateIncludeAdult(value: Boolean) {
+        _includeAdult.value = value
+        prefs.edit { putBoolean(PREF_INCLUDE_ADULT, value) }
+        Timber.d("TmdbLocaleManager updated: includeAdult=$value")
+    }
+
     companion object {
         const val PREFS_NAME = "tmdb_locale_prefs"
         private const val PREF_LANGUAGE_TAG = "tmdb_language_tag"
+        private const val PREF_INCLUDE_ADULT = "include_adult"
     }
 }

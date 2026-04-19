@@ -4,16 +4,21 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.apptolast.familyfilmapp.MainDispatcherRule
+import com.apptolast.familyfilmapp.ads.NativeAdManager
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.ads.nativead.NativeAd
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -37,10 +42,19 @@ class HomeViewModelTest {
     @RelaxedMockK
     lateinit var auth: FirebaseAuth
 
+    @RelaxedMockK
+    lateinit var tmdbLocaleManager: TmdbLocaleManager
+
+    @RelaxedMockK
+    lateinit var nativeAdManager: NativeAdManager
+
     @Before
     fun setUp() = runTest {
         val actualUserId = "userId"
         val expectedUser = User().copy(id = actualUserId, email = "a@a.com")
+
+        every { tmdbLocaleManager.includeAdult } returns MutableStateFlow(false)
+        every { nativeAdManager.nativeAds } returns MutableStateFlow(emptyList<NativeAd>())
 
         coEvery { auth.uid } returns actualUserId
         coEvery { repository.getUserById(actualUserId) } returns flow { expectedUser }
@@ -64,6 +78,8 @@ class HomeViewModelTest {
             repository,
             auth,
             dispatcher.testDispatcherProvider,
+            tmdbLocaleManager,
+            nativeAdManager,
         )
     }
 

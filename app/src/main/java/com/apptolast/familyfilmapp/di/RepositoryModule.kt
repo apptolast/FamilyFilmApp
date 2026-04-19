@@ -67,5 +67,6 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)
+    fun provideTmdbDatasource(tmdbApi: TmdbApi, tmdbLocaleManager: TmdbLocaleManager): TmdbDatasource =
+        TmdbDatasourceImpl(tmdbApi, tmdbLocaleManager)
 }

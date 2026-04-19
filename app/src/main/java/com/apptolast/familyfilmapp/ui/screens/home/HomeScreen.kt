@@ -67,6 +67,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_LABEL
+import com.google.android.gms.ads.nativead.NativeAd
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +79,7 @@ fun HomeScreen(
 ) {
     val stateUI by viewModel.homeUiState.collectAsStateWithLifecycle()
     val mediaItems: LazyPagingItems<Media> = viewModel.media.collectAsLazyPagingItems()
+    val nativeAds by viewModel.nativeAds.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -112,6 +114,7 @@ fun HomeScreen(
         ) {
             HomeContent(
                 mediaItems = mediaItems,
+                nativeAds = nativeAds,
                 onMediaClick = { media ->
                     onClickNav(DetailNavTypeDestination.getDestination(media))
                 },
@@ -133,6 +136,7 @@ fun HomeContent(
     stateUI: HomeUiState,
     mediaItems: LazyPagingItems<Media>,
     modifier: Modifier = Modifier,
+    nativeAds: List<NativeAd> = emptyList(),
     onMediaClick: (Media) -> Unit = {},
     searchMediaByName: (String) -> Unit = {},
     onFilterSelect: (com.apptolast.familyfilmapp.model.local.types.MediaFilter) -> Unit = {},
@@ -208,64 +212,72 @@ fun HomeContent(
         MediaGridList(
             mediaItems = mediaItems,
             stateUi = stateUI,
+            nativeAds = nativeAds,
             onMediaClick = onMediaClick,
         )
     }
 }
 
+/** 7 media items + 1 native ad = block of 8 slots. */
+private const val AD_INTERVAL = 8
+private const val MEDIA_PER_AD = AD_INTERVAL - 1
+
 @Composable
 private fun MediaGridList(
     mediaItems: LazyPagingItems<Media>,
     stateUi: HomeUiState,
+    nativeAds: List<NativeAd> = emptyList(),
     onMediaClick: (Media) -> Unit = {},
 ) {
     val filterMedia = stateUi.filterMedia
+    val isFiltering = filterMedia.isNotEmpty()
+    val ads = if (stateUi.user.hasRemovedAds) emptyList() else nativeAds
 
-    AnimatedVisibility(filterMedia.isNotEmpty()) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
-        ) {
-            items(
-                items = filterMedia,
-                key = { media -> "filter_${media.id}" },
-            ) { media ->
-                MediaItem(
-                    media = media,
-                    onClick = onMediaClick,
-                )
-            }
-        }
-    }
-    AnimatedVisibility(filterMedia.isEmpty()) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(100.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
-        ) {
-            items(
-                count = mediaItems.itemCount,
-                key = { index ->
-                    val media = mediaItems[index]
-                    if (media != null) {
-                        "paging_${media.id}_$index"
-                    } else {
-                        "loading_$index"
-                    }
-                },
-            ) { index ->
-                MediaItem(
-                    media = mediaItems[index]!!,
-                    onClick = onMediaClick,
-                    modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$index"),
-                )
+    // Source of truth: either the in-memory filter list or the paged flow
+    val mediaCount = if (isFiltering) filterMedia.size else mediaItems.itemCount
+    val adCount = if (ads.isEmpty()) 0 else mediaCount / MEDIA_PER_AD
+    val totalSlots = mediaCount + adCount
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(100.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 8.dp),
+    ) {
+        items(
+            count = totalSlots,
+            // Position-based keys: never read from `mediaItems` here (it runs in the snapshot
+            // observer, which can race against paging refreshes and throw IndexOutOfBoundsException).
+            key = { position ->
+                if (isAdSlot(position, adCount)) "ad_$position" else "media_$position"
+            },
+            contentType = { position -> if (isAdSlot(position, adCount)) "ad" else "media" },
+        ) { position ->
+            if (isAdSlot(position, adCount)) {
+                NativeAdItem(nativeAd = ads[(position / AD_INTERVAL) % ads.size])
+            } else {
+                val mediaIdx = position - (position / AD_INTERVAL).coerceAtMost(adCount)
+                val media = if (isFiltering) {
+                    filterMedia.getOrNull(mediaIdx)
+                } else if (mediaIdx in 0 until mediaItems.itemCount) {
+                    mediaItems[mediaIdx]
+                } else {
+                    null
+                }
+                media?.let {
+                    MediaItem(
+                        media = it,
+                        onClick = onMediaClick,
+                        modifier = Modifier.testTag("$TT_HOME_MOVIE_ITEM$mediaIdx"),
+                    )
+                }
             }
         }
     }
 }
+
+private fun isAdSlot(position: Int, adCount: Int): Boolean =
+    (position + 1) % AD_INTERVAL == 0 && position / AD_INTERVAL < adCount
 
 @Composable
 private fun LoadStateContent(mediaItems: LazyPagingItems<Media>, triggerError: (String) -> Unit) {

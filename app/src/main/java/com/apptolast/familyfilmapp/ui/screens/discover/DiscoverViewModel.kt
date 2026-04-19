@@ -6,6 +6,7 @@ import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -13,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -23,6 +25,7 @@ class DiscoverViewModel @Inject constructor(
     private val repository: Repository,
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
+    private val tmdbLocaleManager: TmdbLocaleManager,
 ) : ViewModel() {
 
     val uiState: StateFlow<DiscoverUiState>
@@ -35,6 +38,20 @@ class DiscoverViewModel @Inject constructor(
         loadUser()
         loadGroups()
         loadMedia()
+        observeAdultContentChanges()
+    }
+
+    private fun observeAdultContentChanges() = viewModelScope.launch {
+        // When the adult content preference changes, reset pagination and reload
+        // so cached items don't keep showing stale (filtered/unfiltered) results.
+        tmdbLocaleManager.includeAdult
+            .drop(1)
+            .collect {
+                Timber.d("includeAdult changed, reloading discover media")
+                currentPage = 1
+                uiState.update { it.copy(mediaList = emptyList(), currentMediaIndex = 0) }
+                loadMedia()
+            }
     }
 
     private fun loadUser() = viewModelScope.launch {

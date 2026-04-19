@@ -29,6 +29,7 @@ val tmdbApiKey: String = localProperties.getProperty("TMDB_ACCESS_TOKEN") ?: ""
 val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID") ?: ""
 val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID") ?: ""
 val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID") ?: ""
+val admobNativeHomeId: String = localProperties.getProperty("ADMOB_NATIVE_HOME_ID") ?: ""
 val revenueCatApiKey: String = localProperties.getProperty("REVENUECAT_API_KEY") ?: ""
 val revenueCatTestApiKey: String = localProperties.getProperty("REVENUECAT_TEST_API_KEY") ?: ""
 
@@ -40,8 +41,8 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "0.5.1"
+        versionCode = 26
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "com.apptolast.familyfilmapp.CustomHiltTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -51,6 +52,7 @@ android {
         buildConfigField("String", "ADMOB_APPLICATION_ID", "\"$admobAppId\"")
         buildConfigField("String", "ADMOB_BOTTOM_BANNER_ID", "\"$admobBottomBanner\"")
         buildConfigField("String", "ADMOB_APP_OPEN_ID", "\"$admobAppOpenId\"")
+        buildConfigField("String", "ADMOB_NATIVE_HOME_ID", "\"$admobNativeHomeId\"")
         buildConfigField("String", "REVENUECAT_API_KEY", "\"$revenueCatApiKey\"")
         buildConfigField("String", "REVENUECAT_TEST_API_KEY", "\"$revenueCatTestApiKey\"")
 
@@ -211,6 +213,9 @@ dependencies {
 
     // RevenueCat
     implementation(libs.revenuecat.purchases)
+
+    // Play In-App Review
+    implementation(libs.play.review.ktx)
 
     // Turbine
 //    testImplementation(libs.turbine)

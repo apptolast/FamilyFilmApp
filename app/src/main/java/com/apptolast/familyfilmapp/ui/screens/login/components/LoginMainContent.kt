@@ -1,9 +1,11 @@
 package com.apptolast.familyfilmapp.ui.screens.login.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,7 +40,11 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginUiState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
-fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Unit) {
+fun LoginMainContent(
+    loginUiState: LoginUiState,
+    modifier: Modifier = Modifier,
+    onClick: (String, String) -> Unit = { _, _ -> },
+) {
     var email by rememberSaveable { mutableStateOf(loginUiState.email) }
     var pass by rememberSaveable { mutableStateOf("") }
     val (isPasswordVisible, passwordToVisible) = remember { mutableStateOf(false) }
@@ -51,7 +57,7 @@ fun LoginMainContent(loginUiState: LoginUiState, onClick: (String, String) -> Un
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
-                painter = painterResource(R.drawable.logo_film_family),
+                painter = painterResource(R.drawable.logo_family_film),
                 contentDescription = stringResource(R.string.login_snail_logo),
                 modifier = Modifier
                     .width(134.dp)
@@ -133,7 +139,9 @@ private fun CardLoginMainPreview() {
     FamilyFilmAppTheme {
         LoginMainContent(
             loginUiState = LoginUiState(),
-            onClick = { _, _ -> },
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         )
     }
 }

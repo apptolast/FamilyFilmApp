@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
@@ -75,12 +75,12 @@ import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
-import com.apptolast.familyfilmapp.utils.toErrorString
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_PASS
+import com.apptolast.familyfilmapp.utils.toErrorString
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -256,7 +256,7 @@ fun MovieAppLoginContent(
     ) {
         // Logo
         Image(
-            painter = painterResource(R.drawable.logo_film_family),
+            painter = painterResource(R.drawable.logo_family_film),
             contentDescription = stringResource(R.string.login_snail_logo),
             modifier = Modifier
                 .width(130.dp)

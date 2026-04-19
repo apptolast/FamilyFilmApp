@@ -81,9 +81,12 @@ private fun ChatContent(
     val errorNetwork = stringResource(R.string.chat_error_network)
     val currentOnErrorDismiss by rememberUpdatedState(onErrorDismiss)
 
+    val errorQuota = stringResource(R.string.chat_error_quota_exceeded)
+
     LaunchedEffect(state.error) {
         val message = when (state.error) {
-            ChatError.GENERIC, ChatError.QUOTA_EXCEEDED -> errorGeneric
+            ChatError.QUOTA_EXCEEDED -> errorQuota
+            ChatError.GENERIC -> errorGeneric
             ChatError.NETWORK -> errorNetwork
             null -> null
         }
@@ -95,6 +98,7 @@ private fun ChatContent(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
+            state.quota?.let { QuotaBanner(quota = it) }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -113,7 +117,7 @@ private fun ChatContent(
                 }
             }
             ChatInput(
-                enabled = !state.isStreaming,
+                enabled = state.canSend,
                 onSend = onSend,
             )
         }
@@ -283,6 +287,42 @@ private fun EmptyState(onSuggestionClick: (String) -> Unit, modifier: Modifier =
                         onClick = { onSuggestionClick(suggestion) },
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuotaBanner(quota: com.apptolast.familyfilmapp.model.local.ChatQuota) {
+    val bg = when {
+        quota.isExceeded -> MaterialTheme.colorScheme.errorContainer
+        quota.isPremium -> MaterialTheme.colorScheme.primaryContainer
+        else -> MaterialTheme.colorScheme.surfaceContainerHighest
+    }
+    val fg = when {
+        quota.isExceeded -> MaterialTheme.colorScheme.onErrorContainer
+        quota.isPremium -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Surface(color = bg, modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+        ) {
+            Text(
+                text = if (quota.isPremium) {
+                    stringResource(R.string.chat_quota_banner_premium, quota.count, quota.limit)
+                } else {
+                    stringResource(R.string.chat_quota_banner, quota.count, quota.limit)
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = fg,
+            )
+            if (quota.isExceeded) {
+                Text(
+                    text = stringResource(R.string.chat_quota_exceeded_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = fg,
+                )
             }
         }
     }

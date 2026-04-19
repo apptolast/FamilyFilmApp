@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.ai.ChatStreamEvent
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.model.local.ChatMessage
+import com.apptolast.familyfilmapp.model.local.ChatQuota
 import com.apptolast.familyfilmapp.repositories.ChatRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -25,12 +26,10 @@ import javax.inject.Inject
 /**
  * ViewModel for the Gemini cinema chat.
  *
- * Phase 2: the persisted history is observed from Room via [ChatRepository.observeMessages].
- * Streaming state (partial assistant reply) lives only in memory; when the stream completes
- * the repository writes the final assistant message to Room and it reappears through the
- * observed flow.
- *
- * Phase 3 will enforce quota via server responses (not implemented yet).
+ * Phase 3: the LLM call goes through a Cloud Function. The quota lives server-side in Firestore;
+ * we observe it via [ChatRepository.observeQuota] to render the "X/Y remaining" banner.
+ * When the server returns `resource-exhausted`, the [GeminiChatService] maps it to
+ * [ChatStreamEvent.QuotaExceeded] and we surface it to the UI as [ChatError.QUOTA_EXCEEDED].
  */
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -49,15 +48,23 @@ class ChatViewModel @Inject constructor(
         flowOf(emptyList())
     }
 
+    private val quotaFlow = if (userId != null) {
+        chatRepository.observeQuota(userId)
+    } else {
+        flowOf<ChatQuota?>(null)
+    }
+
     val uiState: StateFlow<ChatUiState> = combine(
         persistedMessages,
         streamingState,
-    ) { messages, streaming ->
+        quotaFlow,
+    ) { messages, streaming, quota ->
         ChatUiState(
             messages = messages,
             streamingMessage = streaming.streamingMessage,
             isStreaming = streaming.isStreaming,
             error = streaming.error,
+            quota = quota,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -106,7 +113,6 @@ class ChatViewModel @Inject constructor(
                     }
 
                     is ChatStreamEvent.Completed -> {
-                        // Repository already persisted the assistant message; drop the streaming placeholder.
                         streamingState.update { StreamingState() }
                     }
 

@@ -13,7 +13,11 @@ import com.apptolast.familyfilmapp.utils.ReleaseTree
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.Firebase
+import com.google.firebase.appcheck.appCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.crashlytics.crashlytics
+import com.google.firebase.initialize
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +74,17 @@ class FamilyFilmApp :
         } else {
             Timber.plant(ReleaseTree())
         }
+
+        // App Check must be installed after FirebaseApp is initialized but before any
+        // Firebase service that uses it (Functions, Firestore, AI Logic, etc.).
+        Firebase.initialize(this)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            if (BuildConfig.DEBUG) {
+                DebugAppCheckProviderFactory.getInstance()
+            } else {
+                PlayIntegrityAppCheckProviderFactory.getInstance()
+            },
+        )
 
         Timber.d("$TAG onCreate — registering ActivityLifecycleCallbacks")
         registerActivityLifecycleCallbacks(this)

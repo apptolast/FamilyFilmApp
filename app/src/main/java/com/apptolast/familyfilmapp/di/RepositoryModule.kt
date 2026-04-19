@@ -76,6 +76,9 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideChatRepository(geminiChatService: GeminiChatService, chatMessageDao: ChatMessageDao): ChatRepository =
-        ChatRepositoryImpl(geminiChatService, chatMessageDao)
+    fun provideChatRepository(
+        geminiChatService: GeminiChatService,
+        chatMessageDao: ChatMessageDao,
+        firestore: FirebaseFirestore,
+    ): ChatRepository = ChatRepositoryImpl(geminiChatService, chatMessageDao, firestore)
 }

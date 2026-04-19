@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.repositories
 
 import com.apptolast.familyfilmapp.ai.ChatStreamEvent
 import com.apptolast.familyfilmapp.model.local.ChatMessage
+import com.apptolast.familyfilmapp.model.local.ChatQuota
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,4 +30,10 @@ interface ChatRepository {
      * Removes the entire chat history for [userId]. Used for "clear conversation" actions.
      */
     suspend fun clearHistory(userId: String)
+
+    /**
+     * Observes the current month's quota state for [userId] from Firestore. Emits `null`
+     * when the user has not made any calls yet (doc doesn't exist).
+     */
+    fun observeQuota(userId: String): Flow<ChatQuota?>
 }

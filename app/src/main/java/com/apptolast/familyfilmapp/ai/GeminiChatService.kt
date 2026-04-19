@@ -1,104 +1,116 @@
 package com.apptolast.familyfilmapp.ai
 
-import android.content.Context
-import com.apptolast.familyfilmapp.R
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.google.firebase.Firebase
-import com.google.firebase.ai.ai
-import com.google.firebase.ai.type.Content
-import com.google.firebase.ai.type.GenerativeBackend
-import com.google.firebase.ai.type.content
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.google.firebase.functions.FirebaseFunctionsException
+import com.google.firebase.functions.functions
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Stateless wrapper around the Firebase AI Logic Gemini SDK.
+ * Calls the Cloud Function `chatComplete` which enforces quota server-side
+ * and proxies the Gemini call. Returns a [Flow] of [ChatStreamEvent] that mimics
+ * streaming by emitting word-by-word deltas from the full response — the callable
+ * API returns everything at once, so the streaming is cosmetic but preserves the
+ * ViewModel contract from phases 1–2.
  *
- * Builds a fresh [com.google.firebase.ai.GenerativeModel] on every call using the current
- * [TmdbLocaleManager] state (language + adult content flag) so the system instruction is always
- * in sync with the user's preferences.
- *
- * Phase 1: called directly from the Android client. Phase 3 migrates this to a Cloud Function
- * callable so quota enforcement is server-side and non-bypassable.
+ * The [CLOUD_FUNCTION_REGION] must match the region declared in functions/src/chatComplete.ts.
  */
 @Singleton
-class GeminiChatService @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val tmdbLocaleManager: TmdbLocaleManager,
-) {
+class GeminiChatService @Inject constructor(private val tmdbLocaleManager: TmdbLocaleManager) {
 
-    /**
-     * Streams a response from Gemini as [ChatStreamEvent]s.
-     *
-     * @param history prior [ChatMessage]s in chronological order (oldest first). Capped to
-     *   [HISTORY_WINDOW] messages by the caller.
-     * @param prompt the new user prompt to send.
-     */
-    fun sendMessage(history: List<ChatMessage>, prompt: String): Flow<ChatStreamEvent> {
-        val languageTag = tmdbLocaleManager.languageTag.value
-        val includeAdult = tmdbLocaleManager.includeAdult.value
+    private val functions = Firebase.functions(CLOUD_FUNCTION_REGION)
 
-        val model = Firebase.ai(backend = GenerativeBackend.vertexAI())
-            .generativeModel(
-                modelName = MODEL_NAME,
-                systemInstruction = buildSystemInstruction(languageTag, includeAdult),
-            )
+    fun sendMessage(history: List<ChatMessage>, prompt: String): Flow<ChatStreamEvent> = flow {
+        emit(ChatStreamEvent.Started)
 
-        val contentHistory = history.map { message ->
-            content(role = message.role.toGeminiRole()) { text(message.content) }
+        val payload = mapOf(
+            "prompt" to prompt,
+            "languageTag" to tmdbLocaleManager.languageTag.value,
+            "includeAdult" to tmdbLocaleManager.includeAdult.value,
+            "history" to history.map {
+                mapOf(
+                    "role" to when (it.role) {
+                        ChatMessage.Role.USER -> "user"
+                        ChatMessage.Role.ASSISTANT -> "assistant"
+                    },
+                    "content" to it.content,
+                )
+            },
+        )
+
+        val result = runCatching {
+            functions.getHttpsCallable(FUNCTION_NAME)
+                .call(payload)
+                .await()
+        }.getOrElse { error ->
+            val event = mapErrorToEvent(error)
+            emit(event)
+            return@flow
         }
 
-        val chat = model.startChat(contentHistory)
-
-        return flow {
-            val responseFlow = chat.sendMessageStream(prompt)
-            val fullText = StringBuilder()
-            responseFlow
-                .map { ChatStreamEvent.Delta(it.text.orEmpty()) }
-                .collect { delta ->
-                    if (delta.token.isNotEmpty()) {
-                        fullText.append(delta.token)
-                        emit(delta as ChatStreamEvent)
-                    }
-                }
-            emit(ChatStreamEvent.Completed(fullText.toString()))
+        @Suppress("UNCHECKED_CAST")
+        val data = result.data as? Map<String, Any?>
+        if (data == null) {
+            emit(ChatStreamEvent.Failed(IllegalStateException("Empty response from chatComplete")))
+            return@flow
         }
-            .onStart { emit(ChatStreamEvent.Started) }
-            .catch { error ->
-                Timber.e(error, "Gemini sendMessage failed")
-                emit(ChatStreamEvent.Failed(error))
-            }
-            .onCompletion { cause ->
-                if (cause != null) Timber.w(cause, "Gemini stream finished with cause")
-            }
+
+        val text = data["text"] as? String
+        if (text.isNullOrEmpty()) {
+            emit(ChatStreamEvent.Failed(IllegalStateException("chatComplete returned no text")))
+            return@flow
+        }
+
+        // Cosmetic streaming: chunk the response into word-sized deltas with a tiny delay so
+        // the UI still reveals the text progressively. If this ever feels sluggish, lower the
+        // delay or emit character-by-character.
+        val chunks = splitIntoChunks(text)
+        for (chunk in chunks) {
+            emit(ChatStreamEvent.Delta(chunk))
+            delay(STREAM_DELAY_MS)
+        }
+
+        emit(ChatStreamEvent.Completed(text))
     }
 
-    private fun buildSystemInstruction(languageTag: String, includeAdult: Boolean): Content {
-        val adultClause = if (includeAdult) {
-            ""
-        } else {
-            context.getString(R.string.chat_system_prompt_no_adult)
+    private fun mapErrorToEvent(error: Throwable): ChatStreamEvent {
+        if (error is FirebaseFunctionsException) {
+            Timber.w(error, "chatComplete failed code=${error.code} details=${error.details}")
+            return when (error.code) {
+                FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED -> ChatStreamEvent.QuotaExceeded
+                else -> ChatStreamEvent.Failed(error)
+            }
         }
-        val prompt = context.getString(R.string.chat_system_prompt, languageTag, adultClause)
-        return content { text(prompt) }
+        Timber.e(error, "chatComplete failed with non-Firebase error")
+        return ChatStreamEvent.Failed(error)
     }
 
-    private fun ChatMessage.Role.toGeminiRole(): String = when (this) {
-        ChatMessage.Role.USER -> "user"
-        ChatMessage.Role.ASSISTANT -> "model"
+    private fun splitIntoChunks(text: String): List<String> {
+        // Split on whitespace but keep the trailing space so the UI renders the gaps.
+        val result = mutableListOf<String>()
+        val buffer = StringBuilder()
+        for (ch in text) {
+            buffer.append(ch)
+            if (ch == ' ' || ch == '\n') {
+                result.add(buffer.toString())
+                buffer.setLength(0)
+            }
+        }
+        if (buffer.isNotEmpty()) result.add(buffer.toString())
+        return result
     }
 
     companion object {
-        private const val MODEL_NAME = "gemini-2.5-flash"
+        private const val FUNCTION_NAME = "chatComplete"
+        private const val CLOUD_FUNCTION_REGION = "europe-west2"
+        private const val STREAM_DELAY_MS = 15L
         const val HISTORY_WINDOW = 20
     }
 }

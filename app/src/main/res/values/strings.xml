@@ -181,6 +181,10 @@
     <string name="chat_suggestion_4">Best Oscar-winning dramas of the last decade</string>
     <string name="chat_error_generic">Something went wrong. Try again.</string>
     <string name="chat_error_network">No internet connection. Check your network and try again.</string>
+    <string name="chat_error_quota_exceeded">You\'ve used all your questions this month.</string>
+    <string name="chat_quota_banner">%1$d/%2$d questions this month</string>
+    <string name="chat_quota_banner_premium">%1$d/%2$d questions this month · Premium</string>
+    <string name="chat_quota_exceeded_subtitle">Your limit resets next month. Upgrade for 50 questions/month.</string>
     <string name="chat_typing_indicator_description">Assistant is typing</string>
     <string name="chat_system_prompt">You are a cinema and TV series expert. You only answer questions about films, series, actors, directors, genres and audiovisual recommendations. If the user asks about anything else, politely decline and redirect to cinema. Always answer in the user\'s language: %1$s. Be concise. %2$s Format with light Markdown when helpful.</string>
     <string name="chat_system_prompt_no_adult">Do not recommend explicit adult content.</string>

@@ -182,6 +182,10 @@
     <string name="chat_suggestion_4">Mejores dramas ganadores del Oscar de la última década</string>
     <string name="chat_error_generic">Algo ha fallado. Inténtalo de nuevo.</string>
     <string name="chat_error_network">Sin conexión a internet. Comprueba tu red e inténtalo de nuevo.</string>
+    <string name="chat_error_quota_exceeded">Has usado todas tus preguntas este mes.</string>
+    <string name="chat_quota_banner">%1$d/%2$d preguntas este mes</string>
+    <string name="chat_quota_banner_premium">%1$d/%2$d preguntas este mes · Premium</string>
+    <string name="chat_quota_exceeded_subtitle">Tu límite se reinicia el mes que viene. Mejora a Premium para 50 preguntas/mes.</string>
     <string name="chat_typing_indicator_description">El asistente está escribiendo</string>
     <string name="chat_system_prompt">Eres un asistente experto en cine y series de TV. Solo respondes preguntas sobre películas, series, actores, directores, géneros y recomendaciones audiovisuales. Si la pregunta no es sobre cine, declina amablemente y redirige la conversación al cine. Responde siempre en el idioma del usuario: %1$s. Sé conciso. %2$s Formatea con Markdown ligero cuando ayude.</string>
     <string name="chat_system_prompt_no_adult">No recomiendes contenido para adultos explícito.</string>

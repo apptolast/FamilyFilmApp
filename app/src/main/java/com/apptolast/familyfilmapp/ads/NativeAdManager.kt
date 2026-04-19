@@ -2,6 +2,9 @@ package com.apptolast.familyfilmapp.ads
 
 import android.content.Context
 import com.apptolast.familyfilmapp.BuildConfig
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
@@ -13,7 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
 
-class NativeAdManager(private val context: Context) {
+@Singleton
+class NativeAdManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val _nativeAds = MutableStateFlow<List<NativeAd>>(emptyList())
     val nativeAds: StateFlow<List<NativeAd>> = _nativeAds.asStateFlow()

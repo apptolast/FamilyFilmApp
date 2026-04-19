@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -15,7 +14,6 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,10 +35,9 @@ class HomeViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
-    @ApplicationContext context: Context,
+    private val nativeAdManager: NativeAdManager,
 ) : ViewModel() {
 
-    private val nativeAdManager = NativeAdManager(context)
     val nativeAds: StateFlow<List<NativeAd>> = nativeAdManager.nativeAds
 
     val homeUiState: StateFlow<HomeUiState>

@@ -15,7 +15,6 @@ interface TmdbApi {
     @GET(MOVIES_POPULAR)
     suspend fun getPopularMovies(
         @Query(PARAM_PAGE) page: Int,
-        @Query(PARAM_ADULT) adult: Boolean = false,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
         @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
     ): TmdbMovieWrapperRemote
@@ -23,14 +22,13 @@ interface TmdbApi {
     @GET(SEARCH_MOVIE)
     suspend fun searchMovieByName(
         @Query(PARAM_MOVIE_NAME) movieName: String,
-        @Query(PARAM_ADULT) adult: Boolean = false,
+        @Query(PARAM_ADULT) adult: Boolean,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
     ): TmdbMovieWrapperRemote
 
     @GET("$MOVIE/{$PARAM_MOVIE_ID}")
     suspend fun searchMovieById(
         @Path(PARAM_MOVIE_ID) movieId: Int,
-        @Query(PARAM_ADULT) adult: Boolean = false,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
         @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
     ): TmdbMovieRemote
@@ -38,7 +36,6 @@ interface TmdbApi {
     @GET(TV_POPULAR)
     suspend fun getPopularTvShows(
         @Query(PARAM_PAGE) page: Int,
-        @Query(PARAM_ADULT) adult: Boolean = false,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
         @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
     ): TmdbTvShowWrapperRemote
@@ -46,7 +43,6 @@ interface TmdbApi {
     @GET("$TV/{$PARAM_TV_ID}")
     suspend fun getTvShowById(
         @Path(PARAM_TV_ID) tvId: Int,
-        @Query(PARAM_ADULT) adult: Boolean = false,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
         @Query(PARAM_PROVIDERS) providers: String = PARAM_PROVIDERS_VALUE,
     ): TmdbTvShowRemote
@@ -54,7 +50,7 @@ interface TmdbApi {
     @GET(SEARCH_MULTI)
     suspend fun searchMulti(
         @Query(PARAM_MOVIE_NAME) query: String,
-        @Query(PARAM_ADULT) adult: Boolean = false,
+        @Query(PARAM_ADULT) adult: Boolean,
         @Query(PARAM_LANGUAGE) language: String = Locale.getDefault().toLanguageTag(),
     ): TmdbMultiSearchWrapperRemote
 

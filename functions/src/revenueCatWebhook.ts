@@ -26,6 +26,9 @@ import type {Request, Response} from "express";
 
 if (admin.apps.length === 0) admin.initializeApp();
 
+const FREE_LIMIT = 5;
+const PREMIUM_LIMIT = 50;
+
 /** Events that grant / refresh the entitlement. */
 const POSITIVE_EVENTS = new Set([
   "INITIAL_PURCHASE",
@@ -145,23 +148,57 @@ export const revenueCatWebhook = functions
       ? admin.firestore.Timestamp.fromMillis(event.expiration_at_ms)
       : null;
 
-    await admin
-      .firestore()
-      .doc(`users/${appUserId}/entitlements/chat_premium`)
-      .set(
-        {
-          isActive,
-          expiresAt,
-          productId: event.product_id ?? null,
-          source: "revenuecat",
-          lastEventType: event.type,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        {merge: true},
-      );
+    const db = admin.firestore();
+    const entitlementRef = db.doc(
+      `users/${appUserId}/entitlements/chat_premium`,
+    );
+
+    // Also refresh the current-month quota doc (limit + isPremium) so the app UI
+    // reacts immediately after purchase without waiting for the next chatComplete
+    // call. The `count` field is preserved — the user does not "get back" the
+    // messages already consumed this month, but their limit jumps to 50.
+    //
+    // On downgrade (CANCELLATION/EXPIRATION/PAUSED) we drop the limit back to 5.
+    // If the user is already above 5 they stay blocked until next month, which
+    // matches the fair-use policy (we never refund consumed messages).
+    const usageRef = db.doc(
+      `users/${appUserId}/chat_usage/${currentYearMonth()}`,
+    );
+    const newLimit = isActive ? PREMIUM_LIMIT : FREE_LIMIT;
+
+    const batch = db.batch();
+    batch.set(
+      entitlementRef,
+      {
+        isActive,
+        expiresAt,
+        productId: event.product_id ?? null,
+        source: "revenuecat",
+        lastEventType: event.type,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
+    batch.set(
+      usageRef,
+      {
+        limit: newLimit,
+        isPremium: isActive,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
+    await batch.commit();
 
     console.log(
-      `chat_premium mirror updated for uid=${appUserId}: isActive=${isActive}`,
+      `chat_premium mirror + chat_usage updated for uid=${appUserId}: ` +
+        `isActive=${isActive} newLimit=${newLimit}`,
     );
     res.status(200).send("OK");
   });
+
+function currentYearMonth(date: Date = new Date()): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}

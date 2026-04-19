@@ -7,6 +7,7 @@ import com.apptolast.familyfilmapp.ai.ChatStreamEvent
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
+import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.ChatRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -160,11 +161,13 @@ class ChatViewModel @Inject constructor(
                 }
                 .onFailure { error ->
                     Timber.w(error, "Chat premium purchase failed")
-                    val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
                     paywallState.update {
                         it.copy(
                             isPurchasing = false,
-                            error = if (isCancelled) null else ChatError.PAYWALL_PURCHASE_FAILED,
+                            error = when (error) {
+                                is PurchaseFailure.Cancelled -> null
+                                else -> ChatError.PAYWALL_PURCHASE_FAILED
+                            },
                         )
                     }
                 }

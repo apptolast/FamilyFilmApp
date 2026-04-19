@@ -46,7 +46,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,6 +84,7 @@ fun ChatScreen(modifier: Modifier = Modifier, viewModel: ChatViewModel = hiltVie
         onSend = viewModel::sendMessage,
         onSuggestionClick = viewModel::sendMessage,
         onErrorDismiss = viewModel::clearError,
+        onUpgradeClick = viewModel::showPaywallManually,
         onPaywallConfirm = {
             val activity = context as? Activity ?: return@ChatContent
             viewModel.requestChatPremiumPurchase(activity)
@@ -92,6 +100,7 @@ private fun ChatContent(
     onSend: (String) -> Unit,
     onSuggestionClick: (String) -> Unit,
     onErrorDismiss: () -> Unit,
+    onUpgradeClick: () -> Unit,
     onPaywallConfirm: () -> Unit,
     onPaywallDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -119,7 +128,16 @@ private fun ChatContent(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            state.quota?.let { QuotaBanner(quota = it) }
+            state.quota?.let {
+                QuotaBanner(
+                    quota = it,
+                    effectivePremium = state.effectivePremium,
+                    effectiveLimit = state.effectiveLimit,
+                    effectiveRemaining = state.effectiveRemaining,
+                    effectiveIsExceeded = state.effectiveIsExceeded,
+                    onUpgradeClick = onUpgradeClick,
+                )
+            }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -276,16 +294,30 @@ private fun MessageBubble(message: ChatMessage, isStreamingLast: Boolean) {
             modifier = Modifier.widthIn(max = 320.dp),
         ) {
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                val displayText = if (message.content.isEmpty() && isStreamingLast) "…" else message.content
-                Text(
-                    text = displayText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isUser) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                )
+                val contentColor = if (isUser) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+                if (message.content.isEmpty() && isStreamingLast) {
+                    Text(
+                        text = "…",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor,
+                    )
+                } else if (isUser) {
+                    Text(
+                        text = message.content,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor,
+                    )
+                } else {
+                    Text(
+                        text = renderSimpleMarkdown(message.content),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor,
+                    )
+                }
             }
         }
     }
@@ -391,38 +423,129 @@ private fun EmptyState(onSuggestionClick: (String) -> Unit, modifier: Modifier =
 }
 
 @Composable
-private fun QuotaBanner(quota: com.apptolast.familyfilmapp.model.local.ChatQuota) {
+private fun QuotaBanner(
+    quota: com.apptolast.familyfilmapp.model.local.ChatQuota,
+    effectivePremium: Boolean,
+    effectiveLimit: Int,
+    effectiveRemaining: Int,
+    effectiveIsExceeded: Boolean,
+    onUpgradeClick: () -> Unit,
+) {
+    val showUpgrade = !effectivePremium
     val bg = when {
-        quota.isExceeded -> MaterialTheme.colorScheme.errorContainer
-        quota.isPremium -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surfaceContainerHighest
+        effectiveIsExceeded -> MaterialTheme.colorScheme.errorContainer
+        effectivePremium -> MaterialTheme.colorScheme.primaryContainer
+        else -> MaterialTheme.colorScheme.tertiaryContainer
     }
     val fg = when {
-        quota.isExceeded -> MaterialTheme.colorScheme.onErrorContainer
-        quota.isPremium -> MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        effectiveIsExceeded -> MaterialTheme.colorScheme.onErrorContainer
+        effectivePremium -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.onTertiaryContainer
     }
     Surface(color = bg, modifier = Modifier.fillMaxWidth()) {
-        Column(
+        Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = if (quota.isPremium) {
-                    stringResource(R.string.chat_quota_banner_premium, quota.count, quota.limit)
+            Column(modifier = Modifier.weight(1f)) {
+                if (effectivePremium) {
+                    Text(
+                        text = stringResource(
+                            R.string.chat_quota_banner_premium,
+                            quota.count,
+                            effectiveLimit,
+                        ),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = fg,
+                    )
                 } else {
-                    stringResource(R.string.chat_quota_banner, quota.count, quota.limit)
-                },
-                style = MaterialTheme.typography.labelLarge,
-                color = fg,
-            )
-            if (quota.isExceeded) {
-                Text(
-                    text = stringResource(R.string.chat_quota_exceeded_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = fg,
-                )
+                    Text(
+                        text = pluralStringResource(
+                            R.plurals.chat_quota_remaining,
+                            effectiveRemaining,
+                            effectiveRemaining,
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = fg,
+                    )
+                    Text(
+                        text = if (effectiveIsExceeded) {
+                            stringResource(R.string.chat_quota_exceeded_subtitle)
+                        } else {
+                            stringResource(R.string.chat_quota_remaining_subtitle)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = fg,
+                    )
+                }
+            }
+            if (showUpgrade) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Button(onClick = onUpgradeClick) {
+                    Text(stringResource(R.string.chat_quota_upgrade_cta))
+                }
             }
         }
+    }
+}
+
+/**
+ * Minimal Markdown renderer for assistant bubbles.
+ *
+ * Gemini responses often contain `**bold**`, `*italic*`, `` `code` `` and `- ` bullets.
+ * The server-side system prompt asks for light Markdown, so rendering it here keeps
+ * the bubbles readable instead of showing raw asterisks.
+ */
+private fun renderSimpleMarkdown(text: String): AnnotatedString = buildAnnotatedString {
+    val lines = text.lines()
+    lines.forEachIndexed { index, raw ->
+        val line = when {
+            raw.startsWith("- ") -> "• " + raw.drop(2)
+            raw.startsWith("* ") && !raw.startsWith("**") -> "• " + raw.drop(2)
+            else -> raw
+        }
+        appendMarkdownInline(line)
+        if (index != lines.lastIndex) append('\n')
+    }
+}
+
+private fun AnnotatedString.Builder.appendMarkdownInline(line: String) {
+    var i = 0
+    while (i < line.length) {
+        val c = line[i]
+        if (c == '*' && i + 1 < line.length && line[i + 1] == '*') {
+            val end = line.indexOf("**", i + 2)
+            if (end > 0 && end > i + 2) {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                appendMarkdownInline(line.substring(i + 2, end))
+                pop()
+                i = end + 2
+                continue
+            }
+        }
+        if ((c == '*' || c == '_') && i + 1 < line.length && line[i + 1] != c) {
+            val end = line.indexOf(c, i + 1)
+            if (end > 0 && end > i + 1) {
+                pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                append(line.substring(i + 1, end))
+                pop()
+                i = end + 1
+                continue
+            }
+        }
+        if (c == '`') {
+            val end = line.indexOf('`', i + 1)
+            if (end > 0) {
+                pushStyle(SpanStyle(fontFamily = FontFamily.Monospace))
+                append(line.substring(i + 1, end))
+                pop()
+                i = end + 1
+                continue
+            }
+        }
+        append(c)
+        i++
     }
 }
 
@@ -456,6 +579,7 @@ private fun PreviewChatEmpty() {
             onSend = {},
             onSuggestionClick = {},
             onErrorDismiss = {},
+            onUpgradeClick = {},
             onPaywallConfirm = {},
             onPaywallDismiss = {},
         )
@@ -486,6 +610,7 @@ private fun PreviewChatWithMessages() {
             onSend = {},
             onSuggestionClick = {},
             onErrorDismiss = {},
+            onUpgradeClick = {},
             onPaywallConfirm = {},
             onPaywallDismiss = {},
         )

@@ -1,8 +1,11 @@
 package com.apptolast.familyfilmapp.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.room.AppDatabase
+import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
@@ -30,4 +33,12 @@ class TestLocalStoreModule {
 
     @Provides
     fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao = appDatabase.groupMovieStatusDao()
+
+    @Provides
+    fun provideChatMessageDao(appDatabase: AppDatabase): ChatMessageDao = appDatabase.chatMessageDao()
+
+    @Singleton
+    @Provides
+    fun provideTmdbLocalePrefs(@ApplicationContext context: Context): SharedPreferences =
+        context.getSharedPreferences(TmdbLocaleManager.PREFS_NAME, Context.MODE_PRIVATE)
 }

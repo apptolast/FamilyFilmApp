@@ -123,6 +123,7 @@ dependencies {
 
     // Align coroutines versions across all configurations (fixes consistent resolution conflicts)
     implementation(platform(libs.coroutines.bom))
+    implementation(libs.google.firebase.appcheck.debug)
     androidTestImplementation(platform(libs.coroutines.bom))
 
     // Androidx

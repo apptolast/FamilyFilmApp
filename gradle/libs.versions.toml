@@ -53,6 +53,7 @@ turbine = "1.2.1"
 workRuntimeKtx = "2.11.2"
 
 materialAlpha = "1.4.0"
+firebaseAppcheckDebug = "19.0.2"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -130,6 +131,7 @@ test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+google-firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug", version.ref = "firebaseAppcheckDebug" }
 
 [bundles]
 google-credentials = [

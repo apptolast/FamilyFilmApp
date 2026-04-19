@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
+import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.rating.RateAppManager
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -131,8 +132,7 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 Timber.e(error, "Remove ads purchase failed")
-                val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
-                if (!isCancelled) {
+                if (error !is PurchaseFailure.Cancelled) {
                     _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
                 }
             }
@@ -152,8 +152,7 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 Timber.e(error, "Chat premium purchase failed")
-                val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
-                if (!isCancelled) {
+                if (error !is PurchaseFailure.Cancelled) {
                     _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
                 }
             }

@@ -79,6 +79,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
         launchPurchaseFlow(
             activity = activity,
             offeringId = null, // null → uses offerings.current (legacy remove_ads flow)
+            entitlementId = AD_FREE_ENTITLEMENT,
             onPurchaseStart = onPurchaseStart,
         )
 
@@ -86,20 +87,29 @@ class RevenueCatPurchaseManager(private val context: Context) :
         launchPurchaseFlow(
             activity = activity,
             offeringId = CHAT_PREMIUM_OFFERING_ID,
+            entitlementId = CHAT_PREMIUM_ENTITLEMENT,
             onPurchaseStart = onPurchaseStart,
         )
 
     /**
      * Shared purchase flow. When [offeringId] is null we fall back to `offerings.current`
      * for backwards compatibility with the pre-existing Remove Ads purchase.
+     *
+     * [entitlementId] is the RevenueCat entitlement that a successful purchase is expected
+     * to activate. After [PurchaseCallback.onCompleted] we verify the returned `CustomerInfo`
+     * actually contains that entitlement as active — otherwise Play reported a successful
+     * receipt but the RC Dashboard hasn't mapped the product to the entitlement (or the
+     * webhook hasn't synced yet), and granting the feature client-side would diverge from
+     * the server-side quota enforcement.
      */
     private suspend fun launchPurchaseFlow(
         activity: Activity,
         offeringId: String?,
+        entitlementId: String,
         onPurchaseStart: () -> Unit,
     ): Result<Unit> = suspendCancellableCoroutine { continuation ->
         if (!isConfigured) {
-            continuation.resume(Result.failure(IllegalStateException("RevenueCat not configured")))
+            continuation.resume(Result.failure(PurchaseFailure.NotConfigured))
             return@suspendCancellableCoroutine
         }
 
@@ -113,9 +123,8 @@ class RevenueCatPurchaseManager(private val context: Context) :
                     }
                     val packageToBuy = offering?.availablePackages?.firstOrNull()
                     if (packageToBuy == null) {
-                        val label = offeringId ?: "current"
                         continuation.resume(
-                            Result.failure(IllegalStateException("No package in offering '$label'")),
+                            Result.failure(PurchaseFailure.OfferingUnavailable(offeringId)),
                         )
                         return
                     }
@@ -127,29 +136,42 @@ class RevenueCatPurchaseManager(private val context: Context) :
                         object : com.revenuecat.purchases.interfaces.PurchaseCallback {
                             override fun onCompleted(storeTransaction: StoreTransaction, customerInfo: CustomerInfo) {
                                 updateEntitlementState(customerInfo)
-                                continuation.resume(Result.success(Unit))
+                                val isActive = customerInfo.entitlements[entitlementId]?.isActive == true
+                                if (isActive) {
+                                    continuation.resume(Result.success(Unit))
+                                } else {
+                                    Timber.w(
+                                        "Purchase completed but entitlement '%s' is NOT active. " +
+                                            "Check the RevenueCat Dashboard: product→entitlement mapping " +
+                                            "and the Play/App Store webhook.",
+                                        entitlementId,
+                                    )
+                                    continuation.resume(
+                                        Result.failure(PurchaseFailure.EntitlementNotActive(entitlementId)),
+                                    )
+                                }
                             }
 
                             override fun onError(
                                 error: com.revenuecat.purchases.PurchasesError,
                                 userCancelled: Boolean,
                             ) {
-                                if (userCancelled) {
-                                    continuation.resume(
-                                        Result.failure(Exception("Purchase cancelled")),
-                                    )
-                                } else {
-                                    continuation.resume(
-                                        Result.failure(Exception(error.message)),
-                                    )
-                                }
+                                continuation.resume(
+                                    Result.failure(
+                                        if (userCancelled) {
+                                            PurchaseFailure.Cancelled
+                                        } else {
+                                            PurchaseFailure.Unknown(error.message)
+                                        },
+                                    ),
+                                )
                             }
                         },
                     )
                 }
 
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) {
-                    continuation.resume(Result.failure(Exception(error.message)))
+                    continuation.resume(Result.failure(PurchaseFailure.Unknown(error.message)))
                 }
             },
         )
@@ -157,7 +179,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
 
     override suspend fun restorePurchases(): Result<Boolean> = suspendCancellableCoroutine { continuation ->
         if (!isConfigured) {
-            continuation.resume(Result.failure(IllegalStateException("RevenueCat not configured")))
+            continuation.resume(Result.failure(PurchaseFailure.NotConfigured))
             return@suspendCancellableCoroutine
         }
 
@@ -172,7 +194,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
                 }
 
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) {
-                    continuation.resume(Result.failure(Exception(error.message)))
+                    continuation.resume(Result.failure(PurchaseFailure.Unknown(error.message)))
                 }
             },
         )

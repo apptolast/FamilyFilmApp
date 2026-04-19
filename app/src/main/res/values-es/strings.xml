@@ -186,6 +186,12 @@
     <string name="chat_quota_banner">%1$d/%2$d preguntas este mes</string>
     <string name="chat_quota_banner_premium">%1$d/%2$d preguntas este mes · Premium</string>
     <string name="chat_quota_exceeded_subtitle">Tu límite se reinicia el mes que viene. Mejora a Premium para 50 preguntas/mes.</string>
+    <plurals name="chat_quota_remaining">
+        <item quantity="one">Te queda %1$d pregunta</item>
+        <item quantity="other">Te quedan %1$d preguntas</item>
+    </plurals>
+    <string name="chat_quota_remaining_subtitle">Mejora a Premium para 50 preguntas/mes.</string>
+    <string name="chat_quota_upgrade_cta">Suscríbete</string>
 
     <!-- CHAT PREMIUM PAYWALL -->
     <string name="chat_paywall_title">Desbloquea 50 preguntas al mes</string>

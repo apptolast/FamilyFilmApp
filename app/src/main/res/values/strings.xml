@@ -185,6 +185,12 @@
     <string name="chat_quota_banner">%1$d/%2$d questions this month</string>
     <string name="chat_quota_banner_premium">%1$d/%2$d questions this month · Premium</string>
     <string name="chat_quota_exceeded_subtitle">Your limit resets next month. Upgrade for 50 questions/month.</string>
+    <plurals name="chat_quota_remaining">
+        <item quantity="one">%1$d question left</item>
+        <item quantity="other">%1$d questions left</item>
+    </plurals>
+    <string name="chat_quota_remaining_subtitle">Upgrade to Premium for 50 questions/month.</string>
+    <string name="chat_quota_upgrade_cta">Subscribe</string>
 
     <!-- CHAT PREMIUM PAYWALL -->
     <string name="chat_paywall_title">Unlock 50 questions/month</string>

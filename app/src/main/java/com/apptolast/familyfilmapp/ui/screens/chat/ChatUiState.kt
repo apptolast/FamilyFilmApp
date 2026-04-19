@@ -18,8 +18,34 @@ data class ChatUiState(
 
     val isEmpty: Boolean get() = messages.isEmpty() && streamingMessage == null
 
+    /**
+     * Premium real percibido por el cliente. Combina la entitlement de RevenueCat
+     * ([isChatPremium]) con el mirror en Firestore (`quota.isPremium`). Nos cubre
+     * la ventana entre la compra y la sincronización del webhook con el doc de quota.
+     */
+    val effectivePremium: Boolean
+        get() = isChatPremium || quota?.isPremium == true
+
+    val effectiveLimit: Int
+        get() = when {
+            quota == null -> if (effectivePremium) PREMIUM_LIMIT else FREE_LIMIT
+            effectivePremium -> maxOf(quota.limit, PREMIUM_LIMIT)
+            else -> quota.limit
+        }
+
+    val effectiveRemaining: Int
+        get() = quota?.let { (effectiveLimit - it.count).coerceAtLeast(0) } ?: effectiveLimit
+
+    val effectiveIsExceeded: Boolean
+        get() = quota != null && quota.count >= effectiveLimit
+
     val canSend: Boolean
-        get() = !isStreaming && quota?.isExceeded != true
+        get() = !isStreaming && !effectiveIsExceeded
+
+    companion object {
+        const val FREE_LIMIT = 5
+        const val PREMIUM_LIMIT = 50
+    }
 }
 
 enum class ChatError { GENERIC, NETWORK, QUOTA_EXCEEDED, PAYWALL_PURCHASE_FAILED }

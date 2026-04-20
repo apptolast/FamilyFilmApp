@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
+import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
 import com.apptolast.familyfilmapp.ui.screens.detail.MediaDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
@@ -65,6 +66,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         currentRoute in listOf(
             Routes.Home.routes,
             Routes.Discover.routes,
+            Routes.Chat.routes,
             Routes.Groups.routes,
             Routes.Profile.routes,
         )
@@ -75,6 +77,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
     val titleRes = when (currentRoute) {
         Routes.Home.routes -> Routes.Home.title
         Routes.Discover.routes -> Routes.Discover.title
+        Routes.Chat.routes -> Routes.Chat.title
         Routes.Groups.routes -> Routes.Groups.title
         Routes.Profile.routes -> Routes.Profile.title
         else -> null
@@ -144,6 +147,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                         // For now, we need to fetch the movie first
                     },
                 )
+            }
+            composable(route = Routes.Chat.routes) {
+                ChatScreen()
             }
             composable(route = Routes.Groups.routes) {
                 GroupsScreen(

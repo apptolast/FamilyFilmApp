@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
@@ -111,6 +112,7 @@ fun ProfileScreen(
     val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsStateWithLifecycle()
     val includeAdult by profileViewModel.includeAdult.collectAsStateWithLifecycle()
     val hasRatedApp by profileViewModel.hasRatedApp.collectAsStateWithLifecycle()
+    val hasChatPremium by profileViewModel.hasChatPremium.collectAsStateWithLifecycle()
 
     // State for showing the delete account dialog
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -157,6 +159,7 @@ fun ProfileScreen(
                         isSaving = isSaving,
                         includeAdult = includeAdult,
                         hasRatedApp = hasRatedApp,
+                        hasChatPremium = hasChatPremium,
                         onIncludeAdultChange = profileViewModel::saveIncludeAdult,
                         onUsernameChange = profileViewModel::onUsernameChange,
                         onSaveUsername = { newUsername ->
@@ -169,6 +172,13 @@ fun ProfileScreen(
                         onClickLogOut = { viewModel.logOut() },
                         onRemoveAds = {
                             profileViewModel.purchaseRemoveAds(context as Activity)
+                        },
+                        onChatPremium = {
+                            if (!hasChatPremium) {
+                                profileViewModel.purchaseChatPremium(context as Activity)
+                            } else {
+                                openPlayStoreSubscriptions(context as Activity)
+                            }
                         },
                         onRestorePurchase = { profileViewModel.restorePurchases() },
                         onRateApp = {
@@ -232,6 +242,7 @@ fun ProfileContent(
     isSaving: Boolean,
     includeAdult: Boolean,
     hasRatedApp: Boolean,
+    hasChatPremium: Boolean,
     modifier: Modifier = Modifier,
     onIncludeAdultChange: (Boolean) -> Unit = {},
     onUsernameChange: (String) -> Unit = {},
@@ -240,6 +251,7 @@ fun ProfileContent(
     onSaveLanguage: (String) -> Unit = {},
     onClickLogOut: () -> Unit = {},
     onRemoveAds: () -> Unit = {},
+    onChatPremium: () -> Unit = {},
     onRestorePurchase: () -> Unit = {},
     onRateApp: () -> Unit = {},
     onDeleteUser: () -> Unit = {},
@@ -459,6 +471,29 @@ fun ProfileContent(
                 )
                 HorizontalDivider()
             }
+            HorizontalDivider()
+            ProfileItem(
+                title = if (hasChatPremium) {
+                    stringResource(R.string.chat_premium_active_title)
+                } else {
+                    stringResource(R.string.chat_premium_upsell_title)
+                },
+                subtitle = if (hasChatPremium) {
+                    stringResource(R.string.chat_premium_active_subtitle)
+                } else {
+                    stringResource(R.string.chat_premium_upsell_subtitle)
+                },
+                leadingIcon = Icons.AutoMirrored.Outlined.Chat,
+                onClick = onChatPremium,
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
+            HorizontalDivider()
             ProfileItem(
                 title = stringResource(R.string.subscription_restore_purchases),
                 subtitle = stringResource(R.string.subscription_restore_purchases_subtitle),
@@ -679,6 +714,7 @@ private fun ProfileScreenPreview() {
             isSaving = false,
             includeAdult = false,
             hasRatedApp = false,
+            hasChatPremium = false,
         )
     }
 }
@@ -736,3 +772,23 @@ private fun openPlayStoreListing(context: Context) {
         )
     }
 }
+
+/**
+ * Opens the Play Store subscription management screen for this app's `chat_premium_monthly` SKU.
+ * Users can cancel or change payment method from there — we never handle that ourselves.
+ */
+private fun openPlayStoreSubscriptions(context: Context) {
+    val packageName = context.packageName
+    val url = "https://play.google.com/store/account/subscriptions" +
+        "?sku=$CHAT_PREMIUM_SKU&package=$packageName"
+    try {
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) },
+        )
+    } catch (e: ActivityNotFoundException) {
+        Timber.w(e, "Could not open Play Store subscriptions page")
+    }
+}
+
+private const val CHAT_PREMIUM_SKU = "chat_premium_monthly"

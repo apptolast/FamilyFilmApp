@@ -239,7 +239,8 @@ private fun MediaGridList(
     val totalSlots = mediaCount + adCount
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(100.dp),
+        columns = GridCells.Adaptive(120.dp),
+//        columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 8.dp),

@@ -53,6 +53,7 @@ turbine = "1.2.1"
 workRuntimeKtx = "2.11.2"
 
 materialAlpha = "1.4.0"
+firebaseAppcheckDebug = "19.0.2"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -94,10 +95,14 @@ converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalar
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
+firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
@@ -126,6 +131,7 @@ test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+google-firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug", version.ref = "firebaseAppcheckDebug" }
 
 [bundles]
 google-credentials = [

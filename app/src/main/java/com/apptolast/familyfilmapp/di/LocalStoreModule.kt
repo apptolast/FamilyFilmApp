@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.room.AppDatabase
+import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
@@ -30,6 +31,9 @@ class LocalStoreModule {
 
     @Provides
     fun provideGroupMovieStatusDao(appDatabase: AppDatabase): GroupMovieStatusDao = appDatabase.groupMovieStatusDao()
+
+    @Provides
+    fun provideChatMessageDao(appDatabase: AppDatabase): ChatMessageDao = appDatabase.chatMessageDao()
 
     @Singleton
     @Provides

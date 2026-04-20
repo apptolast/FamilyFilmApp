@@ -68,6 +68,7 @@ class AuthViewModelTest {
         // PurchaseManager default
         every { purchaseManager.hasRemovedAds } returns MutableStateFlow(false)
         every { purchaseManager.initialize(any()) } returns Unit
+        every { purchaseManager.logout() } returns Unit
         every { purchaseManager.setAdsRemoved(any()) } returns Unit
     }
 

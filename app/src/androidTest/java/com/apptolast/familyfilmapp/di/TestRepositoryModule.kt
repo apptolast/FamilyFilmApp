@@ -1,10 +1,15 @@
 package com.apptolast.familyfilmapp.di
 
+import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.network.TmdbApi
+import com.apptolast.familyfilmapp.network.TmdbLocaleManager
+import com.apptolast.familyfilmapp.repositories.ChatRepository
+import com.apptolast.familyfilmapp.repositories.ChatRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.FakeRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
@@ -44,5 +49,13 @@ object TestRepositoryModule {
         FirebaseDatabaseDatasourceImpl(database)
 
     @Provides
-    fun provideTmdbDatasource(tmdbApi: TmdbApi): TmdbDatasource = TmdbDatasourceImpl(tmdbApi)
+    fun provideTmdbDatasource(tmdbApi: TmdbApi, tmdbLocaleManager: TmdbLocaleManager): TmdbDatasource =
+        TmdbDatasourceImpl(tmdbApi, tmdbLocaleManager)
+
+    @Provides
+    fun provideChatRepository(
+        geminiChatService: GeminiChatService,
+        chatMessageDao: ChatMessageDao,
+        firestore: FirebaseFirestore,
+    ): ChatRepository = ChatRepositoryImpl(geminiChatService, chatMessageDao, firestore)
 }

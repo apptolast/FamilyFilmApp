@@ -35,6 +35,9 @@ class ProfileScreenTest {
                     user = User().copy(email = email, photoUrl = photoUrl),
                     usernameValidationState = UsernameValidationState.Idle,
                     isSaving = false,
+                    includeAdult = false,
+                    hasRatedApp = false,
+                    hasChatPremium = false,
                     onClickLogOut = onClickLogOut,
                     onDeleteUser = onDeleteUser,
                 )

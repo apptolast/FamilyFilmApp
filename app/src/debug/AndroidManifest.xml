@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <application>
+        <!--
+             TestMainActivity is declared in the debug manifest (not androidTest) so it ships
+             in the app-under-test APK (com.apptolast.familyfilmapp) instead of the test APK
+             (com.apptolast.familyfilmapp.test). Newer androidx.test runners verify that the
+             launched Activity resolves to the same process as the target app and otherwise
+             throw "Intent in process X resolved to different process Y".
+        -->
+        <activity
+            android:name="com.apptolast.familyfilmapp.TestMainActivity"
+            android:exported="false" />
+    </application>
+
 </manifest>

@@ -340,6 +340,9 @@ class AuthViewModel @Inject constructor(
     fun logOut() {
         repository.stopSync()
         authRepository.logOut()
+        // Reset RevenueCat session so the next account does not inherit entitlements
+        // from this user (RC binds receipts to the appUserId == Firebase UID).
+        purchaseManager.logout()
         clearGoogleCredentials()
         viewModelScope.launch(dispatcherProvider.io()) {
             repository.clearLocalData()
@@ -373,6 +376,7 @@ class AuthViewModel @Inject constructor(
             GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
                 authRepository.deleteGoogleAccount().first()
                     .onSuccess {
+                        purchaseManager.logout()
                         clearGoogleCredentials()
                         authState.update { AuthState.Unauthenticated }
                     }
@@ -381,7 +385,10 @@ class AuthViewModel @Inject constructor(
 
             EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
                 authRepository.deleteAccountWithReAuthentication(email, password).first()
-                    .onSuccess { authState.update { AuthState.Unauthenticated } }
+                    .onSuccess {
+                        purchaseManager.logout()
+                        authState.update { AuthState.Unauthenticated }
+                    }
                     .onFailure { handleFailure("Delete User Error") }
             }
 

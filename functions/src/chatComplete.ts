@@ -13,7 +13,8 @@
  * Flow:
  *   1. Validate caller auth + App Check token.
  *   2. Compute YYYY-MM key for current month.
- *   3. Read entitlement mirror (users/{uid}/entitlements/chat_premium) to decide limit.
+ *   3. Resolve premium state: read the Firestore entitlement mirror; if negative,
+ *      fall back to the RevenueCat REST API and repair the mirror on hit.
  *   4. In a Firestore transaction, read/increment users/{uid}/chat_usage/{YYYY-MM}.
  *   5. If quota exhausted, throw HttpsError("resource-exhausted") WITHOUT incrementing.
  *   6. Call Gemini with system instruction, history and prompt.
@@ -29,12 +30,14 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import {GoogleGenAI} from "@google/genai";
+import {fetchChatPremiumFromRevenueCat} from "./revenueCatApi";
 
 const MODEL_NAME = "gemini-2.5-flash";
 const FREE_LIMIT = 5;
 const PREMIUM_LIMIT = 50;
 const HISTORY_WINDOW = 20;
 const MAX_PROMPT_CHARS = 4000;
+const CHAT_PREMIUM_ENTITLEMENT = "chat_premium";
 
 if (admin.apps.length === 0) admin.initializeApp();
 
@@ -62,7 +65,7 @@ interface ChatCompleteResponse {
 export const chatComplete = functions
   .region("europe-west2")
   .runWith({
-    secrets: ["GEMINI_API_KEY"],
+    secrets: ["GEMINI_API_KEY", "REVENUECAT_API_KEY"],
     enforceAppCheck: true,
   })
   .https.onCall(
@@ -99,13 +102,21 @@ export const chatComplete = functions
       const db = admin.firestore();
       const yearMonth = toYearMonth(new Date());
 
-      // 3. Read entitlement (may be missing — treated as non-premium).
-      const entitlementSnap = await db
-        .doc(`users/${uid}/entitlements/chat_premium`)
-        .get();
-      const isPremium = Boolean(
-        entitlementSnap.exists && entitlementSnap.get("isActive"),
-      );
+      // 3. Decide premium state.
+      //
+      // Primary source: the Firestore mirror at `users/{uid}/entitlements/chat_premium`,
+      // kept in sync by `revenueCatWebhook`. Webhooks are asynchronous, so after a
+      // fresh purchase the mirror may still be missing/stale while the client's
+      // RevenueCat SDK already reports the entitlement as active. If we trusted
+      // only the mirror, the user would see "Premium" in the UI but hit
+      // QUOTA_EXCEEDED on their next message.
+      //
+      // Fallback: when the mirror says non-premium we query the RevenueCat REST
+      // API for the authoritative state. If it confirms an active entitlement,
+      // we repair the mirror so subsequent requests are fast, and we proceed
+      // with the premium limit. This also self-heals webhook misconfiguration
+      // and lost events.
+      const isPremium = await resolveChatPremium(db, uid);
       const limit = isPremium ? PREMIUM_LIMIT : FREE_LIMIT;
 
       // 4. Atomic limit check + increment.
@@ -173,6 +184,78 @@ export const chatComplete = functions
       };
     },
   );
+
+/**
+ * Resolves the current `chat_premium` state for `uid`, with a RevenueCat REST
+ * API fallback when the Firestore mirror is negative or absent.
+ *
+ * Read path:
+ *   1. Read `users/{uid}/entitlements/chat_premium` — if `isActive === true`,
+ *      return true immediately (fast path, no network hop).
+ *   2. Otherwise, call RevenueCat REST API. If REST returns active, mirror the
+ *      state back to Firestore (same shape the webhook writes) so the next
+ *      request hits the fast path.
+ *   3. If REST says inactive, or if the REST call fails / no API key is
+ *      configured, fall back to the mirror value (defaulting to non-premium).
+ *      "Fail closed" is intentional: we prefer occasionally applying the free
+ *      limit to a premium user over granting premium to a non-paying user.
+ */
+async function resolveChatPremium(
+  db: admin.firestore.Firestore,
+  uid: string,
+): Promise<boolean> {
+  const entitlementRef = db.doc(`users/${uid}/entitlements/${CHAT_PREMIUM_ENTITLEMENT}`);
+  const entitlementSnap = await entitlementRef.get();
+  if (entitlementSnap.exists && entitlementSnap.get("isActive") === true) {
+    return true;
+  }
+
+  const apiKey = process.env.REVENUECAT_API_KEY;
+  if (!apiKey) {
+    // No fallback configured — trust the mirror as-is.
+    console.warn(
+      "REVENUECAT_API_KEY not configured; skipping REST fallback for chat_premium",
+    );
+    return false;
+  }
+
+  try {
+    const remote = await fetchChatPremiumFromRevenueCat(
+      uid,
+      CHAT_PREMIUM_ENTITLEMENT,
+      apiKey,
+    );
+    if (!remote.isActive) return false;
+
+    // RevenueCat confirms premium — repair the Firestore mirror so we stop
+    // hitting the REST API on every request for this user. Shape must match
+    // what `revenueCatWebhook` writes so downstream code stays consistent.
+    const expiresAt = remote.expiresAtMs
+      ? admin.firestore.Timestamp.fromMillis(remote.expiresAtMs)
+      : null;
+    await entitlementRef.set(
+      {
+        isActive: true,
+        expiresAt,
+        productId: remote.productId,
+        source: "rest-fallback",
+        lastEventType: "REST_FALLBACK",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
+    console.log(
+      `resolveChatPremium: repaired mirror for uid=${uid} via REST fallback`,
+    );
+    return true;
+  } catch (err) {
+    console.error(
+      `resolveChatPremium: REST fallback failed for uid=${uid}, falling back to mirror`,
+      err,
+    );
+    return false;
+  }
+}
 
 function toYearMonth(date: Date): string {
   const year = date.getUTCFullYear();

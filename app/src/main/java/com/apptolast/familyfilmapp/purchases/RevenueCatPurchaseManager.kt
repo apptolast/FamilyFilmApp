@@ -27,6 +27,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
     override val hasChatPremium: StateFlow<Boolean> = _hasChatPremium.asStateFlow()
 
     private var isConfigured = false
+    private var currentAppUserId: String? = null
 
     override fun setAdsRemoved(removed: Boolean) {
         if (removed && !_hasRemovedAds.value) {
@@ -36,32 +37,90 @@ class RevenueCatPurchaseManager(private val context: Context) :
     }
 
     override fun initialize(userId: String) {
-        if (isConfigured) return
+        // First call: configure the SDK with this user.
+        if (!isConfigured) {
+            val apiKey = if (BuildConfig.DEBUG) {
+                BuildConfig.REVENUECAT_PLAY_SDK_KEY_TEST
+            } else {
+                BuildConfig.REVENUECAT_PLAY_SDK_KEY
+            }
+            if (apiKey.isBlank()) {
+                Timber.w("RevenueCat API key is blank, skipping initialization")
+                return
+            }
 
-        val apiKey = if (BuildConfig.DEBUG) {
-            BuildConfig.REVENUECAT_TEST_API_KEY
-        } else {
-            BuildConfig.REVENUECAT_API_KEY
-        }
-        if (apiKey.isBlank()) {
-            Timber.w("RevenueCat API key is blank, skipping initialization")
+            if (BuildConfig.DEBUG) {
+                Purchases.logLevel = LogLevel.DEBUG
+            }
+
+            Purchases.configure(
+                PurchasesConfiguration.Builder(context, apiKey)
+                    .appUserID(userId)
+                    .build(),
+            )
+            Purchases.sharedInstance.updatedCustomerInfoListener = this
+            isConfigured = true
+            currentAppUserId = userId
+            Timber.d("RevenueCat configured for user: $userId")
+
+            fetchInitialCustomerInfo()
             return
         }
 
-        if (BuildConfig.DEBUG) {
-            Purchases.logLevel = LogLevel.DEBUG
+        // Subsequent calls: same user → noop. Different user → switch via logIn().
+        if (userId == currentAppUserId) {
+            Timber.d("RevenueCat already configured for user: $userId — skipping")
+            return
         }
 
-        Purchases.configure(
-            PurchasesConfiguration.Builder(context, apiKey)
-                .appUserID(userId)
-                .build(),
-        )
-        Purchases.sharedInstance.updatedCustomerInfoListener = this
-        isConfigured = true
-        Timber.d("RevenueCat configured for user: $userId")
+        Timber.d("RevenueCat user switch: $currentAppUserId → $userId")
+        // Reset locally so the new user does not see the previous user's entitlements
+        // until the SDK callback returns the real CustomerInfo for the new appUserId.
+        _hasChatPremium.value = false
+        _hasRemovedAds.value = false
+        currentAppUserId = userId
 
-        // Check initial entitlement status
+        Purchases.sharedInstance.logIn(
+            userId,
+            object : com.revenuecat.purchases.interfaces.LogInCallback {
+                override fun onReceived(customerInfo: CustomerInfo, created: Boolean) {
+                    Timber.d("RevenueCat logIn ok (created=$created) for user: $userId")
+                    updateEntitlementState(customerInfo)
+                }
+
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    Timber.e("RevenueCat logIn error for $userId: ${error.message}")
+                }
+            },
+        )
+    }
+
+    override fun logout() {
+        // Reset local cache immediately so the UI does not show stale entitlements
+        // while the SDK round-trips. A subsequent initialize(newUserId) will refresh
+        // them with the real CustomerInfo for that user.
+        _hasChatPremium.value = false
+        _hasRemovedAds.value = false
+        currentAppUserId = null
+
+        if (!isConfigured) return
+
+        Purchases.sharedInstance.logOut(
+            object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
+                override fun onReceived(customerInfo: CustomerInfo) {
+                    Timber.d("RevenueCat logOut ok — switched to anonymous appUserId")
+                    // Anonymous user has no entitlements; reflect that explicitly.
+                    updateEntitlementState(customerInfo)
+                }
+
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    Timber.e("RevenueCat logOut error: ${error.message}")
+                }
+            },
+        )
+    }
+
+    private fun fetchInitialCustomerInfo() {
         Purchases.sharedInstance.getCustomerInfo(
             object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
                 override fun onReceived(customerInfo: CustomerInfo) {

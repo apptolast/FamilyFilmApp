@@ -30,8 +30,8 @@ val admobAppId: String = localProperties.getProperty("ADMOB_APPLICATION_ID") ?: 
 val admobBottomBanner: String = localProperties.getProperty("ADMOB_BOTTOM_BANNER_ID") ?: ""
 val admobAppOpenId: String = localProperties.getProperty("ADMOB_APP_OPEN_ID") ?: ""
 val admobNativeHomeId: String = localProperties.getProperty("ADMOB_NATIVE_HOME_ID") ?: ""
-val revenueCatApiKey: String = localProperties.getProperty("REVENUECAT_API_KEY") ?: ""
-val revenueCatTestApiKey: String = localProperties.getProperty("REVENUECAT_TEST_API_KEY") ?: ""
+val revenueCatPlaySdkKey: String = localProperties.getProperty("REVENUECAT_PLAY_SDK_KEY") ?: ""
+val revenueCatPlaySdkKeyTest: String = localProperties.getProperty("REVENUECAT_PLAY_SDK_KEY_TEST") ?: ""
 
 android {
     namespace = "com.apptolast.familyfilmapp"
@@ -53,8 +53,8 @@ android {
         buildConfigField("String", "ADMOB_BOTTOM_BANNER_ID", "\"$admobBottomBanner\"")
         buildConfigField("String", "ADMOB_APP_OPEN_ID", "\"$admobAppOpenId\"")
         buildConfigField("String", "ADMOB_NATIVE_HOME_ID", "\"$admobNativeHomeId\"")
-        buildConfigField("String", "REVENUECAT_API_KEY", "\"$revenueCatApiKey\"")
-        buildConfigField("String", "REVENUECAT_TEST_API_KEY", "\"$revenueCatTestApiKey\"")
+        buildConfigField("String", "REVENUECAT_PLAY_SDK_KEY", "\"$revenueCatPlaySdkKey\"")
+        buildConfigField("String", "REVENUECAT_PLAY_SDK_KEY_TEST", "\"$revenueCatPlaySdkKeyTest\"")
 
         resValue("string", "admob_app_id", admobAppId)
     }

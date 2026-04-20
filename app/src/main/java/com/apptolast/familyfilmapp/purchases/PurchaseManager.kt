@@ -13,6 +13,14 @@ interface PurchaseManager {
     val hasChatPremium: StateFlow<Boolean>
 
     fun initialize(userId: String)
+
+    /**
+     * Clears the RevenueCat session and resets cached entitlement StateFlows. Must be
+     * called on user sign-out so the next account does not inherit the previous user's
+     * entitlements (RC binds receipts to the `appUserId`, which is the Firebase UID).
+     */
+    fun logout()
+
     fun setAdsRemoved(removed: Boolean)
     suspend fun purchaseRemoveAds(activity: Activity, onPurchaseStart: () -> Unit = {}): Result<Unit>
 

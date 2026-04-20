@@ -49,8 +49,8 @@ jobs:
           echo "ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}" >> local.properties
           echo "ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}" >> local.properties
           echo "ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}" >> local.properties
-          echo "REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }}" >> local.properties
-          echo "REVENUECAT_TEST_API_KEY=${{ secrets.REVENUECAT_TEST_API_KEY }}" >> local.properties
+          echo "REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}" >> local.properties
+          echo "REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}" >> local.properties
 
       - name: Assemble
         run: ./gradlew assembleDebug bundleRelease

@@ -14,7 +14,7 @@ import com.apptolast.familyfilmapp.navigation.Routes
 
 /**
  * Bottom Navigation Bar for main app screens.
- * Displays 4 tabs: Home, Discover, Groups, Profile
+ * Displays 5 tabs: Home, Discover, Chat, Groups, Profile
  *
  * Only visible on main authenticated screens (not on Details or Login)
  */
@@ -24,6 +24,7 @@ fun BottomNavigationBar(
     items: List<Routes> = listOf(
         Routes.Home,
         Routes.Discover,
+        Routes.Chat,
         Routes.Groups,
         Routes.Profile,
     ),

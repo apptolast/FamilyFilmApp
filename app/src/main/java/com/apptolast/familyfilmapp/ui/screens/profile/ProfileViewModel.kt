@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
+import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.rating.RateAppManager
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -49,6 +50,8 @@ class ProfileViewModel @Inject constructor(
     val includeAdult: StateFlow<Boolean> = tmdbLocaleManager.includeAdult
 
     val hasRatedApp: StateFlow<Boolean> = rateAppManager.hasRatedApp
+
+    val hasChatPremium: StateFlow<Boolean> = purchaseManager.hasChatPremium
 
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
@@ -129,8 +132,27 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 Timber.e(error, "Remove ads purchase failed")
-                val isCancelled = error.message?.contains("cancel", ignoreCase = true) == true
-                if (!isCancelled) {
+                if (error !is PurchaseFailure.Cancelled) {
+                    _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
+                }
+            }
+        isPurchaseLoading.update { false }
+    }
+
+    fun purchaseChatPremium(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
+        if (isPurchaseLoading.value) return@launch
+        isPurchaseLoading.update { true }
+        purchaseManager.purchaseChatPremium(
+            activity = activity,
+            onPurchaseStart = { isPurchaseLoading.update { false } },
+        )
+            .onSuccess {
+                Timber.d("Chat premium purchase successful")
+                _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess)
+            }
+            .onFailure { error ->
+                Timber.e(error, "Chat premium purchase failed")
+                if (error !is PurchaseFailure.Cancelled) {
                     _purchaseEvent.emit(PurchaseEvent.PurchaseError(error.message))
                 }
             }

@@ -105,11 +105,12 @@ class ChatViewModel @Inject constructor(
         }
 
         val history = uiState.value.messages.takeLast(GeminiChatService.HISTORY_WINDOW)
+        val isPremium = purchaseManager.hasChatPremium.value
 
         streamJob?.cancel()
         streamJob = viewModelScope.launch(dispatcherProvider.io()) {
             val buffer = StringBuilder()
-            chatRepository.sendMessage(currentUserId, trimmed, history).collect { event ->
+            chatRepository.sendMessage(currentUserId, trimmed, history, isPremium).collect { event ->
                 when (event) {
                     ChatStreamEvent.Started -> Unit
 

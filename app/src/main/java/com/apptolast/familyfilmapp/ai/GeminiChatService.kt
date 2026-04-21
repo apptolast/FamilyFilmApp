@@ -27,13 +27,14 @@ class GeminiChatService @Inject constructor(private val tmdbLocaleManager: TmdbL
 
     private val functions = Firebase.functions(CLOUD_FUNCTION_REGION)
 
-    fun sendMessage(history: List<ChatMessage>, prompt: String): Flow<ChatStreamEvent> = flow {
+    fun sendMessage(history: List<ChatMessage>, prompt: String, isPremium: Boolean): Flow<ChatStreamEvent> = flow {
         emit(ChatStreamEvent.Started)
 
         val payload = mapOf(
             "prompt" to prompt,
             "languageTag" to tmdbLocaleManager.languageTag.value,
             "includeAdult" to tmdbLocaleManager.includeAdult.value,
+            "isPremium" to isPremium,
             "history" to history.map {
                 mapOf(
                     "role" to when (it.role) {
@@ -44,6 +45,8 @@ class GeminiChatService @Inject constructor(private val tmdbLocaleManager: TmdbL
                 )
             },
         )
+
+        Timber.d("chatComplete call → isPremium=$isPremium historySize=${history.size}")
 
         val result = runCatching {
             functions.getHttpsCallable(FUNCTION_NAME)

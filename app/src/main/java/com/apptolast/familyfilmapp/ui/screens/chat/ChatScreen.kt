@@ -126,7 +126,7 @@ private fun ChatContent(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().imePadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
             state.quota?.let {
                 QuotaBanner(
@@ -331,7 +331,6 @@ private fun ChatInput(enabled: Boolean, onSend: (String) -> Unit) {
     Surface(
         tonalElevation = 2.dp,
         color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.imePadding(),
     ) {
         Row(
             modifier = Modifier

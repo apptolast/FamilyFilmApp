@@ -30,7 +30,12 @@ class ChatRepositoryImpl @Inject constructor(
     override fun observeMessages(userId: String): Flow<List<ChatMessage>> =
         chatMessageDao.observeByUserId(userId).map { list -> list.map { it.toDomain() } }
 
-    override fun sendMessage(userId: String, prompt: String, historyWindow: List<ChatMessage>): Flow<ChatStreamEvent> {
+    override fun sendMessage(
+        userId: String,
+        prompt: String,
+        historyWindow: List<ChatMessage>,
+        isPremium: Boolean,
+    ): Flow<ChatStreamEvent> {
         val userMessage = ChatMessage(
             id = UUID.randomUUID().toString(),
             role = ChatMessage.Role.USER,
@@ -38,7 +43,7 @@ class ChatRepositoryImpl @Inject constructor(
             timestamp = System.currentTimeMillis(),
         )
 
-        return geminiChatService.sendMessage(historyWindow, prompt)
+        return geminiChatService.sendMessage(historyWindow, prompt, isPremium)
             .onStart {
                 chatMessageDao.insert(userMessage.toTable(userId))
             }

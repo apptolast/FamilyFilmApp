@@ -23,8 +23,16 @@ interface ChatRepository {
      * Sends [prompt] to Gemini on behalf of [userId] with the last [historyWindow] messages
      * as context, streams the response back as [ChatStreamEvent]s, and persists both
      * the user prompt (immediately) and the assistant response (on completion) to Room.
+     *
+     * [isPremium] is forwarded to the server so it can pick the right quota limit.
+     * The server trusts this flag — see docs in the Cloud Function.
      */
-    fun sendMessage(userId: String, prompt: String, historyWindow: List<ChatMessage>): Flow<ChatStreamEvent>
+    fun sendMessage(
+        userId: String,
+        prompt: String,
+        historyWindow: List<ChatMessage>,
+        isPremium: Boolean,
+    ): Flow<ChatStreamEvent>
 
     /**
      * Removes the entire chat history for [userId]. Used for "clear conversation" actions.

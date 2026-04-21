@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -122,7 +123,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
             } else {
                 Routes.Login.routes
             },
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
+                .consumeWindowInsets(paddingValues),
         ) {
             composable(route = Routes.Login.routes) {
                 LoginScreen(

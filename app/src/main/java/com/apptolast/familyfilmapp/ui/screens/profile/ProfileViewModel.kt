@@ -3,6 +3,8 @@ package com.apptolast.familyfilmapp.ui.screens.profile
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.purchases.PurchaseFailure
@@ -33,6 +35,7 @@ class ProfileViewModel @Inject constructor(
     private val tmdbLocaleManager: TmdbLocaleManager,
     private val purchaseManager: PurchaseManager,
     private val rateAppManager: RateAppManager,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     val usernameValidationState: StateFlow<UsernameValidationState>
@@ -84,6 +87,7 @@ class ProfileViewModel @Inject constructor(
         repository.updateUsername(user, newUsername)
             .onSuccess {
                 Timber.d("Username saved: ${user.id} -> $newUsername")
+                analyticsTracker.logEvent(AnalyticsEvents.USERNAME_CHANGED)
                 isSaving.update { false }
             }
             .onFailure { error ->
@@ -104,6 +108,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun markAppAsRated() {
+        analyticsTracker.logEvent(AnalyticsEvents.RATE_APP_TAPPED)
         rateAppManager.markAsRated()
     }
 
@@ -121,6 +126,13 @@ class ProfileViewModel @Inject constructor(
 
     fun purchaseRemoveAds(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
         if (isPurchaseLoading.value) return@launch
+        analyticsTracker.logEvent(
+            AnalyticsEvents.PAYWALL_SHOWN,
+            mapOf(
+                AnalyticsEvents.Param.ENTRY_POINT to AnalyticsEvents.EntryPoint.PROFILE_REMOVE_ADS,
+                AnalyticsEvents.Param.ENTITLEMENT to AnalyticsEvents.Entitlement.REMOVE_ADS,
+            ),
+        )
         isPurchaseLoading.update { true }
         purchaseManager.purchaseRemoveAds(
             activity = activity,
@@ -141,6 +153,13 @@ class ProfileViewModel @Inject constructor(
 
     fun purchaseChatPremium(activity: Activity) = viewModelScope.launch(dispatcherProvider.io()) {
         if (isPurchaseLoading.value) return@launch
+        analyticsTracker.logEvent(
+            AnalyticsEvents.PAYWALL_SHOWN,
+            mapOf(
+                AnalyticsEvents.Param.ENTRY_POINT to AnalyticsEvents.EntryPoint.PROFILE_CHAT_PREMIUM,
+                AnalyticsEvents.Param.ENTITLEMENT to AnalyticsEvents.Entitlement.CHAT_PREMIUM,
+            ),
+        )
         isPurchaseLoading.update { true }
         purchaseManager.purchaseChatPremium(
             activity = activity,

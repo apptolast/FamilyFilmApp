@@ -4,6 +4,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
+import com.apptolast.familyfilmapp.analytics.UserProperties
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
 import com.apptolast.familyfilmapp.model.local.Media
@@ -29,8 +32,11 @@ import javax.inject.Inject
  * No combine(), no circular dependencies, no infinite loops.
  */
 @HiltViewModel
-class GroupViewModel @Inject constructor(private val repository: Repository, private val auth: FirebaseAuth) :
-    ViewModel() {
+class GroupViewModel @Inject constructor(
+    private val repository: Repository,
+    private val auth: FirebaseAuth,
+    private val analyticsTracker: AnalyticsTracker,
+) : ViewModel() {
 
     // Single source of truth - simple state
     private val _state = MutableStateFlow(GroupsState())
@@ -81,6 +87,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         groupsObserverJob = viewModelScope.launch {
             repository.getMyGroups(userId).collect { groups ->
                 Timber.d("Groups updated: ${groups.size} groups")
+                analyticsTracker.setUserProperty(UserProperties.GROUPS_COUNT, groups.size.toString())
                 handleGroupsUpdate(groups)
             }
         }
@@ -149,6 +156,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
             return@launch
         }
 
+        analyticsTracker.logEvent(AnalyticsEvents.GROUP_SWITCHED)
         _state.update {
             it.copy(
                 selectedGroupId = groupId,
@@ -176,6 +184,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.createGroup(groupName, userId)
             .onSuccess { createdGroup ->
                 Timber.d("Group created: ${createdGroup.id}")
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_CREATED)
                 // The group will appear in the groups list via the observer
                 // We'll auto-select it when it appears
                 _state.update {
@@ -217,6 +226,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.deleteGroup(groupId)
             .onSuccess {
                 Timber.d("Group deleted successfully")
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_DELETED)
                 // The observer will update the groups list automatically
                 // Select the previous group if available
                 groupToSelectAfterDelete?.let { group ->
@@ -246,6 +256,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.addMember(groupId, email)
             .onSuccess {
                 Timber.d("Member added successfully")
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_MEMBER_ADDED)
                 // Reload group data to show new member
                 loadGroupData(groupId)
             }
@@ -270,6 +281,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.removeMember(groupId, userId)
             .onSuccess {
                 Timber.d("Member removed successfully")
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_MEMBER_REMOVED)
                 // Reload group data to reflect removal
                 loadGroupData(groupId)
             }
@@ -294,6 +306,7 @@ class GroupViewModel @Inject constructor(private val repository: Repository, pri
         repository.updateGroup(group)
             .onSuccess {
                 Timber.d("Group name updated successfully")
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_RENAMED)
                 // The observer will update the groups list automatically
                 _state.update { it.copy(isLoading = false) }
             }

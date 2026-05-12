@@ -10,6 +10,9 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
+import com.apptolast.familyfilmapp.analytics.UserProperties
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomainUserModel
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
@@ -21,7 +24,12 @@ import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.FirebaseNetworkException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.apptolast.familyfilmapp.utils.UsernameValidator
 import com.apptolast.familyfilmapp.utils.UsernameValidator.toValidationState
@@ -57,6 +65,7 @@ class AuthViewModel @Inject constructor(
     private val credentialManager: CredentialManager,
     private val credentialRequest: GetCredentialRequest,
     private val purchaseManager: PurchaseManager,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState>
@@ -110,6 +119,28 @@ class AuthViewModel @Inject constructor(
                 if (currentUser.hasRemovedAds != adsRemoved) {
                     repository.updateHasRemovedAds(currentUser.id, adsRemoved)
                 }
+            }
+        }
+
+        // Reactive user properties for analytics
+        viewModelScope.launch {
+            authState.collectLatest { state ->
+                val user = (state as? AuthState.Authenticated)?.user
+                analyticsTracker.setUserId(user?.id)
+                analyticsTracker.setUserProperty(
+                    UserProperties.IS_EMAIL_VERIFIED,
+                    user?.let { (it.email.isNotBlank()).toString() },
+                )
+            }
+        }
+        viewModelScope.launch {
+            purchaseManager.hasRemovedAds.collectLatest { value ->
+                analyticsTracker.setUserProperty(UserProperties.HAS_REMOVED_ADS, value.toString())
+            }
+        }
+        viewModelScope.launch {
+            purchaseManager.hasChatPremium.collectLatest { value ->
+                analyticsTracker.setUserProperty(UserProperties.HAS_CHAT_PREMIUM, value.toString())
             }
         }
     }
@@ -190,11 +221,19 @@ class AuthViewModel @Inject constructor(
                             authState.update {
                                 AuthState.Authenticated(user)
                             }
+                            analyticsTracker.logLogin(AnalyticsEvents.Method.EMAIL)
                         } else {
                             handleFailure("Login successful but user data is null")
                         }
                     }
                     .onFailure { error ->
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.LOGIN_FAILED,
+                            mapOf(
+                                AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.EMAIL,
+                                AnalyticsEvents.Param.ERROR_TYPE to error.toAuthErrorType(),
+                            ),
+                        )
                         handleFailure(error.message ?: "Error login")
                     }
             }
@@ -215,8 +254,16 @@ class AuthViewModel @Inject constructor(
                             if (user == null) return@collectLatest
                             createNewUser(user, username)
                             isEmailSent.update { true }
+                            analyticsTracker.logSignUp(AnalyticsEvents.Method.EMAIL)
                         }
                         .onFailure { error ->
+                            analyticsTracker.logEvent(
+                                AnalyticsEvents.SIGN_UP_FAILED,
+                                mapOf(
+                                    AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.EMAIL,
+                                    AnalyticsEvents.Param.ERROR_TYPE to error.toAuthErrorType(),
+                                ),
+                            )
                             handleFailure(error.message ?: "Error register user")
                         }
                 }
@@ -237,6 +284,7 @@ class AuthViewModel @Inject constructor(
                 if (isVerified) {
                     Timber.d("Email successfully verified, updating UI state")
                     isEmailSent.update { false }
+                    analyticsTracker.logEvent(AnalyticsEvents.EMAIL_VERIFIED)
                     checkIsUserLogged()
                 }
             }
@@ -270,10 +318,20 @@ class AuthViewModel @Inject constructor(
                                     if (!exists) {
                                         createNewUser(user)
                                         shouldPromptForUsername.update { true }
+                                        analyticsTracker.logSignUp(AnalyticsEvents.Method.GOOGLE)
+                                    } else {
+                                        analyticsTracker.logLogin(AnalyticsEvents.Method.GOOGLE)
                                     }
                                     checkIsUserLogged()
                                 }
                                 .onFailure { error ->
+                                    analyticsTracker.logEvent(
+                                        AnalyticsEvents.LOGIN_FAILED,
+                                        mapOf(
+                                            AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.GOOGLE,
+                                            AnalyticsEvents.Param.ERROR_TYPE to error.toAuthErrorType(),
+                                        ),
+                                    )
                                     handleFailure(error.message ?: "Google Login Error")
                                 }
                         }
@@ -314,6 +372,7 @@ class AuthViewModel @Inject constructor(
             .collectLatest { result ->
                 result
                     .onSuccess {
+                        analyticsTracker.logEvent(AnalyticsEvents.PASSWORD_RECOVERY_SENT)
                         recoverPassState.update {
                             it.copy(
                                 isLoading = false,
@@ -338,6 +397,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun logOut() {
+        analyticsTracker.logEvent(AnalyticsEvents.LOGOUT)
         repository.stopSync()
         authRepository.logOut()
         // Reset RevenueCat session so the next account does not inherit entitlements
@@ -376,6 +436,10 @@ class AuthViewModel @Inject constructor(
             GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD -> {
                 authRepository.deleteGoogleAccount().first()
                     .onSuccess {
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.ACCOUNT_DELETED,
+                            mapOf(AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.GOOGLE),
+                        )
                         purchaseManager.logout()
                         clearGoogleCredentials()
                         authState.update { AuthState.Unauthenticated }
@@ -386,6 +450,10 @@ class AuthViewModel @Inject constructor(
             EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD -> {
                 authRepository.deleteAccountWithReAuthentication(email, password).first()
                     .onSuccess {
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.ACCOUNT_DELETED,
+                            mapOf(AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.EMAIL),
+                        )
                         purchaseManager.logout()
                         authState.update { AuthState.Unauthenticated }
                     }
@@ -396,6 +464,19 @@ class AuthViewModel @Inject constructor(
                 Timber.w(IllegalStateException("Credential not expected"))
             }
         }
+    }
+
+    /**
+     * Maps Firebase Auth exceptions to a closed set of categories for analytics. Never expose
+     * the raw exception message — it can leak the email or other user-controlled input.
+     */
+    private fun Throwable.toAuthErrorType(): String = when (this) {
+        is FirebaseAuthInvalidCredentialsException -> AnalyticsEvents.ErrorType.INVALID_CREDENTIALS
+        is FirebaseAuthInvalidUserException -> AnalyticsEvents.ErrorType.USER_DISABLED
+        is FirebaseAuthUserCollisionException -> AnalyticsEvents.ErrorType.ALREADY_EXISTS
+        is FirebaseAuthWeakPasswordException -> AnalyticsEvents.ErrorType.WEAK_PASSWORD
+        is FirebaseNetworkException -> AnalyticsEvents.ErrorType.NETWORK
+        else -> AnalyticsEvents.ErrorType.OTHER
     }
 
     private fun clearGoogleCredentials() = viewModelScope.launch {

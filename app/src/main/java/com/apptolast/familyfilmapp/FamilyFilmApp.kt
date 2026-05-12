@@ -8,6 +8,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.apptolast.familyfilmapp.ads.AppOpenAdManager
 import com.apptolast.familyfilmapp.ads.GoogleMobileAdsConsentManager
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.utils.ReleaseTree
 import com.google.android.gms.ads.MobileAds
@@ -57,6 +58,9 @@ class FamilyFilmApp :
     @Inject
     lateinit var purchaseManager: PurchaseManager
 
+    @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
+
     private var currentActivity: Activity? = null
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
 
@@ -68,6 +72,8 @@ class FamilyFilmApp :
         super.onCreate()
 
         Firebase.crashlytics.isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
+        // Mirror Crashlytics gating — events still execute in code but are not sent in debug.
+        analyticsTracker.setEnabled(!BuildConfig.DEBUG)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
@@ -117,6 +123,12 @@ class FamilyFilmApp :
             }
 
             Timber.d("$TAG Consent resolved — canRequestAds=${consentManager.canRequestAds}")
+            // Mirror UMP decision to Firebase Analytics. If the user did not grant ads consent
+            // under GDPR, we also restrict analytics storage to stay on the conservative side.
+            analyticsTracker.setConsent(
+                analyticsGranted = consentManager.canRequestAds,
+                adsGranted = consentManager.canRequestAds,
+            )
 
             if (consentManager.canRequestAds) {
                 initializeMobileAdsSdk()
@@ -126,6 +138,7 @@ class FamilyFilmApp :
         // Also check if consent was already obtained in a previous session
         if (consentManager.canRequestAds) {
             Timber.d("$TAG canRequestAds already true — initializing SDK immediately")
+            analyticsTracker.setConsent(analyticsGranted = true, adsGranted = true)
             initializeMobileAdsSdk()
         }
     }

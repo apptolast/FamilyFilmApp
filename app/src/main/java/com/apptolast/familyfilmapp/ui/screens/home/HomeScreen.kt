@@ -116,6 +116,7 @@ fun HomeScreen(
                 mediaItems = mediaItems,
                 nativeAds = nativeAds,
                 onMediaClick = { media ->
+                    viewModel.logMediaSelected(media)
                     onClickNav(DetailNavTypeDestination.getDestination(media))
                 },
                 searchMediaByName = viewModel::searchMediaByName,

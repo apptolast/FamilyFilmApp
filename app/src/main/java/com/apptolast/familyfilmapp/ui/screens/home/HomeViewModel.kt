@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.apptolast.familyfilmapp.ads.NativeAdManager
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
@@ -36,6 +38,7 @@ class HomeViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
     private val nativeAdManager: NativeAdManager,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     val nativeAds: StateFlow<List<NativeAd>> = nativeAdManager.nativeAds
@@ -108,6 +111,10 @@ class HomeViewModel @Inject constructor(
     fun setMediaFilter(filter: MediaFilter) {
         selectedFilter.value = filter
         homeUiState.update { it.copy(selectedFilter = filter, filterMedia = emptyList()) }
+        analyticsTracker.logEvent(
+            AnalyticsEvents.FILTER_CHANGED,
+            mapOf(AnalyticsEvents.Param.FILTER to filter.name),
+        )
     }
 
     fun searchMediaByName(mediaFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {
@@ -138,11 +145,25 @@ class HomeViewModel @Inject constructor(
             .onSuccess { mediaList ->
                 homeUiState.update { it.copy(filterMedia = mediaList) }
                 clearError()
+                analyticsTracker.logSearch(
+                    queryLength = query.length,
+                    resultsCount = mediaList.size,
+                    filter = currentFilter.name,
+                )
             }
             .onFailure { e ->
                 Timber.e(e, "Error searching media")
                 triggerError(e.message ?: "Error searching media")
             }
+    }
+
+    fun logMediaSelected(media: Media) {
+        val isSearch = activeSearchQuery.value?.isNotEmpty() == true
+        analyticsTracker.logSelectContent(
+            contentType = media.mediaType.toAnalyticsContentType(),
+            itemId = media.id.toString(),
+            source = if (isSearch) "home_search" else "home_popular",
+        )
     }
 
     fun triggerError(errorMessage: String) {
@@ -152,4 +173,9 @@ class HomeViewModel @Inject constructor(
     fun clearError() {
         homeUiState.update { it.copy(errorMessage = CustomException.GenericException(null)) }
     }
+}
+
+internal fun com.apptolast.familyfilmapp.model.local.types.MediaType.toAnalyticsContentType(): String = when (this) {
+    com.apptolast.familyfilmapp.model.local.types.MediaType.TV_SHOW -> AnalyticsEvents.ContentType.TV_SHOW
+    else -> AnalyticsEvents.ContentType.MOVIE
 }

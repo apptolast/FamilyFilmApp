@@ -3,13 +3,17 @@ package com.apptolast.familyfilmapp.ui.screens.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.ui.screens.home.toAnalyticsContentType
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -30,6 +34,7 @@ class DetailsViewModel @AssistedInject constructor(
     private val repository: Repository,
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
+    private val analyticsTracker: AnalyticsTracker,
     @Assisted private val mediaId: Int,
     @Assisted private val mediaType: MediaType,
 ) : ViewModel() {
@@ -38,6 +43,13 @@ class DetailsViewModel @AssistedInject constructor(
         field: MutableStateFlow<DetailUiState> = MutableStateFlow(DetailUiState())
 
     init {
+        analyticsTracker.logEvent(
+            FirebaseAnalytics.Event.VIEW_ITEM,
+            mapOf(
+                FirebaseAnalytics.Param.CONTENT_TYPE to mediaType.toAnalyticsContentType(),
+                FirebaseAnalytics.Param.ITEM_ID to mediaId.toString(),
+            ),
+        )
         viewModelScope.launch(dispatcherProvider.io()) {
             val userId = auth.uid
             if (userId == null) {
@@ -126,13 +138,27 @@ class DetailsViewModel @AssistedInject constructor(
 
             if (groupsToAdd.isNotEmpty()) {
                 repository.updateMovieStatus(groupsToAdd, userId, mediaId, status, mediaType)
-                    .onSuccess { Timber.d("Status set in ${groupsToAdd.size} groups") }
+                    .onSuccess {
+                        Timber.d("Status set in ${groupsToAdd.size} groups")
+                        logStatusAdded(status, groupsToAdd.size)
+                    }
                     .onFailure { Timber.e(it, "Error setting media status") }
             }
 
             if (groupsToRemove.isNotEmpty()) {
                 repository.removeMovieStatus(groupsToRemove.toList(), userId, mediaId, mediaType)
-                    .onSuccess { Timber.d("Status removed from ${groupsToRemove.size} groups") }
+                    .onSuccess {
+                        Timber.d("Status removed from ${groupsToRemove.size} groups")
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.REMOVE_FROM_LIST,
+                            mapOf(
+                                AnalyticsEvents.Param.CONTENT_TYPE to mediaType.toAnalyticsContentType(),
+                                AnalyticsEvents.Param.ITEM_ID to mediaId.toString(),
+                                AnalyticsEvents.Param.PREVIOUS_STATUS to status.name,
+                                AnalyticsEvents.Param.GROUP_COUNT to groupsToRemove.size.toLong(),
+                            ),
+                        )
+                    }
                     .onFailure { Timber.e(it, "Error removing media status") }
             }
 
@@ -144,6 +170,19 @@ class DetailsViewModel @AssistedInject constructor(
 
     fun onBottomSheetDismiss() {
         state.update { it.copy(showBottomSheet = false, bottomSheetStatus = null) }
+    }
+
+    private fun logStatusAdded(status: MediaStatus, groupCount: Int) {
+        val params = mapOf(
+            FirebaseAnalytics.Param.CONTENT_TYPE to mediaType.toAnalyticsContentType(),
+            FirebaseAnalytics.Param.ITEM_ID to mediaId.toString(),
+            AnalyticsEvents.Param.GROUP_COUNT to groupCount.toLong(),
+        )
+        when (status) {
+            MediaStatus.ToWatch -> analyticsTracker.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, params)
+            MediaStatus.Watched -> analyticsTracker.logEvent(AnalyticsEvents.MARK_AS_WATCHED, params)
+            else -> Unit
+        }
     }
 
     @AssistedFactory

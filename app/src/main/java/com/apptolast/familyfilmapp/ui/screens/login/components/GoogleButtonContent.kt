@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
 fun GoogleButtonContent() {
@@ -30,5 +32,13 @@ fun GoogleButtonContent() {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = stringResource(com.apptolast.familyfilmapp.R.string.login_text_sign_in_with_google))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GoogleButtonContentPreview() {
+    FamilyFilmAppTheme {
+        GoogleButtonContent()
     }
 }

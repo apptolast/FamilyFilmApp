@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.ai.ChatStreamEvent
 import com.apptolast.familyfilmapp.ai.GeminiChatService
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
 import com.apptolast.familyfilmapp.purchases.PurchaseFailure
@@ -40,10 +42,18 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val dispatcherProvider: DispatcherProvider,
     private val purchaseManager: PurchaseManager,
+    private val analyticsTracker: AnalyticsTracker,
     auth: FirebaseAuth,
 ) : ViewModel() {
 
     private val userId: String? = auth.uid
+
+    init {
+        analyticsTracker.logEvent(
+            AnalyticsEvents.CHAT_SESSION_STARTED,
+            mapOf(AnalyticsEvents.Param.IS_PREMIUM to purchaseManager.hasChatPremium.value),
+        )
+    }
 
     private val streamingState = MutableStateFlow(StreamingState())
     private val paywallState = MutableStateFlow(PaywallState())
@@ -107,6 +117,15 @@ class ChatViewModel @Inject constructor(
         val history = uiState.value.messages.takeLast(GeminiChatService.HISTORY_WINDOW)
         val isPremium = purchaseManager.hasChatPremium.value
 
+        analyticsTracker.logEvent(
+            AnalyticsEvents.CHAT_MESSAGE_SENT,
+            mapOf(
+                AnalyticsEvents.Param.PROMPT_LENGTH to trimmed.length.toLong(),
+                AnalyticsEvents.Param.HISTORY_SIZE to history.size.toLong(),
+                AnalyticsEvents.Param.IS_PREMIUM to isPremium,
+            ),
+        )
+
         streamJob?.cancel()
         streamJob = viewModelScope.launch(dispatcherProvider.io()) {
             val buffer = StringBuilder()
@@ -135,14 +154,36 @@ class ChatViewModel @Inject constructor(
                         } else {
                             ChatError.GENERIC
                         }
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.CHAT_STREAM_FAILED,
+                            mapOf(
+                                AnalyticsEvents.Param.ERROR_TYPE to if (errorType == ChatError.NETWORK) {
+                                    AnalyticsEvents.ErrorType.NETWORK
+                                } else {
+                                    AnalyticsEvents.ErrorType.GENERIC
+                                },
+                                AnalyticsEvents.Param.IS_PREMIUM to isPremium,
+                            ),
+                        )
                         streamingState.update { StreamingState(error = errorType) }
                     }
 
                     ChatStreamEvent.QuotaExceeded -> {
                         streamingState.update { StreamingState(error = ChatError.QUOTA_EXCEEDED) }
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.CHAT_QUOTA_EXHAUSTED,
+                            mapOf(AnalyticsEvents.Param.IS_PREMIUM to isPremium),
+                        )
                         // Surface the paywall only when the user is NOT already premium.
                         // Server may return QuotaExceeded to premium users too (limit of 50).
                         if (!purchaseManager.hasChatPremium.value) {
+                            analyticsTracker.logEvent(
+                                AnalyticsEvents.PAYWALL_SHOWN,
+                                mapOf(
+                                    AnalyticsEvents.Param.ENTRY_POINT to AnalyticsEvents.EntryPoint.QUOTA_EXHAUSTED,
+                                    AnalyticsEvents.Param.ENTITLEMENT to AnalyticsEvents.Entitlement.CHAT_PREMIUM,
+                                ),
+                            )
                             paywallState.update { it.copy(shown = true, error = null) }
                         }
                     }
@@ -181,6 +222,13 @@ class ChatViewModel @Inject constructor(
 
     fun showPaywallManually() {
         if (!purchaseManager.hasChatPremium.value) {
+            analyticsTracker.logEvent(
+                AnalyticsEvents.PAYWALL_SHOWN,
+                mapOf(
+                    AnalyticsEvents.Param.ENTRY_POINT to AnalyticsEvents.EntryPoint.CHAT_MANUAL_UPSELL,
+                    AnalyticsEvents.Param.ENTITLEMENT to AnalyticsEvents.Entitlement.CHAT_PREMIUM,
+                ),
+            )
             paywallState.update { it.copy(shown = true, error = null) }
         }
     }
@@ -188,7 +236,12 @@ class ChatViewModel @Inject constructor(
     fun clearHistory() {
         val currentUserId = userId ?: return
         viewModelScope.launch(dispatcherProvider.io()) {
+            val previousCount = uiState.value.messages.size
             chatRepository.clearHistory(currentUserId)
+            analyticsTracker.logEvent(
+                AnalyticsEvents.CHAT_HISTORY_CLEARED,
+                mapOf(AnalyticsEvents.Param.MESSAGES_COUNT to previousCount.toLong()),
+            )
         }
     }
 

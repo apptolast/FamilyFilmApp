@@ -20,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
+import com.apptolast.familyfilmapp.analytics.TrackScreenViews
 import com.apptolast.familyfilmapp.navigation.navtypes.DetailNavTypeDestination
 import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
@@ -56,11 +58,13 @@ import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
+fun AppNavigation(analyticsTracker: AnalyticsTracker, authViewModel: AuthViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    TrackScreenViews(navController = navController, tracker = analyticsTracker)
 
     // Determine which screens should show TopBar and BottomBar
     val showTopBar = authState is AuthState.Authenticated &&

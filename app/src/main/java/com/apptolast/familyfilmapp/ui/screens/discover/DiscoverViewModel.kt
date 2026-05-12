@@ -2,13 +2,17 @@ package com.apptolast.familyfilmapp.ui.screens.discover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.ui.screens.home.toAnalyticsContentType
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +30,7 @@ class DiscoverViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
+    private val analyticsTracker: AnalyticsTracker,
 ) : ViewModel() {
 
     val uiState: StateFlow<DiscoverUiState>
@@ -205,6 +210,7 @@ class DiscoverViewModel @Inject constructor(
                 .onSuccess {
                     markedMediaIds = markedMediaIds + media.id
                     Timber.d("Media ${media.title} marked as $status in ${selectedGroups.size} groups")
+                    logDiscoverStatus(media, status, selectedGroups.size)
                 }
                 .onFailure { e ->
                     Timber.e(e, "Error updating media status")
@@ -228,5 +234,19 @@ class DiscoverViewModel @Inject constructor(
 
     fun clearError() {
         uiState.update { it.copy(errorMessage = null) }
+    }
+
+    private fun logDiscoverStatus(media: Media, status: MediaStatus, groupCount: Int) {
+        val params = mapOf(
+            FirebaseAnalytics.Param.CONTENT_TYPE to media.mediaType.toAnalyticsContentType(),
+            FirebaseAnalytics.Param.ITEM_ID to media.id.toString(),
+            AnalyticsEvents.Param.SOURCE to "discover",
+            AnalyticsEvents.Param.GROUP_COUNT to groupCount.toLong(),
+        )
+        when (status) {
+            MediaStatus.ToWatch -> analyticsTracker.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, params)
+            MediaStatus.Watched -> analyticsTracker.logEvent(AnalyticsEvents.MARK_AS_WATCHED, params)
+            else -> Unit
+        }
     }
 }

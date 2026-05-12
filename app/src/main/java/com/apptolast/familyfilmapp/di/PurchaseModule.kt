@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.di
 
 import android.content.Context
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.purchases.RevenueCatPurchaseManager
 import dagger.Module
@@ -16,6 +17,8 @@ object PurchaseModule {
 
     @Provides
     @Singleton
-    fun providePurchaseManager(@ApplicationContext context: Context): PurchaseManager =
-        RevenueCatPurchaseManager(context)
+    fun providePurchaseManager(
+        @ApplicationContext context: Context,
+        analyticsTracker: AnalyticsTracker,
+    ): PurchaseManager = RevenueCatPurchaseManager(context, analyticsTracker)
 }

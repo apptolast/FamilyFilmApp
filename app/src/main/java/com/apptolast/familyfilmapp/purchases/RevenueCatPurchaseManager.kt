@@ -3,6 +3,8 @@ package com.apptolast.familyfilmapp.purchases
 import android.app.Activity
 import android.content.Context
 import com.apptolast.familyfilmapp.BuildConfig
+import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.LogLevel
 import com.revenuecat.purchases.Purchases
@@ -16,7 +18,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import kotlin.coroutines.resume
 
-class RevenueCatPurchaseManager(private val context: Context) :
+class RevenueCatPurchaseManager(private val context: Context, private val analyticsTracker: AnalyticsTracker) :
     PurchaseManager,
     UpdatedCustomerInfoListener {
 
@@ -139,6 +141,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
             activity = activity,
             offeringId = null, // null → uses offerings.current (legacy remove_ads flow)
             entitlementId = AD_FREE_ENTITLEMENT,
+            analyticsEntitlement = AnalyticsEvents.Entitlement.REMOVE_ADS,
             onPurchaseStart = onPurchaseStart,
         )
 
@@ -147,6 +150,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
             activity = activity,
             offeringId = CHAT_PREMIUM_OFFERING_ID,
             entitlementId = CHAT_PREMIUM_ENTITLEMENT,
+            analyticsEntitlement = AnalyticsEvents.Entitlement.CHAT_PREMIUM,
             onPurchaseStart = onPurchaseStart,
         )
 
@@ -165,6 +169,7 @@ class RevenueCatPurchaseManager(private val context: Context) :
         activity: Activity,
         offeringId: String?,
         entitlementId: String,
+        analyticsEntitlement: String,
         onPurchaseStart: () -> Unit,
     ): Result<Unit> = suspendCancellableCoroutine { continuation ->
         if (!isConfigured) {
@@ -188,6 +193,15 @@ class RevenueCatPurchaseManager(private val context: Context) :
                         return
                     }
 
+                    val priceAmount = packageToBuy.product.price.amountMicros / 1_000_000.0
+                    val priceCurrency = packageToBuy.product.price.currencyCode
+                    val productId = packageToBuy.product.id
+                    analyticsTracker.logBeginCheckout(
+                        entitlement = analyticsEntitlement,
+                        value = priceAmount,
+                        currency = priceCurrency,
+                    )
+
                     onPurchaseStart()
                     Purchases.sharedInstance.purchase(
                         com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy)
@@ -197,6 +211,12 @@ class RevenueCatPurchaseManager(private val context: Context) :
                                 updateEntitlementState(customerInfo)
                                 val isActive = customerInfo.entitlements[entitlementId]?.isActive == true
                                 if (isActive) {
+                                    analyticsTracker.logPurchase(
+                                        entitlement = analyticsEntitlement,
+                                        transactionId = productId,
+                                        value = priceAmount,
+                                        currency = priceCurrency,
+                                    )
                                     continuation.resume(Result.success(Unit))
                                 } else {
                                     Timber.w(
@@ -204,6 +224,13 @@ class RevenueCatPurchaseManager(private val context: Context) :
                                             "Check the RevenueCat Dashboard: product→entitlement mapping " +
                                             "and the Play/App Store webhook.",
                                         entitlementId,
+                                    )
+                                    analyticsTracker.logEvent(
+                                        AnalyticsEvents.PURCHASE_FAILED,
+                                        mapOf(
+                                            AnalyticsEvents.Param.ENTITLEMENT to analyticsEntitlement,
+                                            AnalyticsEvents.Param.ERROR_TYPE to "entitlement_not_active",
+                                        ),
                                     )
                                     continuation.resume(
                                         Result.failure(PurchaseFailure.EntitlementNotActive(entitlementId)),
@@ -215,6 +242,20 @@ class RevenueCatPurchaseManager(private val context: Context) :
                                 error: com.revenuecat.purchases.PurchasesError,
                                 userCancelled: Boolean,
                             ) {
+                                if (userCancelled) {
+                                    analyticsTracker.logEvent(
+                                        AnalyticsEvents.PURCHASE_CANCELLED,
+                                        mapOf(AnalyticsEvents.Param.ENTITLEMENT to analyticsEntitlement),
+                                    )
+                                } else {
+                                    analyticsTracker.logEvent(
+                                        AnalyticsEvents.PURCHASE_FAILED,
+                                        mapOf(
+                                            AnalyticsEvents.Param.ENTITLEMENT to analyticsEntitlement,
+                                            AnalyticsEvents.Param.ERROR_TYPE to AnalyticsEvents.ErrorType.OTHER,
+                                        ),
+                                    )
+                                }
                                 continuation.resume(
                                     Result.failure(
                                         if (userCancelled) {
@@ -249,10 +290,24 @@ class RevenueCatPurchaseManager(private val context: Context) :
                     val restoredSomething =
                         customerInfo.entitlements[AD_FREE_ENTITLEMENT]?.isActive == true ||
                             customerInfo.entitlements[CHAT_PREMIUM_ENTITLEMENT]?.isActive == true
+                    analyticsTracker.logEvent(
+                        AnalyticsEvents.RESTORE_PURCHASE,
+                        mapOf(
+                            AnalyticsEvents.Param.RESULT to if (restoredSomething) {
+                                AnalyticsEvents.RestoreResult.SUCCESS
+                            } else {
+                                AnalyticsEvents.RestoreResult.NOTHING_FOUND
+                            },
+                        ),
+                    )
                     continuation.resume(Result.success(restoredSomething))
                 }
 
                 override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    analyticsTracker.logEvent(
+                        AnalyticsEvents.RESTORE_PURCHASE,
+                        mapOf(AnalyticsEvents.Param.RESULT to AnalyticsEvents.RestoreResult.ERROR),
+                    )
                     continuation.resume(Result.failure(PurchaseFailure.Unknown(error.message)))
                 }
             },

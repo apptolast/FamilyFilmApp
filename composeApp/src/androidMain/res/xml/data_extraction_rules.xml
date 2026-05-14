@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Exclude GMS Phenotype and internal data to avoid DE shared dir deletion errors -->
+        <exclude domain="root" path="shared_prefs/com.google.android.gms.appid.xml" />
+        <exclude domain="root" path="shared_prefs/com.google.android.gms.measurement.prefs.xml" />
+        <exclude domain="root" path="files/phenotype" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="shared_prefs/com.google.android.gms.appid.xml" />
+        <exclude domain="root" path="shared_prefs/com.google.android.gms.measurement.prefs.xml" />
+        <exclude domain="root" path="files/phenotype" />
+    </device-transfer>
+</data-extraction-rules>

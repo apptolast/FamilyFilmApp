@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude GMS Phenotype and internal data to avoid DE shared dir deletion errors -->
+    <exclude domain="root" path="shared_prefs/com.google.android.gms.appid.xml" />
+    <exclude domain="root" path="shared_prefs/com.google.android.gms.measurement.prefs.xml" />
+    <exclude domain="root" path="files/phenotype" />
+</full-backup-content>

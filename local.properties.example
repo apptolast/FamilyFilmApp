@@ -1,0 +1,24 @@
+# Copy this file to `local.properties` and fill in the values.
+# `local.properties` is git-ignored.
+#
+# The Android SDK location is what Gradle reads; the rest are consumed
+# by BuildKonfig (see composeApp/build.gradle.kts) and exposed at runtime
+# as `com.apptolast.familyfilmapp.BuildConfig.<NAME>` from commonMain.
+
+sdk.dir=
+
+# Google Sign-In (Credential Manager) — Web Client ID from the Firebase console
+WEB_ID_CLIENT=
+
+# TMDB v3 API bearer token (Settings → API on themoviedb.org)
+TMDB_ACCESS_TOKEN=
+
+# AdMob (one app id + per-format unit ids, all from the AdMob console)
+ADMOB_APPLICATION_ID=
+ADMOB_BOTTOM_BANNER_ID=
+ADMOB_APP_OPEN_ID=
+ADMOB_NATIVE_HOME_ID=
+
+# RevenueCat — production and test SDK keys (Play Store side)
+REVENUECAT_PLAY_SDK_KEY=
+REVENUECAT_PLAY_SDK_KEY_TEST=

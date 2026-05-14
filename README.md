@@ -58,17 +58,36 @@ To participate in this project, we recommend:
 *  We will then review your PR, suggest changes, or accept it to merge your changes into the main repository.
 
 ### Configuration
-Due to the use of **Firebase** and **GitHub Actions**, the project will not compile automatically, so several setup steps are required:
+
+The Kotlin Multiplatform module pulls every secret it needs from the
+git-ignored `local.properties` at the project root, exposes them in
+`commonMain` via [BuildKonfig](https://github.com/gmazzo/gradle-buildconfig-plugin),
+and reads `composeApp/google-services.json` through the Google Services
+plugin. Copy `local.properties.example` to `local.properties` and fill
+the eight required keys before running Gradle:
+
+| Key                              | Where to get it                                                          |
+|----------------------------------|--------------------------------------------------------------------------|
+| `sdk.dir`                        | Local Android SDK path (e.g. `~/Library/Android/sdk`)                    |
+| `WEB_ID_CLIENT`                  | Firebase console → Authentication → Sign-in providers → Google → Web SDK |
+| `TMDB_ACCESS_TOKEN`              | themoviedb.org → Settings → API → v3 bearer token                        |
+| `ADMOB_APPLICATION_ID`           | AdMob console → App settings                                             |
+| `ADMOB_BOTTOM_BANNER_ID`         | AdMob console → Ad units → bottom banner                                 |
+| `ADMOB_APP_OPEN_ID`              | AdMob console → Ad units → app open                                      |
+| `ADMOB_NATIVE_HOME_ID`           | AdMob console → Ad units → native (home)                                 |
+| `REVENUECAT_PLAY_SDK_KEY`        | RevenueCat dashboard → Project settings → API keys (Play, prod)          |
+| `REVENUECAT_PLAY_SDK_KEY_TEST`   | RevenueCat dashboard → Project settings → API keys (Play, sandbox)       |
+
+Access them from Kotlin (`commonMain`) as
+`com.apptolast.familyfilmapp.BuildConfig.TMDB_ACCESS_TOKEN`, etc.
 
 #### Firebase
-First, create a Firebase project and configure it. Don't forget to:
 
-* Add your SHA-1 key in the project configuration under the "General" tab.
-* Download the `google-services.json` file and add it to your Android project's app folder.
-
-#### TMDB API Token
-To obtain the TMDB API token, register on TMDB, go to Settings > API, and create a new API key.
-Then, add it to your project's gradle.properties file with the name `TMDB_ACCESS_TOKEN`
+Create a Firebase project, register the Android app, add your SHA-1 key
+under the General tab, download `google-services.json` and drop it into
+`composeApp/`. iOS uses the same Firebase project: drag
+`GoogleService-Info.plist` into `iosApp/iosApp/` from Xcode. In CI both
+files are decoded from base64 secrets — see `.github/workflows/`.
 
 ## Testing resources:
 Koin Unit tests: https://insert-koin.io/docs/reference/koin-test/testing

@@ -6,8 +6,8 @@ import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.network.buildTmdbHttpClient
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 // Data layer: repositories, datasources, HTTP client, Room DAOs, Firebase

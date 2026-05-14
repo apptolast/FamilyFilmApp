@@ -1,6 +1,6 @@
 package com.apptolast.familyfilmapp.model.local
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class Group(
     val id: String,

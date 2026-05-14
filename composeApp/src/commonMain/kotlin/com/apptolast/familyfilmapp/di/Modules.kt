@@ -8,10 +8,21 @@ import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.network.buildTmdbHttpClient
+import com.apptolast.familyfilmapp.repositories.ChatRepository
+import com.apptolast.familyfilmapp.repositories.ChatRepositoryImpl
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
+import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.RepositoryImpl
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasourceImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
@@ -51,6 +62,15 @@ val dataModule = module {
     singleOf(::FirebaseAnalyticsTracker) bind AnalyticsTracker::class
     singleOf(::CrashReporter)
     singleOf(::FirebaseDatabaseDatasourceImpl) bind FirebaseDatabaseDatasource::class
+
+    // Datasources + repositories (block 11). Repository owns the
+    // SyncState-driven Firestore→Room mirroring kicked off from ViewModels
+    // via startSync(userId).
+    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+    singleOf(::TmdbDatasourceImpl) bind TmdbDatasource::class
+    singleOf(::RoomDatasourceImpl) bind RoomDatasource::class
+    singleOf(::ChatRepositoryImpl) bind ChatRepository::class
+    singleOf(::RepositoryImpl) bind Repository::class
 }
 
 // Presentation layer: ViewModels declared via viewModelOf(::ClassName).

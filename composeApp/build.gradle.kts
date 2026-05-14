@@ -128,7 +128,9 @@ kotlin {
             // Native Firebase Android (App Check provider factories — not in GitLive)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.appcheck.playintegrity)
-            "debugImplementation"(libs.firebase.appcheck.debug)
+            // App Check Debug is debug-only; declared in the project-level
+            // dependencies { } block below because KMP androidMain.dependencies { }
+            // doesn't expose configurations like debugImplementation.
 
             // Google Sign-In (Credential Manager)
             implementation(libs.androidx.credentials)
@@ -217,10 +219,13 @@ room {
 }
 
 // Wire Room compiler KSP for every target that needs entity processing
+// and Firebase App Check Debug for debug builds (debugImplementation isn't
+// available inside KMP androidMain.dependencies, so it goes here).
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("debugImplementation", libs.firebase.appcheck.debug)
 }
 
 // Secrets exposed in commonMain via BuildKonfig (replaces app-level buildConfigField)
@@ -239,7 +244,7 @@ buildConfig {
 }
 
 ktlint {
-    version.set(libs.versions.ktlint.get())
+    // version not set explicitly; the plugin (14.2.0) ships with a recent ktlint default
     android.set(false)
     outputToConsole.set(true)
     ignoreFailures.set(false)
@@ -247,11 +252,5 @@ ktlint {
     filter {
         exclude("**/generated/**")
         include("**/kotlin/**")
-    }
-}
-
-kotlin {
-    sourceSets.configureEach {
-        languageSettings.enableLanguageFeature("ExplicitBackingFields")
     }
 }

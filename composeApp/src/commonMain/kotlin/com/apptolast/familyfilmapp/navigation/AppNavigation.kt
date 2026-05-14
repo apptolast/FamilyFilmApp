@@ -1,50 +1,134 @@
 package com.apptolast.familyfilmapp.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.apptolast.familyfilmapp.analytics.TrackScreenViews
+import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
+import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
+import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
+import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
+import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
+import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import familyfilmkmp.composeapp.generated.resources.Res
+import familyfilmkmp.composeapp.generated.resources.screen_title_chat
+import familyfilmkmp.composeapp.generated.resources.screen_title_discover
+import familyfilmkmp.composeapp.generated.resources.screen_title_groups
+import familyfilmkmp.composeapp.generated.resources.screen_title_home
+import familyfilmkmp.composeapp.generated.resources.screen_title_profile
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Root navigation graph. Block 12 ships this as a scaffold: every destination
- * routes to a placeholder so the type-safe routes are exercised. Block 13
- * fills each `composable<Route> { ... }` body with the real screen, and
- * block 12b adds the Scaffold/TopAppBar/BottomNavigationBar/AdaptiveBanner
- * decoration controlled by the current backstack entry.
+ * Root navigation graph. The start destination flips between Login and
+ * Home based on [AuthViewModel.authState]. Top bar + bottom bar are
+ * shown only on the five main authenticated tabs (Home/Discover/Chat/
+ * Groups/Profile) — login and details run edge-to-edge without bars.
  *
- * The start destination flips Login ↔ Home based on the auth state pulled
- * from `AuthViewModel` in block 12b.
+ * `AdaptiveBanner` (AdMob) deliberately stays off this layer for now —
+ * block 14 will add the banner above the bottom nav as an
+ * `expect/actual` composable.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
+    val authViewModel: AuthViewModel = koinViewModel()
+    val authState by authViewModel.authState.collectAsState()
+    val analyticsTracker = koinInject<com.apptolast.familyfilmapp.analytics.AnalyticsTracker>()
+
     val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = Routes.Login,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        composable<Routes.Login> { Placeholder("Login") }
-        composable<Routes.Home> { Placeholder("Home") }
-        composable<Routes.Discover> { Placeholder("Discover") }
-        composable<Routes.Chat> { Placeholder("Chat") }
-        composable<Routes.Groups> { Placeholder("Groups") }
-        composable<Routes.Profile> { Placeholder("Profile") }
-        composable<Routes.Details> { entry ->
-            val details: Routes.Details = entry.toRoute()
-            Placeholder("Details(${details.mediaId}, ${details.mediaType})")
+    val backStackEntry by navController.currentBackStackEntryAsState()
+
+    TrackScreenViews(navController = navController, tracker = analyticsTracker)
+
+    val mainTabRoute = backStackEntry?.destination?.let { destination ->
+        when {
+            destination.hasRoute(Routes.Home::class) -> Res.string.screen_title_home
+            destination.hasRoute(Routes.Discover::class) -> Res.string.screen_title_discover
+            destination.hasRoute(Routes.Chat::class) -> Res.string.screen_title_chat
+            destination.hasRoute(Routes.Groups::class) -> Res.string.screen_title_groups
+            destination.hasRoute(Routes.Profile::class) -> Res.string.screen_title_profile
+            else -> null
         }
     }
-}
+    val showChrome = authState is AuthState.Authenticated && mainTabRoute != null
 
-@Composable
-private fun Placeholder(name: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "$name — coming in block 13")
+    Scaffold(
+        topBar = {
+            if (showChrome) {
+                val titleRes: StringResource = mainTabRoute!!
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(titleRes),
+                            style = MaterialTheme.typography.headlineMedium,
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                )
+            }
+        },
+        bottomBar = {
+            if (showChrome) {
+                BottomNavigationBar(navController = navController)
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = if (authState is AuthState.Authenticated) Routes.Home else Routes.Login,
+            modifier = Modifier.padding(paddingValues),
+        ) {
+            composable<Routes.Login> {
+                LoginScreen(viewModel = authViewModel)
+            }
+            composable<Routes.Home> {
+                HomeScreen()
+            }
+            composable<Routes.Discover> {
+                DiscoverScreen(
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType))
+                    },
+                )
+            }
+            composable<Routes.Chat> { ChatScreen() }
+            composable<Routes.Groups> { GroupsScreen() }
+            composable<Routes.Profile> {
+                ProfileScreen(authViewModel = authViewModel)
+            }
+            composable<Routes.Details> { entry ->
+                val details: Routes.Details = entry.toRoute()
+                DetailsScreen(
+                    mediaId = details.mediaId,
+                    mediaType = details.mediaType,
+                    onBack = { navController.navigateUp() },
+                )
+            }
+        }
     }
 }

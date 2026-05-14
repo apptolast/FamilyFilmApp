@@ -91,27 +91,67 @@ files are decoded from base64 secrets — see `.github/workflows/`.
 
 #### Swift Package Manager (iOS only)
 
-The Kotlin shared module wraps Firebase Auth/Firestore/Functions/Analytics/
-Crashlytics through GitLive; those wrappers depend on the underlying
-Firebase iOS frameworks being linked into the final app, but this project
-does **not** use CocoaPods. The frameworks come from SPM and are added
-manually to the Xcode project once:
+This project does **not** use CocoaPods. All iOS-native dependencies
+come from SPM and are added once via Xcode:
 
-1. Open `iosApp/iosApp.xcodeproj` in Xcode.
-2. File → Add Package Dependencies → `https://github.com/firebase/firebase-ios-sdk.git`
-   (rule: "Up to Next Major Version" from 11.0).
-3. Select these products for the `iosApp` target: `FirebaseAuth`,
-   `FirebaseFirestore`, `FirebaseFunctions`, `FirebaseAnalytics`,
-   `FirebaseCrashlytics`, `FirebaseAppCheck`, `FirebaseCore`.
-4. Block 15 of the migration plan adds three more packages alongside
-   these (`Google-Mobile-Ads-SDK`, `GoogleUserMessagingPlatform`,
-   `RevenueCat`, `GoogleSignIn-iOS`) when the monetisation and Sign-In
-   features land on iOS.
+1. Open `iosApp/iosApp.xcodeproj` in Xcode → File → Add Package Dependencies.
+2. Add each of these repositories with the rule "Up to Next Major Version":
 
-The Kotlin `ComposeApp` framework is embedded into the Xcode target via
-the Gradle task `:composeApp:embedAndSignAppleFrameworkForXcode`, which
-the Xcode build phase script invokes before "Compile Sources" — no
-Podfile, no `pod install`.
+   | Package | URL | Products | Used by |
+   |---------|-----|----------|---------|
+   | Firebase iOS SDK | `https://github.com/firebase/firebase-ios-sdk.git` (11.x) | `FirebaseAuth`, `FirebaseFirestore`, `FirebaseFunctions`, `FirebaseAnalytics`, `FirebaseCrashlytics`, `FirebaseAppCheck`, `FirebaseCore` | GitLive Firebase wrappers (block 10) |
+   | Google Mobile Ads | `https://github.com/googleads/swift-package-manager-google-mobile-ads.git` | `GoogleMobileAds` | AdMob native ads + adaptive banner (block 15 follow-up) |
+   | User Messaging Platform | `https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git` | `UserMessagingPlatform` | AdMob consent flow (block 15 follow-up) |
+   | RevenueCat | `https://github.com/RevenueCat/purchases-ios-spm.git` | `RevenueCat` | Subscriptions (block 15 follow-up) |
+   | GoogleSignIn-iOS | `https://github.com/google/GoogleSignIn-iOS.git` | `GoogleSignIn` | Google sign-in on iOS (block 15 follow-up) |
+
+3. Drag `GoogleService-Info.plist` from your Firebase project into
+   `iosApp/iosApp/` and make sure the file is in the `iosApp` target.
+
+4. Update `iosApp/iosApp/Info.plist`:
+   - `GADApplicationIdentifier` — your AdMob app id (same value as
+     `ADMOB_APPLICATION_ID` in `local.properties`).
+   - `GIDClientID` — your `WEB_ID_CLIENT` from `local.properties`.
+   - `SKAdNetworkItems` — copy the dictionary list from
+     [Google's reference page](https://developers.google.com/admob/ios/ios14).
+   - `NSUserTrackingUsageDescription` is already filled in; tweak the
+     copy to taste.
+
+5. The Kotlin `ComposeApp` framework is embedded into the Xcode target
+   via the Gradle task `:composeApp:embedAndSignAppleFrameworkForXcode`,
+   invoked by an Xcode Build Phase Run Script before "Compile Sources" —
+   no Podfile, no `pod install`.
+
+#### iOS cinterop wiring (block 15 follow-up)
+
+`iosMain` ships scaffolds that need cinterop bindings to the SPM
+modules:
+
+- [`IosGoogleSignInClient`](composeApp/src/iosMain/kotlin/com/apptolast/familyfilmapp/auth/IosGoogleSignInClient.kt)
+- [`IosRevenueCatPurchaseManager`](composeApp/src/iosMain/kotlin/com/apptolast/familyfilmapp/purchases/IosRevenueCatPurchaseManager.kt)
+- The `AdMobNativeAdManager` and adaptive banner — currently a no-op
+  on iOS pending the same cinterop work.
+
+Each class's KDoc lists the exact `.def` content you need to add
+under `composeApp/src/nativeInterop/cinterop/` and the
+`cinterops { ... }` block to register in
+`composeApp/build.gradle.kts`'s iOS target. Until that wiring is in
+place these screens render gracefully (the auth flow falls back to
+email/password, paywall buttons resolve to "Cancelled", and the Home
+screen renders without native ads).
+
+#### What works on iOS today (after block 15)
+
+| Feature | Status |
+|---------|--------|
+| Firestore / Auth / Functions / Analytics / Crashlytics | ✅ via GitLive (block 10) |
+| App Check | ✅ DebugProvider in debug, AppAttest default in release (set from `iOSApp.swift`) |
+| Email/password login + Google email-link verification | ✅ |
+| Group CRUD, movie statuses, chat | ✅ |
+| In-app review prompt | ✅ via `SKStoreReviewController` (block 15) |
+| Google Sign-In | ⏳ scaffold — needs cinterop |
+| RevenueCat paywall + restore | ⏳ scaffold — needs cinterop |
+| AdMob banner + native ads | ⏳ no-op — needs cinterop |
 
 ## Testing resources:
 Koin Unit tests: https://insert-koin.io/docs/reference/koin-test/testing

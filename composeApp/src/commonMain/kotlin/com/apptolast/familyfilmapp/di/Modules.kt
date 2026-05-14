@@ -10,6 +10,8 @@ import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.network.buildTmdbHttpClient
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
@@ -48,6 +50,7 @@ val dataModule = module {
     singleOf(::GeminiChatService)
     singleOf(::FirebaseAnalyticsTracker) bind AnalyticsTracker::class
     singleOf(::CrashReporter)
+    singleOf(::FirebaseDatabaseDatasourceImpl) bind FirebaseDatabaseDatasource::class
 }
 
 // Presentation layer: ViewModels declared via viewModelOf(::ClassName).

@@ -235,6 +235,10 @@ buildConfig {
     packageName("com.apptolast.familyfilmapp")
     useKotlinOutput { internalVisibility = false }
 
+    // Firestore root path lives at `FFA/{BUILD_TYPE}/...` so dev/prod data
+    // stays segregated. Hard-coded to "debug" for now — switch to "release"
+    // (or wire a variant-aware BuildKonfig flavorConfig) before publishing.
+    buildConfigField("BUILD_TYPE", "debug")
     buildConfigField("WEB_ID_CLIENT", localProperty("WEB_ID_CLIENT"))
     buildConfigField("TMDB_ACCESS_TOKEN", localProperty("TMDB_ACCESS_TOKEN"))
     buildConfigField("ADMOB_APPLICATION_ID", localProperty("ADMOB_APPLICATION_ID"))

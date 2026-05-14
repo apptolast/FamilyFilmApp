@@ -9,20 +9,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import org.koin.compose.KoinContext
 
-// Placeholder root composable. Block 5 of the migration plan replaces this with
-// FamilyFilmAppTheme { AppNavigation() } and wires up Koin, navigation and screens.
+// Root composable. KoinContext picks up the Koin instance that initKoin()
+// already started from the platform entry point (FamilyFilmApp.onCreate on
+// Android, iOSApp.init on iOS), so screens can call koinInject() and
+// koinViewModel() once block 12 introduces ViewModels and the navigation
+// graph.
 @Composable
 @Preview
 fun App() {
-    FamilyFilmAppTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeContentPadding(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(text = "Family Film — KMP migration in progress")
+    KoinContext {
+        FamilyFilmAppTheme {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "Family Film — KMP migration in progress")
+            }
         }
     }
 }

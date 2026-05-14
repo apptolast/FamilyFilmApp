@@ -3,12 +3,15 @@ package com.apptolast.familyfilmapp.ads
 /**
  * Opaque handle to a platform-native AdMob native ad object.
  *
- * - Android (block 14): `actual typealias NativeAdHandle = com.google.android.gms.ads.nativead.NativeAd`
- *   so existing rendering code that already speaks the AdMob API keeps working.
- * - iOS (block 15): `actual typealias NativeAdHandle = cocoapods.GoogleMobileAds.GADNativeAd`
- *   (or the SPM equivalent once block 15 wires the cinterop).
+ * commonMain never inspects the contents — it only holds and forwards
+ * the value to platform-specific rendering composables (block 13+).
+ * Using a plain `Any` typealias instead of `expect class` avoids the
+ * modality mismatch we hit when mapping to the Android SDK's abstract
+ * `NativeAd` via `actual typealias` (`expect class` defaults to `final`,
+ * `NativeAd` is `abstract`).
  *
- * commonMain code can keep references in lists / state flows but cannot
- * inspect the contents — rendering happens behind expect/actual composables.
+ * - Android: each element is a `com.google.android.gms.ads.nativead.NativeAd`.
+ * - iOS: each element will be a `GADNativeAd` once block 15 wires the
+ *   GoogleMobileAds SPM module via cinterop.
  */
-expect class NativeAdHandle
+typealias NativeAdHandle = Any

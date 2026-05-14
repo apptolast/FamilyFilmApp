@@ -3,7 +3,12 @@ package com.apptolast.familyfilmapp.di
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
+import com.apptolast.familyfilmapp.auth.GoogleSignInClient
+import com.apptolast.familyfilmapp.auth.NoOpGoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.purchases.NoOpPurchaseManager
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
@@ -28,6 +33,7 @@ import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -71,9 +77,20 @@ val dataModule = module {
     singleOf(::RoomDatasourceImpl) bind RoomDatasource::class
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
+
+    // Platform-specific clients with no-op defaults in commonMain. Blocks 14
+    // (Android) and 15 (iOS) override these in their platformModule using
+    // `single(..., createdAtStart = true) { override = true }` once the
+    // real RevenueCat / Credential Manager / GoogleSignIn-iOS hooks land.
+    singleOf(::NoOpPurchaseManager) bind PurchaseManager::class
+    singleOf(::NoOpGoogleSignInClient) bind GoogleSignInClient::class
 }
 
-// Presentation layer: ViewModels declared via viewModelOf(::ClassName).
-// Populated by block 12 of the migration plan.
+/**
+ * Presentation layer: ViewModels declared via [viewModelOf]. Block 12b
+ * registers the shared [AuthViewModel] first; block 12c adds the seven
+ * per-screen ViewModels.
+ */
 val presentationModule = module {
+    viewModelOf(::AuthViewModel)
 }

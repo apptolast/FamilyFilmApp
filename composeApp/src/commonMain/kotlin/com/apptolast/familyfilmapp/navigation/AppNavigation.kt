@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -9,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -17,7 +19,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.apptolast.familyfilmapp.ads.AdaptiveBanner
 import com.apptolast.familyfilmapp.analytics.TrackScreenViews
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
@@ -55,6 +59,8 @@ fun AppNavigation() {
     val authViewModel: AuthViewModel = koinViewModel()
     val authState by authViewModel.authState.collectAsState()
     val analyticsTracker = koinInject<com.apptolast.familyfilmapp.analytics.AnalyticsTracker>()
+    val purchaseManager = koinInject<PurchaseManager>()
+    val hasRemovedAds by purchaseManager.hasRemovedAds.collectAsState()
 
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -76,7 +82,7 @@ fun AppNavigation() {
     Scaffold(
         topBar = {
             if (showChrome) {
-                val titleRes: StringResource = mainTabRoute!!
+                val titleRes: StringResource = mainTabRoute
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
@@ -93,7 +99,10 @@ fun AppNavigation() {
         },
         bottomBar = {
             if (showChrome) {
-                BottomNavigationBar(navController = navController)
+                Column {
+                    if (!hasRemovedAds) AdaptiveBanner()
+                    BottomNavigationBar(navController = navController)
+                }
             }
         },
         modifier = Modifier.fillMaxSize(),

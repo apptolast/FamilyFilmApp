@@ -1,18 +1,10 @@
 package com.apptolast.familyfilmapp.di
 
-import com.apptolast.familyfilmapp.ads.NativeAdManager
-import com.apptolast.familyfilmapp.ads.NoOpNativeAdManager
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
-import com.apptolast.familyfilmapp.auth.GoogleSignInClient
-import com.apptolast.familyfilmapp.auth.NoOpGoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.model.local.types.MediaType
-import com.apptolast.familyfilmapp.purchases.NoOpPurchaseManager
-import com.apptolast.familyfilmapp.purchases.PurchaseManager
-import com.apptolast.familyfilmapp.rating.NoOpRateAppManager
-import com.apptolast.familyfilmapp.rating.RateAppManager
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
@@ -90,14 +82,11 @@ val dataModule = module {
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
 
-    // Platform-specific clients with no-op defaults in commonMain. Blocks 14
-    // (Android) and 15 (iOS) override these in their platformModule using
-    // `single(..., createdAtStart = true) { override = true }` once the
-    // real RevenueCat / Credential Manager / GoogleSignIn-iOS hooks land.
-    singleOf(::NoOpPurchaseManager) bind PurchaseManager::class
-    singleOf(::NoOpGoogleSignInClient) bind GoogleSignInClient::class
-    singleOf(::NoOpNativeAdManager) bind NativeAdManager::class
-    singleOf(::NoOpRateAppManager) bind RateAppManager::class
+    // PurchaseManager, GoogleSignInClient, NativeAdManager and RateAppManager
+    // are now contributed by the platformModule on each side. Block 14 binds
+    // the real Android implementations (RevenueCat, CredentialManager, AdMob,
+    // Play In-App Review); block 15 keeps no-op stubs on iOS until the
+    // corresponding SPM packages land.
 }
 
 /**

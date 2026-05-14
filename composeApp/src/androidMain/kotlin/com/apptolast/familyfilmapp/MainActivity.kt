@@ -7,15 +7,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.apptolast.familyfilmapp.platform.CurrentActivityHolder
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    private val activityHolder: CurrentActivityHolder by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        activityHolder.attach(this)
         setContent {
             App()
         }
+    }
+
+    override fun onDestroy() {
+        activityHolder.detach(this)
+        super.onDestroy()
     }
 }
 

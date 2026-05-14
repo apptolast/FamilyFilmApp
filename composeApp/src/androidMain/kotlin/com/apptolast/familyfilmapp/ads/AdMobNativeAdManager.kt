@@ -1,0 +1,49 @@
+package com.apptolast.familyfilmapp.ads
+
+import android.content.Context
+import com.apptolast.familyfilmapp.BuildConfig
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.nativead.NativeAd
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+/**
+ * Android implementation backed by AdMob's `AdLoader.forNativeAd(...)`.
+ * Keeps up to [AD_POOL_SIZE] preloaded `NativeAd` objects so the Home
+ * screen can interleave them with media items without round-tripping to
+ * the network per slot. [destroyAds] releases the native ad resources;
+ * call it from HomeViewModel.onCleared() (already wired in block 12c).
+ *
+ * The unit id is sourced from BuildKonfig (`ADMOB_NATIVE_HOME_ID`) so
+ * debug and release builds can point at distinct ad units via
+ * `local.properties`.
+ */
+class AdMobNativeAdManager(context: Context) : NativeAdManager {
+
+    private val appContext = context.applicationContext
+
+    private val _ads = MutableStateFlow<List<NativeAdHandle>>(emptyList())
+    override val nativeAds: StateFlow<List<NativeAdHandle>> = _ads.asStateFlow()
+
+    override fun loadAds() {
+        val adLoader = AdLoader.Builder(appContext, BuildConfig.ADMOB_NATIVE_HOME_ID)
+            .forNativeAd { nativeAd: NativeAd ->
+                _ads.update { (it + nativeAd).takeLast(AD_POOL_SIZE) }
+            }
+            .build()
+        adLoader.loadAds(AdRequest.Builder().build(), AD_POOL_SIZE)
+    }
+
+    override fun destroyAds() {
+        val current = _ads.value
+        _ads.value = emptyList()
+        current.forEach { handle -> (handle as? NativeAd)?.destroy() }
+    }
+
+    private companion object {
+        const val AD_POOL_SIZE = 3
+    }
+}

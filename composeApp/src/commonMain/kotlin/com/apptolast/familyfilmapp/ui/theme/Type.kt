@@ -3,33 +3,39 @@ package com.apptolast.familyfilmapp.ui.theme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import familyfilmkmp.composeapp.generated.resources.Res
-import familyfilmkmp.composeapp.generated.resources.holtwood_one_sc
-import familyfilmkmp.composeapp.generated.resources.homenaje
-import familyfilmkmp.composeapp.generated.resources.open_sans_regular
+import familyfilmkmp.composeapp.generated.resources.bebas_neue_regular
+import familyfilmkmp.composeapp.generated.resources.inter_regular
+import familyfilmkmp.composeapp.generated.resources.poppins_bold
+import familyfilmkmp.composeapp.generated.resources.poppins_medium
+import familyfilmkmp.composeapp.generated.resources.poppins_regular
+import familyfilmkmp.composeapp.generated.resources.poppins_semibold
 import org.jetbrains.compose.resources.Font
 
-// Bundled font families, replacing the Google Fonts CDN setup of the
-// legacy Android-only Type.kt. The three TTFs live in
-// composeApp/src/commonMain/composeResources/font/ and are exposed via
-// Compose Resources' Res.font accessors — fully multiplatform.
+// Cinematic display font — used for headlines and important titles.
 @Composable
 private fun displayFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.holtwood_one_sc),
+    Font(Res.font.bebas_neue_regular, weight = FontWeight.Normal),
 )
 
+// Modern heading font — used for section headers and card titles.
 @Composable
 private fun headingFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.homenaje),
+    Font(Res.font.poppins_regular, weight = FontWeight.Normal),
+    Font(Res.font.poppins_medium, weight = FontWeight.Medium),
+    Font(Res.font.poppins_semibold, weight = FontWeight.SemiBold),
+    Font(Res.font.poppins_bold, weight = FontWeight.Bold),
 )
 
+// Clean body font (Inter variable). Compose picks the closest weight axis.
 @Composable
 private fun bodyFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.open_sans_regular),
+    Font(Res.font.inter_regular, weight = FontWeight.Normal),
+    Font(Res.font.inter_regular, weight = FontWeight.Medium),
+    Font(Res.font.inter_regular, weight = FontWeight.SemiBold),
 )
 
 @Composable

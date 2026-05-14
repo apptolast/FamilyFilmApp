@@ -1,6 +1,13 @@
 package com.apptolast.familyfilmapp.utils
 
+import androidx.compose.runtime.Composable
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
+import familyfilmkmp.composeapp.generated.resources.Res
+import familyfilmkmp.composeapp.generated.resources.username_invalid_format
+import familyfilmkmp.composeapp.generated.resources.username_must_start_with_letter
+import familyfilmkmp.composeapp.generated.resources.username_too_long
+import familyfilmkmp.composeapp.generated.resources.username_too_short
+import org.jetbrains.compose.resources.stringResource
 
 object UsernameValidator {
 
@@ -22,11 +29,7 @@ object UsernameValidator {
         else -> Result.Valid
     }
 
-    /**
-     * Converts a validation result to [UsernameValidationState].
-     * Returns null for [Result.Valid] (caller should proceed to availability check)
-     * and [UsernameValidationState.Idle] for [Result.TooShort] (not enough input yet).
-     */
+    // Returns null for Valid (caller proceeds to availability check) and Idle for TooShort.
     fun Result.toValidationState(): UsernameValidationState? = when (this) {
         is Result.Valid -> null
         is Result.TooShort -> UsernameValidationState.Idle
@@ -34,6 +37,11 @@ object UsernameValidator {
     }
 }
 
-// The @Composable Result.toErrorString() extension (which pulls human-readable
-// error copy from stringResource(...)) is reintroduced alongside the screens in
-// block 13, against composeResources strings instead of android R.string.
+@Composable
+fun UsernameValidator.Result.toErrorString(): String = when (this) {
+    is UsernameValidator.Result.TooLong -> stringResource(Res.string.username_too_long)
+    is UsernameValidator.Result.InvalidChars -> stringResource(Res.string.username_invalid_format)
+    is UsernameValidator.Result.MustStartWithLetter -> stringResource(Res.string.username_must_start_with_letter)
+    is UsernameValidator.Result.TooShort -> stringResource(Res.string.username_too_short)
+    is UsernameValidator.Result.Valid -> ""
+}

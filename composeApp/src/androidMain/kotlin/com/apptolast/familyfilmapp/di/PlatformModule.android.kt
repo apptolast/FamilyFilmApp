@@ -20,13 +20,6 @@ import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-/**
- * Android platform bindings. Block 14 plugs in the four "platform-only"
- * managers that block 12c stubbed in commonMain (PurchaseManager,
- * GoogleSignInClient, NativeAdManager, RateAppManager) plus the
- * [CurrentActivityHolder] that AdMob, Credential Manager and RevenueCat
- * all need to anchor their UIs to the visible Activity.
- */
 actual val platformModule = module {
     single<HttpClientEngine> { OkHttp.create() }
     single<Settings> {
@@ -36,8 +29,7 @@ actual val platformModule = module {
     }
     single<RoomDatabase.Builder<AppDatabase>> { getDatabaseBuilder(androidContext()) }
 
-    // MainActivity attaches/detaches itself into the holder in its
-    // onCreate/onDestroy callbacks (see MainActivity.kt).
+    // MainActivity registers/unregisters itself in its onCreate/onDestroy.
     single { CurrentActivityHolder() }
 
     single<GoogleSignInClient> {

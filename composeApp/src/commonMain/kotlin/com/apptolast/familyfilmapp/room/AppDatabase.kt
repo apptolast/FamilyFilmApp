@@ -22,6 +22,7 @@ import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
 @Database(
     entities = [
@@ -58,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
         const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
         const val CHAT_MESSAGES_TABLE_NAME = "chat_messages_table"
 
-        // v1 → v2 had identical schemas in the legacy app — no-op
+        // v1 → v2 schemas are identical — intentional no-op.
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(connection: SQLiteConnection) {
                 // intentionally empty
@@ -216,19 +217,12 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-// Room's KSP processor generates the platform `actual object`s that materialise
-// this expect declaration on each target.
+// Room KSP generates the platform `actual object`s on each target.
 @Suppress("KotlinNoActualForExpect", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
     override fun initialize(): AppDatabase
 }
 
-/**
- * Applies the project-wide configuration (driver, coroutine context and the
- * full migration chain) on top of a platform-specific builder. Callers in
- * platformModule receive the [RoomDatabase.Builder] from
- * `getDatabaseBuilder(...)` and pass it here.
- */
 fun buildAppDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase = builder
     .addMigrations(
         AppDatabase.MIGRATION_1_2,

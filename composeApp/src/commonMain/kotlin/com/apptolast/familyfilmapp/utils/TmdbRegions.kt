@@ -47,12 +47,7 @@ val TMDB_REGIONS: List<TmdbRegion> = listOf(
     TmdbRegion("VE", "es-VE"),
 )
 
-/**
- * Returns the regional indicator emoji for an ISO 3166-1 alpha-2 country code
- * (e.g. "US" → 🇺🇸). Built by manually composing the UTF-16 surrogate pair
- * for each Regional Indicator Symbol — `Character.toChars()` from the legacy
- * implementation is JVM-only.
- */
+// Manually composes the UTF-16 surrogate pair (Character.toChars is JVM-only).
 fun countryCodeToFlag(countryCode: String): String {
     if (countryCode.length != 2) return ""
     val first = regionalIndicator(countryCode[0])
@@ -71,9 +66,4 @@ private fun regionalIndicator(letter: Char): String {
 fun findRegionByLanguageTag(languageTag: String): TmdbRegion? =
     TMDB_REGIONS.find { it.languageTag.equals(languageTag, ignoreCase = true) }
 
-/**
- * Localised display name for a country code (e.g. "ES" → "España" when the
- * user locale is Spanish). Backed by `java.util.Locale` on Android and
- * `NSLocale` on iOS — see the actuals in androidMain/iosMain.
- */
 expect fun getCountryDisplayName(countryCode: String): String

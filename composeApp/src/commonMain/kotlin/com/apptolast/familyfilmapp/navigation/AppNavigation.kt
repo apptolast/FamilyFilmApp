@@ -19,9 +19,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.apptolast.familyfilmapp.ads.AdaptiveBanner
 import com.apptolast.familyfilmapp.analytics.TrackScreenViews
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
@@ -43,16 +43,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-/**
- * Root navigation graph. The start destination flips between Login and
- * Home based on [AuthViewModel.authState]. Top bar + bottom bar are
- * shown only on the five main authenticated tabs (Home/Discover/Chat/
- * Groups/Profile) — login and details run edge-to-edge without bars.
- *
- * `AdaptiveBanner` (AdMob) deliberately stays off this layer for now —
- * block 14 will add the banner above the bottom nav as an
- * `expect/actual` composable.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {

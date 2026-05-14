@@ -13,17 +13,7 @@ import com.apptolast.familyfilmapp.platform.CurrentActivityHolder
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
-/**
- * Android implementation of [GoogleSignInClient] backed by the modern
- * Credential Manager API (replaces the legacy GoogleSignInClient).
- *
- * Requires the current Activity at sign-in time because Credential
- * Manager renders a system bottom sheet anchored to it. The activity is
- * supplied by [CurrentActivityHolder] (wired in MainActivity.onCreate).
- *
- * The OAuth web client id comes from BuildKonfig — populate
- * `WEB_ID_CLIENT` in `local.properties` (see README).
- */
+// Credential Manager renders a system bottom sheet anchored to the current Activity.
 class AndroidGoogleSignInClient(
     private val context: Context,
     private val activityHolder: CurrentActivityHolder,

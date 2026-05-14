@@ -6,13 +6,7 @@ import androidx.room.PrimaryKey
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.CHAT_MESSAGES_TABLE_NAME
 
-/**
- * Room entity for persisting chat messages per user.
- *
- * `role` is stored as a plain String ("USER" / "ASSISTANT") instead of using an
- * enum TypeConverter to keep the existing converter registry untouched and the
- * migration simple. Mapping happens in the domain <-> table extension functions.
- */
+// `role` is stored as a plain String to avoid adding a new TypeConverter.
 @Entity(
     tableName = CHAT_MESSAGES_TABLE_NAME,
     indices = [

@@ -10,17 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-/**
- * Android implementation backed by AdMob's `AdLoader.forNativeAd(...)`.
- * Keeps up to [AD_POOL_SIZE] preloaded `NativeAd` objects so the Home
- * screen can interleave them with media items without round-tripping to
- * the network per slot. [destroyAds] releases the native ad resources;
- * call it from HomeViewModel.onCleared() (already wired in block 12c).
- *
- * The unit id is sourced from BuildKonfig (`ADMOB_NATIVE_HOME_ID`) so
- * debug and release builds can point at distinct ad units via
- * `local.properties`.
- */
+// Callers MUST invoke destroyAds() (e.g. from ViewModel.onCleared) to release the NativeAd resources.
 class AdMobNativeAdManager(context: Context) : NativeAdManager {
 
     private val appContext = context.applicationContext

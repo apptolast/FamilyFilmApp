@@ -23,12 +23,7 @@ abstract class GroupDao {
     @Query("SELECT * FROM $GROUPS_TABLE_NAME")
     abstract fun getGroups(): Flow<List<GroupTable>>
 
-    /**
-     * The legacy implementation used a RawQuery + SupportSQLiteQueryBuilder, both of
-     * which are JVM-only. Room KMP supports parameter-substituted LIKE concatenation
-     * via `||` natively, so the same `"id1"` substring lookup over the JSON-encoded
-     * users column is expressed directly as a @Query.
-     */
+    // Substring lookup over the JSON-encoded users column (Room KMP has no RawQuery).
     @Query("SELECT * FROM $GROUPS_TABLE_NAME WHERE users LIKE '%\"' || :userId || '\"%'")
     abstract fun getMyGroups(userId: String): Flow<List<GroupTable>>
 

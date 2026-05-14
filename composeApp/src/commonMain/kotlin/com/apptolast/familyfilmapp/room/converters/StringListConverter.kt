@@ -5,12 +5,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-/**
- * Replaces the legacy Gson-backed converter with kotlinx.serialization so the
- * persistence layer doesn't drag a JVM-only JSON parser into commonMain. The
- * JSON shape on disk is identical (`["a","b"]`), so existing rows decode
- * untouched after the migration.
- */
+// Uses kotlinx.serialization; on-disk JSON shape is identical to the prior Gson encoding.
 class StringListConverter {
 
     @TypeConverter

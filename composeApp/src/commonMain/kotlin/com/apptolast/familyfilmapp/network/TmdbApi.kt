@@ -6,13 +6,6 @@ import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMultiSearchWrap
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowWrapperRemote
 
-/**
- * TMDB v3 endpoints used by the app. Implemented by [TmdbApiKtor] in
- * production and by MockEngine-backed fakes in commonTest (block 16).
- *
- * Default values for [language] mirror the user's current locale via
- * TmdbLocaleManager; callers can pass an explicit tag to override.
- */
 interface TmdbApi {
 
     suspend fun getPopularMovies(

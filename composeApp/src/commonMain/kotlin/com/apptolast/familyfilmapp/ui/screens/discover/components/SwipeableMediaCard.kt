@@ -1,0 +1,253 @@
+package com.apptolast.familyfilmapp.ui.screens.discover.components
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
+
+/**
+ * Swipeable Movie Card Component.
+ * Allows the user to swipe left (Watched) or right (Want to Watch).
+ *
+ * @param media Movie to display
+ * @param onSwipeLeft Callback when swiped left (Watched)
+ * @param onSwipeRight Callback when swiped right (Want to Watch)
+ */
+@Composable
+fun SwipeableMediaCard(
+    media: Media,
+    onSwipeLeft: () -> Unit,
+    onSwipeRight: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth(0.8f).fillMaxHeight(0.6f)) {
+        val screenWidth = maxWidth.value
+        val swipeThreshold = screenWidth * 0.4f
+
+        var offsetX by remember { mutableFloatStateOf(0f) }
+        var offsetY by remember { mutableFloatStateOf(0f) }
+        val scope = rememberCoroutineScope()
+
+        val rotation = (offsetX / 20f).coerceIn(-15f, 15f)
+        val alpha = (1f - (abs(offsetX) / (screenWidth * 2))).coerceIn(0.5f, 1f)
+
+        val leftIndicatorAlpha = if (offsetX < 0) (abs(offsetX) / swipeThreshold).coerceIn(0f, 1f) else 0f
+        val rightIndicatorAlpha = if (offsetX > 0) (offsetX / swipeThreshold).coerceIn(0f, 1f) else 0f
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+                .rotate(rotation)
+                .graphicsLayer(alpha = alpha)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                if (abs(offsetX) > swipeThreshold) {
+                                    val animatable = Animatable(offsetX)
+                                    val targetX = if (offsetX > 0) screenWidth * 3 else -screenWidth * 3
+
+                                    animatable.animateTo(
+                                        targetValue = targetX,
+                                        animationSpec = tween(300),
+                                    ) {
+                                        offsetX = value
+                                    }
+
+                                    if (offsetX > 0) onSwipeRight() else onSwipeLeft()
+                                } else {
+                                    val animatableX = Animatable(offsetX)
+                                    val animatableY = Animatable(offsetY)
+
+                                    launch {
+                                        animatableX.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = tween(300),
+                                        ) {
+                                            offsetX = value
+                                        }
+                                    }
+                                    launch {
+                                        animatableY.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = tween(300),
+                                        ) {
+                                            offsetY = value
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    ) { change, dragAmount ->
+                        change.consume()
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                    }
+                },
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(TT_DISCOVER_MOVIE_CARD),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AsyncImage(
+                        model = "${TmdbConfig.POSTER_DETAIL}${media.posterPath}",
+                        contentDescription = media.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.4f)
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
+                                    ),
+                                ),
+                            ),
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = media.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = buildString {
+                                append("⭐ ${media.voteAverage}")
+                                if (media.releaseDate.isNotEmpty()) {
+                                    append(" • ${media.releaseDate.take(4)}")
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.9f),
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = media.overview,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+
+                    if (leftIndicatorAlpha > 0f) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(32.dp)
+                                .alpha(leftIndicatorAlpha)
+                                .size(48.dp)
+                                .background(
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    shape = CircleShape,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Visibility,
+                                contentDescription = "Watched",
+                                tint = Color.Black,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
+
+                    if (rightIndicatorAlpha > 0f) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .padding(32.dp)
+                                .alpha(rightIndicatorAlpha)
+                                .size(48.dp)
+                                .background(
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    shape = CircleShape,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                contentDescription = "Want to Watch",
+                                tint = Color.Black,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

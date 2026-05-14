@@ -26,15 +26,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 interface ChatRepository {
-    /** Observes the chat history for [userId] ordered chronologically (oldest first). */
     fun observeMessages(userId: String): Flow<List<ChatMessage>>
 
-    /**
-     * Sends [prompt] to Gemini on behalf of [userId] with the last [historyWindow]
-     * messages as context, streams the response back as [ChatStreamEvent]s, and
-     * persists both the user prompt (immediately) and the assistant response (on
-     * completion) to Room. The server trusts [isPremium] to pick the quota limit.
-     */
+    // Persists the user prompt immediately and the assistant response on completion.
     fun sendMessage(
         userId: String,
         prompt: String,
@@ -42,13 +36,9 @@ interface ChatRepository {
         isPremium: Boolean,
     ): Flow<ChatStreamEvent>
 
-    /** Removes the entire chat history for [userId]. */
     suspend fun clearHistory(userId: String)
 
-    /**
-     * Observes the current month's quota state for [userId] from Firestore.
-     * Emits `null` when the user hasn't made any calls yet (doc doesn't exist).
-     */
+    // Emits null when the user hasn't made any calls yet (doc doesn't exist).
     fun observeQuota(userId: String): Flow<ChatQuota?>
 }
 
@@ -120,10 +110,7 @@ class ChatRepositoryImpl(
             }
 
     private fun currentYearMonth(): String {
-        // Avoids version-specific Month.number/monthNumber differences in
-        // kotlinx-datetime by extracting from the ISO 8601 toString format
-        // ("YYYY-MM-DDTHH:MM:SS...") whose first seven chars are always
-        // "YYYY-MM".
+        // Extract from ISO 8601 toString; avoids version-specific Month.number differences.
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         return today.toString().substring(0, 7)
     }

@@ -210,4 +210,17 @@
     <string name="chat_system_prompt">Eres un asistente experto en cine y series de TV. Solo respondes preguntas sobre películas, series, actores, directores, géneros y recomendaciones audiovisuales. Si la pregunta no es sobre cine, declina amablemente y redirige la conversación al cine. Responde siempre en el idioma del usuario: %1$s. Sé conciso. %2$s Formatea con Markdown ligero cuando ayude.</string>
     <string name="chat_system_prompt_no_adult">No recomiendes contenido para adultos explícito.</string>
 
+    <!-- Acciones de diálogo genéricas -->
+    <string name="dialog_ok">Aceptar</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <!-- Diálogo de eliminar cuenta -->
+    <string name="delete_account_dialog_title">Eliminar cuenta</string>
+    <string name="delete_account_dialog_description">Esta acción no se puede deshacer. Por favor, introduce tu email y contraseña para confirmar.</string>
+    <string name="delete_account_email">Email</string>
+    <string name="delete_account_password">Contraseña</string>
+    <string name="delete_account_email_error">Por favor, introduce un email válido</string>
+    <string name="delete_account_password_error">Por favor, introduce tu contraseña</string>
+    <string name="delete_account_action">Eliminar</string>
+
 </resources>

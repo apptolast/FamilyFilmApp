@@ -209,4 +209,17 @@
     <string name="chat_system_prompt">You are a cinema and TV series expert. You only answer questions about films, series, actors, directors, genres and audiovisual recommendations. If the user asks about anything else, politely decline and redirect to cinema. Always answer in the user\'s language: %1$s. Be concise. %2$s Format with light Markdown when helpful.</string>
     <string name="chat_system_prompt_no_adult">Do not recommend explicit adult content.</string>
 
+    <!-- Generic dialog actions -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <!-- Delete account dialog -->
+    <string name="delete_account_dialog_title">Delete Account</string>
+    <string name="delete_account_dialog_description">This action cannot be undone. Please enter your email and password to confirm.</string>
+    <string name="delete_account_email">Email</string>
+    <string name="delete_account_password">Password</string>
+    <string name="delete_account_email_error">Please enter a valid email</string>
+    <string name="delete_account_password_error">Please enter your password</string>
+    <string name="delete_account_action">Delete</string>
+
 </resources>

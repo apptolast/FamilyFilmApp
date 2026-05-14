@@ -1,0 +1,142 @@
+# Android production release — driven by `v*` Git tags.
+#
+# Trigger model:
+#   • push a `vX.Y.Z` (or `vX.Y.Z-suffix`) tag on any branch → the workflow
+#     fires. Fastlane reads the tag from $GITHUB_REF_NAME, computes the next
+#     versionCode by querying Play, builds a signed AAB and uploads it to
+#     the Production track as DRAFT (you click "Start rollout" in Play
+#     Console once you're happy with the staged release).
+#   • workflow_dispatch with an existing tag name → re-runs the release for
+#     that tag (e.g. when a previous run failed at the upload step).
+#
+# All secrets live in repo settings → Secrets and variables → Actions:
+#   ANDROID_KEYSTORE_BASE64           base64 of FamilyFilmApp_keystore.jks
+#   ANDROID_KEYSTORE_PASSWORD         keystore password
+#   ANDROID_KEY_ALIAS                 key alias inside the keystore
+#   ANDROID_KEY_PASSWORD              key password
+#   PLAY_SERVICE_ACCOUNT_JSON_BASE64  base64 of the Play Console service account JSON
+#   GOOGLE_SERVICES_JSON_BASE64       base64 of the Firebase google-services.json
+#   WEB_ID_CLIENT                     Google OAuth Web Client ID (BuildKonfig)
+#   TMDB_ACCESS_TOKEN                 TMDB API v4 Bearer token (BuildKonfig)
+#   ADMOB_APPLICATION_ID              ca-app-pub-… app id (BuildKonfig + resValue)
+#   ADMOB_BOTTOM_BANNER_ID            banner ad unit id (BuildKonfig)
+#   ADMOB_APP_OPEN_ID                 app-open ad unit id (BuildKonfig)
+#   ADMOB_NATIVE_HOME_ID              native home ad unit id (BuildKonfig)
+#   REVENUECAT_PLAY_SDK_KEY           RevenueCat production Play SDK key
+#   REVENUECAT_PLAY_SDK_KEY_TEST      RevenueCat sandbox Play SDK key
+
+name: Android Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)release, e.g. v1.1.0'
+        required: true
+        type: string
+
+concurrency:
+  # Serialise releases — two tag pushes back-to-back must not race for the
+  # same versionCode on Play. The group is per-tag so unrelated tags run in
+  # parallel.
+  group: android-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & upload to Play
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # On workflow_dispatch the ref defaults to the workflow file's
+          # branch — explicitly check out the requested tag instead so the
+          # AAB is built from the tagged commit.
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        # AGP 9 requires Java 17 to run Gradle.
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Ruby
+        # bundler-cache: true caches `.bundle/` keyed off the Gemfile.lock +
+        # ruby version, so repeated runs skip the gem install entirely.
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Decode signing secrets
+        # Decoding into $RUNNER_TEMP keeps the files inside the per-job
+        # ephemeral filesystem GitHub wipes after the job ends.
+        run: |
+          mkdir -p "$RUNNER_TEMP/secrets"
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/secrets/keystore.jks"
+          echo "${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}" | base64 -d > "$RUNNER_TEMP/secrets/play.json"
+
+      - name: Decode google-services.json
+        # Consumed by the `com.google.gms.google-services` Gradle plugin
+        # during processReleaseGoogleServices. Lives at
+        # composeApp/google-services.json (the canonical Firebase location);
+        # gitignored, so we restore it from a base64-encoded GitHub Secret
+        # on every run. Without this the Gradle release build fails before
+        # producing the AAB.
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > composeApp/google-services.json
+
+      - name: Render local.properties
+        # Combines BuildKonfig secrets with the signing config the
+        # `android { signingConfigs { release { … } } }` block in
+        # composeApp/build.gradle.kts reads from `signing.*` keys.
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=$ANDROID_HOME
+          signing.storeFile=$RUNNER_TEMP/secrets/keystore.jks
+          signing.storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          signing.keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          signing.keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}
+          TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+          ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}
+          ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
+          ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
+          ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
+          REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
+          EOF
+
+      - name: Run fastlane release_from_tag
+        # fastlane only looks for `fastlane/` in cwd (it does NOT walk parent
+        # dirs the way Bundler does), so we must cd into the composeApp
+        # module where this project's Fastfile lives. Bundler still finds
+        # the root Gemfile by walking up — that part is fine.
+        working-directory: composeApp
+        env:
+          # Fastlane's Appfile reads SUPPLY_JSON_KEY for Play Console auth.
+          SUPPLY_JSON_KEY: ${{ runner.temp }}/secrets/play.json
+          # On workflow_dispatch the auto-set GITHUB_REF_NAME is the workflow
+          # branch, not the tag — override it so the lane parses correctly.
+          GITHUB_REF_NAME: ${{ inputs.tag || github.ref_name }}
+        run: bundle exec fastlane android release_from_tag
+
+      - name: Upload AAB as workflow artifact
+        # Keeps the exact uploaded artifact retrievable from the Actions UI
+        # for 30 days, useful for forensics if a release misbehaves.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: composeApp-release-${{ inputs.tag || github.ref_name }}
+          path: composeApp/build/outputs/bundle/release/composeApp-release.aab
+          retention-days: 30
+          if-no-files-found: warn

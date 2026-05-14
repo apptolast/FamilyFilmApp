@@ -1,0 +1,4 @@
+language = Objective-C
+package = ios.googlemobileads
+modules = GoogleMobileAds
+linkerOpts = -framework GoogleMobileAds

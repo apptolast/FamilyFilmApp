@@ -1,0 +1,29 @@
+# Matchfile — encrypted distribution of iOS signing artifacts for
+# FamilyFilmApp. `match` stores certificates and provisioning profiles in a
+# private Git repo, encrypted with MATCH_PASSWORD, and syncs them across
+# developer machines + CI.
+#
+# Bootstrap (single-time, run from `iosApp/`):
+#   cd iosApp
+#   bundle exec fastlane match appstore       # creates App Store cert + profile
+#   bundle exec fastlane match development    # optional: dev cert + profile
+#
+# Refresh in CI: lanes call `match(type: "appstore", readonly: true)` so the
+# CI job never tries to create new certificates (which would burn one of
+# Apple's 2 distribution-cert slots).
+
+git_url(ENV["MATCH_GIT_URL"]) if ENV["MATCH_GIT_URL"]
+
+# Storage mode: `git` keeps things simple and free; switch to `google_cloud`
+# or `s3` if the certificates repo outgrows Git.
+storage_mode("git")
+
+# Bundle identifier(s) `match` issues profiles for. Keep in sync with the
+# Appfile (and PRODUCT_BUNDLE_IDENTIFIER in Config.xcconfig).
+app_identifier(["com.apptolast.familyfilmapp.FamilyFilmKmp"])
+
+# Apple Developer team — read from env so this file stays committed.
+team_id(ENV["FASTLANE_TEAM_ID"]) if ENV["FASTLANE_TEAM_ID"]
+
+# Default to App Store distribution; lanes can override with `type:`.
+type("appstore")

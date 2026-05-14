@@ -14,10 +14,7 @@ interface ChatMessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: ChatMessageTable)
 
-    /**
-     * Returns the chat history for a user ordered chronologically (oldest first)
-     * so the UI can render it directly without reversing.
-     */
+    // Chronological order (oldest first) so the UI renders without reversing.
     @Query(
         "SELECT * FROM $CHAT_MESSAGES_TABLE_NAME WHERE userId = :userId ORDER BY timestamp ASC",
     )

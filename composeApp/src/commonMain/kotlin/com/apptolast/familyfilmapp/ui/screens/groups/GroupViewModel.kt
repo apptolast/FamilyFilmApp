@@ -8,6 +8,7 @@ import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.UserProperties
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
 import com.apptolast.familyfilmapp.model.local.Media
@@ -16,8 +17,6 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,17 +25,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Group screen ViewModel. Reactive observation of Room-backed groups +
- * per-group movie statuses; mutations write through to the repository.
- * The legacy class avoided combine() complexity and used explicit helper
- * functions — the KMP port keeps that shape, only swapping Hilt → Koin
- * constructor injection and Timber → CrashReporter logging.
- */
 class GroupViewModel(
     private val repository: Repository,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
+    private val currentUserIdProvider: CurrentUserIdProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GroupsState())
@@ -44,7 +37,8 @@ class GroupViewModel(
 
     private var groupsObserverJob: Job? = null
     private var movieStatusObserverJob: Job? = null
-    private val currentUserId: String? = Firebase.auth.currentUser?.uid
+
+    private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
     init {
         if (currentUserId != null) {

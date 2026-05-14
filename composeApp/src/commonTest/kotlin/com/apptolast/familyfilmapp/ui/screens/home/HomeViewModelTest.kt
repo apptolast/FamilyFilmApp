@@ -6,6 +6,7 @@ import com.apptolast.familyfilmapp.ads.NativeAdManager
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
@@ -29,21 +30,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-/**
- * Reference HomeViewModel test ported to commonTest with Mokkery.
- *
- * Demonstrates the migration's testing setup end-to-end: Mokkery
- * replaces MockK (`mock<T>()` + `every {} returns ...` / `everySuspend
- * {} returns ...`), `kotlin.test` replaces JUnit4 + Truth, and
- * Dispatchers.setMain(StandardTestDispatcher()) replaces the JUnit4
- * `MainDispatcherRule` (which doesn't apply in commonTest).
- *
- * Coverage focuses on the parts of the ViewModel that don't need a
- * mocked `Firebase.auth.currentUser?.uid` (the VM reads that lazily
- * via the GitLive singleton; tests that need a stable user id should
- * mock the GitLive Firebase object via Mokkery's mockObject pattern in
- * a follow-up).
- */
 class HomeViewModelTest {
 
     private lateinit var viewModel: HomeViewModel
@@ -62,6 +48,7 @@ class HomeViewModelTest {
     private val nativeAdManager = mock<NativeAdManager>(MockMode.autoUnit)
     private val analyticsTracker = mock<AnalyticsTracker>(MockMode.autoUnit)
     private val crashReporter = mock<CrashReporter>(MockMode.autoUnit)
+    private val currentUserIdProvider = mock<CurrentUserIdProvider>(MockMode.autoUnit)
 
     @BeforeTest
     fun setUp() {
@@ -71,6 +58,8 @@ class HomeViewModelTest {
         every { nativeAdManager.nativeAds } returns MutableStateFlow(emptyList())
         everySuspend { repository.getPopularMoviesList(1) } returns Result.success(emptyList())
         everySuspend { repository.getPopularTvShowsList(1) } returns Result.success(emptyList())
+        // Default to "signed out" — tests that need a stable id override it.
+        every { currentUserIdProvider.currentUserId() } returns null
 
         viewModel = HomeViewModel(
             repository = repository,
@@ -79,6 +68,7 @@ class HomeViewModelTest {
             nativeAdManager = nativeAdManager,
             analyticsTracker = analyticsTracker,
             crashReporter = crashReporter,
+            currentUserIdProvider = currentUserIdProvider,
         )
     }
 

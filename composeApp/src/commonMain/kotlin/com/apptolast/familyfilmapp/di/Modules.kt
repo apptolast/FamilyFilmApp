@@ -4,6 +4,8 @@ import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
+import com.apptolast.familyfilmapp.firebase.FirebaseCurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
@@ -41,59 +43,33 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-// Data layer: repositories, datasources, HTTP client, Room DAOs, Firebase
-// wrappers. Block 8 introduces the Ktor/TMDB graph below; blocks 9, 10 and
-// 11 add Room, GitLive Firebase and the repository implementations.
 val dataModule = module {
     singleOf(::DefaultDispatcherProvider) bind DispatcherProvider::class
 
-    // TMDB network stack: engine comes from platformModule, the HttpClient
-    // wraps it with the bearer token + content negotiation, TmdbApiKtor
-    // exposes the typed surface, TmdbLocaleManager stores the user-selected
-    // language/region via multiplatform-settings.
     single { buildTmdbHttpClient(get()) }
     singleOf(::TmdbLocaleManager)
     singleOf(::TmdbApiKtor) bind TmdbApi::class
 
-    // Room: platformModule provides the platform-specific RoomDatabase.Builder.
-    // buildAppDatabase applies migrations + driver + coroutine context.
     single { buildAppDatabase(get()) }
     single { get<AppDatabase>().userDao() }
     single { get<AppDatabase>().groupDao() }
     single { get<AppDatabase>().groupMovieStatusDao() }
     single { get<AppDatabase>().chatMessageDao() }
 
-    // Firebase facing the rest of the app via small, plain commonMain types
-    // backed by GitLive (Auth/Functions/Analytics/Crashlytics — all KMP-safe).
-    // App Check provider installation is platform-specific and lives in
-    // FamilyFilmApp.onCreate (Android) / iOSApp.swift init (iOS).
     singleOf(::FirebaseAuthRepositoryImpl) bind FirebaseAuthRepository::class
     singleOf(::GeminiChatService)
     singleOf(::FirebaseAnalyticsTracker) bind AnalyticsTracker::class
     singleOf(::CrashReporter)
+    singleOf(::FirebaseCurrentUserIdProvider) bind CurrentUserIdProvider::class
     singleOf(::FirebaseDatabaseDatasourceImpl) bind FirebaseDatabaseDatasource::class
 
-    // Datasources + repositories (block 11). Repository owns the
-    // SyncState-driven Firestore→Room mirroring kicked off from ViewModels
-    // via startSync(userId).
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     singleOf(::TmdbDatasourceImpl) bind TmdbDatasource::class
     singleOf(::RoomDatasourceImpl) bind RoomDatasource::class
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
-
-    // PurchaseManager, GoogleSignInClient, NativeAdManager and RateAppManager
-    // are now contributed by the platformModule on each side. Block 14 binds
-    // the real Android implementations (RevenueCat, CredentialManager, AdMob,
-    // Play In-App Review); block 15 keeps no-op stubs on iOS until the
-    // corresponding SPM packages land.
 }
 
-/**
- * Presentation layer: ViewModels declared via [viewModelOf]. Block 12b
- * registers the shared [AuthViewModel] first; block 12c adds the seven
- * per-screen ViewModels.
- */
 val presentationModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::HomeViewModel)
@@ -102,17 +78,14 @@ val presentationModule = module {
     viewModelOf(::GroupViewModel)
     viewModelOf(::ProfileViewModel)
 
-    // DetailsViewModel takes the route payload (mediaId + mediaType) as
-    // constructor parameters. Screens resolve it via:
-    //   koinViewModel<DetailsViewModel>(parameters = {
-    //       parametersOf(details.mediaId, details.mediaType)
-    //   })
+    // DetailsViewModel takes route payload (mediaId + mediaType) as constructor parameters.
     viewModel { params ->
         DetailsViewModel(
             repository = get(),
             dispatcherProvider = get(),
             analyticsTracker = get(),
             crashReporter = get(),
+            currentUserIdProvider = get(),
             mediaId = params.get<Int>(),
             mediaType = params.get<MediaType>(),
         )

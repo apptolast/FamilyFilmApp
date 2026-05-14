@@ -29,11 +29,7 @@ import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-/**
- * Bottom navigation tab descriptor. UI metadata (icon + title) lives
- * here rather than on the Routes themselves so the navigation layer
- * stays free of Compose imports.
- */
+// UI metadata kept here (not on Routes) so the nav layer stays free of Compose imports.
 private data class BottomTab(
     val routeClass: KClass<out Routes>,
     val route: Routes,

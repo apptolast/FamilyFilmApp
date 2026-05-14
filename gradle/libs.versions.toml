@@ -1,9 +1,9 @@
 [versions]
 # Toolchain & build
-agp = "8.13.2"
+agp = "9.2.1"
 kotlin = "2.3.21"
 ksp = "2.3.7"
-composeMultiplatform = "1.10.3"
+composeMultiplatform = "1.11.0"
 material3 = "1.10.0-alpha05"
 
 # SDKs
@@ -29,7 +29,7 @@ kotlinxSerialization = "1.11.0"
 kotlinxDatetime = "0.8.0"
 
 # HTTP
-ktor = "3.4.3"
+ktor = "3.5.0"
 
 # DI
 koin-bom = "4.2.1"
@@ -58,10 +58,14 @@ user-messaging-platform = "4.0.0"
 revenuecat = "10.5.0"
 play-review-ktx = "2.0.2"
 
+# Paging (multiplatform — cashapp port; uses app.cash.paging namespace)
+paging-mp = "3.3.0-alpha02-0.5.1"
+
 # Testing
 junit = "4.13.2"
 androidx-testExt = "1.3.0"
 androidx-espresso = "3.7.0"
+androidx-compose-ui-test = "1.11.1"
 mokkery = "3.3.0"
 turbine = "1.2.1"
 
@@ -86,6 +90,10 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
+# Android-side Compose UI test runtime. Aliased under `uitest-*` so the
+# accessor doesn't collide with the JB compose plugin's `compose.*` extension.
+uitest-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-compose-ui-test" }
+uitest-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "androidx-compose-ui-test" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
@@ -106,6 +114,10 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 
 # Navigation Compose Multiplatform
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation-compose-mp" }
+
+# Paging Compose Multiplatform (cashapp port of androidx.paging — uses app.cash.paging namespace)
+paging-common = { module = "app.cash.paging:paging-common", version.ref = "paging-mp" }
+paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "paging-mp" }
 
 # Ktor (HTTP)
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

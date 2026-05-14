@@ -4,18 +4,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Cross-platform entitlement façade. Block 14 (Android) wires RevenueCat
- * behind the `RevenueCatPurchaseManager` actual; block 15 (iOS) wires
- * the iOS RevenueCat SPM module. ViewModels in commonMain only see this
- * interface so they can react to entitlement changes without touching
- * the SDKs directly.
- *
- * Activity / UIWindowScene plumbing for the paywall presentation lives
- * inside each platform implementation (an Activity holder on Android,
- * the current key window on iOS) — the suspending methods here just
- * report the outcome.
- */
 interface PurchaseManager {
     val hasRemovedAds: StateFlow<Boolean>
     val hasChatPremium: StateFlow<Boolean>
@@ -34,12 +22,6 @@ interface PurchaseManager {
     suspend fun restorePurchases(): Result<Boolean>
 }
 
-/**
- * Placeholder that satisfies the Koin graph until blocks 14/15 publish a
- * real RevenueCat-backed implementation. All paywall calls fail with
- * [PurchaseFailure.Cancelled] (the UI surface treats it as "user
- * cancelled the dialog" — a sensible no-op outcome).
- */
 class NoOpPurchaseManager : PurchaseManager {
     private val _hasRemovedAds = MutableStateFlow(false)
     private val _hasChatPremium = MutableStateFlow(false)

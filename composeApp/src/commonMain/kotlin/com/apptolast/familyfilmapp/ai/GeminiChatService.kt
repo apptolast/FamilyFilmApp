@@ -11,15 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
 
-/**
- * Calls the Cloud Function `chatComplete` (which enforces quota server-side and
- * proxies Gemini) using GitLive Firebase Functions. The streaming presentation
- * is cosmetic — the callable returns the full text at once and we split it into
- * word-sized deltas for the UI.
- *
- * [CLOUD_FUNCTION_REGION] must match the region declared in
- * `functions/src/chatComplete.ts`.
- */
+// Streaming is cosmetic: the callable returns full text and we split into word-sized deltas.
+// CLOUD_FUNCTION_REGION must match the region declared in functions/src/chatComplete.ts.
 class GeminiChatService(private val tmdbLocaleManager: TmdbLocaleManager) {
 
     private val functions get() = Firebase.functions(region = CLOUD_FUNCTION_REGION)

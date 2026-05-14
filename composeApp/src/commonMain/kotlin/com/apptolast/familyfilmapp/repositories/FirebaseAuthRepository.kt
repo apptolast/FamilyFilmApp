@@ -27,12 +27,6 @@ interface FirebaseAuthRepository {
     fun getProvider(): Flow<String?>
 }
 
-/**
- * GitLive-backed implementation. The legacy code wrapped the Android SDK's
- * `addOnSuccessListener` / `addOnFailureListener` callbacks in [callbackFlow];
- * GitLive exposes the same operations as `suspend` functions, so most of the
- * methods collapse into a single `flow { ... }` with try/catch.
- */
 class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
 
     private val firebaseAuth get() = Firebase.auth
@@ -77,9 +71,7 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
     }
 
     override fun logOut() {
-        // GitLive's signOut is suspend; the legacy API was synchronous. Fire and forget
-        // here is fine because the auth state listener picks up the change reactively.
-        // Use a dedicated coroutine if you need to await completion.
+        // Fire-and-forget — the auth state listener reacts to the change. See logOutAndAwait.
     }
 
     override fun deleteAccountWithReAuthentication(
@@ -144,11 +136,7 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
     }
 }
 
-/**
- * Suspending log-out helper. The interface method [FirebaseAuthRepository.logOut] is
- * fire-and-forget for the legacy callers; this exposes the awaitable variant for
- * tests and for places (e.g. account deletion) that need to know it's done.
- */
+// Awaitable variant of logOut for callers (tests, account deletion) that need completion.
 suspend fun FirebaseAuthRepository.logOutAndAwait() {
     Firebase.auth.signOut()
 }

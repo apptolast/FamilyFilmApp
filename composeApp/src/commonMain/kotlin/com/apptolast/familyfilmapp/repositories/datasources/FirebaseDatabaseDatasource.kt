@@ -22,22 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 
-/**
- * GitLive Firestore backed implementation of [FirebaseDatabaseDatasource].
- *
- * Layout: `FFA/{BUILD_TYPE}/{users|usernames|groups|movies}` plus the
- * per-group `groups/{groupId}/movieStatuses` subcollection.
- *
- * The legacy Android-only datasource used callback-based methods
- * (`success: () -> Unit`, `failure: (Exception) -> Unit`) on top of the
- * Android Firestore SDK. GitLive's API is suspending, so the interface
- * is now plain `suspend fun` / `Flow<...>` everywhere. Real-time listeners
- * use GitLive's `Query.snapshots` flow directly instead of `callbackFlow`.
- *
- * Documents are encoded/decoded through small private @Serializable DTOs
- * — the domain `User`, `Group` and `GroupMediaStatus` classes stay free
- * of Firestore-mapping annotations.
- */
+// Layout: FFA/{BUILD_TYPE}/{users|usernames|groups|movies} plus groups/{id}/movieStatuses subcollection.
 class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) : FirebaseDatabaseDatasource {
 
     private val database: FirebaseFirestore = Firebase.firestore
@@ -116,9 +101,7 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         val usernameLower = username.lowercase()
         val docRef = usernamesCollection.document(usernameLower)
         return try {
-            // GitLive's runTransaction lambda is `suspend Transaction.() -> R`
-            // (Transaction as receiver, no parameter). Methods like get/set/
-            // delete are invoked on the implicit `this`.
+            // GitLive's runTransaction lambda has Transaction as receiver, not as parameter.
             database.runTransaction {
                 val snap = get(docRef)
                 if (snap.exists) {
@@ -153,9 +136,7 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
     // ─── Groups ─────────────────────────────────────────────────────────────
 
     override fun getMyGroups(userId: String): Flow<List<Group>> =
-        // GitLive's FilterBuilder names the array-contains operator `contains`
-        // (not `arrayContains`). Same semantics — matches docs whose `users`
-        // array contains the given userId string.
+        // GitLive names the array-contains operator `contains` (not `arrayContains`).
         groupsCollection.where { "users" contains userId }.snapshots.map { snap ->
             snap.documents.mapNotNull { it.toGroupDomainOrNull() }
         }
@@ -243,12 +224,8 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
             snap.documents.mapNotNull { it.toGroupMediaStatusOrNull(groupId) }
         }
 
-    /**
-     * One-shot migration that copies the legacy `users/{uid}.statusMovies`
-     * map into per-group `groups/{gid}/movieStatuses/{uid_movieId}` documents.
-     * Guarded by `movieStatusMigrated` on the user document so it runs at
-     * most once per install.
-     */
+    // One-shot migration: users/{uid}.statusMovies → groups/{gid}/movieStatuses/{uid_movieId}.
+    // Guarded by `movieStatusMigrated` on the user doc so it runs at most once per install.
     override suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>) {
         val userDoc = usersCollection.document(userId).get()
         if (!userDoc.exists) return

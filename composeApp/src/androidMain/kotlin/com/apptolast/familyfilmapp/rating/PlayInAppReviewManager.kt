@@ -9,14 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Android implementation backed by Play In-App Review. The Play Store
- * deduplicates review prompts behind the scenes and may decide not to
- * show one — there's no way to know whether the user actually rated.
- * `hasRatedApp` only reflects that the user tapped the "rate" entry
- * point at least once (we cache that locally via [MutableStateFlow] —
- * future work could persist it via `multiplatform-settings`).
- */
+// Play Store may decide not to show the prompt; hasRatedApp only reflects that the user tapped "rate".
 class PlayInAppReviewManager(
     private val context: Context,
     private val activityHolder: CurrentActivityHolder,

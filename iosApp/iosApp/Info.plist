@@ -2,37 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CADisableMinimumFrameDurationOnPhone</key>
-    <true/>
-
-    <!-- AdMob app id (block 14 / 15). Replace the placeholder with the
-         real `ca-app-pub-…` identifier from the AdMob console. The same
-         value lives in `composeApp/local.properties` as
-         ADMOB_APPLICATION_ID; if you want them to stay in sync use a
-         Configuration/Config.xcconfig substitution. -->
-    <key>GADApplicationIdentifier</key>
-    <string>ca-app-pub-0000000000000000~0000000000</string>
-
-    <!-- ATT prompt rationale shown the first time the app calls
-         ATTrackingManager.requestTrackingAuthorization (AdMob requires
-         this before serving personalised ads). -->
-    <key>NSUserTrackingUsageDescription</key>
-    <string>We use this identifier to show you more relevant movie recommendations.</string>
-
-    <!-- Google Sign-In client id (block 15). Paste the WEB_ID_CLIENT
-         value from `local.properties` here once you wire the
-         GoogleSignIn-iOS SPM module. -->
-    <key>GIDClientID</key>
-    <string></string>
-
-    <!-- SKAdNetworkItems: required by AdMob for attribution. The list
-         is documented at
-         https://developers.google.com/admob/ios/ios14
-         and changes whenever Google's ad-network partners change.
-         Keep this in sync with that page. -->
-    <key>SKAdNetworkItems</key>
-    <array>
-        <!-- Add SKAdNetworkIdentifier dictionaries here when wiring AdMob. -->
-    </array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-0000000000000000~0000000000</string>
+	<key>GIDClientID</key>
+	<string></string>
+	<key>SKAdNetworkItems</key>
+	<array/>
 </dict>
 </plist>

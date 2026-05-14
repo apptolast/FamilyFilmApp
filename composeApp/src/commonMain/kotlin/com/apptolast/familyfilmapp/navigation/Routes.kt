@@ -3,16 +3,6 @@ package com.apptolast.familyfilmapp.navigation
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import kotlinx.serialization.Serializable
 
-/**
- * Navigation destinations as `@Serializable` types so Jetpack Navigation
- * Compose Multiplatform 2.9+ can use them directly with `composable<Route>`
- * and `navController.navigate(Route)`. No more custom NavType wrappers — the
- * route payload IS the destination.
- *
- * Per-route UI metadata (title StringResource + bottom-bar icon) is
- * intentionally kept out of this file; it lives next to the BottomNavigationBar
- * in block 13 so this layer stays free of Compose imports.
- */
 sealed interface Routes {
 
     @Serializable

@@ -1,12 +1,5 @@
 package com.apptolast.familyfilmapp.analytics
 
-/**
- * Centralised catalogue of custom analytics event names and parameter keys.
- *
- * Firebase standard event/parameter constants live in `FirebaseAnalytics.Event` /
- * `FirebaseAnalytics.Param` and should be used directly when applicable so the events
- * appear in the predefined dashboards. We only define custom names here.
- */
 object AnalyticsEvents {
 
     // Auth
@@ -116,12 +109,7 @@ object AnalyticsEvents {
         const val ERROR = "error"
     }
 
-    /**
-     * Firebase Analytics built-in event/param names. GitLive doesn't expose
-     * the Android SDK's `FirebaseAnalytics.Event` / `FirebaseAnalytics.Param`
-     * enums, so the canonical strings are inlined here. Keep in sync with
-     * https://firebase.google.com/docs/reference/cpp/group/event-names
-     */
+    // Firebase built-in names inlined here because GitLive doesn't expose the SDK enums.
     object Standard {
         const val EVENT_VIEW_ITEM = "view_item"
         const val EVENT_ADD_TO_WISHLIST = "add_to_wishlist"

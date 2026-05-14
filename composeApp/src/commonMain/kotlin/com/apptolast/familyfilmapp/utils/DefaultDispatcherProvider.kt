@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.utils
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
 class DefaultDispatcherProvider : DispatcherProvider
 

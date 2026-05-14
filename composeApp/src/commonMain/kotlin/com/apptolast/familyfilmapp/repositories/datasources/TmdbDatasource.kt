@@ -6,12 +6,6 @@ import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowRemote
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 
-/**
- * Thin adapter over [TmdbApi] that pulls the current language tag and
- * `include_adult` flag from [TmdbLocaleManager] for every call (the
- * Ktor-based API doesn't fall back to a JVM `Locale` default any more),
- * and applies a client-side adult filter when the user has the flag off.
- */
 class TmdbDatasourceImpl(
     private val tmdbApi: TmdbApi,
     private val tmdbLocaleManager: TmdbLocaleManager,

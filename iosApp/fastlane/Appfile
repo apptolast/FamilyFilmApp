@@ -1,0 +1,21 @@
+# Appfile — fixed identifiers for the iOS side of FamilyFilmApp (KMP).
+#
+# fastlane reads this automatically when running any lane in this directory.
+# Per-developer paths and credentials are loaded from `iosApp/fastlane/.env*`
+# (gitignored) or, in CI, from job-level env vars populated by Actions Secrets.
+
+# Bundle identifier as declared in iosApp/Configuration/Config.xcconfig
+# (PRODUCT_BUNDLE_IDENTIFIER). Must match the App Store Connect listing
+# exactly — Apple rejects mismatches.
+app_identifier("com.apptolast.familyfilmapp.FamilyFilmKmp")
+
+# Apple Developer account email used by `pilot` (TestFlight) and `deliver`
+# (App Store). Set in `.env` so the same Fastfile works across developers.
+apple_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]
+
+# Team identifiers — read from env so the file can stay committed without
+# embedding our team numbers. Found at:
+#   • developer.apple.com → Membership → Team ID         → FASTLANE_TEAM_ID
+#   • App Store Connect → Users and Access → Team ID     → FASTLANE_ITC_TEAM_ID
+team_id(ENV["FASTLANE_TEAM_ID"]) if ENV["FASTLANE_TEAM_ID"]
+itc_team_id(ENV["FASTLANE_ITC_TEAM_ID"]) if ENV["FASTLANE_ITC_TEAM_ID"]

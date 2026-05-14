@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.User
@@ -13,8 +14,6 @@ import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.home.toAnalyticsContentType
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,18 +24,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Detail screen ViewModel. The legacy version used Hilt assisted injection
- * (`@AssistedInject` + `@AssistedFactory`) to take the route payload
- * (mediaId + mediaType) as constructor parameters. With Koin the screen
- * passes them through `koinViewModel<DetailsViewModel>(parameters = {
- * parametersOf(mediaId, mediaType) })`.
- */
 class DetailsViewModel(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
+    private val currentUserIdProvider: CurrentUserIdProvider,
     private val mediaId: Int,
     private val mediaType: MediaType,
 ) : ViewModel() {
@@ -44,7 +37,7 @@ class DetailsViewModel(
     private val _state = MutableStateFlow(DetailUiState())
     val state: StateFlow<DetailUiState> = _state.asStateFlow()
 
-    private val currentUserId: String? get() = Firebase.auth.currentUser?.uid
+    private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
     init {
         analyticsTracker.logEvent(

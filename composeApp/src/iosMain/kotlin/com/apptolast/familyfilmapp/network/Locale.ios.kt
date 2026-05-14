@@ -4,7 +4,6 @@ import platform.Foundation.NSLocale
 import platform.Foundation.NSLocaleCountryCode
 import platform.Foundation.NSLocaleLanguageCode
 import platform.Foundation.currentLocale
-import platform.Foundation.objectForKey
 
 actual fun systemLanguageTag(): String {
     val language = NSLocale.currentLocale.objectForKey(NSLocaleLanguageCode) as? String ?: "en"

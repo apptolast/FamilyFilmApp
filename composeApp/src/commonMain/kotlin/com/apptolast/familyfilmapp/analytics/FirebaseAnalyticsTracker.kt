@@ -4,19 +4,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.analytics.FirebaseAnalytics
 import dev.gitlive.firebase.analytics.analytics
 
-/**
- * Multiplatform Firebase Analytics adapter backed by GitLive.
- *
- * GitLive proxies the native SDK on each platform: firebase-analytics on
- * Android, FirebaseAnalytics (added via SPM in Xcode) on iOS. Behaviour
- * matches the legacy Android-only tracker — same event names, same
- * truncation rules, same consent surface — but the implementation no
- * longer depends on `android.os.Bundle` or `FirebaseAnalytics.Event/Param`.
- *
- * The Firebase Analytics standard event/param names are hard-coded as
- * string constants ([Std]) because GitLive doesn't expose the Java
- * `FirebaseAnalytics.Event` / `FirebaseAnalytics.Param` enums.
- */
+// Standard event/param names are hard-coded ([Std]) since GitLive doesn't expose the Java enums.
 class FirebaseAnalyticsTracker : AnalyticsTracker {
 
     private val analytics get() = Firebase.analytics
@@ -30,8 +18,7 @@ class FirebaseAnalyticsTracker : AnalyticsTracker {
     }
 
     override fun setUserProperty(name: String, value: String?) {
-        // GitLive setUserProperty doesn't accept null, but the native Firebase
-        // Analytics SDK uses empty string to clear a property — same behaviour.
+        // GitLive doesn't accept null; empty string clears the property in the native SDK.
         analytics.setUserProperty(
             name = name.take(MAX_PROPERTY_NAME_LENGTH),
             value = value?.take(MAX_VALUE_LENGTH).orEmpty(),

@@ -47,19 +47,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Shared ViewModel that owns the auth lifecycle, the login/register form
- * state, and the username slot reservation flow.
- *
- * Android-only dependencies from the legacy class have been abstracted:
- * - CredentialManager + GoogleIdTokenCredential are now behind
- *   [GoogleSignInClient]; ViewModels only ever see an ID token string.
- * - RevenueCat lives behind [PurchaseManager]; the noOp implementation
- *   registered in commonMain keeps the graph resolvable until blocks
- *   14/15 plug in the real SDK.
- * - Firebase-specific exception types come from GitLive
- *   (`dev.gitlive.firebase.auth.*`) instead of the Android Firebase SDK.
- */
 class AuthViewModel(
     private val authRepository: FirebaseAuthRepository,
     private val repository: Repository,
@@ -275,11 +262,6 @@ class AuthViewModel(
             }
     }
 
-    /**
-     * Drives the Google Sign-In flow through [GoogleSignInClient]. The legacy
-     * Android API took the `Activity` Context for CredentialManager; that
-     * concern now lives behind the platform actual in block 14/15.
-     */
     fun googleSignIn() = viewModelScope.launch {
         try {
             val idToken = googleSignInClient.signIn() ?: run {
@@ -410,10 +392,7 @@ class AuthViewModel(
         }
     }
 
-    /**
-     * Maps Firebase Auth exceptions to a closed analytics category. Never
-     * surfaces the raw message — it can leak user-controlled input.
-     */
+    // Never surface raw exception messages — they can leak user-controlled input.
     private fun Throwable.toAuthErrorType(): String = when (this) {
         is FirebaseAuthInvalidCredentialsException -> AnalyticsEvents.ErrorType.INVALID_CREDENTIALS
         is FirebaseAuthInvalidUserException -> AnalyticsEvents.ErrorType.USER_DISABLED
@@ -454,9 +433,7 @@ class AuthViewModel(
 
     private companion object {
         const val USERNAME_CHECK_DEBOUNCE_MS = 500L
-        // Firebase Auth provider id constants (Android SDK exposes them via
-        // GoogleAuthProvider / EmailAuthProvider). GitLive Auth's
-        // FirebaseUser.providerData returns these same id strings.
+        // GitLive returns provider ID strings (not enum) from FirebaseUser.providerData.
         const val GOOGLE_PROVIDER_ID = "google.com"
         const val PASSWORD_PROVIDER_ID = "password"
     }

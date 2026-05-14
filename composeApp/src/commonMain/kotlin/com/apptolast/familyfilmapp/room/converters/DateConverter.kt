@@ -3,11 +3,7 @@ package com.apptolast.familyfilmapp.room.converters
 import androidx.room.TypeConverter
 import kotlin.time.Instant
 
-/**
- * Persists [Instant]s as epoch milliseconds (INTEGER column) — same SQL shape
- * as the legacy java.util.Date based converter, so the v1..v10 migrations and
- * any data carried over from a previous install keep working.
- */
+// Persists Instants as epoch millis (INTEGER) — matches the prior java.util.Date column shape.
 class DateConverter {
 
     @TypeConverter

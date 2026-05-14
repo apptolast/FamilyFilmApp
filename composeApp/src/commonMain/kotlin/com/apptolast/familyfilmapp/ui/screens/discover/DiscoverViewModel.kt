@@ -6,6 +6,7 @@ import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
@@ -13,8 +14,6 @@ import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.home.toAnalyticsContentType
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,12 +28,13 @@ class DiscoverViewModel(
     private val tmdbLocaleManager: TmdbLocaleManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
+    private val currentUserIdProvider: CurrentUserIdProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState: StateFlow<DiscoverUiState> = _uiState.asStateFlow()
 
-    private val currentUserId: String? get() = Firebase.auth.currentUser?.uid
+    private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
     private var currentPage = 1
     private var markedMediaIds: Set<Int> = emptySet()

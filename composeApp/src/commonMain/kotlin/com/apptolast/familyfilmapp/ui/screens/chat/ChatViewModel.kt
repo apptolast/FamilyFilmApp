@@ -9,14 +9,13 @@ import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
 import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.ChatRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -36,9 +35,11 @@ class ChatViewModel(
     private val purchaseManager: PurchaseManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
+    private val currentUserIdProvider: CurrentUserIdProvider,
 ) : ViewModel() {
 
-    private val userId: String? = Firebase.auth.currentUser?.uid
+    // Snapshot at construction: Compose tears the screen down on logout via AuthState.
+    private val userId: String? = currentUserIdProvider.currentUserId()
 
     init {
         analyticsTracker.logEvent(
@@ -131,9 +132,7 @@ class ChatViewModel(
 
                     is ChatStreamEvent.Failed -> {
                         crashReporter.recordException(event.error)
-                        // We no longer have java.io.IOException in commonMain;
-                        // fall back to inspecting the exception class name as a
-                        // best-effort network heuristic.
+                        // commonMain has no java.io.IOException — class-name heuristic instead.
                         val isNetwork = event.error::class.simpleName
                             ?.contains("IO", ignoreCase = true) == true ||
                             event.error::class.simpleName

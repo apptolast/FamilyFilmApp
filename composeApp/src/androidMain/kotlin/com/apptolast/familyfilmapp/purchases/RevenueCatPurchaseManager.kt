@@ -18,30 +18,12 @@ import com.revenuecat.purchases.logInWith
 import com.revenuecat.purchases.logOutWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
-// StoreTransaction is exposed by the purchaseWith success lambda but we
-// don't inspect it (entitlements live on CustomerInfo). No explicit import
-// needed.
 import kotlin.coroutines.resume
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/**
- * RevenueCat-backed implementation. Entitlements are mirrored from the
- * SDK's [CustomerInfo] into the [StateFlow]s exposed to commonMain.
- *
- * Purchase flow:
- *  1. [initialize] starts RevenueCat with the Play SDK key from BuildKonfig
- *     and binds the session to the Firebase user id.
- *  2. ViewModels call [purchaseRemoveAds] / [purchaseChatPremium], which
- *     fetch the current offering, look up the package by entitlement id,
- *     and launch the Play Store sheet anchored to the current Activity
- *     (via [CurrentActivityHolder]).
-  3. RevenueCat reports completion through the purchaseWith success
- *     lambda; we wrap it in a suspending coroutine and update the
- *     entitlement flows from the resulting [CustomerInfo].
- */
 class RevenueCatPurchaseManager(
     private val context: Context,
     private val activityHolder: CurrentActivityHolder,
@@ -68,15 +50,13 @@ class RevenueCatPurchaseManager(
                 UpdatedCustomerInfoListener { info -> mirror(info) }
             configured = true
         } else {
-            // logInWith takes (newAppUserID, onError, onSuccess) — no named-arg style.
             Purchases.sharedInstance.logInWith(
                 userId,
                 { error -> crashReporter.recordException(error.asThrowable()) },
                 { info, _ -> mirror(info) },
             )
         }
-        // Pull current state once. getCustomerInfoWith takes positional lambdas:
-        // (onError, onSuccess).
+        // Pull current state once.
         Purchases.sharedInstance.getCustomerInfoWith(
             { error -> crashReporter.recordException(error.asThrowable()) },
             { info -> mirror(info) },
@@ -84,14 +64,12 @@ class RevenueCatPurchaseManager(
     }
 
     override fun setAdsRemoved(value: Boolean) {
-        // RevenueCat is the source of truth; we only update the local flow so
-        // the UI reflects the persisted-from-Firestore mirror immediately.
+        // RevenueCat is the source of truth; we update the local flow so the Firestore mirror shows immediately.
         _hasRemovedAds.value = value
     }
 
     override fun logout() {
         if (!configured) return
-        // logOutWith takes positional lambdas: (onError, onSuccess).
         Purchases.sharedInstance.logOutWith(
             { error -> crashReporter.recordException(error.asThrowable()) },
             { info -> mirror(info) },
@@ -105,7 +83,6 @@ class RevenueCatPurchaseManager(
     override suspend fun purchaseChatPremium(): Result<Unit> = purchaseEntitlement(ENTITLEMENT_CHAT_PREMIUM)
 
     override suspend fun restorePurchases(): Result<Boolean> = suspendCancellableCoroutine { cont ->
-        // restorePurchasesWith takes positional lambdas: (onError, onSuccess).
         Purchases.sharedInstance.restorePurchasesWith(
             { error -> cont.resume(Result.failure(error.toPurchaseFailure())) },
             { info ->
@@ -123,7 +100,6 @@ class RevenueCatPurchaseManager(
             ?: return Result.failure(PurchaseFailure.Generic("No package configured for $entitlement"))
 
         return suspendCancellableCoroutine { cont ->
-            // purchaseWith takes positional lambdas: (params, onError, onSuccess).
             Purchases.sharedInstance.purchaseWith(
                 com.revenuecat.purchases.PurchaseParams.Builder(activity, pkg).build(),
                 { error, userCancelled ->
@@ -143,7 +119,6 @@ class RevenueCatPurchaseManager(
 
     private suspend fun fetchOfferings(): com.revenuecat.purchases.Offerings? =
         suspendCancellableCoroutine { cont ->
-            // getOfferingsWith takes positional lambdas: (onError, onSuccess).
             Purchases.sharedInstance.getOfferingsWith(
                 { error ->
                     cont.resume(null)

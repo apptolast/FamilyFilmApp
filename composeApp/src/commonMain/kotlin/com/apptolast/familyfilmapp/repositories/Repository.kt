@@ -83,20 +83,8 @@ interface Repository {
     suspend fun clearLocalData()
 }
 
-/**
- * Repository mediator over Room + Firestore + TMDB. Room is the single
- * source of truth for the UI; Firestore is mirrored into Room via the
- * real-time listeners started by [startSync].
- *
- * Write-through pattern: every mutation writes to Firestore first
- * (suspending) and then to Room before returning, so subsequent UI reads
- * see the updated state immediately. Errors propagate as `Result.failure`;
- * background sync errors land in [SyncState.Error] and [CrashReporter].
- *
- * Paging (legacy `Pager`+`PagingData`) is deliberately dropped — block 13
- * (UI) decides whether to use single-page lists or reintroduce a
- * multiplatform paging library.
- */
+// Room is the UI's single source of truth; Firestore mirrors into Room via startSync listeners.
+// Write-through: mutations write to Firestore first (suspending), then Room, before returning.
 class RepositoryImpl(
     private val roomDatasource: RoomDatasource,
     private val firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
@@ -337,7 +325,7 @@ class RepositoryImpl(
                         }
                     }
 
-                    // One-time migration of legacy statusMovies → per-group docs
+                    // One-time migration of statusMovies → per-group docs.
                     try {
                         firebaseDatabaseDatasource.migrateMovieStatusesIfNeeded(userId, remoteGroups)
                     } catch (e: Throwable) {

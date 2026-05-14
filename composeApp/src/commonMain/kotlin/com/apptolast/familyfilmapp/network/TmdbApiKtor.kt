@@ -11,12 +11,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
-/**
- * Ktor-backed TMDB v3 API client. The [HttpClient] comes from
- * [buildTmdbHttpClient] and carries the bearer token + base URL via its
- * defaultRequest block, so callers only specify path and per-request
- * parameters.
- */
 class TmdbApiKtor(private val client: HttpClient) : TmdbApi {
 
     override suspend fun getPopularMovies(page: Int, language: String, appendProviders: Boolean): TmdbMovieWrapperRemote =

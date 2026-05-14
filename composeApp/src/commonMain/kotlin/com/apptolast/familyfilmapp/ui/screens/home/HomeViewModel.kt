@@ -10,14 +10,13 @@ import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +33,7 @@ class HomeViewModel(
     private val nativeAdManager: NativeAdManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
+    private val currentUserIdProvider: CurrentUserIdProvider,
 ) : ViewModel() {
 
     val nativeAds: StateFlow<List<NativeAdHandle>> = nativeAdManager.nativeAds
@@ -44,7 +44,7 @@ class HomeViewModel(
     private val selectedFilter = MutableStateFlow(MediaFilter.ALL)
     private val activeSearchQuery = MutableStateFlow<String?>(null)
 
-    private val currentUserId: String? get() = Firebase.auth.currentUser?.uid
+    private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
     private val _media = MutableStateFlow<List<Media>>(emptyList())
     val media: StateFlow<List<Media>> = _media.asStateFlow()
@@ -79,11 +79,6 @@ class HomeViewModel(
         nativeAdManager.destroyAds()
     }
 
-    /**
-     * Paging dropped from the data layer in block 11 — this fetches a single
-     * page on filter change. If multi-page paging is needed by the UI, block
-     * 13 plugs in a multiplatform paging library and reverts the signature.
-     */
     private fun loadMedia(filter: MediaFilter) = viewModelScope.launch(dispatcherProvider.io()) {
         val result = when (filter) {
             MediaFilter.ALL, MediaFilter.MOVIES -> repository.getPopularMoviesList()

@@ -17,7 +17,7 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
-// Load secrets from local.properties (consumed by BuildKonfig below)
+// Secrets from local.properties — consumed by BuildKonfig below.
 val localProperties = Properties().apply {
     val localFile = rootProject.file("local.properties")
     if (localFile.exists()) load(FileInputStream(localFile))
@@ -27,8 +27,7 @@ fun localProperty(name: String): String = localProperties.getProperty(name) ?: "
 
 kotlin {
     androidTarget {
-        // JVM 17: GitLive and kotlin.uuid publish bytecode built at JVM 17.
-        // AGP 9 + JDK 17 toolchain also expects 17 on the Android side.
+        // GitLive and kotlin.uuid publish bytecode built at JVM 17.
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
@@ -41,10 +40,20 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            // Native iOS frameworks (Firebase, GoogleMobileAds, GoogleSignIn, RevenueCat,
-            // UserMessagingPlatform) are supplied by SPM at Xcode link time. Their cinterop
-            // bindings, including per-framework linkerOpts in .def files, are added by the
-            // libraries themselves (GitLive) or by our own cinterop tasks (block 15).
+        }
+
+        // Cinterop fails without `xcode.frameworks.path` in local.properties pointing at the resolved SPM frameworks.
+        val xcodeFrameworksPath = localProperty("xcode.frameworks.path").takeIf { it.isNotBlank() }
+        if (xcodeFrameworksPath != null) {
+            iosTarget.compilations.getByName("main").cinterops {
+                listOf("GoogleMobileAds", "RevenueCat", "GoogleSignIn").forEach { name ->
+                    create(name) {
+                        defFile(project.file("src/nativeInterop/cinterop/$name.def"))
+                        compilerOpts("-F$xcodeFrameworksPath")
+                        extraOpts("-compiler-option", "-F$xcodeFrameworksPath")
+                    }
+                }
+            }
         }
     }
 
@@ -63,6 +72,10 @@ kotlin {
 
             // Navigation
             implementation(libs.androidx.navigation.compose)
+
+            // Paging (multiplatform port)
+            implementation(libs.paging.common)
+            implementation(libs.paging.compose)
 
             // Kotlinx
             implementation(libs.kotlinx.coroutines.core)
@@ -101,9 +114,7 @@ kotlin {
             implementation(libs.firebase.gitlive.functions)
             implementation(libs.firebase.gitlive.analytics)
             implementation(libs.firebase.gitlive.crashlytics)
-            // App Check is not part of GitLive; we install the provider factory
-            // natively on each platform (Android: firebase-appcheck-playintegrity;
-            // iOS: cinterop to FirebaseAppCheck SPM module). See block 10.
+            // App Check is not in GitLive; provider factories are installed natively per platform.
         }
 
         commonTest.dependencies {
@@ -132,9 +143,7 @@ kotlin {
             // Native Firebase Android (App Check provider factories — not in GitLive)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.appcheck.playintegrity)
-            // App Check Debug is debug-only; declared in the project-level
-            // dependencies { } block below because KMP androidMain.dependencies { }
-            // doesn't expose configurations like debugImplementation.
+            // App Check Debug is debug-only; declared below since androidMain.dependencies has no debugImplementation.
 
             // Google Sign-In (Credential Manager)
             implementation(libs.androidx.credentials)
@@ -164,6 +173,14 @@ kotlin {
             implementation(libs.junit)
             implementation(libs.kotlin.testJunit)
         }
+
+        androidInstrumentedTest.dependencies {
+            implementation(libs.androidx.testExt.junit)
+            implementation(libs.androidx.espresso.core)
+            implementation(libs.uitest.junit4.android)
+            // ui-test-manifest is registered as debugImplementation at the project level
+            // below (KMP source-set DSL has no debugImplementation).
+        }
     }
 }
 
@@ -175,12 +192,13 @@ android {
         applicationId = "com.apptolast.familyfilmapp"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 30
-        versionName = "1.1.0"
+        // Release builds via Fastlane override these with -PappVersionCode/-PappVersionName.
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 30
+        versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.0"
 
         vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // AdMob resource value (read from BuildConfig at runtime)
         resValue("string", "admob_app_id", localProperty("ADMOB_APPLICATION_ID"))
     }
 
@@ -188,9 +206,21 @@ android {
         compose = true
     }
 
+    // CI writes signing.* into local.properties before invoking Fastlane.
+    signingConfigs {
+        create("release") {
+            val storeFilePath = localProperty("signing.storeFile")
+            if (storeFilePath.isNotBlank()) {
+                storeFile = file(storeFilePath)
+                storePassword = localProperty("signing.storePassword")
+                keyAlias = localProperty("signing.keyAlias")
+                keyPassword = localProperty("signing.keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         getByName("debug") {
-            // Keep symbols readable for crashlytics in debug
         }
         getByName("release") {
             isMinifyEnabled = true
@@ -199,7 +229,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // signingConfig wired in CI via Fastlane
+            // Only attach release signing when configured, so assembleRelease works without secrets.
+            if (localProperty("signing.storeFile").isNotBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -222,24 +255,22 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-// Wire Room compiler KSP for every target that needs entity processing
-// and Firebase App Check Debug for debug builds (debugImplementation isn't
-// available inside KMP androidMain.dependencies, so it goes here).
+// Room KSP per target + Firebase App Check Debug (no debugImplementation in androidMain.dependencies).
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("debugImplementation", libs.firebase.appcheck.debug)
+    // ui-test-manifest provides the empty Activity createComposeRule uses;
+    // must be debugImplementation because connectedAndroidTest runs against debug.
+    add("debugImplementation", libs.uitest.manifest)
 }
 
-// Secrets exposed in commonMain via BuildKonfig (replaces app-level buildConfigField)
 buildConfig {
     packageName("com.apptolast.familyfilmapp")
     useKotlinOutput { internalVisibility = false }
 
-    // Firestore root path lives at `FFA/{BUILD_TYPE}/...` so dev/prod data
-    // stays segregated. Hard-coded to "debug" for now — switch to "release"
-    // (or wire a variant-aware BuildKonfig flavorConfig) before publishing.
+    // TODO: switch to "release" (or wire a variant-aware flavorConfig) before publishing.
     buildConfigField("BUILD_TYPE", "debug")
     buildConfigField("WEB_ID_CLIENT", localProperty("WEB_ID_CLIENT"))
     buildConfigField("TMDB_ACCESS_TOKEN", localProperty("TMDB_ACCESS_TOKEN"))
@@ -252,7 +283,6 @@ buildConfig {
 }
 
 ktlint {
-    // version not set explicitly; the plugin (14.2.0) ships with a recent ktlint default
     android.set(false)
     outputToConsole.set(true)
     ignoreFailures.set(false)

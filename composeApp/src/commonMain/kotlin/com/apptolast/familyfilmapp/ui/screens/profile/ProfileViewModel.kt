@@ -26,12 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Paywall presentation methods used to take an `Activity` parameter on the
- * legacy side. The KMP rewrite collapses that to a parameterless suspend
- * function — the platform actuals (block 14 / 15) keep references to the
- * current Activity / window scene internally.
- */
 class ProfileViewModel(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,

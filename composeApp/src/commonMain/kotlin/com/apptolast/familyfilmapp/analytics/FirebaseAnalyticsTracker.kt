@@ -1,8 +1,7 @@
 package com.apptolast.familyfilmapp.analytics
 
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.analytics.ConsentStatus
-import dev.gitlive.firebase.analytics.ConsentType
+import dev.gitlive.firebase.analytics.FirebaseAnalytics
 import dev.gitlive.firebase.analytics.analytics
 
 /**
@@ -31,19 +30,21 @@ class FirebaseAnalyticsTracker : AnalyticsTracker {
     }
 
     override fun setUserProperty(name: String, value: String?) {
+        // GitLive setUserProperty doesn't accept null, but the native Firebase
+        // Analytics SDK uses empty string to clear a property — same behaviour.
         analytics.setUserProperty(
             name = name.take(MAX_PROPERTY_NAME_LENGTH),
-            value = value?.take(MAX_VALUE_LENGTH),
+            value = value?.take(MAX_VALUE_LENGTH).orEmpty(),
         )
     }
 
     override fun setConsent(analyticsGranted: Boolean, adsGranted: Boolean) {
         analytics.setConsent(
             mapOf(
-                ConsentType.AnalyticsStorage to analyticsGranted.toConsent(),
-                ConsentType.AdStorage to adsGranted.toConsent(),
-                ConsentType.AdUserData to adsGranted.toConsent(),
-                ConsentType.AdPersonalization to adsGranted.toConsent(),
+                FirebaseAnalytics.ConsentType.ANALYTICS_STORAGE to analyticsGranted.toConsent(),
+                FirebaseAnalytics.ConsentType.AD_STORAGE to adsGranted.toConsent(),
+                FirebaseAnalytics.ConsentType.AD_USER_DATA to adsGranted.toConsent(),
+                FirebaseAnalytics.ConsentType.AD_PERSONALIZATION to adsGranted.toConsent(),
             ),
         )
     }
@@ -135,7 +136,8 @@ class FirebaseAnalyticsTracker : AnalyticsTracker {
         }
     }
 
-    private fun Boolean.toConsent(): ConsentStatus = if (this) ConsentStatus.Granted else ConsentStatus.Denied
+    private fun Boolean.toConsent(): FirebaseAnalytics.ConsentStatus =
+        if (this) FirebaseAnalytics.ConsentStatus.GRANTED else FirebaseAnalytics.ConsentStatus.DENIED
 
     private object Std {
         // Standard Firebase Analytics event names

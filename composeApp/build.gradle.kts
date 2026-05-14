@@ -27,8 +27,10 @@ fun localProperty(name: String): String = localProperties.getProperty(name) ?: "
 
 kotlin {
     androidTarget {
+        // JVM 17: GitLive and kotlin.uuid publish bytecode built at JVM 17.
+        // AGP 9 + JDK 17 toolchain also expects 17 on the Android side.
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -211,8 +213,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

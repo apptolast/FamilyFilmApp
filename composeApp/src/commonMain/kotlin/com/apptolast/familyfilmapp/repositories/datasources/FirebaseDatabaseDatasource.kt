@@ -116,14 +116,17 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         val usernameLower = username.lowercase()
         val docRef = usernamesCollection.document(usernameLower)
         return try {
-            database.runTransaction { transaction ->
-                val snap = transaction.get(docRef)
+            // GitLive's runTransaction lambda is `suspend Transaction.() -> R`
+            // (Transaction as receiver, no parameter). Methods like get/set/
+            // delete are invoked on the implicit `this`.
+            database.runTransaction {
+                val snap = get(docRef)
                 if (snap.exists) {
                     val existing = snap.optional<String>("userId")
                     if (existing == userId) return@runTransaction
                     error("Username already taken")
                 }
-                transaction.set(docRef, UsernameClaimDto(userId = userId))
+                set(docRef, UsernameClaimDto(userId = userId))
             }
             true
         } catch (e: Throwable) {
@@ -150,7 +153,10 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
     // ─── Groups ─────────────────────────────────────────────────────────────
 
     override fun getMyGroups(userId: String): Flow<List<Group>> =
-        groupsCollection.where { "users" arrayContains userId }.snapshots.map { snap ->
+        // GitLive's FilterBuilder names the array-contains operator `contains`
+        // (not `arrayContains`). Same semantics — matches docs whose `users`
+        // array contains the given userId string.
+        groupsCollection.where { "users" contains userId }.snapshots.map { snap ->
             snap.documents.mapNotNull { it.toGroupDomainOrNull() }
         }
 

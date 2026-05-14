@@ -4,6 +4,8 @@ import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.network.buildTmdbHttpClient
+import com.apptolast.familyfilmapp.room.AppDatabase
+import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import org.koin.core.module.dsl.singleOf
@@ -23,6 +25,14 @@ val dataModule = module {
     single { buildTmdbHttpClient(get()) }
     singleOf(::TmdbLocaleManager)
     singleOf(::TmdbApiKtor) bind TmdbApi::class
+
+    // Room: platformModule provides the platform-specific RoomDatabase.Builder.
+    // buildAppDatabase applies migrations + driver + coroutine context.
+    single { buildAppDatabase(get()) }
+    single { get<AppDatabase>().userDao() }
+    single { get<AppDatabase>().groupDao() }
+    single { get<AppDatabase>().groupMovieStatusDao() }
+    single { get<AppDatabase>().chatMessageDao() }
 }
 
 // Presentation layer: ViewModels declared via viewModelOf(::ClassName).

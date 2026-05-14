@@ -1,14 +1,26 @@
 package com.apptolast.familyfilmapp.di
 
+import com.apptolast.familyfilmapp.ads.NativeAdManager
+import com.apptolast.familyfilmapp.ads.NoOpNativeAdManager
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.auth.NoOpGoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.purchases.NoOpPurchaseManager
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.rating.NoOpRateAppManager
+import com.apptolast.familyfilmapp.rating.RateAppManager
+import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
+import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel
+import com.apptolast.familyfilmapp.ui.screens.home.HomeViewModel
+import com.apptolast.familyfilmapp.ui.screens.profile.ProfileViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import org.koin.core.module.dsl.viewModel
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
@@ -84,6 +96,8 @@ val dataModule = module {
     // real RevenueCat / Credential Manager / GoogleSignIn-iOS hooks land.
     singleOf(::NoOpPurchaseManager) bind PurchaseManager::class
     singleOf(::NoOpGoogleSignInClient) bind GoogleSignInClient::class
+    singleOf(::NoOpNativeAdManager) bind NativeAdManager::class
+    singleOf(::NoOpRateAppManager) bind RateAppManager::class
 }
 
 /**
@@ -93,4 +107,25 @@ val dataModule = module {
  */
 val presentationModule = module {
     viewModelOf(::AuthViewModel)
+    viewModelOf(::HomeViewModel)
+    viewModelOf(::DiscoverViewModel)
+    viewModelOf(::ChatViewModel)
+    viewModelOf(::GroupViewModel)
+    viewModelOf(::ProfileViewModel)
+
+    // DetailsViewModel takes the route payload (mediaId + mediaType) as
+    // constructor parameters. Screens resolve it via:
+    //   koinViewModel<DetailsViewModel>(parameters = {
+    //       parametersOf(details.mediaId, details.mediaType)
+    //   })
+    viewModel { params ->
+        DetailsViewModel(
+            repository = get(),
+            dispatcherProvider = get(),
+            analyticsTracker = get(),
+            crashReporter = get(),
+            mediaId = params.get<Int>(),
+            mediaType = params.get<MediaType>(),
+        )
+    }
 }

@@ -115,4 +115,17 @@ object AnalyticsEvents {
         const val NOTHING_FOUND = "nothing_found"
         const val ERROR = "error"
     }
+
+    /**
+     * Firebase Analytics built-in event/param names. GitLive doesn't expose
+     * the Android SDK's `FirebaseAnalytics.Event` / `FirebaseAnalytics.Param`
+     * enums, so the canonical strings are inlined here. Keep in sync with
+     * https://firebase.google.com/docs/reference/cpp/group/event-names
+     */
+    object Standard {
+        const val EVENT_VIEW_ITEM = "view_item"
+        const val EVENT_ADD_TO_WISHLIST = "add_to_wishlist"
+        const val PARAM_CONTENT_TYPE = "content_type"
+        const val PARAM_ITEM_ID = "item_id"
+    }
 }

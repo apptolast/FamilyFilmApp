@@ -1,4 +1,4 @@
-name: Android Build
+name: Build
 
 on:
   pull_request:
@@ -10,6 +10,10 @@ on:
 
   workflow_dispatch:
 
+# NOTE: This workflow is a temporary stub during the KMP migration.
+# Bloque 18 of the plan replaces it with android-build + ios-build jobs
+# wired to the composeApp module and the new BuildKonfig secret list.
+
 jobs:
   build:
     name: Build
@@ -17,7 +21,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Restore Cache
         uses: actions/cache@v4
@@ -30,15 +34,10 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'adopt'
-
-      - name: Decode google-services.json
-        env:
-          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
-        run: echo $FIREBASE_JSON > app/google-services.json
+          distribution: 'temurin'
 
       - name: Create local.properties
         run: |
@@ -51,37 +50,5 @@ jobs:
           echo "REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}" >> local.properties
           echo "REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}" >> local.properties
 
-      - name: Run Debug Tests
-        run: ./gradlew build test --continue
-
-      - name: Upload Test Reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: '**/build/reports/tests/'
-
-  dependency-submission:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout project sources
-        uses: actions/checkout@v4
-
-      - name: Create local.properties
-        run: |
-          echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
-          echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
-          echo "ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}" >> local.properties
-          echo "ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}" >> local.properties
-          echo "ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}" >> local.properties
-          echo "ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}" >> local.properties
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@v3
-        with:
-          build-scan-publish: true
-          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-use-agree: "yes"
+      - name: Build composeApp
+        run: ./gradlew :composeApp:assembleDebug --continue

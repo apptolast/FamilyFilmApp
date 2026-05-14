@@ -11,13 +11,16 @@ import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.PurchasesError
 import com.revenuecat.purchases.PurchasesErrorCode
-import com.revenuecat.purchases.UpdatedCustomerInfoListener
 import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.getOfferingsWith
-import com.revenuecat.purchases.interfaces.PurchaseCallback
-import com.revenuecat.purchases.models.StoreTransaction
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import com.revenuecat.purchases.logInWith
+import com.revenuecat.purchases.logOutWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
+// StoreTransaction is exposed by the purchaseWith success lambda but we
+// don't inspect it (entitlements live on CustomerInfo). No explicit import
+// needed.
 import kotlin.coroutines.resume
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,9 +38,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *     fetch the current offering, look up the package by entitlement id,
  *     and launch the Play Store sheet anchored to the current Activity
  *     (via [CurrentActivityHolder]).
- *  3. RevenueCat reports completion through [PurchaseCallback]; we wrap
- *     it in a suspending coroutine and update the entitlement flows from
- *     the resulting [CustomerInfo].
+  3. RevenueCat reports completion through the purchaseWith success
+ *     lambda; we wrap it in a suspending coroutine and update the
+ *     entitlement flows from the resulting [CustomerInfo].
  */
 class RevenueCatPurchaseManager(
     private val context: Context,
@@ -65,16 +68,18 @@ class RevenueCatPurchaseManager(
                 UpdatedCustomerInfoListener { info -> mirror(info) }
             configured = true
         } else {
-            Purchases.sharedInstance.logIn(
+            // logInWith takes (newAppUserID, onError, onSuccess) — no named-arg style.
+            Purchases.sharedInstance.logInWith(
                 userId,
-                onSuccess = { info, _ -> mirror(info) },
-                onError = { error -> crashReporter.recordException(error.asThrowable()) },
+                { error -> crashReporter.recordException(error.asThrowable()) },
+                { info, _ -> mirror(info) },
             )
         }
-        // Pull current state once.
+        // Pull current state once. getCustomerInfoWith takes positional lambdas:
+        // (onError, onSuccess).
         Purchases.sharedInstance.getCustomerInfoWith(
-            onSuccess = { mirror(it) },
-            onError = { crashReporter.recordException(it.asThrowable()) },
+            { error -> crashReporter.recordException(error.asThrowable()) },
+            { info -> mirror(info) },
         )
     }
 
@@ -86,9 +91,10 @@ class RevenueCatPurchaseManager(
 
     override fun logout() {
         if (!configured) return
-        Purchases.sharedInstance.logOut(
-            onSuccess = { mirror(it) },
-            onError = { crashReporter.recordException(it.asThrowable()) },
+        // logOutWith takes positional lambdas: (onError, onSuccess).
+        Purchases.sharedInstance.logOutWith(
+            { error -> crashReporter.recordException(error.asThrowable()) },
+            { info -> mirror(info) },
         )
         _hasRemovedAds.value = false
         _hasChatPremium.value = false
@@ -99,13 +105,12 @@ class RevenueCatPurchaseManager(
     override suspend fun purchaseChatPremium(): Result<Unit> = purchaseEntitlement(ENTITLEMENT_CHAT_PREMIUM)
 
     override suspend fun restorePurchases(): Result<Boolean> = suspendCancellableCoroutine { cont ->
+        // restorePurchasesWith takes positional lambdas: (onError, onSuccess).
         Purchases.sharedInstance.restorePurchasesWith(
-            onSuccess = { info ->
+            { error -> cont.resume(Result.failure(error.toPurchaseFailure())) },
+            { info ->
                 mirror(info)
                 cont.resume(Result.success(info.entitlements.active.containsKey(ENTITLEMENT_REMOVE_ADS)))
-            },
-            onError = { error ->
-                cont.resume(Result.failure(error.toPurchaseFailure()))
             },
         )
     }
@@ -118,21 +123,19 @@ class RevenueCatPurchaseManager(
             ?: return Result.failure(PurchaseFailure.Generic("No package configured for $entitlement"))
 
         return suspendCancellableCoroutine { cont ->
+            // purchaseWith takes positional lambdas: (params, onError, onSuccess).
             Purchases.sharedInstance.purchaseWith(
                 com.revenuecat.purchases.PurchaseParams.Builder(activity, pkg).build(),
-                object : PurchaseCallback {
-                    override fun onCompleted(transaction: StoreTransaction, customerInfo: CustomerInfo) {
-                        mirror(customerInfo)
-                        cont.resume(Result.success(Unit))
-                    }
-
-                    override fun onError(error: PurchasesError, userCancelled: Boolean) {
-                        cont.resume(
-                            Result.failure(
-                                if (userCancelled) PurchaseFailure.Cancelled else error.toPurchaseFailure(),
-                            ),
-                        )
-                    }
+                { error, userCancelled ->
+                    cont.resume(
+                        Result.failure(
+                            if (userCancelled) PurchaseFailure.Cancelled else error.toPurchaseFailure(),
+                        ),
+                    )
+                },
+                { _, customerInfo ->
+                    mirror(customerInfo)
+                    cont.resume(Result.success(Unit))
                 },
             )
         }
@@ -140,12 +143,13 @@ class RevenueCatPurchaseManager(
 
     private suspend fun fetchOfferings(): com.revenuecat.purchases.Offerings? =
         suspendCancellableCoroutine { cont ->
+            // getOfferingsWith takes positional lambdas: (onError, onSuccess).
             Purchases.sharedInstance.getOfferingsWith(
-                onError = { error ->
+                { error ->
                     cont.resume(null)
                     crashReporter.recordException(error.asThrowable())
                 },
-                onSuccess = { cont.resume(it) },
+                { offerings -> cont.resume(offerings) },
             )
         }
 

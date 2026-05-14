@@ -1,9 +1,15 @@
 package com.apptolast.familyfilmapp.di
 
+import com.apptolast.familyfilmapp.ai.GeminiChatService
+import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
+import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
+import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.network.buildTmdbHttpClient
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
+import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepositoryImpl
 import com.apptolast.familyfilmapp.room.AppDatabase
 import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
@@ -33,6 +39,15 @@ val dataModule = module {
     single { get<AppDatabase>().groupDao() }
     single { get<AppDatabase>().groupMovieStatusDao() }
     single { get<AppDatabase>().chatMessageDao() }
+
+    // Firebase facing the rest of the app via small, plain commonMain types
+    // backed by GitLive (Auth/Functions/Analytics/Crashlytics — all KMP-safe).
+    // App Check provider installation is platform-specific and lives in
+    // FamilyFilmApp.onCreate (Android) / iOSApp.swift init (iOS).
+    singleOf(::FirebaseAuthRepositoryImpl) bind FirebaseAuthRepository::class
+    singleOf(::GeminiChatService)
+    singleOf(::FirebaseAnalyticsTracker) bind AnalyticsTracker::class
+    singleOf(::CrashReporter)
 }
 
 // Presentation layer: ViewModels declared via viewModelOf(::ClassName).

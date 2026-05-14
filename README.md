@@ -89,6 +89,30 @@ under the General tab, download `google-services.json` and drop it into
 `GoogleService-Info.plist` into `iosApp/iosApp/` from Xcode. In CI both
 files are decoded from base64 secrets — see `.github/workflows/`.
 
+#### Swift Package Manager (iOS only)
+
+The Kotlin shared module wraps Firebase Auth/Firestore/Functions/Analytics/
+Crashlytics through GitLive; those wrappers depend on the underlying
+Firebase iOS frameworks being linked into the final app, but this project
+does **not** use CocoaPods. The frameworks come from SPM and are added
+manually to the Xcode project once:
+
+1. Open `iosApp/iosApp.xcodeproj` in Xcode.
+2. File → Add Package Dependencies → `https://github.com/firebase/firebase-ios-sdk.git`
+   (rule: "Up to Next Major Version" from 11.0).
+3. Select these products for the `iosApp` target: `FirebaseAuth`,
+   `FirebaseFirestore`, `FirebaseFunctions`, `FirebaseAnalytics`,
+   `FirebaseCrashlytics`, `FirebaseAppCheck`, `FirebaseCore`.
+4. Block 15 of the migration plan adds three more packages alongside
+   these (`Google-Mobile-Ads-SDK`, `GoogleUserMessagingPlatform`,
+   `RevenueCat`, `GoogleSignIn-iOS`) when the monetisation and Sign-In
+   features land on iOS.
+
+The Kotlin `ComposeApp` framework is embedded into the Xcode target via
+the Gradle task `:composeApp:embedAndSignAppleFrameworkForXcode`, which
+the Xcode build phase script invokes before "Compile Sources" — no
+Podfile, no `pod install`.
+
 ## Testing resources:
 Koin Unit tests: https://insert-koin.io/docs/reference/koin-test/testing
 Koin Android tests: https://insert-koin.io/docs/reference/koin-android/instrumented-testing/

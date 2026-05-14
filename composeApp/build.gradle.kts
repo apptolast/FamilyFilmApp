@@ -52,7 +52,7 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
-            implementation(libs.compose.material.iconsExtended)
+            implementation(compose.materialIconsExtended)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
@@ -99,7 +99,9 @@ kotlin {
             implementation(libs.firebase.gitlive.functions)
             implementation(libs.firebase.gitlive.analytics)
             implementation(libs.firebase.gitlive.crashlytics)
-            implementation(libs.firebase.gitlive.app.check)
+            // App Check is not part of GitLive; we install the provider factory
+            // natively on each platform (Android: firebase-appcheck-playintegrity;
+            // iOS: cinterop to FirebaseAppCheck SPM module). See block 10.
         }
 
         commonTest.dependencies {

@@ -96,7 +96,6 @@ compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.re
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
-compose-material-iconsExtended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
@@ -146,7 +145,8 @@ firebase-gitlive-firestore = { module = "dev.gitlive:firebase-firestore", versio
 firebase-gitlive-functions = { module = "dev.gitlive:firebase-functions", version.ref = "firebase-gitlive" }
 firebase-gitlive-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebase-gitlive" }
 firebase-gitlive-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase-gitlive" }
-firebase-gitlive-app-check = { module = "dev.gitlive:firebase-app-check", version.ref = "firebase-gitlive" }
+# Note: GitLive does NOT publish firebase-app-check. App Check uses native
+# Firebase Android SDK in androidMain and cinterop bindings in iosMain (block 10).
 
 # Native Firebase Android (for App Check provider factories — GitLive doesn't expose these)
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom-android" }

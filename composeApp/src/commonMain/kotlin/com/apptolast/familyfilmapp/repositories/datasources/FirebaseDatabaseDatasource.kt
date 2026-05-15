@@ -15,12 +15,12 @@ import dev.gitlive.firebase.firestore.FieldPath
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.firestore.where
-import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 // Layout: FFA/{BUILD_TYPE}/{users|usernames|groups|movies} plus groups/{id}/movieStatuses subcollection.
 class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) : FirebaseDatabaseDatasource {
@@ -89,13 +89,11 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         usersCollection.document(user.id).delete()
     }
 
-    override suspend fun checkIfUserExists(userId: String): Boolean =
-        usersCollection.document(userId).get().exists
+    override suspend fun checkIfUserExists(userId: String): Boolean = usersCollection.document(userId).get().exists
 
-    override fun observeUser(userId: String): Flow<User?> =
-        usersCollection.document(userId).snapshots.map { snap ->
-            if (snap.exists) snap.data<UserFirestoreDto>().toDomain() else null
-        }
+    override fun observeUser(userId: String): Flow<User?> = usersCollection.document(userId).snapshots.map { snap ->
+        if (snap.exists) snap.data<UserFirestoreDto>().toDomain() else null
+    }
 
     override suspend fun claimUsername(username: String, userId: String): Boolean {
         val usernameLower = username.lowercase()
@@ -411,6 +409,4 @@ private data class GroupMovieStatusFirestoreDto(
 )
 
 @Serializable
-private data class UsernameClaimDto(
-    val userId: String = "",
-)
+private data class UsernameClaimDto(val userId: String = "")

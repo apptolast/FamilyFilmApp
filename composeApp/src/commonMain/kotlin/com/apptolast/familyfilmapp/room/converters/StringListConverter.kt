@@ -9,12 +9,10 @@ import kotlinx.serialization.json.Json
 class StringListConverter {
 
     @TypeConverter
-    fun stringListToJson(stringList: List<String>): String =
-        json.encodeToString(serializer, stringList)
+    fun stringListToJson(stringList: List<String>): String = json.encodeToString(serializer, stringList)
 
     @TypeConverter
-    fun toStringList(jsonString: String): List<String> =
-        json.decodeFromString(serializer, jsonString)
+    fun toStringList(jsonString: String): List<String> = json.decodeFromString(serializer, jsonString)
 
     private companion object {
         val serializer = ListSerializer(String.serializer())

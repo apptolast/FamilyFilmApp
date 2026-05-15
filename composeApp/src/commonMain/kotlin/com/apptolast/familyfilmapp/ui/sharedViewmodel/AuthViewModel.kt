@@ -24,8 +24,6 @@ import dev.gitlive.firebase.auth.FirebaseAuthInvalidCredentialsException
 import dev.gitlive.firebase.auth.FirebaseAuthInvalidUserException
 import dev.gitlive.firebase.auth.FirebaseAuthUserCollisionException
 import dev.gitlive.firebase.auth.FirebaseAuthWeakPasswordException
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -46,6 +44,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class AuthViewModel(
     private val authRepository: FirebaseAuthRepository,
@@ -433,6 +433,7 @@ class AuthViewModel(
 
     private companion object {
         const val USERNAME_CHECK_DEBOUNCE_MS = 500L
+
         // GitLive returns provider ID strings (not enum) from FirebaseUser.providerData.
         const val GOOGLE_PROVIDER_ID = "google.com"
         const val PASSWORD_PROVIDER_ID = "password"

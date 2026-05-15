@@ -13,19 +13,25 @@ import io.ktor.client.request.parameter
 
 class TmdbApiKtor(private val client: HttpClient) : TmdbApi {
 
-    override suspend fun getPopularMovies(page: Int, language: String, appendProviders: Boolean): TmdbMovieWrapperRemote =
-        client.get("movie/popular") {
-            parameter(PARAM_PAGE, page)
-            parameter(PARAM_LANGUAGE, language)
-            if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
-        }.body()
+    override suspend fun getPopularMovies(
+        page: Int,
+        language: String,
+        appendProviders: Boolean,
+    ): TmdbMovieWrapperRemote = client.get("movie/popular") {
+        parameter(PARAM_PAGE, page)
+        parameter(PARAM_LANGUAGE, language)
+        if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
+    }.body()
 
-    override suspend fun searchMovieByName(query: String, includeAdult: Boolean, language: String): TmdbMovieWrapperRemote =
-        client.get("search/movie") {
-            parameter(PARAM_QUERY, query)
-            parameter(PARAM_ADULT, includeAdult)
-            parameter(PARAM_LANGUAGE, language)
-        }.body()
+    override suspend fun searchMovieByName(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+    ): TmdbMovieWrapperRemote = client.get("search/movie") {
+        parameter(PARAM_QUERY, query)
+        parameter(PARAM_ADULT, includeAdult)
+        parameter(PARAM_LANGUAGE, language)
+    }.body()
 
     override suspend fun searchMovieById(movieId: Int, language: String, appendProviders: Boolean): TmdbMovieRemote =
         client.get("movie/$movieId") {
@@ -33,12 +39,15 @@ class TmdbApiKtor(private val client: HttpClient) : TmdbApi {
             if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
         }.body()
 
-    override suspend fun getPopularTvShows(page: Int, language: String, appendProviders: Boolean): TmdbTvShowWrapperRemote =
-        client.get("tv/popular") {
-            parameter(PARAM_PAGE, page)
-            parameter(PARAM_LANGUAGE, language)
-            if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
-        }.body()
+    override suspend fun getPopularTvShows(
+        page: Int,
+        language: String,
+        appendProviders: Boolean,
+    ): TmdbTvShowWrapperRemote = client.get("tv/popular") {
+        parameter(PARAM_PAGE, page)
+        parameter(PARAM_LANGUAGE, language)
+        if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
+    }.body()
 
     override suspend fun getTvShowById(tvId: Int, language: String, appendProviders: Boolean): TmdbTvShowRemote =
         client.get("tv/$tvId") {
@@ -46,12 +55,15 @@ class TmdbApiKtor(private val client: HttpClient) : TmdbApi {
             if (appendProviders) parameter(PARAM_APPEND, PARAM_PROVIDERS_VALUE)
         }.body()
 
-    override suspend fun searchMulti(query: String, includeAdult: Boolean, language: String): TmdbMultiSearchWrapperRemote =
-        client.get("search/multi") {
-            parameter(PARAM_QUERY, query)
-            parameter(PARAM_ADULT, includeAdult)
-            parameter(PARAM_LANGUAGE, language)
-        }.body()
+    override suspend fun searchMulti(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+    ): TmdbMultiSearchWrapperRemote = client.get("search/multi") {
+        parameter(PARAM_QUERY, query)
+        parameter(PARAM_ADULT, includeAdult)
+        parameter(PARAM_LANGUAGE, language)
+    }.body()
 
     private companion object {
         const val PARAM_PAGE = "page"

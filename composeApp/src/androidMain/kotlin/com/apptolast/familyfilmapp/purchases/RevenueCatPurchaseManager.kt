@@ -18,11 +18,11 @@ import com.revenuecat.purchases.logInWith
 import com.revenuecat.purchases.logOutWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
-import kotlin.coroutines.resume
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class RevenueCatPurchaseManager(
     private val context: Context,
@@ -117,16 +117,15 @@ class RevenueCatPurchaseManager(
         }
     }
 
-    private suspend fun fetchOfferings(): com.revenuecat.purchases.Offerings? =
-        suspendCancellableCoroutine { cont ->
-            Purchases.sharedInstance.getOfferingsWith(
-                { error ->
-                    cont.resume(null)
-                    crashReporter.recordException(error.asThrowable())
-                },
-                { offerings -> cont.resume(offerings) },
-            )
-        }
+    private suspend fun fetchOfferings(): com.revenuecat.purchases.Offerings? = suspendCancellableCoroutine { cont ->
+        Purchases.sharedInstance.getOfferingsWith(
+            { error ->
+                cont.resume(null)
+                crashReporter.recordException(error.asThrowable())
+            },
+            { offerings -> cont.resume(offerings) },
+        )
+    }
 
     private fun com.revenuecat.purchases.Offerings.findPackageForEntitlement(entitlement: String): Package? =
         current?.availablePackages?.firstOrNull { pkg ->

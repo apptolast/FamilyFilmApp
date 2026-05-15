@@ -8,9 +8,9 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 @Composable
 @Preview
 fun App() {
-    //KoinContext {
-        FamilyFilmAppTheme {
-            AppNavigation()
-        }
-    //}
+    // KoinContext {
+    FamilyFilmAppTheme {
+        AppNavigation()
+    }
+    // }
 }

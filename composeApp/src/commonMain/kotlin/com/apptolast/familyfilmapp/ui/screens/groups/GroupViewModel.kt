@@ -260,13 +260,17 @@ class GroupViewModel(
                 crashReporter.recordException(error)
                 emptyList()
             }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
         val tvShows = if (tvIds.isNotEmpty()) {
             repository.getTvShowsByIds(tvIds).getOrElse { error ->
                 crashReporter.recordException(error)
                 emptyList()
             }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
         return movies + tvShows
     }
 

@@ -83,10 +83,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun FamilyFilmAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun FamilyFilmAppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme = if (darkTheme) DarkColors else LightColors
     MaterialTheme(
         colorScheme = colorScheme,

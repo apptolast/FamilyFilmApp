@@ -14,16 +14,16 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.DocumentSnapshot
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 interface ChatRepository {
     fun observeMessages(userId: String): Flow<List<ChatMessage>>
@@ -88,26 +88,25 @@ class ChatRepositoryImpl(
         chatMessageDao.deleteByUserId(userId)
     }
 
-    override fun observeQuota(userId: String): Flow<ChatQuota?> =
-        firestore
-            .collection("users")
-            .document(userId)
-            .collection("chat_usage")
-            .document(currentYearMonth())
-            .snapshots
-            .map { snap ->
-                if (!snap.exists) return@map null
-                try {
-                    ChatQuota(
-                        count = snap.optional<Long>("count")?.toInt() ?: 0,
-                        limit = snap.optional<Long>("limit")?.toInt() ?: DEFAULT_FREE_LIMIT,
-                        isPremium = snap.optional<Boolean>("isPremium") == true,
-                    )
-                } catch (e: Throwable) {
-                    crashReporter.recordException(e)
-                    null
-                }
+    override fun observeQuota(userId: String): Flow<ChatQuota?> = firestore
+        .collection("users")
+        .document(userId)
+        .collection("chat_usage")
+        .document(currentYearMonth())
+        .snapshots
+        .map { snap ->
+            if (!snap.exists) return@map null
+            try {
+                ChatQuota(
+                    count = snap.optional<Long>("count")?.toInt() ?: 0,
+                    limit = snap.optional<Long>("limit")?.toInt() ?: DEFAULT_FREE_LIMIT,
+                    isPremium = snap.optional<Boolean>("isPremium") == true,
+                )
+            } catch (e: Throwable) {
+                crashReporter.recordException(e)
+                null
             }
+        }
 
     private fun currentYearMonth(): String {
         // Extract from ISO 8601 toString; avoids version-specific Month.number differences.

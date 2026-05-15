@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
@@ -98,11 +100,11 @@ import familyfilmkmp.composeapp.generated.resources.or_else
 import familyfilmkmp.composeapp.generated.resources.username_available
 import familyfilmkmp.composeapp.generated.resources.username_label
 import familyfilmkmp.composeapp.generated.resources.username_taken
-import kotlin.random.Random
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -161,7 +163,11 @@ fun LoginContent(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { innerPadding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+        // Background image must reach screen edges; only interactive content respects safe area.
+        contentWindowInsets = WindowInsets(0),
+    ) { innerPadding ->
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -191,6 +197,7 @@ fun LoginContent(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
+                    .safeDrawingPadding()
                     .imePadding()
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 24.dp),

@@ -17,9 +17,7 @@ data class TmdbMovieRemote(
 )
 
 @Serializable
-data class ProvidersRoot(
-    @SerialName("results") val results: Map<String, CountryProviders> = emptyMap(),
-)
+data class ProvidersRoot(@SerialName("results") val results: Map<String, CountryProviders> = emptyMap())
 
 @Serializable
 data class CountryProviders(

@@ -6,10 +6,8 @@ import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.toDomain
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 
-class TvShowPagingSource(
-    private val tmdbDatasource: TmdbDatasource,
-    private val countryCode: String,
-) : PagingSource<Int, Media>() {
+class TvShowPagingSource(private val tmdbDatasource: TmdbDatasource, private val countryCode: String) :
+    PagingSource<Int, Media>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Media> = try {
         val currentPage = params.key ?: 1

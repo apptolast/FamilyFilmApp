@@ -11,5 +11,4 @@ actual fun systemLanguageTag(): String {
     return if (country.isNullOrBlank()) language else "$language-$country"
 }
 
-actual fun systemCountryCode(): String =
-    (NSLocale.currentLocale.objectForKey(NSLocaleCountryCode) as? String) ?: "US"
+actual fun systemCountryCode(): String = (NSLocale.currentLocale.objectForKey(NSLocaleCountryCode) as? String) ?: "US"

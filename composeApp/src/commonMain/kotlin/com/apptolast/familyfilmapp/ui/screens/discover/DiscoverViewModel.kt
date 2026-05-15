@@ -114,16 +114,16 @@ class DiscoverViewModel(
             }
     }
 
-    private suspend fun fetchPopularMedia(page: Int): Result<List<Media>> =
-        when (_uiState.value.selectedFilter) {
-            MediaFilter.ALL -> {
-                val movies = repository.getPopularMoviesList(page).getOrDefault(emptyList())
-                val tvShows = repository.getPopularTvShowsList(page).getOrDefault(emptyList())
-                Result.success((movies + tvShows).sortedByDescending { it.popularity })
-            }
-            MediaFilter.MOVIES -> repository.getPopularMoviesList(page)
-            MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList(page)
+    private suspend fun fetchPopularMedia(page: Int): Result<List<Media>> = when (_uiState.value.selectedFilter) {
+        MediaFilter.ALL -> {
+            val movies = repository.getPopularMoviesList(page).getOrDefault(emptyList())
+            val tvShows = repository.getPopularTvShowsList(page).getOrDefault(emptyList())
+            Result.success((movies + tvShows).sortedByDescending { it.popularity })
         }
+
+        MediaFilter.MOVIES -> repository.getPopularMoviesList(page)
+        MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList(page)
+    }
 
     fun toggleGroupSelection(groupId: String) {
         _uiState.update {

@@ -1,8 +1,11 @@
 package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -90,12 +93,14 @@ fun AppNavigation() {
         },
         bottomBar = {
             if (showChrome) {
-                Column {
+                Column(modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
                     if (!hasRemovedAds) AdaptiveBanner()
                     BottomNavigationBar(navController = navController)
                 }
             }
         },
+        // Each screen handles its own safe-area insets so backgrounds can go edge-to-edge.
+        contentWindowInsets = WindowInsets(0),
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
         NavHost(

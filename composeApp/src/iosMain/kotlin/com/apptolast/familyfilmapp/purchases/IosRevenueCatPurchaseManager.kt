@@ -7,9 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 // No-op until the RevenueCat cinterop is enabled (see build.gradle.kts).
 // Paywall calls resolve to Cancelled so the UI no-ops gracefully.
-class IosRevenueCatPurchaseManager(
-    private val crashReporter: CrashReporter,
-) : PurchaseManager {
+class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : PurchaseManager {
 
     private val _hasRemovedAds = MutableStateFlow(false)
     override val hasRemovedAds: StateFlow<Boolean> = _hasRemovedAds.asStateFlow()

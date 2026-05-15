@@ -265,7 +265,8 @@ private fun LoadStateContent(mediaItems: LazyPagingItems<Media>, triggerError: (
             }
         }
 
-        else -> { /* idle / complete */
+        else -> {
+            /* idle / complete */
             @Suppress("UNUSED_EXPRESSION")
             LoadState::class // keep import alive
         }

@@ -158,8 +158,11 @@ class ProfileViewModel(
         _isPurchaseLoading.update { true }
         purchaseManager.restorePurchases()
             .onSuccess { restored ->
-                if (restored) _purchaseEvent.emit(PurchaseEvent.RestoreSuccess)
-                else _purchaseEvent.emit(PurchaseEvent.RestoreNothingFound)
+                if (restored) {
+                    _purchaseEvent.emit(PurchaseEvent.RestoreSuccess)
+                } else {
+                    _purchaseEvent.emit(PurchaseEvent.RestoreNothingFound)
+                }
             }
             .onFailure { error ->
                 crashReporter.recordException(error)

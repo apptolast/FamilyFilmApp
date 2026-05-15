@@ -8,23 +8,11 @@ import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowWrapperRe
 
 interface TmdbApi {
 
-    suspend fun getPopularMovies(
-        page: Int,
-        language: String,
-        appendProviders: Boolean = true,
-    ): TmdbMovieWrapperRemote
+    suspend fun getPopularMovies(page: Int, language: String, appendProviders: Boolean = true): TmdbMovieWrapperRemote
 
-    suspend fun searchMovieByName(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-    ): TmdbMovieWrapperRemote
+    suspend fun searchMovieByName(query: String, includeAdult: Boolean, language: String): TmdbMovieWrapperRemote
 
-    suspend fun searchMovieById(
-        movieId: Int,
-        language: String,
-        appendProviders: Boolean = true,
-    ): TmdbMovieRemote
+    suspend fun searchMovieById(movieId: Int, language: String, appendProviders: Boolean = true): TmdbMovieRemote
 
     suspend fun getPopularTvShows(
         page: Int,
@@ -32,17 +20,9 @@ interface TmdbApi {
         appendProviders: Boolean = true,
     ): TmdbTvShowWrapperRemote
 
-    suspend fun getTvShowById(
-        tvId: Int,
-        language: String,
-        appendProviders: Boolean = true,
-    ): TmdbTvShowRemote
+    suspend fun getTvShowById(tvId: Int, language: String, appendProviders: Boolean = true): TmdbTvShowRemote
 
-    suspend fun searchMulti(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-    ): TmdbMultiSearchWrapperRemote
+    suspend fun searchMulti(query: String, includeAdult: Boolean, language: String): TmdbMultiSearchWrapperRemote
 
     companion object {
         const val PARAM_PROVIDERS_VALUE = "watch/providers"

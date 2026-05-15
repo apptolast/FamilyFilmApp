@@ -9,7 +9,6 @@ import dev.gitlive.firebase.auth.GoogleAuthProvider
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 
 interface FirebaseAuthRepository {
@@ -74,10 +73,7 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
         // Fire-and-forget — the auth state listener reacts to the change. See logOutAndAwait.
     }
 
-    override fun deleteAccountWithReAuthentication(
-        email: String,
-        password: String,
-    ): Flow<Result<Boolean>> = flow {
+    override fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>> = flow {
         emit(
             runCatching {
                 val user = firebaseAuth.currentUser ?: error("No user logged in")

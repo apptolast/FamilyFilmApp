@@ -4,7 +4,7 @@ agp = "9.2.1"
 kotlin = "2.3.21"
 ksp = "2.3.7"
 composeMultiplatform = "1.11.0"
-material3 = "1.11.0"
+material3 = "1.11.0-alpha07"
 
 # SDKs
 android-compileSdk = "36"

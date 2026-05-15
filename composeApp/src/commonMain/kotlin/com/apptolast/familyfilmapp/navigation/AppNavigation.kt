@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.apptolast.familyfilmapp.analytics.TrackScreenViews
+import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
@@ -111,7 +112,7 @@ fun AppNavigation() {
             composable<Routes.Discover> {
                 DiscoverScreen(
                     onMediaSelected = { mediaId, mediaType ->
-                        navController.navigate(Routes.Details(mediaId, mediaType))
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
                     },
                 )
             }
@@ -124,7 +125,7 @@ fun AppNavigation() {
                 val details: Routes.Details = entry.toRoute()
                 DetailsScreen(
                     mediaId = details.mediaId,
-                    mediaType = details.mediaType,
+                    mediaType = MediaType.valueOf(details.mediaType),
                     onBack = { navController.navigateUp() },
                 )
             }

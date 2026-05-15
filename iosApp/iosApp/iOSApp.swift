@@ -39,10 +39,6 @@ struct iOSApp: App {
 
         // GoogleSignIn reads `GIDClientID` from Info.plist on first use, so
         // no imperative configure is needed here.
-
-        // Start Koin after Firebase is configured so any singleton resolved
-        // on first injection can safely touch Firestore/Auth.
-        KoinInitKt.doInitKoinForIos()
     }
 
     var body: some Scene {

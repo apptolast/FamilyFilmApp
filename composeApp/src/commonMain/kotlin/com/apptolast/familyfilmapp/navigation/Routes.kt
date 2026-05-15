@@ -1,6 +1,5 @@
 package com.apptolast.familyfilmapp.navigation
 
-import com.apptolast.familyfilmapp.model.local.types.MediaType
 import kotlinx.serialization.Serializable
 
 sealed interface Routes {
@@ -24,5 +23,5 @@ sealed interface Routes {
     data object Profile : Routes
 
     @Serializable
-    data class Details(val mediaId: Int, val mediaType: MediaType) : Routes
+    data class Details(val mediaId: Int, val mediaType: String) : Routes
 }

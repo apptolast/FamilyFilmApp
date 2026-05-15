@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -17,10 +16,9 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
-// Secrets from local.properties — consumed by BuildKonfig below.
 val localProperties = Properties().apply {
-    val localFile = rootProject.file("local.properties")
-    if (localFile.exists()) load(FileInputStream(localFile))
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 fun localProperty(name: String): String = localProperties.getProperty(name) ?: ""
@@ -41,29 +39,27 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
-
-        // Cinterop fails without `xcode.frameworks.path` in local.properties pointing at the resolved SPM frameworks.
-        val xcodeFrameworksPath = localProperty("xcode.frameworks.path").takeIf { it.isNotBlank() }
-        if (xcodeFrameworksPath != null) {
-            iosTarget.compilations.getByName("main").cinterops {
-                listOf("GoogleMobileAds", "RevenueCat", "GoogleSignIn").forEach { name ->
-                    create(name) {
-                        defFile(project.file("src/nativeInterop/cinterop/$name.def"))
-                        compilerOpts("-F$xcodeFrameworksPath")
-                        extraOpts("-compiler-option", "-F$xcodeFrameworksPath")
-                    }
+        iosTarget.compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }
             }
         }
-    }
 
-    // Ads-related actuals are split into two parallel source dirs: src/iosMainAds
-    // uses the cinterop'd GoogleMobileAds symbols, src/iosMainNoAds keeps no-ops.
-    // The active dir flips on whether `xcode.frameworks.path` is configured.
-    val iosAdsSourceDir = if (localProperty("xcode.frameworks.path").isNotBlank()) {
-        "src/iosMainAds/kotlin"
-    } else {
-        "src/iosMainNoAds/kotlin"
+//        // Cinterop fails without `xcode.frameworks.path` in local.properties pointing at the resolved SPM frameworks.
+//        val xcodeFrameworksPath = localProperty("xcode.frameworks.path").takeIf { it.isNotBlank() }
+//        if (xcodeFrameworksPath != null) {
+//            iosTarget.compilations.getByName("main").cinterops {
+//                listOf("GoogleMobileAds", "RevenueCat", "GoogleSignIn").forEach { name ->
+//                    create(name) {
+//                        defFile(project.file("src/nativeInterop/cinterop/$name.def"))
+//                        compilerOpts("-F$xcodeFrameworksPath")
+//                        extraOpts("-compiler-option", "-F$xcodeFrameworksPath")
+//                    }
+//                }
+//            }
+//        }
     }
 
     sourceSets {
@@ -174,11 +170,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.process)
         }
 
-        iosMain {
-            kotlin.srcDir(iosAdsSourceDir)
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         androidUnitTest.dependencies {

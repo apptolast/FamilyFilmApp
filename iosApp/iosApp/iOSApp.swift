@@ -1,52 +1,57 @@
 import SwiftUI
 import ComposeApp
+import AppTrackingTransparency
 import FirebaseCore
 import FirebaseAppCheck
-
-// Once the corresponding SPM packages are added in Xcode (see README →
-// "Swift Package Manager (iOS only)") the imports below will resolve:
-//   import GoogleMobileAds
-//   import RevenueCat
-//   import GoogleSignIn
-//   import UserMessagingPlatform
-// Add them back when each module is wired.
+import GoogleMobileAds
+import GoogleSignIn
+import RevenueCat
+import UserMessagingPlatform
 
 @main
 struct iOSApp: App {
     init() {
-        // Configure App Check BEFORE FirebaseApp.configure() so the first
-        // Firestore/Auth/Functions calls go out with a valid attestation
-        // token.
+        // App Check must be configured before FirebaseApp.configure() so the
+        // first Firestore/Auth/Functions calls carry a valid attestation token.
         #if DEBUG
         AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+        #else
+        AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
         #endif
 
         FirebaseApp.configure()
 
-        // Block 15 follow-up — uncomment once the SPM packages are wired:
-        //
-        // GoogleMobileAds:
-        //   MobileAds.shared.start { _ in }
-        //
-        // ATT (App Tracking Transparency) — required before AdMob personalised ads:
-        //   ATTrackingManager.requestTrackingAuthorization { _ in }
-        //
-        // RevenueCat:
-        //   Purchases.logLevel = .warn
-        //   Purchases.configure(withAPIKey: "<paste BuildConfig.REVENUECAT_APPSTORE_SDK_KEY here>")
-        //
-        // GoogleSignIn — set the GIDClientID from BuildConfig.WEB_ID_CLIENT
-        // in Info.plist (Info.plist key `GIDClientID`). The URL scheme
-        // handler is registered through application(_:open:options:).
+        // RevenueCat — App Store SDK key lives in Info.plist (key
+        // `RevenueCatAppStoreKey`). If empty we skip configuration to avoid
+        // a runtime crash; purchase flows then fail gracefully.
+        if let revenueCatKey = Bundle.main.object(forInfoDictionaryKey: "RevenueCatAppStoreKey") as? String,
+           !revenueCatKey.isEmpty {
+            Purchases.logLevel = .warn
+            Purchases.configure(withAPIKey: revenueCatKey)
+        }
+
+        // AdMob — kick ATT in parallel so the prompt appears before the
+        // first ad request; the `start` call itself is non-blocking.
+        ATTrackingManager.requestTrackingAuthorization { _ in
+            // Result is observed by AdMob internally.
+        }
+        MobileAds.shared.start(completionHandler: nil)
+
+        // GoogleSignIn reads `GIDClientID` from Info.plist on first use, so
+        // no imperative configure is needed here.
 
         // Start Koin after Firebase is configured so any singleton resolved
         // on first injection can safely touch Firestore/Auth.
-        KoinInitKt.initKoinForIos()
+        KoinInitKt.doInitKoinForIos()
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    // GoogleSignIn callback URL scheme handler.
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
     }
 }

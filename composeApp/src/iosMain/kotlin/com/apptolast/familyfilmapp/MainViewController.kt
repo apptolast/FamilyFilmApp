@@ -1,6 +1,8 @@
 package com.apptolast.familyfilmapp
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.apptolast.familyfilmapp.auth.IosGoogleSignInBridge
+import com.apptolast.familyfilmapp.auth.IosGoogleSignInClient
 import com.apptolast.familyfilmapp.di.initKoin
 
 // Module-level flag guards against multiple ComposeUIViewController
@@ -14,4 +16,9 @@ fun MainViewController() = ComposeUIViewController {
         koinInitialized = true
     }
     App()
+}
+
+// Swift-callable entry point: installs the GIDSignIn bridge implemented in iosApp/.
+fun setGoogleSignInBridge(bridge: IosGoogleSignInBridge) {
+    IosGoogleSignInClient.installBridge(bridge)
 }

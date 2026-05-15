@@ -28,13 +28,14 @@ class AndroidGoogleSignInClient(
         )
         .build()
 
-    override suspend fun signIn(): String? {
+    override suspend fun signIn(): GoogleSignInTokens? {
         val activity = activityHolder.current ?: error("No Activity available for Google sign-in")
         return try {
             val response = credentialManager.getCredential(context = activity, request = request)
             val credential = response.credential as? CustomCredential ?: return null
             if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return null
-            GoogleIdTokenCredential.createFrom(credential.data).idToken
+            val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+            GoogleSignInTokens(idToken = idToken, accessToken = null)
         } catch (_: GetCredentialCancellationException) {
             null
         } catch (e: GetCredentialException) {

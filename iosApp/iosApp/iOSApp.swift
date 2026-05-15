@@ -21,6 +21,10 @@ struct iOSApp: App {
 
         FirebaseApp.configure()
 
+        // Install the GIDSignIn bridge so IosGoogleSignInClient can drive the
+        // native flow when the user taps "Iniciar sesión con Google".
+        MainViewControllerKt.setGoogleSignInBridge(bridge: GoogleSignInBridgeImpl())
+
         // RevenueCat — App Store SDK key lives in Info.plist (key
         // `RevenueCatAppStoreKey`). If empty we skip configuration to avoid
         // a runtime crash; purchase flows then fail gracefully.

@@ -264,11 +264,11 @@ class AuthViewModel(
 
     fun googleSignIn() = viewModelScope.launch {
         try {
-            val idToken = googleSignInClient.signIn() ?: run {
+            val tokens = googleSignInClient.signIn() ?: run {
                 handleFailure("Google sign-in cancelled or no credential available")
                 return@launch
             }
-            authRepository.loginWithGoogle(idToken).first()
+            authRepository.loginWithGoogle(tokens).first()
                 .onSuccess { user ->
                     val exists = repository.checkIfUserExists(user.id)
                     if (!exists) {

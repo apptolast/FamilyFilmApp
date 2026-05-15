@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.repositories
 
+import com.apptolast.familyfilmapp.auth.GoogleSignInTokens
 import com.apptolast.familyfilmapp.firebase.toDomainUserModel
 import com.apptolast.familyfilmapp.model.local.User
 import dev.gitlive.firebase.Firebase
@@ -17,7 +18,7 @@ interface FirebaseAuthRepository {
     fun login(email: String, password: String): Flow<Result<User?>>
     fun register(email: String, password: String): Flow<Result<User?>>
     suspend fun verifyEmailIsVerified(): Boolean
-    fun loginWithGoogle(idToken: String): Flow<Result<User>>
+    fun loginWithGoogle(tokens: GoogleSignInTokens): Flow<Result<User>>
     fun logOut()
     fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>>
     fun deleteGoogleAccount(): Flow<Result<Boolean>>
@@ -95,10 +96,10 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
         )
     }
 
-    override fun loginWithGoogle(idToken: String): Flow<Result<User>> = flow {
+    override fun loginWithGoogle(tokens: GoogleSignInTokens): Flow<Result<User>> = flow {
         emit(
             runCatching {
-                val credential = GoogleAuthProvider.credential(idToken, null)
+                val credential = GoogleAuthProvider.credential(tokens.idToken, tokens.accessToken)
                 val result = firebaseAuth.signInWithCredential(credential)
                 val user = result.user ?: error("No user returned by signInWithCredential")
                 user.toDomainUserModel()

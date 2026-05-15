@@ -10,17 +10,13 @@ import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +25,11 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class HomeViewModelTest {
 
@@ -44,6 +45,7 @@ class HomeViewModelTest {
     }
 
     private val repository = mock<Repository>(MockMode.autoUnit)
+    private val tmdbDatasource = mock<TmdbDatasource>(MockMode.autoUnit)
     private val tmdbLocaleManager = mock<TmdbLocaleManager>(MockMode.autoUnit)
     private val nativeAdManager = mock<NativeAdManager>(MockMode.autoUnit)
     private val analyticsTracker = mock<AnalyticsTracker>(MockMode.autoUnit)
@@ -63,6 +65,7 @@ class HomeViewModelTest {
 
         viewModel = HomeViewModel(
             repository = repository,
+            tmdbDatasource = tmdbDatasource,
             dispatcherProvider = dispatcherProvider,
             tmdbLocaleManager = tmdbLocaleManager,
             nativeAdManager = nativeAdManager,

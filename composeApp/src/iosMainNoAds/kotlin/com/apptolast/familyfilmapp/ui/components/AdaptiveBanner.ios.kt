@@ -2,6 +2,6 @@ package com.apptolast.familyfilmapp.ui.components
 
 import androidx.compose.runtime.Composable
 
-// No-op until the GoogleMobileAds cinterop is enabled (see build.gradle.kts).
+// No-op fallback while `xcode.frameworks.path` is unset (cinterop disabled).
 @Composable
 actual fun AdaptiveBanner() = Unit

@@ -4,6 +4,10 @@ package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cash.paging.Pager
+import app.cash.paging.PagingConfig
+import app.cash.paging.PagingData
+import app.cash.paging.cachedIn
 import com.apptolast.familyfilmapp.ads.NativeAdHandle
 import com.apptolast.familyfilmapp.ads.NativeAdManager
 import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
@@ -16,18 +20,25 @@ import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val repository: Repository,
+    private val tmdbDatasource: TmdbDatasource,
     private val dispatcherProvider: DispatcherProvider,
     private val tmdbLocaleManager: TmdbLocaleManager,
     private val nativeAdManager: NativeAdManager,
@@ -46,9 +57,6 @@ class HomeViewModel(
 
     private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
-    private val _media = MutableStateFlow<List<Media>>(emptyList())
-    val media: StateFlow<List<Media>> = _media.asStateFlow()
-
     init {
         viewModelScope.launch(dispatcherProvider.io()) {
             _homeUiState.update { it.copy(isLoading = true) }
@@ -63,7 +71,6 @@ class HomeViewModel(
         }
         nativeAdManager.loadAds()
         observeAdultContentChanges()
-        loadMedia(MediaFilter.ALL)
     }
 
     private fun observeAdultContentChanges() = viewModelScope.launch(dispatcherProvider.io()) {
@@ -79,18 +86,32 @@ class HomeViewModel(
         nativeAdManager.destroyAds()
     }
 
-    private fun loadMedia(filter: MediaFilter) = viewModelScope.launch(dispatcherProvider.io()) {
-        val result = when (filter) {
-            MediaFilter.ALL, MediaFilter.MOVIES -> repository.getPopularMoviesList()
-            MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList()
-        }
-        result
-            .onSuccess { list -> _media.update { list } }
-            .onFailure { e ->
-                crashReporter.recordException(e)
-                triggerError(e.message ?: "Error getting media")
+    val media: Flow<PagingData<Media>> = combine(
+        selectedFilter,
+        tmdbLocaleManager.includeAdult,
+    ) { filter, includeAdult -> filter to includeAdult }
+        .distinctUntilChanged()
+        .flatMapLatest { (filter, _) ->
+            val countryCode = tmdbLocaleManager.countryCode
+            val pagingSourceFactory = when (filter) {
+                MediaFilter.ALL, MediaFilter.MOVIES -> {
+                    { MediaPagingSource(tmdbDatasource, countryCode) }
+                }
+
+                MediaFilter.TV_SHOWS -> {
+                    { TvShowPagingSource(tmdbDatasource, countryCode) }
+                }
             }
-    }
+            Pager(
+                config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+                pagingSourceFactory = pagingSourceFactory,
+            ).flow
+        }
+        .catch { error ->
+            crashReporter.recordException(error)
+            triggerError(error.message ?: "Error getting media")
+        }
+        .cachedIn(viewModelScope)
 
     fun setMediaFilter(filter: MediaFilter) {
         selectedFilter.value = filter
@@ -99,7 +120,6 @@ class HomeViewModel(
             AnalyticsEvents.FILTER_CHANGED,
             mapOf(AnalyticsEvents.Param.FILTER to filter.name),
         )
-        loadMedia(filter)
     }
 
     fun searchMediaByName(mediaFilter: String) = viewModelScope.launch(dispatcherProvider.io()) {

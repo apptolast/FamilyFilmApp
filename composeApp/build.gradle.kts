@@ -57,6 +57,15 @@ kotlin {
         }
     }
 
+    // Ads-related actuals are split into two parallel source dirs: src/iosMainAds
+    // uses the cinterop'd GoogleMobileAds symbols, src/iosMainNoAds keeps no-ops.
+    // The active dir flips on whether `xcode.frameworks.path` is configured.
+    val iosAdsSourceDir = if (localProperty("xcode.frameworks.path").isNotBlank()) {
+        "src/iosMainAds/kotlin"
+    } else {
+        "src/iosMainNoAds/kotlin"
+    }
+
     sourceSets {
         commonMain.dependencies {
             // Compose
@@ -165,8 +174,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.process)
         }
 
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+        iosMain {
+            kotlin.srcDir(iosAdsSourceDir)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
 
         androidUnitTest.dependencies {

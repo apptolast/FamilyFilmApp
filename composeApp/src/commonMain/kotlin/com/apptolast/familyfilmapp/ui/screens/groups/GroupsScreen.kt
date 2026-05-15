@@ -12,6 +12,13 @@ fun GroupsScreen(viewModel: GroupViewModel = koinViewModel()) {
     GroupsContent(
         state = state,
         onSelectGroup = viewModel::selectGroup,
-        onCreateGroupRequested = { viewModel.createGroup("New group") },
+        onShowDialog = viewModel::showDialog,
+        onCreateGroup = viewModel::createGroup,
+        onAddMember = viewModel::addMember,
+        onChangeGroupName = viewModel::changeGroupName,
+        onDeleteGroup = viewModel::deleteGroup,
+        onRemoveMember = viewModel::removeMember,
+        onMediaClick = { /* navigation handled by parent through Routes */ },
+        onClearError = viewModel::clearError,
     )
 }

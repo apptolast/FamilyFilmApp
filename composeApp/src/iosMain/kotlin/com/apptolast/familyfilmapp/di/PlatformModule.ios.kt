@@ -2,7 +2,7 @@ package com.apptolast.familyfilmapp.di
 
 import androidx.room.RoomDatabase
 import com.apptolast.familyfilmapp.ads.NativeAdManager
-import com.apptolast.familyfilmapp.ads.NoOpNativeAdManager
+import com.apptolast.familyfilmapp.ads.createNativeAdManager
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInClient
 import com.apptolast.familyfilmapp.purchases.IosRevenueCatPurchaseManager
@@ -28,5 +28,7 @@ actual val platformModule = module {
     singleOf(::StoreKitRateAppManager) bind RateAppManager::class
     singleOf(::IosGoogleSignInClient) bind GoogleSignInClient::class
     singleOf(::IosRevenueCatPurchaseManager) bind PurchaseManager::class
-    singleOf(::NoOpNativeAdManager) bind NativeAdManager::class
+    // Factory swaps between NoOpNativeAdManager / IosNativeAdManager based on whether
+    // cinterop GoogleMobileAds is active (see iosMainNoAds vs iosMainAds source dirs).
+    single<NativeAdManager> { createNativeAdManager() }
 }

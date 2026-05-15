@@ -5,9 +5,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.resume
 
-class IosGoogleSignInClient(
-    private val crashReporter: CrashReporter,
-) : GoogleSignInClient {
+class IosGoogleSignInClient(private val crashReporter: CrashReporter) : GoogleSignInClient {
 
     override suspend fun signIn(): GoogleSignInTokens? {
         val bridge = installedBridge ?: run {

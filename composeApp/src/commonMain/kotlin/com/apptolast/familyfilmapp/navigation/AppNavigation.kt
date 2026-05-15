@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.navigation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -99,20 +100,24 @@ fun AppNavigation() {
                 }
             }
         },
-        // Each screen handles its own safe-area insets so backgrounds can go edge-to-edge.
-        contentWindowInsets = WindowInsets(0),
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = if (authState is AuthState.Authenticated) Routes.Home else Routes.Login,
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
+                .consumeWindowInsets(paddingValues),
         ) {
             composable<Routes.Login> {
                 LoginScreen(viewModel = authViewModel)
             }
             composable<Routes.Home> {
-                HomeScreen()
+                HomeScreen(
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
+                    },
+                )
             }
             composable<Routes.Discover> {
                 DiscoverScreen(

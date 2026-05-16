@@ -116,7 +116,7 @@
     <string name="login_text_check_your_email_to_verify_your_account">Revise su correo electrónico para verificar su cuenta.</string>
 
     <!-- DETAIL -->
-    <string name="detail_mark_as">Marcar como %s</string>
+    <string name="detail_mark_as">Marcar como %1$s</string>
     <string name="detail_select_groups">Selecciona grupos:</string>
     <string name="detail_confirm">Confirmar</string>
     <string name="detail_select_target_groups">Selecciona grupos de destino</string>
@@ -178,7 +178,7 @@
     <string name="chat_empty_state_subtitle">Pide recomendaciones, pregunta por actores, directores, géneros o cualquier cosa sobre películas y series.</string>
     <string name="chat_suggestion_1">Recomiéndame 5 películas de ciencia ficción imprescindibles</string>
     <string name="chat_suggestion_2">¿Qué ha dirigido Christopher Nolan?</string>
-    <string name="chat_suggestion_3">Películas parecidas a \"El Gran Hotel Budapest\"</string>
+    <string name="chat_suggestion_3">Películas parecidas a «El Gran Hotel Budapest»</string>
     <string name="chat_suggestion_4">Mejores dramas ganadores del Oscar de la última década</string>
     <string name="chat_error_generic">Algo ha fallado. Inténtalo de nuevo.</string>
     <string name="chat_error_network">Sin conexión a internet. Comprueba tu red e inténtalo de nuevo.</string>

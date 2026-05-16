@@ -7,7 +7,9 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-6022710211253419~2092946332</string>
+	<string>ca-app-pub-6022710211253419~9456824826</string>
+	<key>ADMobAppOpenUnitID</key>
+	<string>ca-app-pub-6022710211253419/7780781074</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Permite mostrarte recomendaciones de películas y series más relevantes según tus gustos.</string>
 	<key>GIDClientID</key>

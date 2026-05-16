@@ -283,6 +283,10 @@ buildConfig {
     buildConfigField("ADMOB_BOTTOM_BANNER_ID", localProperty("ADMOB_BOTTOM_BANNER_ID"))
     buildConfigField("ADMOB_APP_OPEN_ID", localProperty("ADMOB_APP_OPEN_ID"))
     buildConfigField("ADMOB_NATIVE_HOME_ID", localProperty("ADMOB_NATIVE_HOME_ID"))
+    buildConfigField("ADMOB_APPLICATION_ID_IOS", localProperty("ADMOB_APPLICATION_ID_IOS"))
+    buildConfigField("ADMOB_BOTTOM_BANNER_ID_IOS", localProperty("ADMOB_BOTTOM_BANNER_ID_IOS"))
+    buildConfigField("ADMOB_APP_OPEN_ID_IOS", localProperty("ADMOB_APP_OPEN_ID_IOS"))
+    buildConfigField("ADMOB_NATIVE_HOME_ID_IOS", localProperty("ADMOB_NATIVE_HOME_ID_IOS"))
     buildConfigField("REVENUECAT_PLAY_SDK_KEY", localProperty("REVENUECAT_PLAY_SDK_KEY"))
     buildConfigField("REVENUECAT_PLAY_SDK_KEY_TEST", localProperty("REVENUECAT_PLAY_SDK_KEY_TEST"))
 }

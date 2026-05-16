@@ -34,12 +34,18 @@ struct iOSApp: App {
             Purchases.configure(withAPIKey: revenueCatKey)
         }
 
-        // AdMob — kick ATT in parallel so the prompt appears before the
-        // first ad request; the `start` call itself is non-blocking.
+        // AdMob — register Kotlin↔Swift bridges before MobileAds.start so the first
+        // composable that needs a banner finds the factory ready.
+        BannerAdBridge.shared.factory = IOSBannerAdViewFactory()
+        NativeAdBridge.shared.loader = IOSNativeAdLoader()
+        NativeAdBridge.shared.viewFactory = IOSNativeAdViewFactory()
+
         ATTrackingManager.requestTrackingAuthorization { _ in
             // Result is observed by AdMob internally.
         }
-        MobileAds.shared.start(completionHandler: nil)
+        MobileAds.shared.start { _ in
+            AppOpenAdManager.shared.loadAd()
+        }
 
         // GoogleSignIn reads `GIDClientID` from Info.plist on first use, so
         // no imperative configure is needed here.

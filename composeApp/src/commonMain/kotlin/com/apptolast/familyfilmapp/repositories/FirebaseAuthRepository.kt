@@ -19,7 +19,7 @@ interface FirebaseAuthRepository {
     fun register(email: String, password: String): Flow<Result<User?>>
     suspend fun verifyEmailIsVerified(): Boolean
     fun loginWithGoogle(tokens: GoogleSignInTokens): Flow<Result<User>>
-    fun logOut()
+    suspend fun logOut()
     fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>>
     fun deleteGoogleAccount(): Flow<Result<Boolean>>
     fun deleteAppleAccount(): Flow<Result<Boolean>>
@@ -71,8 +71,9 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
         return user.isEmailVerified
     }
 
-    override fun logOut() {
-        // Fire-and-forget — the auth state listener reacts to the change. See logOutAndAwait.
+    override suspend fun logOut() {
+        // The auth state listener (authStateChanged) reacts to this and clears the UI.
+        firebaseAuth.signOut()
     }
 
     override fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>> = flow {
@@ -148,7 +149,3 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
     }
 }
 
-// Awaitable variant of logOut for callers (tests, account deletion) that need completion.
-suspend fun FirebaseAuthRepository.logOutAndAwait() {
-    Firebase.auth.signOut()
-}

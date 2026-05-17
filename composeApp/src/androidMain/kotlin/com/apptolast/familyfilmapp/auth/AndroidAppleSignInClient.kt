@@ -54,4 +54,11 @@ class AndroidAppleSignInClient(
     override suspend fun signOut() {
         // Custom Tabs session is torn down when the OAuth flow ends; nothing else to clear.
     }
+
+    // Firebase's OAuthProvider flow on Android performs the authorization code
+    // exchange internally and never surfaces the raw code. Apple revocation from
+    // Android is therefore not supported here — callers should treat this as a
+    // best-effort: on Android the Firebase user is still deleted, but the
+    // Apple↔app link is not severed. (Apple reviewers only verify iOS.)
+    override suspend fun reauthenticateForRevocation(): String? = null
 }

@@ -3,6 +3,8 @@
 package com.apptolast.familyfilmapp.ui.sharedViewmodel
 
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
+import com.apptolast.familyfilmapp.auth.AppleSignInClient
+import com.apptolast.familyfilmapp.auth.AppleTokenRevoker
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
@@ -17,12 +19,7 @@ import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verify
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import dev.mokkery.verifySuspend
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,6 +30,12 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 // Authenticated-path tests are deferred until Mokkery can mock the GitLive auth surface.
 class AuthViewModelTest {
@@ -51,6 +54,8 @@ class AuthViewModelTest {
     private val authRepository = mock<FirebaseAuthRepository>(MockMode.autoUnit)
     private val repository = mock<Repository>(MockMode.autoUnit)
     private val googleSignInClient = mock<GoogleSignInClient>(MockMode.autoUnit)
+    private val appleSignInClient = mock<AppleSignInClient>(MockMode.autoUnit)
+    private val appleTokenRevoker = mock<AppleTokenRevoker>(MockMode.autoUnit)
     private val purchaseManager = mock<PurchaseManager>(MockMode.autoUnit)
     private val analyticsTracker = mock<AnalyticsTracker>(MockMode.autoUnit)
     private val crashReporter = mock<CrashReporter>(MockMode.autoUnit)
@@ -79,6 +84,8 @@ class AuthViewModelTest {
             repository = repository,
             dispatcherProvider = dispatcherProvider,
             googleSignInClient = googleSignInClient,
+            appleSignInClient = appleSignInClient,
+            appleTokenRevoker = appleTokenRevoker,
             purchaseManager = purchaseManager,
             analyticsTracker = analyticsTracker,
             crashReporter = crashReporter,
@@ -168,7 +175,7 @@ class AuthViewModelTest {
         advanceUntilIdle()
 
         verify { repository.stopSync() }
-        verify { authRepository.logOut() }
+        verifySuspend { authRepository.logOut() }
         verify { purchaseManager.logout() }
         assertEquals(AuthState.Unauthenticated, viewModel.authState.value)
     }

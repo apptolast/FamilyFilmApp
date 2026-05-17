@@ -5,10 +5,16 @@ import CryptoKit
 
 final class AppleSignInBridgeImpl: NSObject, IosAppleSignInBridge {
 
-    private var pendingCompletion: ((String?, String?, String?, String?) -> Void)?
+    private var pendingCompletion: ((String?, String?, String?, String?, String?) -> Void)?
     private var currentNonce: String?
 
-    func startSignIn(completion: @escaping (String?, String?, String?, String?) -> Void) {
+    // Retained so ASAuthorizationController isn't deallocated before the delegate
+    // fires. Apple's framework holds onto it internally too, but on iOS 26
+    // simulators we've seen the delegate skipped when the local variable goes
+    // out of scope; this belt-and-braces makes it deterministic.
+    private var currentController: ASAuthorizationController?
+
+    func startSignIn(completion: @escaping (String?, String?, String?, String?, String?) -> Void) {
         DispatchQueue.main.async {
             self.pendingCompletion = completion
 
@@ -23,6 +29,8 @@ final class AppleSignInBridgeImpl: NSObject, IosAppleSignInBridge {
             let controller = ASAuthorizationController(authorizationRequests: [request])
             controller.delegate = self
             controller.presentationContextProvider = self
+            self.currentController = controller
+            NSLog("[AppleSignIn] performRequests dispatched")
             controller.performRequests()
         }
     }
@@ -68,13 +76,16 @@ extension AppleSignInBridgeImpl: ASAuthorizationControllerDelegate {
         defer {
             pendingCompletion = nil
             currentNonce = nil
+            currentController = nil
         }
+        NSLog("[AppleSignIn] didCompleteWithAuthorization")
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let nonce = currentNonce,
               let tokenData = appleIDCredential.identityToken,
               let idToken = String(data: tokenData, encoding: .utf8)
         else {
-            pendingCompletion?(nil, nil, nil, "Invalid Apple credential")
+            NSLog("[AppleSignIn] credential cast / nonce / idToken extraction failed")
+            pendingCompletion?(nil, nil, nil, nil, "Invalid Apple credential")
             return
         }
         let fullName = [
@@ -86,7 +97,11 @@ extension AppleSignInBridgeImpl: ASAuthorizationControllerDelegate {
         }
         .joined(separator: " ")
         .nilIfEmpty()
-        pendingCompletion?(idToken, nonce, fullName, nil)
+        let authorizationCode = appleIDCredential.authorizationCode
+            .flatMap {
+                String(data: $0, encoding: .utf8)
+            }
+        pendingCompletion?(idToken, nonce, fullName, authorizationCode, nil)
     }
 
     func authorizationController(
@@ -96,13 +111,14 @@ extension AppleSignInBridgeImpl: ASAuthorizationControllerDelegate {
         defer {
             pendingCompletion = nil
             currentNonce = nil
+            currentController = nil
         }
         let nsError = error as NSError
+        NSLog("[AppleSignIn] didCompleteWithError domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription) userInfo=\(nsError.userInfo)")
         if nsError.code == ASAuthorizationError.canceled.rawValue {
-            // Treat cancellation as silent — no error message.
-            pendingCompletion?(nil, nil, nil, nil)
+            pendingCompletion?(nil, nil, nil, nil, nil)
         } else {
-            pendingCompletion?(nil, nil, nil, error.localizedDescription)
+            pendingCompletion?(nil, nil, nil, nil, error.localizedDescription)
         }
     }
 }

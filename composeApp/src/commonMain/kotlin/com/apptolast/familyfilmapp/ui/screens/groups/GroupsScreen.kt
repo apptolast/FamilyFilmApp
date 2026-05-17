@@ -7,10 +7,7 @@ import com.apptolast.familyfilmapp.model.local.types.MediaType
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun GroupsScreen(
-    onMediaSelected: (Int, MediaType) -> Unit,
-    viewModel: GroupViewModel = koinViewModel(),
-) {
+fun GroupsScreen(onMediaSelected: (Int, MediaType) -> Unit, viewModel: GroupViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
 
     GroupsContent(

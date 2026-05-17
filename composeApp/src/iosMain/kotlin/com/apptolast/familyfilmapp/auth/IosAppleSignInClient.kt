@@ -19,7 +19,7 @@ class IosAppleSignInClient(private val crashReporter: CrashReporter) : AppleSign
         }
 
         val native = suspendCancellableCoroutine<NativeAppleResult?> { cont ->
-            bridge.startSignIn { idToken, rawNonce, fullName, error ->
+            bridge.startSignIn { idToken, rawNonce, fullName, _, error ->
                 if (error != null) crashReporter.log("AppleSignIn iOS error: $error")
                 val result = if (idToken != null && rawNonce != null) {
                     NativeAppleResult(idToken, rawNonce, fullName)
@@ -46,6 +46,19 @@ class IosAppleSignInClient(private val crashReporter: CrashReporter) : AppleSign
 
     override suspend fun signOut() {
         // Apple Sign-In has no per-provider sign-out; Firebase signOut happens elsewhere.
+    }
+
+    override suspend fun reauthenticateForRevocation(): String? {
+        val bridge = installedBridge ?: run {
+            crashReporter.log("AppleSignIn bridge not installed from Swift")
+            return null
+        }
+        return suspendCancellableCoroutine { cont ->
+            bridge.startSignIn { _, _, _, authorizationCode, error ->
+                if (error != null) crashReporter.log("AppleReauth iOS error: $error")
+                cont.resume(authorizationCode)
+            }
+        }
     }
 
     private data class NativeAppleResult(val idToken: String, val rawNonce: String, val fullName: String?)

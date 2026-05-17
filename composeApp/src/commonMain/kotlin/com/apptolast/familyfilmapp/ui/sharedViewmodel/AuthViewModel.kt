@@ -8,6 +8,7 @@ import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.UserProperties
 import com.apptolast.familyfilmapp.auth.AppleSignInClient
+import com.apptolast.familyfilmapp.auth.AppleTokenRevoker
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.firebase.toDomainUserModel
@@ -54,6 +55,7 @@ class AuthViewModel(
     private val dispatcherProvider: DispatcherProvider,
     private val googleSignInClient: GoogleSignInClient,
     private val appleSignInClient: AppleSignInClient,
+    private val appleTokenRevoker: AppleTokenRevoker,
     private val purchaseManager: PurchaseManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
@@ -365,13 +367,14 @@ class AuthViewModel(
     fun logOut() {
         analyticsTracker.logEvent(AnalyticsEvents.LOGOUT)
         repository.stopSync()
-        authRepository.logOut()
         purchaseManager.logout()
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            // Firebase.auth.signOut() must run for the session token to be cleared from
+            // Keychain / SharedPreferences. Without this the next cold start picks the
+            // cached user back up via authStateChanged and skips the login screen.
+            authRepository.logOut()
             googleSignInClient.signOut()
             appleSignInClient.signOut()
-        }
-        viewModelScope.launch(dispatcherProvider.io()) {
             repository.clearLocalData()
         }
         _authState.update { AuthState.Unauthenticated }
@@ -407,6 +410,21 @@ class AuthViewModel(
             }
 
             APPLE_PROVIDER_ID -> {
+                // App Store guideline 5.1.1(v): obtain a fresh authorization code via Apple's
+                // native sheet, hand it to the Cloud Function that revokes the token at Apple,
+                // and only then delete the Firebase user. On Android the re-auth call returns
+                // null (Firebase OAuth hides the code), so we proceed without server revocation
+                // — Apple only audits iOS.
+                val authorizationCode = appleSignInClient.reauthenticateForRevocation()
+                val revoked = if (authorizationCode != null) {
+                    appleTokenRevoker.revoke(authorizationCode)
+                } else {
+                    true
+                }
+                if (!revoked) {
+                    handleFailure("Apple revocation failed; account not deleted")
+                    return
+                }
                 authRepository.deleteAppleAccount().first()
                     .onSuccess {
                         analyticsTracker.logEvent(

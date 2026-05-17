@@ -9,11 +9,15 @@ interface IosAppleSignInBridge {
     // Objective-C selector collision when both interfaces are exposed to Swift —
     // otherwise Kotlin/Native renames one to signIn(completion_:) and breaks
     // GoogleSignInBridgeImpl.swift.
+    //
+    // authorizationCode is needed for App Store guideline 5.1.1(v) token revocation
+    // on account deletion. The regular sign-in flow ignores it.
     fun startSignIn(
         completion: (
             idToken: String?,
             rawNonce: String?,
             fullName: String?,
+            authorizationCode: String?,
             errorMessage: String?,
         ) -> Unit,
     )

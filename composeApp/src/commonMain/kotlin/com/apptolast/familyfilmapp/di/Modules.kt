@@ -3,18 +3,12 @@ package com.apptolast.familyfilmapp.di
 import com.apptolast.familyfilmapp.ai.GeminiChatService
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.FirebaseAnalyticsTracker
+import com.apptolast.familyfilmapp.auth.AppleTokenRevoker
+import com.apptolast.familyfilmapp.auth.FirebaseAppleTokenRevoker
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.firebase.FirebaseCurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.types.MediaType
-import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
-import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
-import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
-import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel
-import com.apptolast.familyfilmapp.ui.screens.home.HomeViewModel
-import com.apptolast.familyfilmapp.ui.screens.profile.ProfileViewModel
-import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
-import org.koin.core.module.dsl.viewModel
 import com.apptolast.familyfilmapp.network.TmdbApi
 import com.apptolast.familyfilmapp.network.TmdbApiKtor
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
@@ -31,14 +25,22 @@ import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasourceImpl
+import com.apptolast.familyfilmapp.room.AppDatabase
+import com.apptolast.familyfilmapp.room.buildAppDatabase
+import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
+import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel
+import com.apptolast.familyfilmapp.ui.screens.home.HomeViewModel
+import com.apptolast.familyfilmapp.ui.screens.profile.ProfileViewModel
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
+import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import com.apptolast.familyfilmapp.room.AppDatabase
-import com.apptolast.familyfilmapp.room.buildAppDatabase
-import com.apptolast.familyfilmapp.utils.DefaultDispatcherProvider
-import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -58,6 +60,7 @@ val dataModule = module {
 
     singleOf(::FirebaseAuthRepositoryImpl) bind FirebaseAuthRepository::class
     singleOf(::GeminiChatService)
+    singleOf(::FirebaseAppleTokenRevoker) bind AppleTokenRevoker::class
     singleOf(::FirebaseAnalyticsTracker) bind AnalyticsTracker::class
     singleOf(::CrashReporter)
     singleOf(::FirebaseCurrentUserIdProvider) bind CurrentUserIdProvider::class

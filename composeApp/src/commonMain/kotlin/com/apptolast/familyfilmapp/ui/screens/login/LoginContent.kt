@@ -63,12 +63,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
+import com.apptolast.familyfilmapp.ui.screens.login.components.AppleButtonContent
 import com.apptolast.familyfilmapp.ui.screens.login.components.GoogleButtonContent
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_APPLE_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
@@ -120,6 +122,7 @@ fun LoginContent(
     onUsernameChange: (String) -> Unit,
     onPrimaryClick: (email: String, password: String) -> Unit,
     onGoogleClick: () -> Unit,
+    onAppleClick: () -> Unit,
     onToggleScreenState: () -> Unit,
     onRecoveryPassUpdate: (RecoverPassState) -> Unit,
     onRecoverPassword: (String) -> Unit,
@@ -399,6 +402,23 @@ fun LoginContent(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        Button(
+                            onClick = onAppleClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .testTag(TT_LOGIN_APPLE_BUTTON),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Black,
+                                contentColor = Color.White,
+                            ),
+                        ) {
+                            AppleButtonContent()
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
                         Row(modifier = Modifier.clickable { onToggleScreenState() }) {
                             Text(
                                 text = stringResource(screenState.accountText),
@@ -484,6 +504,7 @@ private fun PreviewLoginContent() {
             onUsernameChange = {},
             onPrimaryClick = { _, _ -> },
             onGoogleClick = {},
+            onAppleClick = {},
             onToggleScreenState = {},
             onRecoveryPassUpdate = {},
             onRecoverPassword = {},

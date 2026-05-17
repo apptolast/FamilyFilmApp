@@ -67,6 +67,7 @@ object AnalyticsEvents {
     object Method {
         const val EMAIL = "email"
         const val GOOGLE = "google"
+        const val APPLE = "apple"
     }
 
     /** Common values for the [Param.ERROR_TYPE] parameter — keep this list closed. */

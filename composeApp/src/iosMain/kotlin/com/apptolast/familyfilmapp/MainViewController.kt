@@ -1,6 +1,8 @@
 package com.apptolast.familyfilmapp
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.apptolast.familyfilmapp.auth.IosAppleSignInBridge
+import com.apptolast.familyfilmapp.auth.IosAppleSignInClient
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInBridge
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInClient
 import com.apptolast.familyfilmapp.di.initKoin
@@ -10,6 +12,7 @@ import com.apptolast.familyfilmapp.di.initKoin
 // itself is also idempotent — this is just belt-and-braces.
 private var koinInitialized = false
 
+@Suppress("ktlint:standard:function-naming")
 fun MainViewController() = ComposeUIViewController {
     if (!koinInitialized) {
         initKoin()
@@ -21,4 +24,9 @@ fun MainViewController() = ComposeUIViewController {
 // Swift-callable entry point: installs the GIDSignIn bridge implemented in iosApp/.
 fun setGoogleSignInBridge(bridge: IosGoogleSignInBridge) {
     IosGoogleSignInClient.installBridge(bridge)
+}
+
+// Swift-callable entry point: installs the AuthenticationServices bridge implemented in iosApp/.
+fun setAppleSignInBridge(bridge: IosAppleSignInBridge) {
+    IosAppleSignInClient.installBridge(bridge)
 }

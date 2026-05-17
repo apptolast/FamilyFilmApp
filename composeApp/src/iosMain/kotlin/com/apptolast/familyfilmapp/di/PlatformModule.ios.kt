@@ -3,7 +3,9 @@ package com.apptolast.familyfilmapp.di
 import androidx.room.RoomDatabase
 import com.apptolast.familyfilmapp.ads.IosNativeAdManager
 import com.apptolast.familyfilmapp.ads.NativeAdManager
+import com.apptolast.familyfilmapp.auth.AppleSignInClient
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
+import com.apptolast.familyfilmapp.auth.IosAppleSignInClient
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInClient
 import com.apptolast.familyfilmapp.purchases.IosRevenueCatPurchaseManager
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
@@ -27,6 +29,7 @@ actual val platformModule = module {
 
     singleOf(::StoreKitRateAppManager) bind RateAppManager::class
     singleOf(::IosGoogleSignInClient) bind GoogleSignInClient::class
+    singleOf(::IosAppleSignInClient) bind AppleSignInClient::class
     singleOf(::IosRevenueCatPurchaseManager) bind PurchaseManager::class
     // IosNativeAdManager delegates the actual GADAdLoader call to Swift via NativeAdBridge.
     single<NativeAdManager> { IosNativeAdManager() }

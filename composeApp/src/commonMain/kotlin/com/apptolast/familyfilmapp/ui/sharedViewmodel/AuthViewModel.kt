@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptolast.familyfilmapp.analytics.AnalyticsEvents
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.analytics.UserProperties
+import com.apptolast.familyfilmapp.auth.AppleSignInClient
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.firebase.toDomainUserModel
@@ -52,6 +53,7 @@ class AuthViewModel(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
     private val googleSignInClient: GoogleSignInClient,
+    private val appleSignInClient: AppleSignInClient,
     private val purchaseManager: PurchaseManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
@@ -296,6 +298,34 @@ class AuthViewModel(
         }
     }
 
+    fun appleSignIn() = viewModelScope.launch {
+        try {
+            val user = appleSignInClient.signIn() ?: run {
+                handleFailure("Apple sign-in cancelled or no credential available")
+                return@launch
+            }
+            val exists = repository.checkIfUserExists(user.id)
+            if (!exists) {
+                createNewUser(user)
+                _shouldPromptForUsername.update { true }
+                analyticsTracker.logSignUp(AnalyticsEvents.Method.APPLE)
+            } else {
+                analyticsTracker.logLogin(AnalyticsEvents.Method.APPLE)
+            }
+            checkIsUserLogged()
+        } catch (e: Throwable) {
+            analyticsTracker.logEvent(
+                AnalyticsEvents.LOGIN_FAILED,
+                mapOf(
+                    AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.APPLE,
+                    AnalyticsEvents.Param.ERROR_TYPE to e.toAuthErrorType(),
+                ),
+            )
+            crashReporter.recordException(e)
+            handleFailure(e.message)
+        }
+    }
+
     private fun handleFailure(message: String? = null, e: Throwable? = null) {
         _authState.update { AuthState.Error(e?.message ?: message ?: "Error") }
         if (e != null) crashReporter.recordException(e)
@@ -339,6 +369,7 @@ class AuthViewModel(
         purchaseManager.logout()
         viewModelScope.launch {
             googleSignInClient.signOut()
+            appleSignInClient.signOut()
         }
         viewModelScope.launch(dispatcherProvider.io()) {
             repository.clearLocalData()
@@ -370,6 +401,20 @@ class AuthViewModel(
                         )
                         purchaseManager.logout()
                         googleSignInClient.signOut()
+                        _authState.update { AuthState.Unauthenticated }
+                    }
+                    .onFailure { handleFailure("Delete User Error") }
+            }
+
+            APPLE_PROVIDER_ID -> {
+                authRepository.deleteAppleAccount().first()
+                    .onSuccess {
+                        analyticsTracker.logEvent(
+                            AnalyticsEvents.ACCOUNT_DELETED,
+                            mapOf(AnalyticsEvents.Param.METHOD to AnalyticsEvents.Method.APPLE),
+                        )
+                        purchaseManager.logout()
+                        appleSignInClient.signOut()
                         _authState.update { AuthState.Unauthenticated }
                     }
                     .onFailure { handleFailure("Delete User Error") }
@@ -436,6 +481,7 @@ class AuthViewModel(
 
         // GitLive returns provider ID strings (not enum) from FirebaseUser.providerData.
         const val GOOGLE_PROVIDER_ID = "google.com"
+        const val APPLE_PROVIDER_ID = "apple.com"
         const val PASSWORD_PROVIDER_ID = "password"
     }
 }

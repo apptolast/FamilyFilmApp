@@ -127,7 +127,13 @@ fun AppNavigation() {
                 )
             }
             composable<Routes.Chat> { ChatScreen() }
-            composable<Routes.Groups> { GroupsScreen() }
+            composable<Routes.Groups> {
+                GroupsScreen(
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
+                    },
+                )
+            }
             composable<Routes.Profile> {
                 ProfileScreen(authViewModel = authViewModel)
             }

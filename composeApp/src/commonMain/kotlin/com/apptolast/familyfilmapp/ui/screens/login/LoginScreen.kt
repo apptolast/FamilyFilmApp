@@ -38,6 +38,7 @@ fun LoginScreen(viewModel: AuthViewModel = koinViewModel()) {
             }
         },
         onGoogleClick = { viewModel.googleSignIn() },
+        onAppleClick = { viewModel.appleSignIn() },
         onToggleScreenState = viewModel::changeScreenState,
         onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
         onRecoverPassword = viewModel::recoverPassword,

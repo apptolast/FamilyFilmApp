@@ -11,6 +11,8 @@
     <string name="register_text_button">Register</string>
     <string name="login_text_sign_in_with_google">Sign in with Google</string>
     <string name="login_icon_google">Google Logo</string>
+    <string name="login_text_sign_in_with_apple">Sign in with Apple</string>
+    <string name="login_icon_apple">Apple Logo</string>
     <string name="login_text_no_account">Don’t have an account?</string>
     <string name="login_text_yes_account">Do you have an account?</string>
     <string name="login_text_sign_up">Sign up</string>

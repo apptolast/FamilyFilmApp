@@ -22,6 +22,7 @@ interface FirebaseAuthRepository {
     fun logOut()
     fun deleteAccountWithReAuthentication(email: String, password: String): Flow<Result<Boolean>>
     fun deleteGoogleAccount(): Flow<Result<Boolean>>
+    fun deleteAppleAccount(): Flow<Result<Boolean>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
     fun isTokenValid(): Flow<Boolean>
     fun getProvider(): Flow<String?>
@@ -87,6 +88,20 @@ class FirebaseAuthRepositoryImpl : FirebaseAuthRepository {
     }
 
     override fun deleteGoogleAccount(): Flow<Result<Boolean>> = flow {
+        emit(
+            runCatching {
+                val user = firebaseAuth.currentUser ?: error("No user logged in")
+                user.delete()
+                true
+            },
+        )
+    }
+
+    // Token revocation (https://appleid.apple.com/auth/revoke) is required by
+    // App Store guideline 5.1.1(v) and can only be performed server-side because
+    // it needs the Sign in with Apple private key. That should live in a Cloud
+    // Function; here we only delete the Firebase user.
+    override fun deleteAppleAccount(): Flow<Result<Boolean>> = flow {
         emit(
             runCatching {
                 val user = firebaseAuth.currentUser ?: error("No user logged in")

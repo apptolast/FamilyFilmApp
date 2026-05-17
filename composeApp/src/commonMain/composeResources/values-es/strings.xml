@@ -12,6 +12,8 @@
     <string name="register_text_button">Registrarse</string>
     <string name="login_text_sign_in_with_google">Iniciar sesión con Google</string>
     <string name="login_icon_google">Logo de Google</string>
+    <string name="login_text_sign_in_with_apple">Iniciar sesión con Apple</string>
+    <string name="login_icon_apple">Logo de Apple</string>
     <string name="login_text_no_account">¿No tienes una cuenta?</string>
     <string name="login_text_yes_account">¿Tienes una cuenta?</string>
     <string name="login_text_sign_up">Regístrate</string>

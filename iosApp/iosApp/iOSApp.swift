@@ -25,6 +25,9 @@ struct iOSApp: App {
         // native flow when the user taps "Iniciar sesión con Google".
         MainViewControllerKt.setGoogleSignInBridge(bridge: GoogleSignInBridgeImpl())
 
+        // Install the AuthenticationServices bridge for Sign in with Apple.
+        MainViewControllerKt.setAppleSignInBridge(bridge: AppleSignInBridgeImpl())
+
         // RevenueCat — App Store SDK key lives in Info.plist (key
         // `RevenueCatAppStoreKey`). If empty we skip configuration to avoid
         // a runtime crash; purchase flows then fail gracefully.

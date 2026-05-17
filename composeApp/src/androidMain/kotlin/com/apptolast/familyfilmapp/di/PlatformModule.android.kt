@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.room.RoomDatabase
 import com.apptolast.familyfilmapp.ads.AdMobNativeAdManager
 import com.apptolast.familyfilmapp.ads.NativeAdManager
+import com.apptolast.familyfilmapp.auth.AndroidAppleSignInClient
 import com.apptolast.familyfilmapp.auth.AndroidGoogleSignInClient
+import com.apptolast.familyfilmapp.auth.AppleSignInClient
 import com.apptolast.familyfilmapp.auth.GoogleSignInClient
 import com.apptolast.familyfilmapp.platform.CurrentActivityHolder
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
@@ -35,6 +37,12 @@ actual val platformModule = module {
     single<GoogleSignInClient> {
         AndroidGoogleSignInClient(
             context = androidContext(),
+            activityHolder = get(),
+            crashReporter = get(),
+        )
+    }
+    single<AppleSignInClient> {
+        AndroidAppleSignInClient(
             activityHolder = get(),
             crashReporter = get(),
         )

@@ -152,9 +152,9 @@ fun DetailsContent(
                 model = "${TmdbConfig.POSTER_DETAIL}${state.media.posterPath}",
                 contentDescription = "Media Poster",
                 modifier = Modifier
+                    .padding(top = 10.dp)
                     .height(350.dp)
                     .clip(MaterialTheme.shapes.small)
-                    .padding(top = 10.dp)
                     .testTag(TT_DETAIL_POSTER),
                 contentScale = ContentScale.Fit,
             )

@@ -4,10 +4,11 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,9 +50,9 @@ import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
 
 /**
  * Swipeable Movie Card Component.
@@ -68,7 +69,9 @@ fun SwipeableMediaCard(
     onSwipeRight: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(modifier = modifier.fillMaxWidth(0.8f).fillMaxHeight(0.6f)) {
+    BoxWithConstraints(
+        modifier = modifier.aspectRatio(2f / 3f, matchHeightConstraintsFirst = true),
+    ) {
         val screenWidth = maxWidth.value
         val swipeThreshold = screenWidth * 0.4f
 

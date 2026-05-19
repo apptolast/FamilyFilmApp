@@ -21,6 +21,8 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.repositories.RepositoryImpl
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
@@ -69,6 +71,7 @@ val dataModule = module {
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     singleOf(::TmdbDatasourceImpl) bind TmdbDatasource::class
     singleOf(::RoomDatasourceImpl) bind RoomDatasource::class
+    singleOf(::RecommendedCardStateDatasourceImpl) bind RecommendedCardStateDatasource::class
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
 }

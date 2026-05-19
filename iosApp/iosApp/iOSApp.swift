@@ -8,6 +8,16 @@ import GoogleSignIn
 import RevenueCat
 import UserMessagingPlatform
 
+final class FamilyFilmAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        if #available(iOS 14.0, *) {
+            return AppAttestProvider(app: app)
+        } else {
+            return DeviceCheckProvider(app: app)
+        }
+    }
+}
+
 @main
 struct iOSApp: App {
     init() {
@@ -16,7 +26,7 @@ struct iOSApp: App {
         #if DEBUG
         AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
         #else
-        AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
+        AppCheck.setAppCheckProviderFactory(FamilyFilmAppCheckProviderFactory())
         #endif
 
         FirebaseApp.configure()

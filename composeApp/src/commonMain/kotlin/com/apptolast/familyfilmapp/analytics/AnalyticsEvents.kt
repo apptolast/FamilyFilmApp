@@ -23,6 +23,7 @@ object AnalyticsEvents {
     const val GROUP_MEMBER_ADDED = "group_member_added"
     const val GROUP_MEMBER_REMOVED = "group_member_removed"
     const val GROUP_INVITE_SHARED = "group_invite_shared"
+    const val RECOMMENDED_CARD_REVEALED = "recommended_card_revealed"
 
     // Chat
     const val CHAT_SESSION_STARTED = "chat_session_started"

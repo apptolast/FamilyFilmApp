@@ -20,6 +20,7 @@ fun GroupsScreen(onMediaSelected: (Int, MediaType) -> Unit, viewModel: GroupView
         onDeleteGroup = viewModel::deleteGroup,
         onRemoveMember = viewModel::removeMember,
         onMediaClick = { media -> onMediaSelected(media.id, media.mediaType) },
+        onRevealRecommended = viewModel::revealRecommendedCard,
         onClearError = viewModel::clearError,
     )
 }

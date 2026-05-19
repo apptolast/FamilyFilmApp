@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +61,7 @@ import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel.GroupScreenDialogs
 import com.apptolast.familyfilmapp.ui.screens.groups.components.GroupCard
 import com.apptolast.familyfilmapp.ui.screens.groups.components.HorizontalScrollableMedia
-import com.apptolast.familyfilmapp.ui.screens.home.MediaItem
+import com.apptolast.familyfilmapp.ui.screens.groups.components.RecommendedMediaFlipCard
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
@@ -96,6 +97,7 @@ fun GroupsContent(
     onDeleteGroup: (String) -> Unit,
     onRemoveMember: (groupId: String, userId: String) -> Unit,
     onMediaClick: (Media) -> Unit,
+    onRevealRecommended: () -> Unit,
     onClearError: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -156,6 +158,7 @@ fun GroupsContent(
                     onDeleteUser = { groupId, userId -> onRemoveMember(groupId, userId) },
                     onGroupSelect = onSelectGroup,
                     onMediaClick = onMediaClick,
+                    onRevealRecommended = onRevealRecommended,
                 )
             } else if (state.groups.isEmpty()) {
                 Box(
@@ -236,6 +239,7 @@ fun GroupContent(
     onDeleteUser: (String, String) -> Unit = { _, _ -> },
     onGroupSelect: (String) -> Unit = {},
     onMediaClick: (Media) -> Unit = {},
+    onRevealRecommended: () -> Unit = {},
 ) {
     if (groups.isEmpty()) {
         Box(
@@ -315,12 +319,15 @@ fun GroupContent(
                             textAlign = TextAlign.Center,
                         )
                         groupData.recommendedMedia?.let { media ->
-                            MediaItem(
-                                media = media,
-                                onClick = onMediaClick,
-                                status = null,
-                                modifier = Modifier.fillMaxWidth(0.6f),
-                            )
+                            key(groupData.group.id, media.id) {
+                                RecommendedMediaFlipCard(
+                                    media = media,
+                                    isPersistedRevealed = groupData.isRecommendedRevealed,
+                                    onReveal = onRevealRecommended,
+                                    onMediaClick = onMediaClick,
+                                    modifier = Modifier.fillMaxWidth(0.6f),
+                                )
+                            }
                         }
                     }
                 }

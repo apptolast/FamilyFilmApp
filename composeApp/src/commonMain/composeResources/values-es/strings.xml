@@ -45,6 +45,7 @@
     <string name="groups_text_to_watch">Quiero ver</string>
     <string name="groups_text_watched">Vistas</string>
     <string name="group_recommended_label">Recomendada</string>
+    <string name="group_card_flip_hint">Descubre la película recomendada</string>
     <string name="cannot_delete_owner">No se puede eliminar al propietario del grupo. Elimina el grupo en su lugar.</string>
     <string name="groups_tooltip_edit_name">Editar nombre del grupo</string>
     <string name="groups_tooltip_add_member">Añadir miembro</string>

@@ -44,6 +44,7 @@
     <string name="groups_text_to_watch">To Watch</string>
     <string name="groups_text_watched">Watched</string>
     <string name="group_recommended_label">Recommended</string>
+    <string name="group_card_flip_hint">Reveal the recommended movie</string>
     <string name="cannot_delete_owner">Cannot delete group owner. Delete the group instead.</string>
     <string name="groups_tooltip_edit_name">Edit group name</string>
     <string name="groups_tooltip_add_member">Add member</string>

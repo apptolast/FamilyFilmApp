@@ -9,19 +9,13 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasource
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +26,13 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class GroupViewModelTest {
 
@@ -43,6 +44,7 @@ class GroupViewModelTest {
     private val analyticsTracker = mock<AnalyticsTracker>(MockMode.autoUnit)
     private val crashReporter = mock<CrashReporter>(MockMode.autoUnit)
     private val currentUserIdProvider = mock<CurrentUserIdProvider>(MockMode.autoUnit)
+    private val cardStateStore = mock<RecommendedCardStateDatasource>(MockMode.autoUnit)
 
     private val testUserId = "test-user-id"
     private val testUser = User(
@@ -73,6 +75,7 @@ class GroupViewModelTest {
         everySuspend { repository.getUsersByIds(listOf(testUserId)) } returns Result.success(listOf(testUser))
         everySuspend { repository.getMoviesByIds(any()) } returns Result.success(emptyList())
         everySuspend { repository.getTvShowsByIds(any()) } returns Result.success(emptyList())
+        every { cardStateStore.getRevealedMediaId(any()) } returns null
     }
 
     @AfterTest
@@ -86,6 +89,7 @@ class GroupViewModelTest {
             analyticsTracker = analyticsTracker,
             crashReporter = crashReporter,
             currentUserIdProvider = currentUserIdProvider,
+            cardStateStore = cardStateStore,
         )
         return viewModel
     }

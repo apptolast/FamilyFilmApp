@@ -17,6 +17,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,7 @@ class GroupViewModel(
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
     private val currentUserIdProvider: CurrentUserIdProvider,
+    private val cardStateStore: RecommendedCardStateDatasource,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GroupsState())
@@ -37,6 +39,11 @@ class GroupViewModel(
 
     private var groupsObserverJob: Job? = null
     private var movieStatusObserverJob: Job? = null
+
+    // In-memory cache of the last revealed mediaId per group. Consulted before the persistent
+    // store inside [observeMovieStatuses] so that re-emissions of the Firestore Flow can't
+    // overwrite the value we just wrote on a user-triggered reveal.
+    private val revealedRecommendationByGroup = MutableStateFlow<Map<String, String>>(emptyMap())
 
     private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
@@ -141,6 +148,8 @@ class GroupViewModel(
         repository.deleteGroup(groupId)
             .onSuccess {
                 analyticsTracker.logEvent(AnalyticsEvents.GROUP_DELETED)
+                cardStateStore.clearRevealedMediaId(groupId)
+                revealedRecommendationByGroup.update { it - groupId }
                 groupToSelectAfterDelete?.let { group ->
                     _state.update { it.copy(selectedGroupId = group.id) }
                     loadGroupData(group.id)
@@ -231,6 +240,13 @@ class GroupViewModel(
 
                 val recommendedMedia = mediaToWatch.maxByOrNull { it.voteAverage }
 
+                val revealedMediaId = revealedRecommendationByGroup.value[groupId]
+                    ?: cardStateStore.getRevealedMediaId(groupId)?.also { stored ->
+                        revealedRecommendationByGroup.update { it + (groupId to stored) }
+                    }
+                val isRecommendedRevealed = recommendedMedia != null &&
+                    revealedMediaId == recommendedMedia.id.toString()
+
                 val groupData = GroupData(
                     group = currentGroup,
                     members = members,
@@ -238,6 +254,7 @@ class GroupViewModel(
                     mediaWatched = mediaWatched,
                     recommendedMedia = recommendedMedia,
                     currentUserId = currentUserId ?: "",
+                    isRecommendedRevealed = isRecommendedRevealed,
                 )
 
                 _state.update {
@@ -274,6 +291,19 @@ class GroupViewModel(
         return movies + tvShows
     }
 
+    fun revealRecommendedCard() {
+        val groupId = _state.value.selectedGroupId ?: return
+        val mediaId = _state.value.selectedGroupData?.recommendedMedia?.id?.toString() ?: return
+        cardStateStore.setRevealedMediaId(groupId, mediaId)
+        revealedRecommendationByGroup.update { it + (groupId to mediaId) }
+        _state.update { state ->
+            state.copy(
+                selectedGroupData = state.selectedGroupData?.copy(isRecommendedRevealed = true),
+            )
+        }
+        analyticsTracker.logEvent(AnalyticsEvents.RECOMMENDED_CARD_REVEALED)
+    }
+
     fun showDialog(dialog: GroupScreenDialogs) {
         _state.update { it.copy(showDialog = dialog) }
     }
@@ -307,6 +337,7 @@ class GroupViewModel(
         val mediaWatched: List<Media>,
         val recommendedMedia: Media?,
         val currentUserId: String,
+        val isRecommendedRevealed: Boolean = false,
     )
 
     sealed interface GroupScreenDialogs {

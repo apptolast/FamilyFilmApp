@@ -78,6 +78,7 @@ import com.apptolast.familyfilmapp.utils.TT_LOGIN_PASS
 import com.apptolast.familyfilmapp.utils.toErrorString
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.app_name
+import familyfilmkmp.composeapp.generated.resources.ic_launcher_foreground
 import familyfilmkmp.composeapp.generated.resources.login_snail_logo
 import familyfilmkmp.composeapp.generated.resources.login_text_app_subtitle
 import familyfilmkmp.composeapp.generated.resources.login_text_check_your_email_to_verify_your_account
@@ -85,7 +86,6 @@ import familyfilmkmp.composeapp.generated.resources.login_text_email_sent
 import familyfilmkmp.composeapp.generated.resources.login_text_field_email
 import familyfilmkmp.composeapp.generated.resources.login_text_field_password
 import familyfilmkmp.composeapp.generated.resources.login_text_forgot_your_password
-import familyfilmkmp.composeapp.generated.resources.logo_family_film
 import familyfilmkmp.composeapp.generated.resources.movie_background
 import familyfilmkmp.composeapp.generated.resources.movie_background_10
 import familyfilmkmp.composeapp.generated.resources.movie_background_11
@@ -119,15 +119,15 @@ fun LoginContent(
     isEmailSent: Boolean,
     usernameValidationState: UsernameValidationState,
     recoverPassState: RecoverPassState,
-    onUsernameChange: (String) -> Unit,
-    onPrimaryClick: (email: String, password: String) -> Unit,
-    onGoogleClick: () -> Unit,
-    onAppleClick: () -> Unit,
-    onToggleScreenState: () -> Unit,
-    onRecoveryPassUpdate: (RecoverPassState) -> Unit,
-    onRecoverPassword: (String) -> Unit,
-    onClearError: () -> Unit,
     modifier: Modifier = Modifier,
+    onUsernameChange: (String) -> Unit = {},
+    onPrimaryClick: (email: String, password: String) -> Unit = { _, _ -> },
+    onGoogleClick: () -> Unit = {},
+    onAppleClick: () -> Unit = {},
+    onToggleScreenState: () -> Unit = {},
+    onRecoveryPassUpdate: (RecoverPassState) -> Unit = {},
+    onRecoverPassword: (String) -> Unit = {},
+    onClearError: () -> Unit = {},
 ) {
     var email by rememberSaveable(key = initialEmail) { mutableStateOf(initialEmail) }
     var password by rememberSaveable(key = initialPassword) { mutableStateOf(initialPassword) }
@@ -157,10 +157,12 @@ fun LoginContent(
                 snackBarHostState.showSnackbar(state.message ?: "Error")
                 onClearError()
             }
+
             AuthState.Unauthenticated -> {
                 delay(700)
                 showLoginInterface = true
             }
+
             is AuthState.Authenticated -> showLoginInterface = false
             AuthState.Loading -> Unit
         }
@@ -206,10 +208,10 @@ fun LoginContent(
                     .padding(bottom = 24.dp),
             ) {
                 Image(
-                    painter = painterResource(Res.drawable.logo_family_film),
+                    painter = painterResource(Res.drawable.ic_launcher_foreground),
                     contentDescription = stringResource(Res.string.login_snail_logo),
                     modifier = Modifier
-                        .width(130.dp)
+                        .width(190.dp)
                         .padding(16.dp),
                 )
 
@@ -267,7 +269,8 @@ fun LoginContent(
                                 PasswordVisualTransformation()
                             },
                             trailingIcon = {
-                                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                val icon =
+                                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(
                                         imageVector = icon,
@@ -501,14 +504,6 @@ private fun PreviewLoginContent() {
             isEmailSent = false,
             usernameValidationState = UsernameValidationState.Idle,
             recoverPassState = RecoverPassState(),
-            onUsernameChange = {},
-            onPrimaryClick = { _, _ -> },
-            onGoogleClick = {},
-            onAppleClick = {},
-            onToggleScreenState = {},
-            onRecoveryPassUpdate = {},
-            onRecoverPassword = {},
-            onClearError = {},
         )
     }
 }

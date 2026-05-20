@@ -89,17 +89,17 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun GroupsContent(
     state: GroupViewModel.GroupsState,
-    onSelectGroup: (String) -> Unit,
-    onShowDialog: (GroupScreenDialogs) -> Unit,
-    onCreateGroup: (String) -> Unit,
-    onAddMember: (groupId: String, identifier: String) -> Unit,
-    onChangeGroupName: (Group) -> Unit,
-    onDeleteGroup: (String) -> Unit,
-    onRemoveMember: (groupId: String, userId: String) -> Unit,
-    onMediaClick: (Media) -> Unit,
-    onRevealRecommended: () -> Unit,
-    onClearError: () -> Unit,
     modifier: Modifier = Modifier,
+    onSelectGroup: (String) -> Unit = {},
+    onShowDialog: (GroupScreenDialogs) -> Unit = {},
+    onCreateGroup: (String) -> Unit = {},
+    onAddMember: (groupId: String, identifier: String) -> Unit = { _, _ -> },
+    onChangeGroupName: (Group) -> Unit = {},
+    onDeleteGroup: (String) -> Unit = {},
+    onRemoveMember: (groupId: String, userId: String) -> Unit = { _, _ -> },
+    onMediaClick: (Media) -> Unit = {},
+    onRevealRecommended: () -> Unit = {},
+    onClearError: () -> Unit = {},
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()

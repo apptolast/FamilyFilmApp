@@ -100,27 +100,42 @@ class RepositoryImpl(
     // ── Media ──────────────────────────────────────────────────────────────
 
     override suspend fun getPopularMoviesList(page: Int): Result<List<Media>> = runCatching {
-        tmdbDatasource.getPopularMovies(page).map { it.toDomain(tmdbLocaleManager.countryCode) }
+        tmdbDatasource.getPopularMovies(page)
+            .map { it.toDomain(tmdbLocaleManager.countryCode) }
+            .filterAdultContent()
     }
 
     override suspend fun searchTmdbMovieByName(string: String): Result<List<Media>> = runCatching {
-        tmdbDatasource.searchMovieByName(string).map { it.toDomain(tmdbLocaleManager.countryCode) }
+        tmdbDatasource.searchMovieByName(string)
+            .map { it.toDomain(tmdbLocaleManager.countryCode) }
+            .filterAdultContent()
     }
 
     override suspend fun getMoviesByIds(ids: List<Int>): Result<List<Media>> = runCatching {
         ids.map { tmdbDatasource.searchMovieById(it).toDomain(tmdbLocaleManager.countryCode) }
+            .filterAdultContent()
     }
 
     override suspend fun getPopularTvShowsList(page: Int): Result<List<Media>> = runCatching {
-        tmdbDatasource.getPopularTvShows(page).map { it.toDomain(tmdbLocaleManager.countryCode) }
+        tmdbDatasource.getPopularTvShows(page)
+            .map { it.toDomain(tmdbLocaleManager.countryCode) }
+            .filterAdultContent()
     }
 
     override suspend fun searchMulti(query: String): Result<List<Media>> = runCatching {
-        tmdbDatasource.searchMulti(query).mapNotNull { it.toDomain() }
+        tmdbDatasource.searchMulti(query)
+            .mapNotNull { it.toDomain() }
+            .filterAdultContent()
     }
 
     override suspend fun getTvShowsByIds(ids: List<Int>): Result<List<Media>> = runCatching {
         ids.map { tmdbDatasource.getTvShowById(it).toDomain(tmdbLocaleManager.countryCode) }
+            .filterAdultContent()
+    }
+
+    private fun List<Media>.filterAdultContent(): List<Media> {
+        if (tmdbLocaleManager.includeAdult.value) return this
+        return filterNot { it.adult }
     }
 
     // ── Groups ─────────────────────────────────────────────────────────────

@@ -46,20 +46,6 @@ kotlin {
                 }
             }
         }
-
-//        // Cinterop fails without `xcode.frameworks.path` in local.properties pointing at the resolved SPM frameworks.
-//        val xcodeFrameworksPath = localProperty("xcode.frameworks.path").takeIf { it.isNotBlank() }
-//        if (xcodeFrameworksPath != null) {
-//            iosTarget.compilations.getByName("main").cinterops {
-//                listOf("GoogleMobileAds", "RevenueCat", "GoogleSignIn").forEach { name ->
-//                    create(name) {
-//                        defFile(project.file("src/nativeInterop/cinterop/$name.def"))
-//                        compilerOpts("-F$xcodeFrameworksPath")
-//                        extraOpts("-compiler-option", "-F$xcodeFrameworksPath")
-//                    }
-//                }
-//            }
-//        }
     }
 
     sourceSets {
@@ -265,6 +251,7 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("debugImplementation", libs.compose.uiTooling)
     add("debugImplementation", libs.firebase.appcheck.debug)
     // ui-test-manifest provides the empty Activity createComposeRule uses;
     // must be debugImplementation because connectedAndroidTest runs against debug.
@@ -297,7 +284,9 @@ ktlint {
     ignoreFailures.set(false)
     baseline.set(file("../ktlint-baseline.xml"))
     filter {
+        exclude("**/build/**")
         exclude("**/generated/**")
+        exclude { element -> element.file.path.contains("${File.separator}build${File.separator}generated${File.separator}") }
         include("**/kotlin/**")
     }
 }

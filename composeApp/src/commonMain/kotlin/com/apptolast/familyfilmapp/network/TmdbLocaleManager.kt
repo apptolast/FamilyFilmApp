@@ -1,5 +1,6 @@
 package com.apptolast.familyfilmapp.network
 
+import com.apptolast.familyfilmapp.utils.countryCodeFromLanguageTag
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +21,10 @@ open class TmdbLocaleManager(private val settings: Settings) {
 
     open val countryCode: String
         get() {
-            val tag = _languageTag.value
-            val parts = tag.split("-")
-            return if (parts.size >= 2) parts[1] else systemCountryCode()
+            return countryCodeFromLanguageTag(
+                languageTag = _languageTag.value,
+                fallbackCountryCode = systemCountryCode(),
+            )
         }
 
     open fun update(languageTag: String) {

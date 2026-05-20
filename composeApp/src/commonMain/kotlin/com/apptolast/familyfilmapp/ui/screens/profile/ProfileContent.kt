@@ -72,6 +72,7 @@ import com.apptolast.familyfilmapp.utils.TT_PROFILE_AVATAR
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_DELETE_ACCOUNT
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_PROFILE_LOGOUT
+import com.apptolast.familyfilmapp.utils.countryCodeFromLanguageTag
 import com.apptolast.familyfilmapp.utils.countryCodeToFlag
 import com.apptolast.familyfilmapp.utils.getCountryDisplayName
 import com.apptolast.familyfilmapp.utils.toErrorString
@@ -235,7 +236,7 @@ private fun ProfileBody(
     var usernameEditValue by rememberSaveable { mutableStateOf(user.username.orEmpty()) }
     var showCountryPicker by rememberSaveable { mutableStateOf(false) }
 
-    val currentCountryCode = user.language.substringAfter("-", "US")
+    val currentCountryCode = countryCodeFromLanguageTag(user.language)
     val currentFlag = countryCodeToFlag(currentCountryCode)
     val currentCountryName = getCountryDisplayName(currentCountryCode)
 

@@ -66,4 +66,28 @@ private fun regionalIndicator(letter: Char): String {
 fun findRegionByLanguageTag(languageTag: String): TmdbRegion? =
     TMDB_REGIONS.find { it.languageTag.equals(languageTag, ignoreCase = true) }
 
+fun countryCodeFromLanguageTag(languageTag: String, fallbackCountryCode: String = DEFAULT_COUNTRY_CODE): String {
+    val normalizedFallback = fallbackCountryCode.normalizeCountryCode() ?: DEFAULT_COUNTRY_CODE
+    val normalizedTag = languageTag.replace('_', '-')
+
+    val matchingRegion = findRegionByLanguageTag(normalizedTag)?.countryCode
+    if (matchingRegion != null) return matchingRegion
+
+    val countryCode = normalizedTag
+        .substringBefore("-u-", normalizedTag)
+        .substringBefore("-x-", normalizedTag)
+        .split("-")
+        .drop(1)
+        .firstNotNullOfOrNull { part -> part.normalizeCountryCode() }
+
+    return countryCode ?: normalizedFallback
+}
+
+private fun String.normalizeCountryCode(): String? {
+    val countryCode = trim().uppercase()
+    return countryCode.takeIf { it.length == 2 && it.all { char -> char in 'A'..'Z' } }
+}
+
+private const val DEFAULT_COUNTRY_CODE = "US"
+
 expect fun getCountryDisplayName(countryCode: String): String

@@ -14,6 +14,7 @@
 #
 # Lanes (run from `iosApp/`):
 #   cd iosApp
+#   bundle exec fastlane ios bootstrap_match       # one-time: create/update App Store cert + profile
 #   bundle exec fastlane ios match_certificates   # sync App Store cert + profile
 #   bundle exec fastlane ios build                # local Release build (no upload)
 #   bundle exec fastlane ios beta                 # build + upload to TestFlight
@@ -30,7 +31,7 @@ IOS_APP_DIR  = File.expand_path("..", __dir__)        # …/FamilyFilmKmp/iosApp
 ROOT_DIR     = File.expand_path("../..", __dir__)     # …/FamilyFilmKmp
 XCODEPROJ    = File.join(IOS_APP_DIR, "iosApp.xcodeproj")
 SCHEME       = "iosApp"
-BUNDLE_ID    = "com.apptolast.familyfilmapp.FamilyFilmKmp"
+BUNDLE_ID    = "com.apptolast.familyfilmapp"
 
 # Reused build settings — Release configuration matches the Xcode scheme's
 # Archive action so TestFlight + App Store both ship the optimised framework.
@@ -55,14 +56,14 @@ end
 def app_store_connect_api_key_token
   key_id    = ENV["APP_STORE_CONNECT_API_KEY_ID"]
   issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
-  key_path  = ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+  key_path  = ENV["ASC_API_KEY_PATH"] || ENV["APP_STORE_CONNECT_API_KEY_PATH"]
   key_b64   = ENV["APP_STORE_CONNECT_API_KEY_BASE64"]
 
   UI.user_error!("APP_STORE_CONNECT_API_KEY_ID not set") if key_id.to_s.empty?
   UI.user_error!("APP_STORE_CONNECT_API_KEY_ISSUER_ID not set") if issuer_id.to_s.empty?
   UI.user_error!("Provide APP_STORE_CONNECT_API_KEY_PATH (local) or APP_STORE_CONNECT_API_KEY_BASE64 (CI)") if key_path.to_s.empty? && key_b64.to_s.empty?
 
-  app_store_connect_api_key(
+  token = app_store_connect_api_key(
     key_id: key_id,
     issuer_id: issuer_id,
     key_filepath: key_path,
@@ -70,6 +71,9 @@ def app_store_connect_api_key_token
     is_key_content_base64: !key_b64.to_s.empty?,
     in_house: false
   )
+  ENV.delete("APP_STORE_CONNECT_API_KEY_PATH")
+  ENV.delete("APP_STORE_CONNECT_API_KEY_BASE64")
+  token
 end
 
 # Pre-builds the KMP framework so any Kotlin compilation error surfaces
@@ -90,6 +94,18 @@ end
 # ---------------------------------------------------------------------------
 
 platform :ios do
+
+  desc "One-time setup/update: create App Store signing certificate + provisioning profile in the encrypted match repo"
+  lane :bootstrap_match do
+    api_key = app_store_connect_api_key_token
+
+    match(
+      type: "appstore",
+      readonly: false,
+      app_identifier: [BUNDLE_ID],
+      api_key: api_key
+    )
+  end
 
   desc "Sync App Store signing certificate + provisioning profile from the match repo (readonly)"
   lane :match_certificates do

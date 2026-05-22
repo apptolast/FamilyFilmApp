@@ -2,18 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleURLSchemes</key>
-	<string>com.googleusercontent.apps.507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2</string>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-6022710211253419~9456824826</string>
 	<key>ADMobAppOpenUnitID</key>
 	<string>ca-app-pub-6022710211253419/7780781074</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Permite mostrarte recomendaciones de películas y series más relevantes según tus gustos.</string>
-	<key>GIDClientID</key>
-	<string>507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2.apps.googleusercontent.com</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleURLSchemes</key>
+	<string>com.googleusercontent.apps.507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -25,8 +19,12 @@
 			</array>
 		</dict>
 	</array>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-6022710211253419~9456824826</string>
+	<key>GIDClientID</key>
+	<string>507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2.apps.googleusercontent.com</string>
 	<key>RevenueCatAppStoreKey</key>
-	<string></string>
+	<string>appl_wIIdndFpjJSsydBPOqgBkTvmxlQ</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

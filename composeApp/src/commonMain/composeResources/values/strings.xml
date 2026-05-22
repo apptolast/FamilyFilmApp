@@ -200,12 +200,12 @@
     <string name="chat_paywall_subtitle">Subscribe to Chat Premium for unlimited cinema recommendations — cancel anytime.</string>
     <string name="chat_paywall_bullet_questions">50 Gemini questions every month</string>
     <string name="chat_paywall_bullet_priority">Priority model access</string>
-    <string name="chat_paywall_bullet_cancel">Cancel anytime from Google Play</string>
+    <string name="chat_paywall_bullet_cancel">Cancel anytime from the store</string>
     <string name="chat_paywall_cta">Subscribe</string>
     <string name="chat_paywall_dismiss">Not now</string>
     <string name="chat_paywall_error">Could not start purchase. Try again in a moment.</string>
     <string name="chat_premium_active_title">Chat Premium active</string>
-    <string name="chat_premium_active_subtitle">Manage your subscription in Google Play</string>
+    <string name="chat_premium_active_subtitle">Manage your subscription in the store</string>
     <string name="chat_premium_upsell_title">Chat Premium</string>
     <string name="chat_premium_upsell_subtitle">50 questions/month</string>
     <string name="chat_typing_indicator_description">Assistant is typing</string>

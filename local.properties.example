@@ -25,6 +25,7 @@ ADMOB_BOTTOM_BANNER_ID_IOS=
 ADMOB_APP_OPEN_ID_IOS=
 ADMOB_NATIVE_HOME_ID_IOS=
 
-# RevenueCat — production and test SDK keys (Play Store side)
+# RevenueCat — production and test SDK keys
 REVENUECAT_PLAY_SDK_KEY=
 REVENUECAT_PLAY_SDK_KEY_TEST=
+REVENUECAT_APPSTORE_SDK_KEY=

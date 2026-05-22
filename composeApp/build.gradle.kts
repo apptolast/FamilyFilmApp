@@ -276,6 +276,7 @@ buildConfig {
     buildConfigField("ADMOB_NATIVE_HOME_ID_IOS", localProperty("ADMOB_NATIVE_HOME_ID_IOS"))
     buildConfigField("REVENUECAT_PLAY_SDK_KEY", localProperty("REVENUECAT_PLAY_SDK_KEY"))
     buildConfigField("REVENUECAT_PLAY_SDK_KEY_TEST", localProperty("REVENUECAT_PLAY_SDK_KEY_TEST"))
+    buildConfigField("REVENUECAT_APPSTORE_SDK_KEY", localProperty("REVENUECAT_APPSTORE_SDK_KEY"))
 }
 
 ktlint {

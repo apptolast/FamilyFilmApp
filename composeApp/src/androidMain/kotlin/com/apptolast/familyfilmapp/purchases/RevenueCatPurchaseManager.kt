@@ -87,7 +87,7 @@ class RevenueCatPurchaseManager(
             { error -> cont.resume(Result.failure(error.toPurchaseFailure())) },
             { info ->
                 mirror(info)
-                cont.resume(Result.success(info.entitlements.active.containsKey(ENTITLEMENT_REMOVE_ADS)))
+                cont.resume(Result.success(info.hasAnyRestorableEntitlement()))
             },
         )
     }
@@ -128,15 +128,20 @@ class RevenueCatPurchaseManager(
     }
 
     private fun com.revenuecat.purchases.Offerings.findPackageForEntitlement(entitlement: String): Package? =
-        current?.availablePackages?.firstOrNull { pkg ->
-            pkg.product.subscriptionOptions?.any { true } == true ||
-                pkg.identifier.contains(entitlement, ignoreCase = true)
-        }
+        sequenceOf(current)
+            .plus(all.values.asSequence())
+            .filterNotNull()
+            .flatMap { it.availablePackages.asSequence() }
+            .firstOrNull { pkg -> pkg.identifier.contains(entitlement, ignoreCase = true) }
 
     private fun mirror(info: CustomerInfo) {
         _hasRemovedAds.value = info.entitlements.active.containsKey(ENTITLEMENT_REMOVE_ADS)
         _hasChatPremium.value = info.entitlements.active.containsKey(ENTITLEMENT_CHAT_PREMIUM)
     }
+
+    private fun CustomerInfo.hasAnyRestorableEntitlement(): Boolean =
+        entitlements.active.containsKey(ENTITLEMENT_REMOVE_ADS) ||
+            entitlements.active.containsKey(ENTITLEMENT_CHAT_PREMIUM)
 
     private fun PurchasesError.asThrowable(): Throwable =
         RuntimeException("RevenueCat error: $code ${underlyingErrorMessage ?: message}")

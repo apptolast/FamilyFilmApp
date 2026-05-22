@@ -6,6 +6,8 @@ import com.apptolast.familyfilmapp.auth.IosAppleSignInClient
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInBridge
 import com.apptolast.familyfilmapp.auth.IosGoogleSignInClient
 import com.apptolast.familyfilmapp.di.initKoin
+import com.apptolast.familyfilmapp.purchases.IosRevenueCatPurchaseBridge
+import com.apptolast.familyfilmapp.purchases.IosRevenueCatPurchaseManager
 
 // Module-level flag guards against multiple ComposeUIViewController
 // instantiations (e.g. SwiftUI re-rendering the host view). The Koin call
@@ -29,4 +31,9 @@ fun setGoogleSignInBridge(bridge: IosGoogleSignInBridge) {
 // Swift-callable entry point: installs the AuthenticationServices bridge implemented in iosApp/.
 fun setAppleSignInBridge(bridge: IosAppleSignInBridge) {
     IosAppleSignInClient.installBridge(bridge)
+}
+
+// Swift-callable entry point: installs the RevenueCat bridge implemented in iosApp/.
+fun setRevenueCatPurchaseBridge(bridge: IosRevenueCatPurchaseBridge) {
+    IosRevenueCatPurchaseManager.installBridge(bridge)
 }

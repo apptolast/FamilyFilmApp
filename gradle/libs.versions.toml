@@ -53,7 +53,7 @@ buildkonfig = "6.0.9"
 googleid = "1.2.0"
 
 # Monetization (Android-only Android side; iOS via SPM)
-play-services-ads = "25.2.0"
+play-services-ads = "25.3.0"
 user-messaging-platform = "4.0.0"
 revenuecat = "10.6.0"
 play-review-ktx = "2.0.2"

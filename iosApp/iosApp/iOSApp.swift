@@ -41,10 +41,17 @@ struct iOSApp: App {
         // RevenueCat — App Store SDK key lives in Info.plist (key
         // `RevenueCatAppStoreKey`). If empty we skip configuration to avoid
         // a runtime crash; purchase flows then fail gracefully.
-        if let revenueCatKey = Bundle.main.object(forInfoDictionaryKey: "RevenueCatAppStoreKey") as? String,
-           !revenueCatKey.isEmpty {
+        let revenueCatKey = (
+            Bundle.main.object(forInfoDictionaryKey: "RevenueCatAppStoreKey") as? String
+        ).flatMap {
+            $0.isEmpty ? nil : $0
+        } ?? BuildConfig.shared.REVENUECAT_APPSTORE_SDK_KEY
+        if !revenueCatKey.isEmpty {
             Purchases.logLevel = .warn
             Purchases.configure(withAPIKey: revenueCatKey)
+            MainViewControllerKt.setRevenueCatPurchaseBridge(bridge: RevenueCatPurchaseBridgeImpl())
+        } else {
+            NSLog("RevenueCat skipped: RevenueCatAppStoreKey is empty")
         }
 
         // AdMob — register Kotlin↔Swift bridges before MobileAds.start so the first

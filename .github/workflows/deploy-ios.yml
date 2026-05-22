@@ -31,6 +31,10 @@
 #   ADMOB_BOTTOM_BANNER_ID               banner ad unit id (BuildKonfig)
 #   ADMOB_APP_OPEN_ID                    app-open ad unit id (BuildKonfig)
 #   ADMOB_NATIVE_HOME_ID                 native home ad unit id (BuildKonfig)
+#   ADMOB_APPLICATION_ID_IOS             iOS AdMob app id (BuildKonfig)
+#   ADMOB_BOTTOM_BANNER_ID_IOS           iOS banner ad unit id (BuildKonfig)
+#   ADMOB_APP_OPEN_ID_IOS                iOS app-open ad unit id (BuildKonfig)
+#   ADMOB_NATIVE_HOME_ID_IOS             iOS native home ad unit id (BuildKonfig)
 #   REVENUECAT_PLAY_SDK_KEY              RevenueCat Play SDK key (BuildKonfig, unused on iOS but referenced by common)
 #   REVENUECAT_PLAY_SDK_KEY_TEST         RevenueCat Play sandbox SDK key
 #   REVENUECAT_APPSTORE_SDK_KEY          RevenueCat App Store SDK key (iOS-specific)
@@ -58,8 +62,9 @@ concurrency:
 jobs:
   release:
     name: Build & upload to App Store
-    runs-on: macos-14
-    timeout-minutes: 90
+    #    runs-on: macos-14
+    runs-on: macos-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -89,11 +94,11 @@ jobs:
         # it on disk.
         run: echo "Using API key id ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} on issuer ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}"
 
-      - name: Decode GoogleService-Info.plist
+        #      - name: Decode GoogleService-Info.plist
         # FirebaseApp.configure() loads this at app launch; bundle build is
         # fine without it but the resulting binary would crash on launch
         # against production Firebase.
-        run: echo "${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+      #        run: echo "${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
 
       - name: Render local.properties
         # The KMP framework build reads BuildKonfig fields from local.properties.
@@ -108,6 +113,10 @@ jobs:
           ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
           ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
           ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          ADMOB_APPLICATION_ID_IOS=${{ secrets.ADMOB_APPLICATION_ID_IOS }}
+          ADMOB_BOTTOM_BANNER_ID_IOS=${{ secrets.ADMOB_BOTTOM_BANNER_ID_IOS }}
+          ADMOB_APP_OPEN_ID_IOS=${{ secrets.ADMOB_APP_OPEN_ID_IOS }}
+          ADMOB_NATIVE_HOME_ID_IOS=${{ secrets.ADMOB_NATIVE_HOME_ID_IOS }}
           REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
           REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
           REVENUECAT_APPSTORE_SDK_KEY=${{ secrets.REVENUECAT_APPSTORE_SDK_KEY }}

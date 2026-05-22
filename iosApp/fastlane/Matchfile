@@ -12,7 +12,7 @@
 # CI job never tries to create new certificates (which would burn one of
 # Apple's 2 distribution-cert slots).
 
-git_url(ENV["MATCH_GIT_URL"]) if ENV["MATCH_GIT_URL"]
+git_url(ENV["MATCH_GIT_URL"]) unless ENV["MATCH_GIT_URL"].to_s.empty?
 
 # Storage mode: `git` keeps things simple and free; switch to `google_cloud`
 # or `s3` if the certificates repo outgrows Git.
@@ -20,10 +20,10 @@ storage_mode("git")
 
 # Bundle identifier(s) `match` issues profiles for. Keep in sync with the
 # Appfile (and PRODUCT_BUNDLE_IDENTIFIER in Config.xcconfig).
-app_identifier(["com.apptolast.familyfilmapp.FamilyFilmKmp"])
+app_identifier(["com.apptolast.familyfilmapp"])
 
 # Apple Developer team — read from env so this file stays committed.
-team_id(ENV["FASTLANE_TEAM_ID"]) if ENV["FASTLANE_TEAM_ID"]
+team_id(ENV["FASTLANE_TEAM_ID"]) unless ENV["FASTLANE_TEAM_ID"].to_s.empty?
 
 # Default to App Store distribution; lanes can override with `type:`.
 type("appstore")

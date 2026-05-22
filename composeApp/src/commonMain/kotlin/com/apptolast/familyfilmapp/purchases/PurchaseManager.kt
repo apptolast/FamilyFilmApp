@@ -18,7 +18,7 @@ interface PurchaseManager {
     /** Triggers the chat premium paywall and resolves when it completes. */
     suspend fun purchaseChatPremium(): Result<Unit>
 
-    /** Restore the user's prior purchases. Returns `true` if remove-ads was restored. */
+    /** Restore the user's prior purchases. Returns `true` if any entitlement was restored. */
     suspend fun restorePurchases(): Result<Boolean>
 }
 

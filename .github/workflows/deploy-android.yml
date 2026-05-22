@@ -22,8 +22,13 @@
 #   ADMOB_BOTTOM_BANNER_ID            banner ad unit id (BuildKonfig)
 #   ADMOB_APP_OPEN_ID                 app-open ad unit id (BuildKonfig)
 #   ADMOB_NATIVE_HOME_ID              native home ad unit id (BuildKonfig)
+#   ADMOB_APPLICATION_ID_IOS          iOS AdMob app id (BuildKonfig, unused on Android but referenced by common)
+#   ADMOB_BOTTOM_BANNER_ID_IOS        iOS banner ad unit id (BuildKonfig)
+#   ADMOB_APP_OPEN_ID_IOS             iOS app-open ad unit id (BuildKonfig)
+#   ADMOB_NATIVE_HOME_ID_IOS          iOS native home ad unit id (BuildKonfig)
 #   REVENUECAT_PLAY_SDK_KEY           RevenueCat production Play SDK key
 #   REVENUECAT_PLAY_SDK_KEY_TEST      RevenueCat sandbox Play SDK key
+#   REVENUECAT_APPSTORE_SDK_KEY       RevenueCat App Store SDK key (BuildKonfig, unused on Android)
 
 name: Android Release
 
@@ -112,8 +117,13 @@ jobs:
           ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
           ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
           ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          ADMOB_APPLICATION_ID_IOS=${{ secrets.ADMOB_APPLICATION_ID_IOS }}
+          ADMOB_BOTTOM_BANNER_ID_IOS=${{ secrets.ADMOB_BOTTOM_BANNER_ID_IOS }}
+          ADMOB_APP_OPEN_ID_IOS=${{ secrets.ADMOB_APP_OPEN_ID_IOS }}
+          ADMOB_NATIVE_HOME_ID_IOS=${{ secrets.ADMOB_NATIVE_HOME_ID_IOS }}
           REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
           REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
+          REVENUECAT_APPSTORE_SDK_KEY=${{ secrets.REVENUECAT_APPSTORE_SDK_KEY }}
           EOF
 
       - name: Run fastlane release_from_tag

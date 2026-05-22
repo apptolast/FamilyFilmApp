@@ -4,10 +4,10 @@ import com.apptolast.familyfilmapp.firebase.CrashReporter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSUserDefaults
+import kotlin.coroutines.resume
 
-// No-op until the RevenueCat cinterop is enabled (see build.gradle.kts).
-// Paywall calls resolve to Cancelled so the UI no-ops gracefully.
 class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : PurchaseManager {
 
     private val _hasRemovedAds = MutableStateFlow(NSUserDefaults.standardUserDefaults.boolForKey(ADS_REMOVED_KEY))
@@ -17,7 +17,21 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     override val hasChatPremium: StateFlow<Boolean> = _hasChatPremium.asStateFlow()
 
     override suspend fun initialize(userId: String) {
-        crashReporter.log("IosRevenueCatPurchaseManager.initialize($userId) — SPM cinterop not wired yet")
+        val bridge = bridge
+        if (bridge == null) {
+            crashReporter.log("IosRevenueCatPurchaseManager.initialize($userId) skipped: RevenueCat bridge not installed")
+            return
+        }
+
+        suspendCancellableCoroutine<Unit> { cont ->
+            bridge.logIn(userId) { hasRemovedAds, hasChatPremium, errorMessage ->
+                if (errorMessage != null) {
+                    crashReporter.recordException(PurchaseFailure.Generic(errorMessage))
+                }
+                mirror(hasRemovedAds, hasChatPremium)
+                cont.resume(Unit)
+            }
+        }
     }
 
     override fun setAdsRemoved(value: Boolean) {
@@ -27,16 +41,63 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     }
 
     override fun logout() {
-        _hasRemovedAds.value = false
-        _hasChatPremium.value = false
-        NSUserDefaults.standardUserDefaults.setBool(false, ADS_REMOVED_KEY)
+        bridge?.logOut { hasRemovedAds, hasChatPremium, errorMessage ->
+            if (errorMessage != null) {
+                crashReporter.recordException(PurchaseFailure.Generic(errorMessage))
+            }
+            mirror(hasRemovedAds, hasChatPremium)
+        } ?: mirror(hasRemovedAds = false, hasChatPremium = false)
     }
 
-    override suspend fun purchaseRemoveAds(): Result<Unit> = Result.failure(PurchaseFailure.Cancelled)
-    override suspend fun purchaseChatPremium(): Result<Unit> = Result.failure(PurchaseFailure.Cancelled)
-    override suspend fun restorePurchases(): Result<Boolean> = Result.success(false)
+    override suspend fun purchaseRemoveAds(): Result<Unit> = purchaseEntitlement(ENTITLEMENT_REMOVE_ADS)
 
-    private companion object {
+    override suspend fun purchaseChatPremium(): Result<Unit> = purchaseEntitlement(ENTITLEMENT_CHAT_PREMIUM)
+
+    override suspend fun restorePurchases(): Result<Boolean> {
+        val bridge = bridge ?: return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        return suspendCancellableCoroutine { cont ->
+            bridge.restore { hasRemovedAds, hasChatPremium, errorMessage ->
+                if (errorMessage != null) {
+                    cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
+                } else {
+                    mirror(hasRemovedAds, hasChatPremium)
+                    cont.resume(Result.success(hasRemovedAds || hasChatPremium))
+                }
+            }
+        }
+    }
+
+    private suspend fun purchaseEntitlement(entitlement: String): Result<Unit> {
+        val bridge = bridge ?: return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        return suspendCancellableCoroutine { cont ->
+            bridge.purchase(entitlement) { hasRemovedAds, hasChatPremium, errorMessage, userCancelled ->
+                when {
+                    userCancelled -> cont.resume(Result.failure(PurchaseFailure.Cancelled))
+                    errorMessage != null -> cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
+                    else -> {
+                        mirror(hasRemovedAds, hasChatPremium)
+                        cont.resume(Result.success(Unit))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun mirror(hasRemovedAds: Boolean, hasChatPremium: Boolean) {
+        _hasRemovedAds.value = hasRemovedAds
+        _hasChatPremium.value = hasChatPremium
+        NSUserDefaults.standardUserDefaults.setBool(hasRemovedAds, ADS_REMOVED_KEY)
+    }
+
+    companion object {
+        private var bridge: IosRevenueCatPurchaseBridge? = null
+
+        fun installBridge(bridge: IosRevenueCatPurchaseBridge) {
+            this.bridge = bridge
+        }
+
         const val ADS_REMOVED_KEY = "ads_removed"
+        const val ENTITLEMENT_REMOVE_ADS = "remove_ads"
+        const val ENTITLEMENT_CHAT_PREMIUM = "chat_premium"
     }
 }

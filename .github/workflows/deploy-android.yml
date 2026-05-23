@@ -1,11 +1,11 @@
-# Android production release — driven by `v*` Git tags.
+# Android internal testing upload — driven by `v*` Git tags.
 #
 # Trigger model:
 #   • push a `vX.Y.Z` (or `vX.Y.Z-suffix`) tag on any branch → the workflow
 #     fires. Fastlane reads the tag from $GITHUB_REF_NAME, computes the next
 #     versionCode by querying Play, builds a signed AAB and uploads it to
-#     the Production track as DRAFT (you click "Start rollout" in Play
-#     Console once you're happy with the staged release).
+#     the Internal testing track as DRAFT (you publish it manually in Play
+#     Console once you're happy with it).
 #   • workflow_dispatch with an existing tag name → re-runs the release for
 #     that tag (e.g. when a previous run failed at the upload step).
 #
@@ -30,7 +30,7 @@
 #   REVENUECAT_PLAY_SDK_KEY_TEST      RevenueCat sandbox Play SDK key
 #   REVENUECAT_APPSTORE_SDK_KEY       RevenueCat App Store SDK key (BuildKonfig, unused on Android)
 
-name: Android Release
+name: Android Internal Testing
 
 on:
   push:
@@ -52,7 +52,7 @@ concurrency:
 
 jobs:
   release:
-    name: Build & upload to Play
+    name: Build & upload to Play Internal testing
     runs-on: ubuntu-latest
     timeout-minutes: 45
 

@@ -71,7 +71,9 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
         }
 
         let adView = NativeAdView()
-        adView.translatesAutoresizingMaskIntoConstraints = false
+        adView.backgroundColor = .black
+        adView.layer.cornerRadius = 8
+        adView.clipsToBounds = true
 
         let mediaView = MediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
@@ -80,19 +82,19 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
         adView.mediaView = mediaView
         adView.addSubview(mediaView)
 
+        let bottomOverlay = UIView()
+        bottomOverlay.translatesAutoresizingMaskIntoConstraints = false
+        bottomOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.68)
+        adView.addSubview(bottomOverlay)
+
         let headlineLabel = UILabel()
         headlineLabel.translatesAutoresizingMaskIntoConstraints = false
         headlineLabel.textColor = .white
         headlineLabel.numberOfLines = 2
-        headlineLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        headlineLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         headlineLabel.text = nativeAd.headline
         adView.headlineView = headlineLabel
-
-        let gradient = GradientView()
-        gradient.translatesAutoresizingMaskIntoConstraints = false
-        gradient.isUserInteractionEnabled = false
-        adView.addSubview(gradient)
-        gradient.addSubview(headlineLabel)
+        bottomOverlay.addSubview(headlineLabel)
 
         let attribution = UILabel()
         attribution.translatesAutoresizingMaskIntoConstraints = false
@@ -111,14 +113,15 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
                                         mediaView.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
                                         mediaView.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
 
-                                        gradient.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
-                                        gradient.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
-                                        gradient.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
-                                        gradient.heightAnchor.constraint(equalToConstant: 56),
+                                        bottomOverlay.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
+                                        bottomOverlay.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
+                                        bottomOverlay.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
+                                        bottomOverlay.heightAnchor.constraint(greaterThanOrEqualToConstant: 46),
 
-                                        headlineLabel.leadingAnchor.constraint(equalTo: gradient.leadingAnchor, constant: 6),
-                                        headlineLabel.trailingAnchor.constraint(equalTo: gradient.trailingAnchor, constant: -6),
-                                        headlineLabel.bottomAnchor.constraint(equalTo: gradient.bottomAnchor, constant: -8),
+                                        headlineLabel.topAnchor.constraint(equalTo: bottomOverlay.topAnchor, constant: 7),
+                                        headlineLabel.leadingAnchor.constraint(equalTo: bottomOverlay.leadingAnchor, constant: 8),
+                                        headlineLabel.trailingAnchor.constraint(equalTo: bottomOverlay.trailingAnchor, constant: -8),
+                                        headlineLabel.bottomAnchor.constraint(equalTo: bottomOverlay.bottomAnchor, constant: -7),
 
                                         attribution.topAnchor.constraint(equalTo: adView.topAnchor, constant: 4),
                                         attribution.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 4),
@@ -128,23 +131,5 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
 
         adView.nativeAd = nativeAd
         return adView
-    }
-}
-
-private final class GradientView: UIView {
-    override class var layerClass: AnyClass {
-        CAGradientLayer.self
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        let gl = layer as! CAGradientLayer
-        gl.colors = [UIColor.clear.cgColor, UIColor.black.withAlphaComponent(0.75).cgColor]
-        gl.startPoint = CGPoint(x: 0.5, y: 0.0)
-        gl.endPoint = CGPoint(x: 0.5, y: 1.0)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError()
     }
 }

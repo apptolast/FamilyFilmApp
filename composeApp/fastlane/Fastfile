@@ -15,7 +15,7 @@
 #   bundle exec fastlane android validate_play    # sanity-check Play credentials
 #   bundle exec fastlane android build            # build a signed AAB locally
 #   bundle exec fastlane android internal         # build + upload to Internal testing as DRAFT
-#   bundle exec fastlane android release_from_tag # CI-only: tag → production track as DRAFT
+#   bundle exec fastlane android release_from_tag # CI-only: tag → Internal testing as DRAFT
 
 default_platform(:android)
 
@@ -150,7 +150,7 @@ platform :android do
     UI.message "Open Play Console → Internal testing to review and roll out."
   end
 
-  desc "CI-only: read the Git tag from GITHUB_REF_NAME, compute versionCode from Play, build, upload to Production as DRAFT."
+  desc "CI-only: read the Git tag from GITHUB_REF_NAME, compute versionCode from Play, build, upload to Internal testing as DRAFT."
   lane :release_from_tag do
     tag = ENV["GITHUB_REF_NAME"]
     UI.user_error!("GITHUB_REF_NAME not set — this lane is meant to run from a tag-triggered GitHub Actions job") if tag.to_s.empty?
@@ -161,13 +161,10 @@ platform :android do
     build(version_code: vcode, version_name: vname)
 
     upload_to_play_store(
-      track: "production",
+      track: "internal",
       aab: AAB_PATH,
-      # DRAFT means the release is staged in Play Console but NOT rolled out
-      # to users. You go to Play Console → Production → review and click
-      # "Start rollout". When you're confident in the pipeline, switch this
-      # to "completed" with `rollout: "0.1"` (10% staged) and graduate to
-      # full rollout from there.
+      # DRAFT means the internal release is staged in Play Console but NOT
+      # rolled out until you review and publish it from Internal testing.
       release_status: "draft",
       skip_upload_apk: true,
       skip_upload_metadata: true,
@@ -175,7 +172,7 @@ platform :android do
       skip_upload_screenshots: true,
       skip_upload_changelogs: true
     )
-    UI.success "Released v#{vname} (versionCode #{vcode}) to Production as DRAFT"
+    UI.success "Uploaded v#{vname} (versionCode #{vcode}) to Internal testing as DRAFT"
   end
 
   error do |lane, exception|

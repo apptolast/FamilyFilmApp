@@ -18,7 +18,7 @@
 #   bundle exec fastlane ios match_certificates   # sync App Store cert + profile
 #   bundle exec fastlane ios build                # local Release build (no upload)
 #   bundle exec fastlane ios beta                 # build + upload to TestFlight
-#   bundle exec fastlane ios release_from_tag     # CI-only: tag → App Store as DRAFT
+#   bundle exec fastlane ios release_from_tag     # CI-only: tag → TestFlight
 
 default_platform(:ios)
 
@@ -32,6 +32,8 @@ ROOT_DIR     = File.expand_path("../..", __dir__)     # …/FamilyFilmKmp
 XCODEPROJ    = File.join(IOS_APP_DIR, "iosApp.xcodeproj")
 SCHEME       = "iosApp"
 BUNDLE_ID    = "com.apptolast.familyfilmapp"
+METADATA_PATH = File.join(IOS_APP_DIR, "fastlane/metadata")
+SCREENSHOTS_PATH = File.join(IOS_APP_DIR, "fastlane/screenshots")
 
 # Reused build settings — Release configuration matches the Xcode scheme's
 # Archive action so TestFlight + App Store both ship the optimised framework.
@@ -199,7 +201,31 @@ platform :ios do
     UI.success "Uploaded build #{next_build} to TestFlight"
   end
 
-  desc "CI-only: read the Git tag from GITHUB_REF_NAME, increment build number from App Store Connect, build, upload to App Store as DRAFT (no auto-submit for review)."
+  desc "Upload App Store metadata and any prepared screenshots. Does not upload a binary or submit for review."
+  lane :upload_store_assets do
+    api_key = app_store_connect_api_key_token
+    screenshot_files = Dir.glob(File.join(SCREENSHOTS_PATH, "**", "*.{png,jpg,jpeg}"), File::FNM_CASEFOLD)
+    skip_screenshots = screenshot_files.empty?
+
+    UI.important "No screenshots found under #{SCREENSHOTS_PATH}; uploading metadata only." if skip_screenshots
+
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID,
+      metadata_path: METADATA_PATH,
+      screenshots_path: SCREENSHOTS_PATH,
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: skip_screenshots,
+      submit_for_review: false,
+      automatic_release: false,
+      precheck_include_in_app_purchases: false,
+      force: true
+    )
+    UI.success "Uploaded App Store metadata#{skip_screenshots ? "" : " and screenshots"}"
+  end
+
+  desc "CI-only: read the Git tag from GITHUB_REF_NAME, increment build number from App Store Connect, build, upload to TestFlight."
   lane :release_from_tag do
     tag = ENV["GITHUB_REF_NAME"]
     UI.user_error!("GITHUB_REF_NAME not set — this lane is meant to run from a tag-triggered GitHub Actions job") if tag.to_s.empty?
@@ -240,21 +266,14 @@ platform :ios do
       clean: true
     )
 
-    upload_to_app_store(
+    upload_to_testflight(
       api_key: api_key,
       app_identifier: BUNDLE_ID,
-      # DRAFT means the build is uploaded and attached to the App Store
-      # version record, but NOT submitted for review. You go to App Store
-      # Connect → App Store → Version → "Submit for Review" when ready.
-      submit_for_review: false,
-      automatic_release: false,
-      force: true,
-      precheck_include_in_app_purchases: false,
-      skip_metadata: true,
-      skip_screenshots: true,
-      skip_binary_upload: false
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      skip_submission: true
     )
-    UI.success "Released v#{vname} (build #{next_build}) to App Store as DRAFT"
+    UI.success "Uploaded v#{vname} (build #{next_build}) to TestFlight"
   end
 
   error do |lane, exception|

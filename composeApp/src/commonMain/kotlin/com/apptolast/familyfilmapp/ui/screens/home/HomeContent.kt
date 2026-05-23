@@ -168,8 +168,8 @@ fun HomeContent(
     }
 }
 
-/** 7 media items + 1 native ad = block of 8 slots. */
-private const val AD_INTERVAL = 8
+/** 6 media items + 1 native ad = block of 7 slots. */
+private const val AD_INTERVAL = 7
 private const val MEDIA_PER_AD = AD_INTERVAL - 1
 
 @Composable

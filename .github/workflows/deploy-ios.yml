@@ -1,11 +1,11 @@
-# iOS production release — driven by `v*` Git tags.
+# iOS TestFlight upload — driven by `v*` Git tags.
 #
 # Trigger model:
 #   • push a `vX.Y.Z` (or `vX.Y.Z-suffix`) tag on any branch → the workflow
 #     fires on macOS-14. Fastlane reads the tag from $GITHUB_REF_NAME,
 #     increments CFBundleVersion from App Store Connect, builds a signed
-#     .ipa via `gym`, and uploads it to App Store Connect as DRAFT (you
-#     submit for review manually).
+#     .ipa via `gym`, and uploads it to TestFlight. You decide manually when
+#     to attach a processed build to an App Store version and submit it.
 #   • workflow_dispatch with an existing tag name → re-runs the release for
 #     that tag.
 #
@@ -39,7 +39,7 @@
 #   REVENUECAT_PLAY_SDK_KEY_TEST         RevenueCat Play sandbox SDK key
 #   REVENUECAT_APPSTORE_SDK_KEY          RevenueCat App Store SDK key (iOS-specific)
 
-name: iOS Release
+name: iOS TestFlight
 
 on:
   push:
@@ -61,7 +61,7 @@ concurrency:
 
 jobs:
   release:
-    name: Build & upload to App Store
+    name: Build & upload to TestFlight
     #    runs-on: macos-14
     runs-on: macos-latest
     timeout-minutes: 20

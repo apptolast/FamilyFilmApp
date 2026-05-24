@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.ads
 
 import android.content.Context
-import com.apptolast.familyfilmapp.BuildConfig
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -23,27 +22,43 @@ class AdMobNativeAdManager(
 
     private val _ads = MutableStateFlow<List<NativeAdHandle>>(emptyList())
     override val nativeAds: StateFlow<List<NativeAdHandle>> = _ads.asStateFlow()
+    private var isLoading = false
 
     override fun loadAds() {
-        val adUnitId = BuildConfig.ADMOB_NATIVE_HOME_ID
+        if (isLoading) {
+            crashReporter.log("Android native ads load skipped: already loading")
+            return
+        }
+        if (_ads.value.size >= AD_POOL_SIZE) {
+            crashReporter.log("Android native ads load skipped: poolSize=${_ads.value.size}")
+            return
+        }
+
+        val adUnitId = AndroidAdUnitIds.nativeHome()
         if (adUnitId.isBlank()) {
             crashReporter.recordException(IllegalStateException("Android native ad unit id is blank"))
             return
         }
-        crashReporter.log("Android native ads load requested count=$AD_POOL_SIZE suffix=${adUnitId.suffixSafe()}")
+        isLoading = true
+        crashReporter.log(
+            "Android native ads load requested source=${AndroidAdUnitIds.source()} " +
+                "count=$AD_POOL_SIZE suffix=${AndroidAdUnitIds.suffixSafe(adUnitId)}",
+        )
 
         val adLoader = AdLoader.Builder(appContext, adUnitId)
             .forNativeAd { nativeAd: NativeAd ->
                 _ads.update { (it + nativeAd).takeLast(AD_POOL_SIZE) }
                 crashReporter.log("Android native ad loaded poolSize=${_ads.value.size}")
+                if (_ads.value.size >= AD_POOL_SIZE) isLoading = false
             }
             .withAdListener(
                 object : AdListener() {
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        isLoading = false
                         crashReporter.recordException(
                             RuntimeException(
                                 "Android native ad failed code=${error.code} domain=${error.domain} " +
-                                    "message=${error.message} suffix=${adUnitId.suffixSafe()}",
+                                    "message=${error.message} suffix=${AndroidAdUnitIds.suffixSafe(adUnitId)}",
                             ),
                         )
                     }
@@ -61,7 +76,5 @@ class AdMobNativeAdManager(
 
     private companion object {
         const val AD_POOL_SIZE = 5
-
-        fun String.suffixSafe(): String = if (isBlank()) "<empty>" else takeLast(8)
     }
 }

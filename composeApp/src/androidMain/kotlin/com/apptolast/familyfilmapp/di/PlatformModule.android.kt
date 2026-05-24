@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.di
 import android.content.Context
 import androidx.room.RoomDatabase
 import com.apptolast.familyfilmapp.ads.AdMobNativeAdManager
+import com.apptolast.familyfilmapp.ads.AndroidAppOpenAdManager
 import com.apptolast.familyfilmapp.ads.NativeAdManager
 import com.apptolast.familyfilmapp.auth.AndroidAppleSignInClient
 import com.apptolast.familyfilmapp.auth.AndroidGoogleSignInClient
@@ -55,6 +56,7 @@ actual val platformModule = module {
         )
     }
     single<NativeAdManager> { AdMobNativeAdManager(androidContext(), get()) }
+    single { AndroidAppOpenAdManager(androidContext(), get()) }
     single<PurchaseManager> {
         RevenueCatPurchaseManager(
             context = androidContext(),

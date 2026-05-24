@@ -68,14 +68,15 @@ struct iOSApp: App {
         // Install the AuthenticationServices bridge for Sign in with Apple.
         MainViewControllerKt.setAppleSignInBridge(bridge: AppleSignInBridgeImpl())
 
-        // RevenueCat — App Store SDK key lives in Info.plist (key
-        // `RevenueCatAppStoreKey`). If empty we skip configuration to avoid
-        // a runtime crash; purchase flows then fail gracefully.
-        let revenueCatKey = (
+        // RevenueCat — prefer BuildKonfig so local.properties / CI secrets are
+        // the source of truth, keeping Info.plist as a backwards-compatible fallback.
+        let revenueCatKey = !BuildConfig.shared.REVENUECAT_APPSTORE_SDK_KEY.isEmpty
+            ? BuildConfig.shared.REVENUECAT_APPSTORE_SDK_KEY
+            : (
             Bundle.main.object(forInfoDictionaryKey: "RevenueCatAppStoreKey") as? String
         ).flatMap {
             $0.isEmpty ? nil : $0
-        } ?? BuildConfig.shared.REVENUECAT_APPSTORE_SDK_KEY
+        } ?? ""
         if !revenueCatKey.isEmpty {
             Purchases.logLevel = .warn
             AppDiagnostics.set(true, forKey: "revenuecat_key_present")

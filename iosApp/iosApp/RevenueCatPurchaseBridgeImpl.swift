@@ -139,23 +139,35 @@ final class RevenueCatPurchaseBridgeImpl: NSObject, IosRevenueCatPurchaseBridge 
     }
 
     private static func package(for entitlement: String, in offerings: Offerings?) -> Package? {
-        let packages = (offerings?.current?.availablePackages ?? []) +
-            (offerings?.all.values.flatMap {
-                $0.availablePackages
-            } ?? [])
+        if entitlement == IosRevenueCatPurchaseManager.companion.ENTITLEMENT_CHAT_PREMIUM {
+            return offerings?.offering(identifier: entitlement)?.availablePackages.first
+                ?? fallbackPackage(for: entitlement, in: offerings)
+        }
 
-        return packages.first {
+        if entitlement == IosRevenueCatPurchaseManager.companion.ENTITLEMENT_REMOVE_ADS {
+            return offerings?.current?.availablePackages.first
+                ?? fallbackPackage(for: entitlement, in: offerings)
+        }
+
+        return fallbackPackage(for: entitlement, in: offerings)
+    }
+
+    private static func fallbackPackage(for entitlement: String, in offerings: Offerings?) -> Package? {
+        allPackages(in: offerings).first {
             $0.identifier.localizedCaseInsensitiveContains(entitlement) ||
                 $0.storeProduct.productIdentifier.localizedCaseInsensitiveContains(entitlement)
         }
     }
 
-    private static func missingPackageMessage(entitlement: String, offerings: Offerings?) -> String {
-        let packages = ((offerings?.current?.availablePackages ?? []) +
+    private static func allPackages(in offerings: Offerings?) -> [Package] {
+        (offerings?.current?.availablePackages ?? []) +
             (offerings?.all.values.flatMap {
                 $0.availablePackages
-            } ?? []))
-        .map {
+            } ?? [])
+    }
+
+    private static func missingPackageMessage(entitlement: String, offerings: Offerings?) -> String {
+        let packages = allPackages(in: offerings).map {
             describe($0)
         }
         .joined(separator: ", ")

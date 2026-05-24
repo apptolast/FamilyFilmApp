@@ -1,3 +1,4 @@
+import ComposeApp
 import GoogleMobileAds
 import UIKit
 
@@ -11,7 +12,12 @@ final class AppOpenAdManager: NSObject {
     private var loadTime: Date?
     private var hasBeenBackgrounded = false
 
-    private let adUnitId: String = (Bundle.main.object(forInfoDictionaryKey: "ADMobAppOpenUnitID") as? String) ?? ""
+    private let adUnitId: String = {
+        if !BuildConfig.shared.ADMOB_APP_OPEN_ID_IOS.isEmpty {
+            return BuildConfig.shared.ADMOB_APP_OPEN_ID_IOS
+        }
+        return (Bundle.main.object(forInfoDictionaryKey: "ADMobAppOpenUnitID") as? String) ?? ""
+    }()
 
     override init() {
         super.init()

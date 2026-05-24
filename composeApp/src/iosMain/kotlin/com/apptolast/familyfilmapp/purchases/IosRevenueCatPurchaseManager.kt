@@ -116,7 +116,7 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
         }
 
         const val ADS_REMOVED_KEY = "ads_removed"
-        const val ENTITLEMENT_REMOVE_ADS = "remove_ads"
+        const val ENTITLEMENT_REMOVE_ADS = "ad_free"
         const val ENTITLEMENT_CHAT_PREMIUM = "chat_premium"
     }
 }

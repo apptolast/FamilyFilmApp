@@ -10,12 +10,12 @@
 #     that tag (e.g. when a previous run failed at the upload step).
 #
 # All secrets live in repo settings → Secrets and variables → Actions:
-#   ANDROID_KEYSTORE_BASE64           base64 of FamilyFilmApp_keystore.jks
-#   ANDROID_KEYSTORE_PASSWORD         keystore password
-#   ANDROID_KEY_ALIAS                 key alias inside the keystore
-#   ANDROID_KEY_PASSWORD              key password
-#   PLAY_SERVICE_ACCOUNT_JSON_BASE64  base64 of the Play Console service account JSON
-#   GOOGLE_SERVICES_JSON_BASE64       base64 of the Firebase google-services.json
+#   SIGNING_KEY_B64                         base64 of FamilyFilmApp_keystore.jks
+#   SIGNING_KEY_STORE_PASSWORD              keystore password
+#   SIGNING_ALIAS                           key alias inside the keystore
+#   SIGNING_KEY_PASSWORD                    key password
+#   SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON Play Console service account JSON content
+#   FIREBASE_JSON                           base64 of the Firebase google-services.json
 #   WEB_ID_CLIENT                     Google OAuth Web Client ID (BuildKonfig)
 #   TMDB_ACCESS_TOKEN                 TMDB API v4 Bearer token (BuildKonfig)
 #   ADMOB_APPLICATION_ID              ca-app-pub-… app id (BuildKonfig + resValue)
@@ -54,6 +54,7 @@ jobs:
   release:
     name: Build & upload to Play Internal testing
     runs-on: ubuntu-latest
+    environment: release
     timeout-minutes: 45
 
     steps:
@@ -86,10 +87,12 @@ jobs:
       - name: Decode signing secrets
         # Decoding into $RUNNER_TEMP keeps the files inside the per-job
         # ephemeral filesystem GitHub wipes after the job ends.
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_GOOGLE_PLAY_CONSOLE_JSON }}
         run: |
           mkdir -p "$RUNNER_TEMP/secrets"
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/secrets/keystore.jks"
-          echo "${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}" | base64 -d > "$RUNNER_TEMP/secrets/play.json"
+          echo "${{ secrets.SIGNING_KEY_B64 }}" | base64 -d > "$RUNNER_TEMP/secrets/keystore.jks"
+          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/secrets/play.json"
 
       - name: Decode google-services.json
         # Consumed by the `com.google.gms.google-services` Gradle plugin
@@ -98,7 +101,7 @@ jobs:
         # gitignored, so we restore it from a base64-encoded GitHub Secret
         # on every run. Without this the Gradle release build fails before
         # producing the AAB.
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > composeApp/google-services.json
+        run: echo "${{ secrets.FIREBASE_JSON }}" | base64 -d > composeApp/google-services.json
 
       - name: Render local.properties
         # Combines BuildKonfig secrets with the signing config the
@@ -108,9 +111,9 @@ jobs:
           cat > local.properties <<EOF
           sdk.dir=$ANDROID_HOME
           signing.storeFile=$RUNNER_TEMP/secrets/keystore.jks
-          signing.storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          signing.keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          signing.keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          signing.storePassword=${{ secrets.SIGNING_KEY_STORE_PASSWORD }}
+          signing.keyAlias=${{ secrets.SIGNING_ALIAS }}
+          signing.keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}
           WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}
           TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
           ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}

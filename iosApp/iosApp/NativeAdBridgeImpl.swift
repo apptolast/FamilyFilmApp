@@ -8,15 +8,28 @@ final class IOSNativeAdLoader: NSObject, NativeAdLoader {
     private var delegates: [NativeAdDelegate] = []
 
     func load(adUnitId: String, count: Int32, onLoaded: @escaping (Any) -> Void) {
+        if adUnitId.isEmpty {
+            AppDiagnostics.record("Native ad unit id is empty", domain: "AdMob")
+            return
+        }
+        let root = rootViewController()
+        if root == nil {
+            AppDiagnostics.record("Native ad rootViewController is nil", domain: "AdMob")
+        }
+        AppDiagnostics.log("Loading native ads suffix=\(Self.suffix(adUnitId)) count=\(count)")
+
         let options = MultipleAdsAdLoaderOptions()
         options.numberOfAds = Int(count)
 
-        let delegate = NativeAdDelegate(onLoaded: { ad in onLoaded(ad) })
+        let delegate = NativeAdDelegate(
+            adUnitId: adUnitId,
+            onLoaded: { ad in onLoaded(ad) }
+        )
         delegates.append(delegate)
 
         let loader = AdLoader(
             adUnitID: adUnitId,
-            rootViewController: rootViewController(),
+            rootViewController: root,
             adTypes: [.native],
             options: [options]
         )
@@ -30,6 +43,10 @@ final class IOSNativeAdLoader: NSObject, NativeAdLoader {
         // references. Loaders/delegates are owned by this instance and follow its lifetime.
         loaders.removeAll()
         delegates.removeAll()
+    }
+
+    private static func suffix(_ value: String) -> String {
+        value.isEmpty ? "<empty>" : String(value.suffix(8))
     }
 
     private func rootViewController() -> UIViewController? {
@@ -47,18 +64,21 @@ final class IOSNativeAdLoader: NSObject, NativeAdLoader {
     }
 
     private final class NativeAdDelegate: NSObject, NativeAdLoaderDelegate {
+        private let adUnitId: String
         private let onLoaded: (NativeAd) -> Void
 
-        init(onLoaded: @escaping (NativeAd) -> Void) {
+        init(adUnitId: String, onLoaded: @escaping (NativeAd) -> Void) {
+            self.adUnitId = adUnitId
             self.onLoaded = onLoaded
         }
 
         func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
+            AppDiagnostics.log("Native ad loaded suffix=\(IOSNativeAdLoader.suffix(adUnitId))")
             onLoaded(nativeAd)
         }
 
         func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
-            // Silent — Kotlin observes the StateFlow; absent ads just keep the list short.
+            AppDiagnostics.record(error, context: "Native ad failed suffix=\(IOSNativeAdLoader.suffix(adUnitId))")
         }
     }
 }
@@ -67,6 +87,7 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
 
     func createNativeAdView(handle: Any) -> UIView {
         guard let nativeAd = handle as? NativeAd else {
+            AppDiagnostics.record("Native ad view received an invalid handle", domain: "AdMob")
             return UIView()
         }
 

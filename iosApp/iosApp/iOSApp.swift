@@ -3,6 +3,7 @@ import ComposeApp
 import AppTrackingTransparency
 import FirebaseCore
 import FirebaseAppCheck
+import FirebaseCrashlytics
 import GoogleMobileAds
 import GoogleSignIn
 import RevenueCat
@@ -18,6 +19,34 @@ final class FamilyFilmAppCheckProviderFactory: NSObject, AppCheckProviderFactory
     }
 }
 
+enum AppDiagnostics {
+    static func log(_ message: String) {
+        NSLog("[FliksyDiagnostics] \(message)")
+        Crashlytics.crashlytics().log(message)
+    }
+
+    static func set(_ value: Any, forKey key: String) {
+        Crashlytics.crashlytics().setCustomValue(value, forKey: key)
+    }
+
+    static func record(_ message: String, domain: String = "FliksyDiagnostics", code: Int = 0) {
+        log("\(domain): \(message)")
+        Crashlytics.crashlytics().record(
+            error: NSError(
+                domain: domain,
+                code: code,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
+        )
+    }
+
+    static func record(_ error: Error, context: String) {
+        let nsError = error as NSError
+        log("\(context): \(nsError.domain) \(nsError.code) \(nsError.localizedDescription)")
+        Crashlytics.crashlytics().record(error: nsError)
+    }
+}
+
 @main
 struct iOSApp: App {
     init() {
@@ -30,6 +59,7 @@ struct iOSApp: App {
         #endif
 
         FirebaseApp.configure()
+        AppDiagnostics.log("iOS app launched")
 
         // Install the GIDSignIn bridge so IosGoogleSignInClient can drive the
         // native flow when the user taps "Iniciar sesión con Google".
@@ -48,10 +78,14 @@ struct iOSApp: App {
         } ?? BuildConfig.shared.REVENUECAT_APPSTORE_SDK_KEY
         if !revenueCatKey.isEmpty {
             Purchases.logLevel = .warn
+            AppDiagnostics.set(true, forKey: "revenuecat_key_present")
+            AppDiagnostics.log("Configuring RevenueCat for App Store")
             Purchases.configure(withAPIKey: revenueCatKey)
             MainViewControllerKt.setRevenueCatPurchaseBridge(bridge: RevenueCatPurchaseBridgeImpl())
         } else {
             NSLog("RevenueCat skipped: RevenueCatAppStoreKey is empty")
+            AppDiagnostics.set(false, forKey: "revenuecat_key_present")
+            AppDiagnostics.record("RevenueCat skipped: App Store SDK key is empty", domain: "RevenueCat")
         }
 
         // AdMob — register Kotlin↔Swift bridges before MobileAds.start so the first
@@ -64,6 +98,7 @@ struct iOSApp: App {
             // Result is observed by AdMob internally.
         }
         MobileAds.shared.start { _ in
+            AppDiagnostics.log("AdMob MobileAds.start completed")
             AppOpenAdManager.shared.loadAd()
         }
 

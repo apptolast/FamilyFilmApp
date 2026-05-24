@@ -32,5 +32,5 @@ actual val platformModule = module {
     singleOf(::IosAppleSignInClient) bind AppleSignInClient::class
     singleOf(::IosRevenueCatPurchaseManager) bind PurchaseManager::class
     // IosNativeAdManager delegates the actual GADAdLoader call to Swift via NativeAdBridge.
-    single<NativeAdManager> { IosNativeAdManager() }
+    single<NativeAdManager> { IosNativeAdManager(get()) }
 }

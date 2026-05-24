@@ -3,7 +3,10 @@ package com.apptolast.familyfilmapp.ui.components
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +24,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,44 +47,48 @@ actual fun NativeAdSlot(adHandle: NativeAdHandle, modifier: Modifier) {
         nativeAd = nativeAd,
         modifier = modifier
             .fillMaxWidth()
+            .aspectRatio(2f / 3.2f)
             .clip(MaterialTheme.shapes.small),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             NativeAdMediaView(
                 modifier = Modifier.fillMaxSize(),
                 scaleType = ImageView.ScaleType.CENTER_CROP,
             )
 
-            NativeAdAttribution(
+            Row(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(4.dp),
-            )
-
-            NativeAdChoicesView(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .fillMaxWidth()
                     .padding(4.dp)
-                    .size(22.dp),
-            )
+                    .align(Alignment.TopStart),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
+            ) {
+                NativeAdAttribution()
+                NativeAdChoicesView(modifier = Modifier.size(20.dp))
+            }
 
             nativeAd.headline?.let { headline ->
-                NativeAdHeadlineView(
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.68f))
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                        .align(Alignment.BottomStart)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f)),
+                            ),
+                        )
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
                 ) {
-                    Text(
-                        text = headline,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    NativeAdHeadlineView {
+                        Text(
+                            text = headline,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
         }

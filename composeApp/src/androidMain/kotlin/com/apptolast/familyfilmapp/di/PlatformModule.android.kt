@@ -54,12 +54,13 @@ actual val platformModule = module {
             crashReporter = get(),
         )
     }
-    single<NativeAdManager> { AdMobNativeAdManager(androidContext()) }
+    single<NativeAdManager> { AdMobNativeAdManager(androidContext(), get()) }
     single<PurchaseManager> {
         RevenueCatPurchaseManager(
             context = androidContext(),
             activityHolder = get(),
             crashReporter = get(),
+            analyticsTracker = get(),
         )
     }
 }

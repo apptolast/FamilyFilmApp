@@ -54,12 +54,18 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     override suspend fun purchaseChatPremium(): Result<Unit> = purchaseEntitlement(ENTITLEMENT_CHAT_PREMIUM)
 
     override suspend fun restorePurchases(): Result<Boolean> {
-        val bridge = bridge ?: return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        val bridge = bridge
+        if (bridge == null) {
+            crashReporter.recordException(IllegalStateException("RevenueCat bridge not installed on restore"))
+            return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        }
         return suspendCancellableCoroutine { cont ->
             bridge.restore { hasRemovedAds, hasChatPremium, errorMessage ->
                 if (errorMessage != null) {
+                    crashReporter.recordException(PurchaseFailure.Generic("RevenueCat restore failed: $errorMessage"))
                     cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
                 } else {
+                    crashReporter.log("RevenueCat restore success removeAds=$hasRemovedAds chatPremium=$hasChatPremium")
                     mirror(hasRemovedAds, hasChatPremium)
                     cont.resume(Result.success(hasRemovedAds || hasChatPremium))
                 }
@@ -68,13 +74,26 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     }
 
     private suspend fun purchaseEntitlement(entitlement: String): Result<Unit> {
-        val bridge = bridge ?: return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        val bridge = bridge
+        if (bridge == null) {
+            crashReporter.recordException(IllegalStateException("RevenueCat bridge not installed on purchase entitlement=$entitlement"))
+            return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
+        }
+        crashReporter.log("RevenueCat purchase started entitlement=$entitlement")
         return suspendCancellableCoroutine { cont ->
             bridge.purchase(entitlement) { hasRemovedAds, hasChatPremium, errorMessage, userCancelled ->
                 when {
-                    userCancelled -> cont.resume(Result.failure(PurchaseFailure.Cancelled))
-                    errorMessage != null -> cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
+                    userCancelled -> {
+                        crashReporter.log("RevenueCat purchase cancelled entitlement=$entitlement")
+                        cont.resume(Result.failure(PurchaseFailure.Cancelled))
+                    }
+
+                    errorMessage != null -> {
+                        crashReporter.recordException(PurchaseFailure.Generic("RevenueCat purchase failed entitlement=$entitlement: $errorMessage"))
+                        cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
+                    }
                     else -> {
+                        crashReporter.log("RevenueCat purchase success entitlement=$entitlement removeAds=$hasRemovedAds chatPremium=$hasChatPremium")
                         mirror(hasRemovedAds, hasChatPremium)
                         cont.resume(Result.success(Unit))
                     }

@@ -45,17 +45,23 @@ final class AppOpenAdManager: NSObject {
 
     func loadAd() {
         guard !adUnitId.isEmpty, !isLoadingAd, !isAdAvailable() else {
+            if adUnitId.isEmpty {
+                AppDiagnostics.record("App open ad unit id is empty", domain: "AdMob")
+            }
             return
         }
         isLoadingAd = true
+        AppDiagnostics.log("Loading app open ad suffix=\(String(adUnitId.suffix(8)))")
         Task {
             do {
                 let ad = try await AppOpenAd.load(with: adUnitId, request: Request())
                 self.appOpenAd = ad
                 self.loadTime = Date()
                 self.isLoadingAd = false
+                AppDiagnostics.log("App open ad loaded")
             } catch {
                 self.isLoadingAd = false
+                AppDiagnostics.record(error, context: "App open ad load failed")
             }
         }
     }
@@ -71,10 +77,12 @@ final class AppOpenAdManager: NSObject {
             return
         }
         guard let root = rootViewController() else {
+            AppDiagnostics.record("App open rootViewController is nil", domain: "AdMob")
             return
         }
         isShowingAd = true
         appOpenAd?.fullScreenContentDelegate = self
+        AppDiagnostics.log("Presenting app open ad")
         appOpenAd?.present(from: root)
     }
 
@@ -107,12 +115,14 @@ final class AppOpenAdManager: NSObject {
 
 extension AppOpenAdManager: FullScreenContentDelegate {
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        AppDiagnostics.log("App open ad dismissed")
         appOpenAd = nil
         isShowingAd = false
         loadAd()
     }
 
     func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        AppDiagnostics.record(error, context: "App open ad failed to present")
         appOpenAd = nil
         isShowingAd = false
         loadAd()

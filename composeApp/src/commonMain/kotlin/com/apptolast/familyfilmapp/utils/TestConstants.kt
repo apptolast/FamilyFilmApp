@@ -23,6 +23,9 @@ const val TT_PROFILE_AVATAR = "profile_avatar"
 const val TT_PROFILE_EMAIL = "profile_email"
 const val TT_PROFILE_LOGOUT = "profile_logout"
 const val TT_PROFILE_DELETE_ACCOUNT = "profile_delete_account"
+const val TT_DELETE_ACCOUNT_EMAIL = "delete_account_email"
+const val TT_DELETE_ACCOUNT_PASSWORD = "delete_account_password"
+const val TT_DELETE_ACCOUNT_CONFIRM = "delete_account_confirm"
 
 // Discover
 const val TT_DISCOVER_MOVIE_CARD = "discover_movie_card"

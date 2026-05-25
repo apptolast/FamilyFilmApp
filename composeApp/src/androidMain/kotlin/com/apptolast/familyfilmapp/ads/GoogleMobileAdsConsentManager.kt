@@ -25,10 +25,7 @@ class GoogleMobileAdsConsentManager private constructor(context: Context) {
         get() = consentInformation.privacyOptionsRequirementStatus ==
             ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
 
-    fun gatherConsent(
-        activity: Activity,
-        onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener,
-    ) {
+    fun gatherConsent(activity: Activity, onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener) {
         val debugSettings = ConsentDebugSettings.Builder(activity)
             .addTestDeviceHashedId(TEST_DEVICE_HASHED_ID)
             .build()
@@ -51,10 +48,7 @@ class GoogleMobileAdsConsentManager private constructor(context: Context) {
         )
     }
 
-    fun showPrivacyOptionsForm(
-        activity: Activity,
-        onConsentFormDismissedListener: OnConsentFormDismissedListener,
-    ) {
+    fun showPrivacyOptionsForm(activity: Activity, onConsentFormDismissedListener: OnConsentFormDismissedListener) {
         UserMessagingPlatform.showPrivacyOptionsForm(activity, onConsentFormDismissedListener)
     }
 

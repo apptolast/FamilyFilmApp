@@ -153,6 +153,7 @@ fun DetailsContent(
                 contentDescription = "Media Poster",
                 modifier = Modifier
                     .padding(top = 10.dp)
+                    .fillMaxWidth(0.68f)
                     .height(350.dp)
                     .clip(MaterialTheme.shapes.small)
                     .testTag(TT_DETAIL_POSTER),

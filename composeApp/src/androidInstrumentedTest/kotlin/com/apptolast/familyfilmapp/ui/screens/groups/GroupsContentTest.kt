@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.Group
+import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
@@ -27,6 +28,13 @@ class GroupsContentTest {
         users = listOf("u1"),
         lastUpdated = null,
     )
+    private val testUser = User(
+        id = "u1",
+        email = "owner@example.com",
+        language = "en-US",
+        photoUrl = "",
+        username = "Owner",
+    )
 
     @Test
     fun groupsContent_emptyState_displaysEmptyText() {
@@ -42,7 +50,7 @@ class GroupsContentTest {
                 selectedGroupId = "g1",
                 selectedGroupData = GroupViewModel.GroupData(
                     group = testGroup,
-                    members = emptyList(),
+                    members = listOf(testUser),
                     mediaToWatch = emptyList(),
                     mediaWatched = emptyList(),
                     recommendedMedia = null,
@@ -55,27 +63,29 @@ class GroupsContentTest {
     }
 
     @Test
-    fun groupsContent_fabClick_invokesCreateCallback() {
-        var invoked = false
+    fun groupsContent_fabClick_requestsCreateDialog() {
+        var requestedDialog: GroupViewModel.GroupScreenDialogs? = null
         setGroupsContent(
             state = GroupViewModel.GroupsState(isLoading = false),
-            onCreateGroupRequested = { invoked = true },
+            onShowDialog = { requestedDialog = it },
         )
         composeTestRule.onNodeWithTag(TT_GROUPS_FAB).performClick()
-        assertEquals(true, invoked)
+        assertEquals(GroupViewModel.GroupScreenDialogs.CreateGroup, requestedDialog)
     }
 
     private fun setGroupsContent(
         state: GroupViewModel.GroupsState,
         onSelectGroup: (String) -> Unit = {},
-        onCreateGroupRequested: () -> Unit = {},
+        onShowDialog: (GroupViewModel.GroupScreenDialogs) -> Unit = {},
+        onCreateGroup: (String) -> Unit = {},
     ) {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 GroupsContent(
                     state = state,
                     onSelectGroup = onSelectGroup,
-                    onCreateGroupRequested = onCreateGroupRequested,
+                    onShowDialog = onShowDialog,
+                    onCreateGroup = onCreateGroup,
                 )
             }
         }

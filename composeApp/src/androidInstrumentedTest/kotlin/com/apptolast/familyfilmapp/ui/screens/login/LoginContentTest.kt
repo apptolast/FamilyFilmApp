@@ -7,7 +7,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
+import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
@@ -51,54 +53,58 @@ class LoginContentTest {
     fun loginContent_primaryClick_invokesCallback() {
         var primaryInvoked = false
         setLoginContent(
-            email = "user@example.com",
-            password = "secret",
-            onPrimaryClick = { primaryInvoked = true },
+            initialEmail = "user@example.com",
+            initialPassword = "secret",
+            onPrimaryClick = { _, _ -> primaryInvoked = true },
         )
         composeTestRule.onNodeWithTag(TT_LOGIN_BUTTON).performClick()
         assertEquals(true, primaryInvoked)
     }
 
     @Test
-    fun loginContent_emailInput_propagates() {
+    fun loginContent_primaryClick_forwardsTypedEmail() {
         var captured = ""
-        setLoginContent(onEmailChange = { captured = it })
+        setLoginContent(onPrimaryClick = { email, _ -> captured = email })
         composeTestRule.onNodeWithTag(TT_LOGIN_EMAIL).performTextInput("hello@example.com")
-        // The OutlinedTextField forwards each character; only the final captured value matters here.
+        composeTestRule.onNodeWithTag(TT_LOGIN_BUTTON).performClick()
         assertEquals("hello@example.com", captured)
     }
 
     private fun setLoginContent(
-        email: String = "",
-        password: String = "",
+        initialEmail: String = "",
+        initialPassword: String = "",
         username: String = "",
         screenState: LoginRegisterState = LoginRegisterState.Login(),
         authState: AuthState = AuthState.Unauthenticated,
         isEmailSent: Boolean = false,
-        onEmailChange: (String) -> Unit = {},
-        onPasswordChange: (String) -> Unit = {},
+        usernameValidationState: UsernameValidationState = UsernameValidationState.Idle,
+        recoverPassState: RecoverPassState = RecoverPassState(),
         onUsernameChange: (String) -> Unit = {},
-        onPrimaryClick: () -> Unit = {},
+        onPrimaryClick: (String, String) -> Unit = { _, _ -> },
         onGoogleClick: () -> Unit = {},
+        onAppleClick: () -> Unit = {},
         onToggleScreenState: () -> Unit = {},
     ) {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 LoginContent(
-                    email = email,
-                    password = password,
+                    initialEmail = initialEmail,
+                    initialPassword = initialPassword,
                     username = username,
                     screenState = screenState,
                     authState = authState,
                     isEmailSent = isEmailSent,
-                    onEmailChange = onEmailChange,
-                    onPasswordChange = onPasswordChange,
+                    usernameValidationState = usernameValidationState,
+                    recoverPassState = recoverPassState,
                     onUsernameChange = onUsernameChange,
                     onPrimaryClick = onPrimaryClick,
                     onGoogleClick = onGoogleClick,
+                    onAppleClick = onAppleClick,
                     onToggleScreenState = onToggleScreenState,
                 )
             }
         }
+        composeTestRule.mainClock.advanceTimeBy(1_200)
+        composeTestRule.waitForIdle()
     }
 }

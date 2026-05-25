@@ -6,11 +6,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.filters.MediumTest
+import app.cash.paging.PagingData
+import app.cash.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -72,12 +75,11 @@ class HomeContentTest {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 HomeContent(
-                    state = state,
-                    media = media,
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = onSearchQueryChange,
-                    onFilterSelected = onFilterSelected,
-                    onMediaSelected = onMediaSelected,
+                    stateUI = state,
+                    mediaItems = flowOf(PagingData.from(media)).collectAsLazyPagingItems(),
+                    searchMediaByName = onSearchQueryChange,
+                    onFilterSelect = onFilterSelected,
+                    onMediaClick = onMediaSelected,
                 )
             }
         }

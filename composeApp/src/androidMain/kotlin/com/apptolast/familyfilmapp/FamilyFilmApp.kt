@@ -24,7 +24,10 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
-class FamilyFilmApp : Application(), Application.ActivityLifecycleCallbacks, KoinComponent {
+class FamilyFilmApp :
+    Application(),
+    Application.ActivityLifecycleCallbacks,
+    KoinComponent {
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 

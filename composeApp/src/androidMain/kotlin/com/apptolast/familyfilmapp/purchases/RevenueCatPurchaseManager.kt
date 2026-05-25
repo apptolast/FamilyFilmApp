@@ -66,7 +66,9 @@ class RevenueCatPurchaseManager(
             }
 
             Purchases.logLevel = if (isDebuggable) LogLevel.DEBUG else LogLevel.WARN
-            crashReporter.log("RevenueCat Android configure requested mode=${if (isDebuggable) "test" else "production"}")
+            crashReporter.log(
+                "RevenueCat Android configure requested mode=${if (isDebuggable) "test" else "production"}",
+            )
             Purchases.configure(
                 PurchasesConfiguration.Builder(context, apiKey)
                     .appUserID(userId)
@@ -116,19 +118,17 @@ class RevenueCatPurchaseManager(
         )
     }
 
-    override suspend fun purchaseRemoveAds(): Result<Unit> =
-        launchPurchaseFlow(
-            offeringId = null,
-            entitlementId = AD_FREE_ENTITLEMENT,
-            analyticsEntitlement = AnalyticsEvents.Entitlement.REMOVE_ADS,
-        )
+    override suspend fun purchaseRemoveAds(): Result<Unit> = launchPurchaseFlow(
+        offeringId = null,
+        entitlementId = AD_FREE_ENTITLEMENT,
+        analyticsEntitlement = AnalyticsEvents.Entitlement.REMOVE_ADS,
+    )
 
-    override suspend fun purchaseChatPremium(): Result<Unit> =
-        launchPurchaseFlow(
-            offeringId = CHAT_PREMIUM_OFFERING_ID,
-            entitlementId = CHAT_PREMIUM_ENTITLEMENT,
-            analyticsEntitlement = AnalyticsEvents.Entitlement.CHAT_PREMIUM,
-        )
+    override suspend fun purchaseChatPremium(): Result<Unit> = launchPurchaseFlow(
+        offeringId = CHAT_PREMIUM_OFFERING_ID,
+        entitlementId = CHAT_PREMIUM_ENTITLEMENT,
+        analyticsEntitlement = AnalyticsEvents.Entitlement.CHAT_PREMIUM,
+    )
 
     override suspend fun restorePurchases(): Result<Boolean> = suspendCancellableCoroutine { cont ->
         if (!isConfigured) {
@@ -176,10 +176,14 @@ class RevenueCatPurchaseManager(
         val activity = activityHolder.current
             ?: return Result.failure(
                 PurchaseFailure.Unknown("No Activity available for purchase").also {
-                    crashReporter.recordException(IllegalStateException("RevenueCat Android purchase failed: no Activity"))
+                    crashReporter.recordException(
+                        IllegalStateException("RevenueCat Android purchase failed: no Activity"),
+                    )
                 },
             )
-        crashReporter.log("RevenueCat Android purchase started entitlement=$entitlementId offering=${offeringId ?: "current"}")
+        crashReporter.log(
+            "RevenueCat Android purchase started entitlement=$entitlementId offering=${offeringId ?: "current"}",
+        )
         val offerings = fetchOfferings().getOrElse { return Result.failure(it) }
         val pkg = offerings?.packageForOffering(offeringId)
         if (pkg == null) {
@@ -216,7 +220,9 @@ class RevenueCatPurchaseManager(
                                     AnalyticsEvents.Param.ERROR_TYPE to AnalyticsEvents.ErrorType.OTHER,
                                 ),
                             )
-                            crashReporter.recordException(error.asThrowable("purchase failed entitlement=$entitlementId"))
+                            crashReporter.recordException(
+                                error.asThrowable("purchase failed entitlement=$entitlementId"),
+                            )
                         }
                         cont.resume(
                             Result.failure(
@@ -263,25 +269,22 @@ class RevenueCatPurchaseManager(
 
     private suspend fun fetchOfferings(): Result<com.revenuecat.purchases.Offerings?> =
         suspendCancellableCoroutine { cont ->
-        Purchases.sharedInstance.getOfferingsWith(
-            { error ->
-                crashReporter.recordException(error.asThrowable("getOfferings failed"))
-                cont.resume(Result.failure(error.toPurchaseFailure()))
-            },
-            { offerings ->
-                crashReporter.log("RevenueCat Android offerings fetched ${offerings.describe()}")
-                cont.resume(Result.success(offerings))
-            },
-        )
-    }
+            Purchases.sharedInstance.getOfferingsWith(
+                { error ->
+                    crashReporter.recordException(error.asThrowable("getOfferings failed"))
+                    cont.resume(Result.failure(error.toPurchaseFailure()))
+                },
+                { offerings ->
+                    crashReporter.log("RevenueCat Android offerings fetched ${offerings.describe()}")
+                    cont.resume(Result.success(offerings))
+                },
+            )
+        }
 
     private fun com.revenuecat.purchases.Offerings.packageForOffering(offeringId: String?): Package? =
         (if (offeringId == null) current else this[offeringId])?.availablePackages?.firstOrNull()
 
-    private fun missingPackageMessage(
-        offeringId: String?,
-        offerings: com.revenuecat.purchases.Offerings?,
-    ): String {
+    private fun missingPackageMessage(offeringId: String?, offerings: com.revenuecat.purchases.Offerings?): String {
         val offeringIds = offerings?.all?.keys?.sorted()?.joinToString().orEmpty()
         val packages = offerings?.all
             ?.values
@@ -299,7 +302,7 @@ class RevenueCatPurchaseManager(
     }
 
     private fun Package.describe(): String =
-        "${presentedOfferingContext.offeringIdentifier.orEmpty()}:${identifier}:${product.id}"
+        "${presentedOfferingContext.offeringIdentifier.orEmpty()}:$identifier:${product.id}"
 
     private fun mirror(info: CustomerInfo) {
         _hasRemovedAds.value = info.entitlements[AD_FREE_ENTITLEMENT]?.isActive == true

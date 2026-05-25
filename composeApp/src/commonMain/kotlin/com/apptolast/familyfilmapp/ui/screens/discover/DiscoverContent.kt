@@ -71,14 +71,14 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun DiscoverContent(
     state: DiscoverUiState,
-    onSkip: () -> Unit,
-    onWantToWatch: () -> Unit,
-    onWatched: () -> Unit,
-    onOpenDetails: (Media) -> Unit,
-    onFilterSelect: (MediaFilter) -> Unit,
-    onToggleGroup: (String) -> Unit,
-    onClearError: () -> Unit,
     modifier: Modifier = Modifier,
+    onSkip: () -> Unit = {},
+    onWantToWatch: () -> Unit = {},
+    onWatched: () -> Unit = {},
+    onOpenDetails: (Media) -> Unit = {},
+    onFilterSelect: (MediaFilter) -> Unit = {},
+    onToggleGroup: (String) -> Unit = {},
+    onClearError: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     var showGroupSheet by remember { mutableStateOf(false) }
@@ -305,13 +305,6 @@ private fun PreviewDiscoverContentEmpty() {
     FamilyFilmAppTheme {
         DiscoverContent(
             state = DiscoverUiState(),
-            onSkip = {},
-            onWantToWatch = {},
-            onWatched = {},
-            onOpenDetails = {},
-            onFilterSelect = {},
-            onToggleGroup = {},
-            onClearError = {},
         )
     }
 }
@@ -325,13 +318,6 @@ private fun PreviewDiscoverContentWithMedia() {
                 mediaList = listOf(Media(title = "Inception", posterPath = "")),
                 isLoading = false,
             ),
-            onSkip = {},
-            onWantToWatch = {},
-            onWatched = {},
-            onOpenDetails = {},
-            onFilterSelect = {},
-            onToggleGroup = {},
-            onClearError = {},
         )
     }
 }

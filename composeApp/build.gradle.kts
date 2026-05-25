@@ -287,7 +287,9 @@ ktlint {
     filter {
         exclude("**/build/**")
         exclude("**/generated/**")
-        exclude { element -> element.file.path.contains("${File.separator}build${File.separator}generated${File.separator}") }
+        exclude { element ->
+            element.file.path.contains("${File.separator}build${File.separator}generated${File.separator}")
+        }
         include("**/kotlin/**")
     }
 }

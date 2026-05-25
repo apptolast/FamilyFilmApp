@@ -10,10 +10,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import java.util.Date
 
-class AndroidAppOpenAdManager(
-    context: Context,
-    private val crashReporter: CrashReporter,
-) {
+class AndroidAppOpenAdManager(context: Context, private val crashReporter: CrashReporter) {
     private val appContext = context.applicationContext
     private val consentManager = GoogleMobileAdsConsentManager.getInstance(appContext)
 
@@ -122,8 +119,7 @@ class AndroidAppOpenAdManager(
         appOpenAd?.show(activity)
     }
 
-    private fun isAdAvailable(): Boolean =
-        appOpenAd != null && Date().time - loadTime < FOUR_HOURS_IN_MILLIS
+    private fun isAdAvailable(): Boolean = appOpenAd != null && Date().time - loadTime < FOUR_HOURS_IN_MILLIS
 
     private companion object {
         const val FOUR_HOURS_IN_MILLIS = 4 * 60 * 60 * 1000L

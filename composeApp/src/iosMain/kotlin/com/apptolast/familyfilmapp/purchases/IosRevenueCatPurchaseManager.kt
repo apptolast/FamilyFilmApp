@@ -19,7 +19,9 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     override suspend fun initialize(userId: String) {
         val bridge = bridge
         if (bridge == null) {
-            crashReporter.log("IosRevenueCatPurchaseManager.initialize($userId) skipped: RevenueCat bridge not installed")
+            crashReporter.log(
+                "IosRevenueCatPurchaseManager.initialize($userId) skipped: RevenueCat bridge not installed",
+            )
             return
         }
 
@@ -76,7 +78,9 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
     private suspend fun purchaseEntitlement(entitlement: String): Result<Unit> {
         val bridge = bridge
         if (bridge == null) {
-            crashReporter.recordException(IllegalStateException("RevenueCat bridge not installed on purchase entitlement=$entitlement"))
+            crashReporter.recordException(
+                IllegalStateException("RevenueCat bridge not installed on purchase entitlement=$entitlement"),
+            )
             return Result.failure(PurchaseFailure.Generic("RevenueCat bridge not installed"))
         }
         crashReporter.log("RevenueCat purchase started entitlement=$entitlement")
@@ -89,11 +93,17 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
                     }
 
                     errorMessage != null -> {
-                        crashReporter.recordException(PurchaseFailure.Generic("RevenueCat purchase failed entitlement=$entitlement: $errorMessage"))
+                        crashReporter.recordException(
+                            PurchaseFailure.Generic(
+                                "RevenueCat purchase failed entitlement=$entitlement: $errorMessage",
+                            ),
+                        )
                         cont.resume(Result.failure(PurchaseFailure.Generic(errorMessage)))
                     }
                     else -> {
-                        crashReporter.log("RevenueCat purchase success entitlement=$entitlement removeAds=$hasRemovedAds chatPremium=$hasChatPremium")
+                        crashReporter.log(
+                            "RevenueCat purchase success entitlement=$entitlement removeAds=$hasRemovedAds chatPremium=$hasChatPremium",
+                        )
                         mirror(hasRemovedAds, hasChatPremium)
                         cont.resume(Result.success(Unit))
                     }

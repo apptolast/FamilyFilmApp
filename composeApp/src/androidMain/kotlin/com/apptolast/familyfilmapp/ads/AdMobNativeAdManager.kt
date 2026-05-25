@@ -14,15 +14,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 // Callers MUST invoke destroyAds() (e.g. from ViewModel.onCleared) to release the NativeAd resources.
-class AdMobNativeAdManager(
-    context: Context,
-    private val crashReporter: CrashReporter,
-) : NativeAdManager {
+class AdMobNativeAdManager(context: Context, private val crashReporter: CrashReporter) : NativeAdManager {
 
     private val appContext = context.applicationContext
 
-    private val _ads = MutableStateFlow<List<NativeAdHandle>>(emptyList())
-    override val nativeAds: StateFlow<List<NativeAdHandle>> = _ads.asStateFlow()
+    private val ads = MutableStateFlow<List<NativeAdHandle>>(emptyList())
+    override val nativeAds: StateFlow<List<NativeAdHandle>> = ads.asStateFlow()
     private var isLoading = false
 
     override fun loadAds() {
@@ -32,8 +29,8 @@ class AdMobNativeAdManager(
             crashReporter.log(message)
             return
         }
-        if (_ads.value.size >= AD_POOL_SIZE) {
-            val message = "Android native ads load skipped: poolSize=${_ads.value.size}"
+        if (ads.value.size >= AD_POOL_SIZE) {
+            val message = "Android native ads load skipped: poolSize=${ads.value.size}"
             Log.d(TAG, message)
             crashReporter.log(message)
             return
@@ -57,13 +54,13 @@ class AdMobNativeAdManager(
 
         val adLoader = AdLoader.Builder(appContext, adUnitId)
             .forNativeAd { nativeAd: NativeAd ->
-                _ads.update { (it + nativeAd).takeLast(AD_POOL_SIZE) }
+                ads.update { (it + nativeAd).takeLast(AD_POOL_SIZE) }
                 val message =
-                    "Android native ad loaded poolSize=${_ads.value.size} " +
+                    "Android native ad loaded poolSize=${ads.value.size} " +
                         "hasHeadline=${nativeAd.headline != null} hasMedia=${nativeAd.mediaContent != null}"
                 Log.d(TAG, message)
                 crashReporter.log(message)
-                if (_ads.value.size >= AD_POOL_SIZE) isLoading = false
+                if (ads.value.size >= AD_POOL_SIZE) isLoading = false
             }
             .withAdListener(
                 object : AdListener() {
@@ -83,8 +80,8 @@ class AdMobNativeAdManager(
     }
 
     override fun destroyAds() {
-        val current = _ads.value
-        _ads.value = emptyList()
+        val current = ads.value
+        ads.value = emptyList()
         current.forEach { handle -> (handle as? NativeAd)?.destroy() }
     }
 

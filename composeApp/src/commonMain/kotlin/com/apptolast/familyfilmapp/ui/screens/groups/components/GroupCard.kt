@@ -67,8 +67,8 @@ fun GroupCard(
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .testTag(TT_GROUPS_GROUP_CARD),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -100,7 +100,7 @@ fun GroupCard(
                             Icon(
                                 imageVector = Icons.Filled.ModeEditOutline,
                                 contentDescription = stringResource(Res.string.groups_tooltip_edit_name),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     }
@@ -118,7 +118,7 @@ fun GroupCard(
                             Icon(
                                 imageVector = Icons.Outlined.PersonAdd,
                                 contentDescription = stringResource(Res.string.groups_tooltip_add_member),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     }
@@ -146,7 +146,7 @@ fun GroupCard(
             Text(
                 text = stringResource(Res.string.groups_member_count, groupUsers.size),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
 

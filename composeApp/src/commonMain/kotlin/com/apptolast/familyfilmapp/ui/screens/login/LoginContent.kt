@@ -37,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -190,7 +189,11 @@ fun LoginContent(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color(0xDD000000), Color(0x9F000000), Color(0x00000000)),
+                            colors = listOf(
+                                MaterialTheme.colorScheme.scrim.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f),
+                                Color.Transparent,
+                            ),
                             startY = 0f,
                             endY = Float.POSITIVE_INFINITY,
                         ),
@@ -217,14 +220,17 @@ fun LoginContent(
 
                 Text(
                     text = stringResource(Res.string.app_name),
-                    style = MaterialTheme.typography.headlineLarge.copy(color = Color.White, fontSize = 38.sp),
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 38.sp,
+                    ),
                     modifier = Modifier.padding(bottom = 4.dp),
                 )
 
                 Text(
                     text = stringResource(Res.string.login_text_app_subtitle),
                     style = MaterialTheme.typography.titleLarge.copy(
-                        color = Color.LightGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 18.sp,
                         textAlign = TextAlign.Center,
                     ),
@@ -234,7 +240,7 @@ fun LoginContent(
                 )
 
                 if (authState is AuthState.Loading) {
-                    CircularProgressIndicator(color = Color.White)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
 
                 AnimatedVisibility(showLoginInterface) {
@@ -378,7 +384,9 @@ fun LoginContent(
                             Text(
                                 text = stringResource(Res.string.or_else),
                                 modifier = Modifier.padding(horizontal = 8.dp),
-                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
                             )
                             HorizontalDivider(
                                 modifier = Modifier
@@ -396,11 +404,12 @@ fun LoginContent(
                                 .height(48.dp)
                                 .testTag(TT_LOGIN_GOOGLE_BUTTON),
                             shape = MaterialTheme.shapes.medium,
-                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
                         ) {
-                            Surface {
-                                GoogleButtonContent()
-                            }
+                            GoogleButtonContent()
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -413,8 +422,8 @@ fun LoginContent(
                                 .testTag(TT_LOGIN_APPLE_BUTTON),
                             shape = MaterialTheme.shapes.medium,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Black,
-                                contentColor = Color.White,
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                             ),
                         ) {
                             AppleButtonContent()
@@ -425,13 +434,18 @@ fun LoginContent(
                         Row(modifier = Modifier.clickable { onToggleScreenState() }) {
                             Text(
                                 text = stringResource(screenState.accountText),
-                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
                                 modifier = Modifier.padding(end = 4.dp),
                             )
                             Text(
                                 text = stringResource(screenState.signText),
                                 style = MaterialTheme.typography.bodyMedium
-                                    .copy(color = Color.White, fontWeight = FontWeight.Bold),
+                                    .copy(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -447,7 +461,9 @@ fun LoginContent(
                                 )
                             },
                             text = stringResource(Res.string.login_text_forgot_your_password),
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                         )
 
                         if (recoverPassState.isDialogVisible) {

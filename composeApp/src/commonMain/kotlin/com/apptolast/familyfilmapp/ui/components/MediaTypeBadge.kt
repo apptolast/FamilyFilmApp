@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,10 +25,14 @@ fun MediaTypeBadge(mediaType: MediaType, modifier: Modifier = Modifier) {
         MediaType.MOVIE -> MaterialTheme.colorScheme.primary
         MediaType.TV_SHOW -> MaterialTheme.colorScheme.tertiary
     }
+    val contentColor = when (mediaType) {
+        MediaType.MOVIE -> MaterialTheme.colorScheme.onPrimary
+        MediaType.TV_SHOW -> MaterialTheme.colorScheme.onTertiary
+    }
 
     Text(
         text = label,
-        color = Color.White,
+        color = contentColor,
         fontSize = 9.sp,
         fontWeight = FontWeight.Bold,
         modifier = modifier

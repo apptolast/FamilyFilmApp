@@ -29,7 +29,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier, isOwner: Boolean 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -52,7 +52,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier, isOwner: Boolean 
         Text(
             text = user.displayName,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -62,7 +62,7 @@ fun GroupMemberCard(user: User, modifier: Modifier = Modifier, isOwner: Boolean 
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(16.dp),
             )
         }

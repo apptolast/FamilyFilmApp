@@ -92,7 +92,7 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
         }
 
         let adView = NativeAdView()
-        adView.backgroundColor = .black
+        adView.backgroundColor = Self.surface
         adView.layer.cornerRadius = 8
         adView.clipsToBounds = true
 
@@ -105,12 +105,12 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
 
         let bottomOverlay = UIView()
         bottomOverlay.translatesAutoresizingMaskIntoConstraints = false
-        bottomOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.68)
+        bottomOverlay.backgroundColor = Self.scrim.withAlphaComponent(0.72)
         adView.addSubview(bottomOverlay)
 
         let headlineLabel = UILabel()
         headlineLabel.translatesAutoresizingMaskIntoConstraints = false
-        headlineLabel.textColor = .white
+        headlineLabel.textColor = Self.onSurface
         headlineLabel.numberOfLines = 2
         headlineLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         headlineLabel.text = nativeAd.headline
@@ -121,8 +121,8 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
         attribution.translatesAutoresizingMaskIntoConstraints = false
         attribution.text = "Pub"
         attribution.font = .systemFont(ofSize: 10, weight: .semibold)
-        attribution.textColor = .black
-        attribution.backgroundColor = UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
+        attribution.textColor = Self.onTertiaryContainer
+        attribution.backgroundColor = Self.tertiaryContainer
         attribution.layer.cornerRadius = 2
         attribution.clipsToBounds = true
         attribution.textAlignment = .center
@@ -153,4 +153,10 @@ final class IOSNativeAdViewFactory: NSObject, NativeAdViewFactory {
         adView.nativeAd = nativeAd
         return adView
     }
+
+    private static let surface = UIColor(red: 0.05, green: 0.05, blue: 0.09, alpha: 1.0)
+    private static let onSurface = UIColor(red: 0.96, green: 0.95, blue: 0.98, alpha: 1.0)
+    private static let scrim = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+    private static let tertiaryContainer = UIColor(red: 0.36, green: 0.08, blue: 0.19, alpha: 1.0)
+    private static let onTertiaryContainer = UIColor(red: 1.0, green: 0.85, blue: 0.9, alpha: 1.0)
 }

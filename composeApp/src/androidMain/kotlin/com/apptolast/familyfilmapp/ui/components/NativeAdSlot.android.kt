@@ -15,11 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +43,8 @@ actual fun NativeAdSlot(adHandle: NativeAdHandle, modifier: Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(2f / 3.2f)
-            .clip(MaterialTheme.shapes.small),
+            .clip(MaterialTheme.shapes.small)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             NativeAdMediaView(
@@ -75,7 +71,10 @@ actual fun NativeAdSlot(adHandle: NativeAdHandle, modifier: Modifier) {
                         .align(Alignment.BottomStart)
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f)),
+                                colors = listOf(
+                                    Color.Transparent,
+                                    MaterialTheme.colorScheme.scrim.copy(alpha = 0.78f),
+                                ),
                             ),
                         )
                         .padding(horizontal = 6.dp, vertical = 8.dp),
@@ -84,7 +83,7 @@ actual fun NativeAdSlot(adHandle: NativeAdHandle, modifier: Modifier) {
                         Text(
                             text = headline,
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -99,8 +98,6 @@ private val LocalNativeAdView = staticCompositionLocalOf<SdkNativeAdView?> { nul
 
 @Composable
 private fun NativeAdView(nativeAd: NativeAd, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val nativeAdViewRef = remember { mutableStateOf<SdkNativeAdView?>(null) }
-
     AndroidView(
         factory = { context ->
             val composeView = ComposeView(context).apply {
@@ -115,7 +112,6 @@ private fun NativeAdView(nativeAd: NativeAd, modifier: Modifier = Modifier, cont
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 )
                 addView(composeView)
-                nativeAdViewRef.value = this
             }
         },
         modifier = modifier,
@@ -123,11 +119,9 @@ private fun NativeAdView(nativeAd: NativeAd, modifier: Modifier = Modifier, cont
             (view.getChildAt(0) as? ComposeView)?.setContent {
                 CompositionLocalProvider(LocalNativeAdView provides view) { content() }
             }
+            view.post { view.setNativeAd(nativeAd) }
         },
     )
-
-    val currentNativeAd by rememberUpdatedState(nativeAd)
-    SideEffect { nativeAdViewRef.value?.setNativeAd(currentNativeAd) }
 }
 
 @Composable
@@ -180,7 +174,7 @@ private fun NativeAdAttribution(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "Pub",
-            color = Color.Black,
+            color = Color(0xFF101010),
             style = MaterialTheme.typography.labelSmall,
         )
     }

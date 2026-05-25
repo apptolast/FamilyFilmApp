@@ -86,7 +86,7 @@ fun AppNavigation() {
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 )

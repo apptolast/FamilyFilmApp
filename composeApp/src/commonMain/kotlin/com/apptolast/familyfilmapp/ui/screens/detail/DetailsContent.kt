@@ -317,7 +317,7 @@ fun MediaInfo(media: Media) {
 fun AgeRestrictionBadge(age: Int, color: Color) {
     Text(
         text = "+$age",
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier
             .background(
                 color = color,

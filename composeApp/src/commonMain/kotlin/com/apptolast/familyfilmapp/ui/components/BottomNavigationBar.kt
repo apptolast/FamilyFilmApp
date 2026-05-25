@@ -25,9 +25,9 @@ import familyfilmkmp.composeapp.generated.resources.screen_title_discover
 import familyfilmkmp.composeapp.generated.resources.screen_title_groups
 import familyfilmkmp.composeapp.generated.resources.screen_title_home
 import familyfilmkmp.composeapp.generated.resources.screen_title_profile
-import kotlin.reflect.KClass
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.reflect.KClass
 
 // UI metadata kept here (not on Routes) so the nav layer stays free of Compose imports.
 private data class BottomTab(
@@ -49,7 +49,7 @@ private val tabs: List<BottomTab> = listOf(
 fun BottomNavigationBar(navController: NavController) {
     val backStackEntry: NavBackStackEntry? by navController.currentBackStackEntryAsState()
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         tabs.forEach { tab ->

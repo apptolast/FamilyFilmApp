@@ -177,7 +177,7 @@ fun SwipeableMediaCard(
                             text = media.title,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -192,7 +192,7 @@ fun SwipeableMediaCard(
                                 }
                             },
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.9f),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -200,7 +200,7 @@ fun SwipeableMediaCard(
                         Text(
                             text = media.overview,
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -214,7 +214,7 @@ fun SwipeableMediaCard(
                                 .alpha(leftIndicatorAlpha)
                                 .size(48.dp)
                                 .background(
-                                    color = Color.White.copy(alpha = 0.85f),
+                                    color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.9f),
                                     shape = CircleShape,
                                 ),
                             contentAlignment = Alignment.Center,
@@ -222,7 +222,7 @@ fun SwipeableMediaCard(
                             Icon(
                                 imageVector = Icons.Default.Visibility,
                                 contentDescription = "Watched",
-                                tint = Color.Black,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp),
                             )
                         }
@@ -236,7 +236,7 @@ fun SwipeableMediaCard(
                                 .alpha(rightIndicatorAlpha)
                                 .size(48.dp)
                                 .background(
-                                    color = Color.White.copy(alpha = 0.85f),
+                                    color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.9f),
                                     shape = CircleShape,
                                 ),
                             contentAlignment = Alignment.Center,
@@ -244,7 +244,7 @@ fun SwipeableMediaCard(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                                 contentDescription = "Want to Watch",
-                                tint = Color.Black,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp),
                             )
                         }

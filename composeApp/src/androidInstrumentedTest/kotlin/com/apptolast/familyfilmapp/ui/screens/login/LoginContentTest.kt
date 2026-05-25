@@ -14,6 +14,7 @@ import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_LOADING
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_PASS
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -47,6 +48,12 @@ class LoginContentTest {
     fun loginContent_displaysGoogleButton() {
         setLoginContent()
         composeTestRule.onNodeWithTag(TT_LOGIN_GOOGLE_BUTTON).assertIsDisplayed()
+    }
+
+    @Test
+    fun loginContent_loadingState_displaysBlockingProgressDialog() {
+        setLoginContent(authState = AuthState.Loading)
+        composeTestRule.onNodeWithTag(TT_LOGIN_LOADING).assertIsDisplayed()
     }
 
     @Test

@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -61,6 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.AlertRecoverPassDialog
 import com.apptolast.familyfilmapp.ui.screens.login.components.AppleButtonContent
 import com.apptolast.familyfilmapp.ui.screens.login.components.GoogleButtonContent
@@ -73,11 +76,13 @@ import com.apptolast.familyfilmapp.utils.TT_LOGIN_APPLE_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_EMAIL
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_GOOGLE_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_LOGIN_LOADING
 import com.apptolast.familyfilmapp.utils.TT_LOGIN_PASS
 import com.apptolast.familyfilmapp.utils.toErrorString
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.app_name
 import familyfilmkmp.composeapp.generated.resources.ic_launcher_foreground
+import familyfilmkmp.composeapp.generated.resources.login_loading
 import familyfilmkmp.composeapp.generated.resources.login_snail_logo
 import familyfilmkmp.composeapp.generated.resources.login_text_app_subtitle
 import familyfilmkmp.composeapp.generated.resources.login_text_check_your_email_to_verify_your_account
@@ -133,6 +138,7 @@ fun LoginContent(
     val snackBarHostState = remember { SnackbarHostState() }
     var showLoginInterface by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
+    val isAuthLoading = authState is AuthState.Loading
 
     val imageList: List<DrawableResource> = listOf(
         Res.drawable.movie_background,
@@ -163,7 +169,7 @@ fun LoginContent(
             }
 
             is AuthState.Authenticated -> showLoginInterface = false
-            AuthState.Loading -> Unit
+            AuthState.Loading -> showLoginInterface = false
         }
     }
 
@@ -238,10 +244,6 @@ fun LoginContent(
                     maxLines = 2,
                     modifier = Modifier.padding(bottom = 24.dp),
                 )
-
-                if (authState is AuthState.Loading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
 
                 AnimatedVisibility(showLoginInterface) {
                     Column(
@@ -362,8 +364,11 @@ fun LoginContent(
 
                         Button(
                             onClick = { onPrimaryClick(email, password) },
-                            enabled = screenState is LoginRegisterState.Login ||
-                                usernameValidationState is UsernameValidationState.Available,
+                            enabled = !isAuthLoading &&
+                                (
+                                    screenState is LoginRegisterState.Login ||
+                                        usernameValidationState is UsernameValidationState.Available
+                                    ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
@@ -399,6 +404,7 @@ fun LoginContent(
 
                         Button(
                             onClick = onGoogleClick,
+                            enabled = !isAuthLoading,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
@@ -416,6 +422,7 @@ fun LoginContent(
 
                         Button(
                             onClick = onAppleClick,
+                            enabled = !isAuthLoading,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
@@ -502,6 +509,36 @@ fun LoginContent(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    if (isAuthLoading) {
+        LoginLoadingDialog()
+    }
+}
+
+@Composable
+private fun LoginLoadingDialog() {
+    Dialog(onDismissRequest = { }) {
+        Card(
+            modifier = Modifier.testTag(TT_LOGIN_LOADING),
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                Text(
+                    text = stringResource(Res.string.login_loading),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
             }
         }
     }

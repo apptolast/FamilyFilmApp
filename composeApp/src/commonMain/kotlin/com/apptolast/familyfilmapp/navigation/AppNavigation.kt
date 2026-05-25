@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -59,10 +60,11 @@ fun AppNavigation() {
 
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
 
     TrackScreenViews(navController = navController, tracker = analyticsTracker)
 
-    val mainTabRoute = backStackEntry?.destination?.let { destination ->
+    val mainTabRoute = currentDestination?.let { destination ->
         when {
             destination.hasRoute(Routes.Home::class) -> Res.string.screen_title_home
             destination.hasRoute(Routes.Discover::class) -> Res.string.screen_title_discover
@@ -73,6 +75,25 @@ fun AppNavigation() {
         }
     }
     val showChrome = authState is AuthState.Authenticated && mainTabRoute != null
+
+    LaunchedEffect(authState, currentDestination) {
+        val destination = currentDestination ?: return@LaunchedEffect
+        when {
+            authState is AuthState.Authenticated && destination.hasRoute(Routes.Login::class) -> {
+                navController.navigate(Routes.Home) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            authState is AuthState.Unauthenticated && !destination.hasRoute(Routes.Login::class) -> {
+                navController.navigate(Routes.Login) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

@@ -241,6 +241,7 @@ private fun ProfileBody(
     val currentCountryCode = countryCodeFromLanguageTag(user.language)
     val currentFlag = countryCodeToFlag(currentCountryCode)
     val currentCountryName = getCountryDisplayName(currentCountryCode)
+    val profilePhotoUrl = user.photoUrl.trim()
 
     Column(
         modifier = Modifier
@@ -257,9 +258,9 @@ private fun ProfileBody(
                 .testTag(TT_PROFILE_AVATAR),
             contentAlignment = Alignment.Center,
         ) {
-            if (user.photoUrl.isNotBlank()) {
+            if (profilePhotoUrl.isNotBlank()) {
                 AsyncImage(
-                    model = user.photoUrl,
+                    model = profilePhotoUrl,
                     contentDescription = stringResource(Res.string.profile_image_description),
                     placeholder = painterResource(Res.drawable.profile_avatar),
                     error = painterResource(Res.drawable.profile_avatar),

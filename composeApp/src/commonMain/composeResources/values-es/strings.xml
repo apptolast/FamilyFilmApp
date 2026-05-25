@@ -25,6 +25,7 @@
     <string name="login_text_recover_password_sent">Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.</string>
     <string name="login_button_send">Enviar</string>
     <string name="login_button_cancel">Cancelar</string>
+    <string name="login_loading">Iniciando sesión…</string>
 
     <!-- SCREEN TITLES-->
     <string name="screen_title_home">Inicio</string>

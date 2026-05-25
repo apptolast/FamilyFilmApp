@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -170,8 +169,17 @@ class AuthViewModel(
     }
 
     private fun checkIsUserLogged() = viewModelScope.launch(dispatcherProvider.io()) {
-        authRepository.getUser().combine(authRepository.isTokenValid()) { user, isTokenValid ->
-            user to isTokenValid
+        authRepository.getUser().flatMapLatest { user ->
+            if (user == null) {
+                flowOf(null to false)
+            } else {
+                authRepository.isTokenValid()
+                    .map { isTokenValid -> user to isTokenValid }
+                    .catch { error ->
+                        crashReporter.recordException(error)
+                        emit(user to false)
+                    }
+            }
         }.catch { error ->
             crashReporter.recordException(error)
             handleFailure(error.message ?: "Error getting the user")
@@ -181,8 +189,13 @@ class AuthViewModel(
                 repository.startSync(domainUser.id)
                 purchaseManager.initialize(domainUser.id)
                 repository.getUserById(domainUser.id).map { roomUser ->
-                    purchaseManager.setAdsRemoved(roomUser.hasRemovedAds)
-                    AuthState.Authenticated(roomUser)
+                    val syncedUser = roomUser.withAuthProviderProfile(domainUser)
+                    if (syncedUser != roomUser) {
+                        repository.updateUser(syncedUser)
+                            .onFailure { error -> crashReporter.recordException(error) }
+                    }
+                    purchaseManager.setAdsRemoved(syncedUser.hasRemovedAds)
+                    AuthState.Authenticated(syncedUser)
                 }
             } else {
                 repository.stopSync()
@@ -267,6 +280,7 @@ class AuthViewModel(
     }
 
     fun googleSignIn() = viewModelScope.launch {
+        _authState.update { AuthState.Loading }
         try {
             val tokens = googleSignInClient.signIn() ?: run {
                 handleFailure("Google sign-in cancelled or no credential available")
@@ -301,6 +315,7 @@ class AuthViewModel(
     }
 
     fun appleSignIn() = viewModelScope.launch {
+        _authState.update { AuthState.Loading }
         try {
             val user = appleSignInClient.signIn() ?: run {
                 handleFailure("Apple sign-in cancelled or no credential available")
@@ -494,8 +509,18 @@ class AuthViewModel(
         _shouldPromptForUsername.update { false }
     }
 
+    private fun User.withAuthProviderProfile(authUser: User): User {
+        val authEmail = authUser.email.takeIf { it.isNotBlank() && it != EMAIL_NOT_FOUND }
+        val authPhotoUrl = authUser.photoUrl.takeIf { it.isNotBlank() }
+        return copy(
+            email = authEmail ?: email,
+            photoUrl = authPhotoUrl ?: photoUrl,
+        )
+    }
+
     private companion object {
         const val USERNAME_CHECK_DEBOUNCE_MS = 500L
+        const val EMAIL_NOT_FOUND = "email not found"
 
         // GitLive returns provider ID strings (not enum) from FirebaseUser.providerData.
         const val GOOGLE_PROVIDER_ID = "google.com"

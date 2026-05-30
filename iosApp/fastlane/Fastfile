@@ -34,6 +34,8 @@ SCHEME       = "iosApp"
 BUNDLE_ID    = "com.apptolast.familyfilmapp"
 METADATA_PATH = File.join(IOS_APP_DIR, "fastlane/metadata")
 SCREENSHOTS_PATH = File.join(IOS_APP_DIR, "fastlane/screenshots")
+APPSTORE_PROFILE_NAME = "match AppStore #{BUNDLE_ID}"
+APPSTORE_SIGNING_XCARGS = "PROVISIONING_PROFILE_SPECIFIER='#{APPSTORE_PROFILE_NAME}'"
 
 # Reused build settings — Release configuration matches the Xcode scheme's
 # Archive action so TestFlight + App Store both ship the optimised framework.
@@ -139,6 +141,12 @@ platform :ios do
       scheme: SCHEME,
       configuration: RELEASE_CONFIG,
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => APPSTORE_PROFILE_NAME
+        }
+      },
+      xcargs: APPSTORE_SIGNING_XCARGS,
       # Skip dSYM upload here; release_from_tag handles it after Crashlytics
       # has the matching versionCode mapped.
       include_bitcode: false,
@@ -184,6 +192,12 @@ platform :ios do
       scheme: SCHEME,
       configuration: RELEASE_CONFIG,
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => APPSTORE_PROFILE_NAME
+        }
+      },
+      xcargs: APPSTORE_SIGNING_XCARGS,
       include_bitcode: false,
       include_symbols: true,
       clean: true
@@ -261,6 +275,12 @@ platform :ios do
       scheme: SCHEME,
       configuration: RELEASE_CONFIG,
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => APPSTORE_PROFILE_NAME
+        }
+      },
+      xcargs: APPSTORE_SIGNING_XCARGS,
       include_bitcode: false,
       include_symbols: true,
       clean: true

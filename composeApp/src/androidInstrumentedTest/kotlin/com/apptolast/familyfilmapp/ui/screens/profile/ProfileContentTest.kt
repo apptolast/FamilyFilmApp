@@ -1,12 +1,12 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DELETE_ACCOUNT_CONFIRM
@@ -25,7 +25,7 @@ import org.junit.Test
 class ProfileContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     private val testUser = User(
         id = "u1",

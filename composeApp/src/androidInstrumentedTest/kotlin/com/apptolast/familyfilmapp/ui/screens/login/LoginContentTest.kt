@@ -1,11 +1,11 @@
 package com.apptolast.familyfilmapp.ui.screens.login
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.filters.MediumTest
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
@@ -24,7 +24,7 @@ import org.junit.Test
 class LoginContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     @Test
     fun loginContent_displaysEmailField() {

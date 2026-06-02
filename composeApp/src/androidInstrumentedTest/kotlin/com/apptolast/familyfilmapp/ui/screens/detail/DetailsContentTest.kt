@@ -1,12 +1,12 @@
 package com.apptolast.familyfilmapp.ui.screens.detail
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DETAIL_BACK_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DETAIL_OVERVIEW
@@ -22,7 +22,7 @@ import org.junit.Test
 class DetailsContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     private val baseState = DetailUiState().copy(
         // overview must be non-empty: assertIsDisplayed() fails on Text nodes

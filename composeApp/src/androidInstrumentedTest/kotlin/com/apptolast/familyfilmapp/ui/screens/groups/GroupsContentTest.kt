@@ -1,12 +1,12 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
@@ -19,7 +19,7 @@ import org.junit.Test
 class GroupsContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     private val testGroup = Group(
         id = "g1",

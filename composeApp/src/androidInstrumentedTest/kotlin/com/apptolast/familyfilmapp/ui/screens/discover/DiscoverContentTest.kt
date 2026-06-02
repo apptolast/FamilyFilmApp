@@ -1,11 +1,11 @@
 package com.apptolast.familyfilmapp.ui.screens.discover
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
 import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_EMPTY
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
@@ -20,7 +20,7 @@ import org.junit.Test
 class DiscoverContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     @Test
     fun discoverContent_emptyState_displaysEmptyTag() {

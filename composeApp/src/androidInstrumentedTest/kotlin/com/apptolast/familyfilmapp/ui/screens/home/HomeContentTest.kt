@@ -1,7 +1,6 @@
 package com.apptolast.familyfilmapp.ui.screens.home
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -10,6 +9,7 @@ import app.cash.paging.PagingData
 import app.cash.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
+import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_HOME_MOVIE_ITEM
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
@@ -22,7 +22,7 @@ import org.junit.Test
 class HomeContentTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createFamilyFilmComposeRule()
 
     @Test
     fun homeContent_displaysSearchField() {

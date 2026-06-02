@@ -750,3 +750,4 @@ obj/
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,androidstudio,android,xcode,git,java,kotlin,nextjs,reactnative,react,windows,macos,linux,firebase,cocoapods,swift,swiftpackagemanager
 /.kotlin/sessions/
 *.klib
+.hotswan/

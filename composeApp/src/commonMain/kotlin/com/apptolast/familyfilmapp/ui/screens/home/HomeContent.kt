@@ -45,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import app.cash.paging.LoadState
 import app.cash.paging.LoadStateError
 import app.cash.paging.LoadStateLoading
+import app.cash.paging.PagingData
 import app.cash.paging.compose.LazyPagingItems
+import app.cash.paging.compose.collectAsLazyPagingItems
 import com.apptolast.familyfilmapp.ads.NativeAdHandle
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
@@ -56,6 +58,7 @@ import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_FIELD
 import com.apptolast.familyfilmapp.utils.TT_HOME_SEARCH_TEXT_LABEL
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.search_film_or_series
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -274,12 +277,19 @@ private fun LoadStateContent(mediaItems: LazyPagingItems<Media>, triggerError: (
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun PreviewHomeContent() {
+    val media = listOf(
+        Media(title = "Movie 1", posterPath = ""),
+        Media(title = "Movie 2", posterPath = ""),
+        Media(title = "Movie 3", posterPath = ""),
+    )
+    val mediaItems = flowOf(PagingData.from(media)).collectAsLazyPagingItems()
+
     FamilyFilmAppTheme {
-        // PagingData preview requires runtime; preview without pager.
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text("Home preview")
-        }
+        HomeContent(
+            stateUI = HomeUiState(),
+            mediaItems = mediaItems,
+        )
     }
 }

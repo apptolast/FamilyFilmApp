@@ -8,6 +8,8 @@ import com.apptolast.familyfilmapp.ads.GoogleMobileAdsConsentManager
 import com.apptolast.familyfilmapp.ads.NativeAdManager
 import com.apptolast.familyfilmapp.analytics.AnalyticsTracker
 import com.apptolast.familyfilmapp.di.initKoin
+import com.apptolast.familyfilmapp.firebase.AndroidFcmTokenRegistrar
+import com.apptolast.familyfilmapp.firebase.AndroidNotificationChannels
 import com.apptolast.familyfilmapp.firebase.installAppCheckProvider
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.google.android.gms.ads.MobileAds
@@ -47,6 +49,8 @@ class FamilyFilmApp :
         val isDebug = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
         Firebase.crashlytics.setCrashlyticsCollectionEnabled(!isDebug)
         installAppCheckProvider(debug = isDebug)
+        AndroidNotificationChannels.create(this)
+        AndroidFcmTokenRegistrar.refreshToken(this)
         registerActivityLifecycleCallbacks(this)
 
         applicationScope.launch {

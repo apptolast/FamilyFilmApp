@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Fliksy</string>
+    <string name="fcm_default_notification_channel_id" translatable="false">familyfilm_general</string>
+    <string name="fcm_general_channel_name">Fliksy updates</string>
+    <string name="fcm_general_channel_description">Movie, series, and group activity updates.</string>
+    <string name="fcm_fallback_notification_title">Fliksy</string>
 </resources>

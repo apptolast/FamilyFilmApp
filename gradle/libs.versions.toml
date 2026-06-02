@@ -7,9 +7,9 @@ composeMultiplatform = "1.11.0"
 material3 = "1.11.0-alpha07"
 
 # SDKs
-android-compileSdk = "36"
+android-compileSdk = "37"
 android-minSdk = "26"
-android-targetSdk = "36"
+android-targetSdk = "37"
 ios-deploymentTarget = "16.0"
 
 # JetBrains/AndroidX libs in commonMain
@@ -42,7 +42,7 @@ coil = "3.4.0"
 
 # Firebase
 firebase-gitlive = "2.4.0"
-firebase-bom-android = "34.13.0"
+firebase-bom-android = "34.14.0"
 google-services-plugin = "4.4.4"
 firebase-crashlytics-plugin = "3.0.7"
 
@@ -55,7 +55,7 @@ googleid = "1.2.0"
 # Monetization (Android-only Android side; iOS via SPM)
 play-services-ads = "25.3.0"
 user-messaging-platform = "4.0.0"
-revenuecat = "10.6.0"
+revenuecat = "10.7.0"
 play-review-ktx = "2.0.2"
 
 # Paging (multiplatform — cashapp port; uses app.cash.paging namespace)
@@ -164,6 +164,7 @@ firebase-gitlive-crashlytics = { module = "dev.gitlive:firebase-crashlytics", ve
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom-android" }
 firebase-appcheck-playintegrity = { module = "com.google.firebase:firebase-appcheck-playintegrity" }
 firebase-appcheck-debug = { module = "com.google.firebase:firebase-appcheck-debug" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 
 # Google credentials (Android-only Sign-In)
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }

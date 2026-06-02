@@ -3,11 +3,14 @@ import ComposeApp
 import AppTrackingTransparency
 import FirebaseCore
 import FirebaseAppCheck
+import FirebaseAnalytics
 import FirebaseCrashlytics
+import FirebaseMessaging
 import GoogleMobileAds
 import GoogleSignIn
 import RevenueCat
 import UserMessagingPlatform
+import UserNotifications
 
 final class FamilyFilmAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
@@ -47,8 +50,80 @@ enum AppDiagnostics {
     }
 }
 
+final class FamilyFilmAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        Messaging.messaging().apnsToken = deviceToken
+        AppDiagnostics.log("APNs device token registered")
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        AppDiagnostics.record(error, context: "APNs registration failed")
+    }
+}
+
+final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDelegate, MessagingDelegate {
+    static let shared = PushNotificationCoordinator()
+
+    private override init() {
+    }
+
+    func configure(application: UIApplication = .shared) {
+        UNUserNotificationCenter.current().delegate = self
+        Messaging.messaging().delegate = self
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if let error {
+                AppDiagnostics.record(error, context: "Notification authorization failed")
+            }
+            AppDiagnostics.set(granted, forKey: "notifications_authorized")
+            AppDiagnostics.log("Notification authorization completed")
+
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
+            }
+        }
+    }
+
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        guard let fcmToken, !fcmToken.isEmpty else {
+            AppDiagnostics.set(false, forKey: "fcm_token_present")
+            AppDiagnostics.log("FCM registration token unavailable")
+            return
+        }
+
+        UserDefaults.standard.set(fcmToken, forKey: "fcm_registration_token")
+        AppDiagnostics.set(true, forKey: "fcm_token_present")
+        AppDiagnostics.log("FCM registration token refreshed")
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound, .badge])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        AppDiagnostics.log("Push notification opened")
+        completionHandler()
+    }
+}
+
 @main
 struct iOSApp: App {
+    @UIApplicationDelegateAdaptor(FamilyFilmAppDelegate.self) private var appDelegate
+
     init() {
         // App Check must be configured before FirebaseApp.configure() so the
         // first Firestore/Auth/Functions calls carry a valid attestation token.
@@ -59,6 +134,8 @@ struct iOSApp: App {
         #endif
 
         FirebaseApp.configure()
+        Analytics.setAnalyticsCollectionEnabled(true)
+        PushNotificationCoordinator.shared.configure()
         AppDiagnostics.log("iOS app launched")
 
         // Install the GIDSignIn bridge so IosGoogleSignInClient can drive the

@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Provider
+import com.apptolast.familyfilmapp.model.local.visibleTo
 import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import familyfilmkmp.composeapp.generated.resources.Res
@@ -41,8 +42,12 @@ fun ProvidersContent(
     buyProviders: List<Provider> = emptyList(),
     rentProviders: List<Provider> = emptyList(),
 ) {
+    val visibleStreamProviders = streamProviders.visibleTo()
+    val visibleBuyProviders = buyProviders.visibleTo()
+    val visibleRentProviders = rentProviders.visibleTo()
+
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (streamProviders.isNotEmpty()) {
+        if (visibleStreamProviders.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(Res.string.provider_available_stream),
@@ -51,10 +56,10 @@ fun ProvidersContent(
                 ),
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-            ProvidersRow(providers = streamProviders)
+            ProvidersRow(providers = visibleStreamProviders)
         }
 
-        if (buyProviders.isNotEmpty()) {
+        if (visibleBuyProviders.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(Res.string.provider_available_buy),
@@ -63,10 +68,10 @@ fun ProvidersContent(
                 ),
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-            ProvidersRow(providers = buyProviders)
+            ProvidersRow(providers = visibleBuyProviders)
         }
 
-        if (rentProviders.isNotEmpty()) {
+        if (visibleRentProviders.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(Res.string.provider_available_rent),
@@ -75,7 +80,7 @@ fun ProvidersContent(
                 ),
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-            ProvidersRow(providers = rentProviders)
+            ProvidersRow(providers = visibleRentProviders)
         }
     }
 }

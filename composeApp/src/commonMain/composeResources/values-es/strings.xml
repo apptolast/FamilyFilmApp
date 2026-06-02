@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Family Film</string>
+    <string name="app_name">Fliksy</string>
 
     <!-- LOGIN-->
     <string name="login_snail_logo">Logo de Caracol</string>

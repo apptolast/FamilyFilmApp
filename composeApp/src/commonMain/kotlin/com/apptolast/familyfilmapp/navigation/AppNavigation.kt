@@ -39,10 +39,10 @@ import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import familyfilmkmp.composeapp.generated.resources.Res
+import familyfilmkmp.composeapp.generated.resources.app_name
 import familyfilmkmp.composeapp.generated.resources.screen_title_chat
 import familyfilmkmp.composeapp.generated.resources.screen_title_discover
 import familyfilmkmp.composeapp.generated.resources.screen_title_groups
-import familyfilmkmp.composeapp.generated.resources.screen_title_home
 import familyfilmkmp.composeapp.generated.resources.screen_title_profile
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -66,7 +66,7 @@ fun AppNavigation() {
 
     val mainTabRoute = currentDestination?.let { destination ->
         when {
-            destination.hasRoute(Routes.Home::class) -> Res.string.screen_title_home
+            destination.hasRoute(Routes.Home::class) -> Res.string.app_name
             destination.hasRoute(Routes.Discover::class) -> Res.string.screen_title_discover
             destination.hasRoute(Routes.Chat::class) -> Res.string.screen_title_chat
             destination.hasRoute(Routes.Groups::class) -> Res.string.screen_title_groups

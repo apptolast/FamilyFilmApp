@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.model.local
 
 import com.apptolast.familyfilmapp.model.local.types.MediaType
+import com.apptolast.familyfilmapp.model.remote.tmdbResponse.ProviderRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMovieRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbMultiSearchResultRemote
 import com.apptolast.familyfilmapp.model.remote.tmdbResponse.TmdbTvShowRemote
@@ -46,27 +47,9 @@ fun TmdbMovieRemote.toDomain(countryCode: String): Media = Media(
     title = title ?: "",
     popularity = popularity ?: 0f,
     voteAverage = voteAverage ?: 0f,
-    streamProviders = providers?.results?.get(countryCode)?.stream?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
-    buyProviders = providers?.results?.get(countryCode)?.buy?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
-    rentProviders = providers?.results?.get(countryCode)?.rent?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
+    streamProviders = providers?.results?.get(countryCode)?.stream.toDomainProviders(),
+    buyProviders = providers?.results?.get(countryCode)?.buy.toDomainProviders(),
+    rentProviders = providers?.results?.get(countryCode)?.rent.toDomainProviders(),
     overview = overview ?: "",
     releaseDate = releaseDate ?: "",
     posterPath = posterPath ?: "",
@@ -79,27 +62,9 @@ fun TmdbTvShowRemote.toDomain(countryCode: String): Media = Media(
     title = name ?: "",
     popularity = popularity ?: 0f,
     voteAverage = voteAverage ?: 0f,
-    streamProviders = providers?.results?.get(countryCode)?.stream?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
-    buyProviders = providers?.results?.get(countryCode)?.buy?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
-    rentProviders = providers?.results?.get(countryCode)?.rent?.map { provider ->
-        Provider(
-            providerId = provider.providerId,
-            name = provider.providerName,
-            logoPath = provider.logoPath,
-        )
-    } ?: emptyList(),
+    streamProviders = providers?.results?.get(countryCode)?.stream.toDomainProviders(),
+    buyProviders = providers?.results?.get(countryCode)?.buy.toDomainProviders(),
+    rentProviders = providers?.results?.get(countryCode)?.rent.toDomainProviders(),
     overview = overview ?: "",
     releaseDate = firstAirDate ?: "",
     posterPath = posterPath ?: "",
@@ -126,3 +91,13 @@ fun TmdbMultiSearchResultRemote.toDomain(): Media? {
         mediaType = type,
     )
 }
+
+private fun List<ProviderRemote>?.toDomainProviders(): List<Provider> = orEmpty()
+    .map { provider ->
+        Provider(
+            providerId = provider.providerId,
+            name = provider.providerName,
+            logoPath = provider.logoPath,
+        )
+    }
+    .visibleTo()

@@ -25,6 +25,10 @@
 	<string>507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2.apps.googleusercontent.com</string>
 	<key>RevenueCatAppStoreKey</key>
 	<string>appl_wIIdndFpjJSsydBPOqgBkTvmxlQ</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

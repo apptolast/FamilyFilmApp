@@ -121,6 +121,7 @@ kotlin {
             // Compose tooling preview (Android only — used by @Preview rendering)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.core.ktx)
 
             // Coroutines Android dispatcher
             implementation(libs.kotlinx.coroutines.android)
@@ -134,6 +135,7 @@ kotlin {
             // Native Firebase Android (App Check provider factories — not in GitLive)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.appcheck.playintegrity)
+            implementation(libs.firebase.messaging)
             // App Check Debug is debug-only; declared below since androidMain.dependencies has no debugImplementation.
 
             // Google Sign-In (Credential Manager)
@@ -184,7 +186,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         // Release builds via Fastlane override these with -PappVersionCode/-PappVersionName.
-        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 30
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 31
         versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.0"
 
         vectorDrawables.useSupportLibrary = true

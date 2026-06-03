@@ -59,6 +59,9 @@ class RoomDatasourceImpl(
     override suspend fun deleteMovieStatusesByGroup(groupId: String) = groupMovieStatusDao.deleteByGroup(groupId)
     override suspend fun deleteAllMovieStatuses() = groupMovieStatusDao.deleteAll()
 
+    override suspend fun reconcileMovieStatusesForGroup(groupId: String, entries: List<GroupMovieStatusTable>) =
+        groupMovieStatusDao.reconcileGroup(groupId, entries)
+
     // Skipped Media
     override suspend fun insertSkippedMedia(entry: SkippedMediaTable) = skippedMediaDao.insert(entry)
     override fun observeSkippedMedia(userId: String): Flow<List<SkippedMediaTable>> =
@@ -115,6 +118,9 @@ interface RoomDatasource {
     suspend fun getAllMarkedMediaKeysForUser(userId: String): List<MediaKey>
     suspend fun deleteMovieStatusesByGroup(groupId: String)
     suspend fun deleteAllMovieStatuses()
+
+    /** Atomically make the local rows for [groupId] match [entries] exactly (replace-all). */
+    suspend fun reconcileMovieStatusesForGroup(groupId: String, entries: List<GroupMovieStatusTable>)
 
     // Skipped Media
     suspend fun insertSkippedMedia(entry: SkippedMediaTable)

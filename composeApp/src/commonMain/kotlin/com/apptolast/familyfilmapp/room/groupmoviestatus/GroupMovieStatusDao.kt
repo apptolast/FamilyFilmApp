@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.apptolast.familyfilmapp.model.local.MediaKey
 import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUP_MOVIE_STATUS_TABLE_NAME
@@ -42,4 +43,16 @@ interface GroupMovieStatusDao {
 
     @Query("DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME")
     suspend fun deleteAll()
+
+    /**
+     * Atomically replace all status rows for [groupId] with [entries].
+     * Wrapped in a transaction so the getStatusesByGroup Flow never observes the empty
+     * intermediate state and a failed/cancelled insert rolls back the delete.
+     * Caller guarantees every entry.groupId == groupId.
+     */
+    @Transaction
+    suspend fun reconcileGroup(groupId: String, entries: List<GroupMovieStatusTable>) {
+        deleteByGroup(groupId)
+        if (entries.isNotEmpty()) insertAll(entries)
+    }
 }

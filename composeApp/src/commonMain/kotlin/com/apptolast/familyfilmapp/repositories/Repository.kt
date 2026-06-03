@@ -453,28 +453,46 @@ class RepositoryImpl(
         }
 
         groups.forEach { group ->
-            if (movieStatusSyncJobs[group.id] != null) return@forEach
-            movieStatusSyncJobs[group.id] = coroutineScope.launch {
-                try {
-                    firebaseDatabaseDatasource.observeMovieStatusesForGroup(group.id).collectLatest { remoteStatuses ->
-                        roomDatasource.deleteMovieStatusesByGroup(group.id)
-                        if (remoteStatuses.isNotEmpty()) {
-                            roomDatasource.insertAllMovieStatuses(
-                                remoteStatuses.map { it.toGroupMediaStatusTable() },
-                            )
-                        }
+            if (movieStatusSyncJobs[group.id] == null) {
+                movieStatusSyncJobs[group.id] = coroutineScope.launch {
+                    try {
+                        firebaseDatabaseDatasource.observeMovieStatusesForGroup(group.id)
+                            .collectLatest { remoteStatuses ->
+                                // Atomic replace-all: never leaves Room momentarily empty, and an
+                                // empty server snapshot legitimately clears the group (cache-only
+                                // snapshots are filtered upstream so they can't wipe it).
+                                roomDatasource.reconcileMovieStatusesForGroup(
+                                    group.id,
+                                    remoteStatuses.map { it.toGroupMediaStatusTable() },
+                                )
+                            }
+                    } catch (e: CancellationException) {
+                        // Job cancelled because the group left the active set (e.g. user removed
+                        // from it). Expected cleanup — must not be reported as a sync error.
+                        throw e
+                    } catch (e: Throwable) {
+                        crashReporter.recordException(e)
+                        _syncState.value = SyncState.Error(
+                            message = e.message ?: "Unknown sync error",
+                            throwable = e,
+                        )
                     }
-                } catch (e: CancellationException) {
-                    // Job cancelled because the group left the active set (e.g. user removed
-                    // from it). Expected cleanup — must not be reported as a sync error.
-                    throw e
-                } catch (e: Throwable) {
-                    crashReporter.recordException(e)
-                    _syncState.value = SyncState.Error(
-                        message = e.message ?: "Unknown sync error",
-                        throwable = e,
-                    )
                 }
+            }
+
+            // Self-heal: a transient differential deleteGroup (FK CASCADE) can wipe a group's rows
+            // while its long-lived listener — which only re-emits on Firestore changes — stays
+            // silent. Force a one-shot server reconcile per emission so Room is always refilled.
+            try {
+                roomDatasource.reconcileMovieStatusesForGroup(
+                    group.id,
+                    firebaseDatabaseDatasource.getMovieStatusesForGroupOnce(group.id)
+                        .map { it.toGroupMediaStatusTable() },
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                crashReporter.recordException(e)
             }
         }
     }

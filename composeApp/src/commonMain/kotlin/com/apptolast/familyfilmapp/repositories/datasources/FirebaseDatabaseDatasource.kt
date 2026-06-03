@@ -16,6 +16,7 @@ import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.firestore.where
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
@@ -223,9 +224,15 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
     }
 
     override fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>> =
-        movieStatusesCollection(groupId).snapshots.map { snap ->
-            snap.documents.mapNotNull { it.toGroupMediaStatusOrNull(groupId) }
-        }
+        movieStatusesCollection(groupId).snapshots
+            // The first emission after attaching a listener is usually a local-cache snapshot
+            // (often empty before the server round-trip). Acting on it is what wipes Room, so
+            // ignore cache-only snapshots; the server snapshot follows and drives the reconcile.
+            .filterNot { it.metadata.isFromCache }
+            .map { snap -> snap.documents.mapNotNull { it.toGroupMediaStatusOrNull(groupId) } }
+
+    override suspend fun getMovieStatusesForGroupOnce(groupId: String): List<GroupMediaStatus> =
+        movieStatusesCollection(groupId).get().documents.mapNotNull { it.toGroupMediaStatusOrNull(groupId) }
 
     override suspend fun backfillUserMovieStatusesIntoGroup(userId: String, targetGroupId: String) {
         val existingTargetStatuses = movieStatusesCollection(targetGroupId)
@@ -424,6 +431,9 @@ interface FirebaseDatabaseDatasource {
     )
     suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int)
     fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>>
+
+    /** One-shot server read of a group's statuses, used to self-heal Room after a transient wipe. */
+    suspend fun getMovieStatusesForGroupOnce(groupId: String): List<GroupMediaStatus>
     suspend fun backfillUserMovieStatusesIntoGroup(userId: String, targetGroupId: String)
     suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>)
 }

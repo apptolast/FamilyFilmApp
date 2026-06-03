@@ -7,17 +7,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,14 +41,17 @@ import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_TOPBAR_ACTION
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.app_name
+import familyfilmkmp.composeapp.generated.resources.discover_skipped_action
 import familyfilmkmp.composeapp.generated.resources.screen_title_chat
 import familyfilmkmp.composeapp.generated.resources.screen_title_discover
 import familyfilmkmp.composeapp.generated.resources.screen_title_groups
@@ -61,6 +73,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
+    var onDiscoverSkippedClick by remember { mutableStateOf<(() -> Unit)?>(null) }
 
     TrackScreenViews(navController = navController, tracker = analyticsTracker)
 
@@ -75,6 +88,7 @@ fun AppNavigation() {
         }
     }
     val showChrome = authState is AuthState.Authenticated && mainTabRoute != null
+    val isDiscoverRoute = currentDestination?.hasRoute(Routes.Discover::class) == true
 
     LaunchedEffect(authState, currentDestination) {
         val destination = currentDestination ?: return@LaunchedEffect
@@ -110,6 +124,20 @@ fun AppNavigation() {
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
+                    actions = {
+                        if (isDiscoverRoute) {
+                            IconButton(
+                                onClick = { onDiscoverSkippedClick?.invoke() },
+                                enabled = onDiscoverSkippedClick != null,
+                                modifier = Modifier.testTag(TT_DISCOVER_SKIPPED_TOPBAR_ACTION),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Restore,
+                                    contentDescription = stringResource(Res.string.discover_skipped_action),
+                                )
+                            }
+                        }
+                    },
                 )
             }
         },
@@ -141,10 +169,16 @@ fun AppNavigation() {
                 )
             }
             composable<Routes.Discover> {
+                val discoverViewModel: DiscoverViewModel = koinViewModel()
+                DisposableEffect(discoverViewModel) {
+                    onDiscoverSkippedClick = discoverViewModel::showSkippedSheet
+                    onDispose { onDiscoverSkippedClick = null }
+                }
                 DiscoverScreen(
                     onMediaSelected = { mediaId, mediaType ->
                         navController.navigate(Routes.Details(mediaId, mediaType.name))
                     },
+                    viewModel = discoverViewModel,
                 )
             }
             composable<Routes.Chat> { ChatScreen() }

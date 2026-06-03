@@ -1,10 +1,13 @@
 package com.apptolast.familyfilmapp.repositories.datasources
 
+import com.apptolast.familyfilmapp.model.local.MediaKey
 import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
+import com.apptolast.familyfilmapp.model.room.SkippedMediaTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
+import com.apptolast.familyfilmapp.room.skippedmedia.SkippedMediaDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +15,7 @@ class RoomDatasourceImpl(
     private val groupDao: GroupDao,
     private val userDao: UserDao,
     private val groupMovieStatusDao: GroupMovieStatusDao,
+    private val skippedMediaDao: SkippedMediaDao,
 ) : RoomDatasource {
 
     // Groups
@@ -49,13 +53,30 @@ class RoomDatasourceImpl(
     override fun getMovieStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>> =
         groupMovieStatusDao.getStatusesByUser(userId)
 
-    override suspend fun getAllMovieIdsForUser(userId: String): List<Int> =
-        groupMovieStatusDao.getAllMovieIdsForUser(userId)
+    override suspend fun getAllMarkedMediaKeysForUser(userId: String): List<MediaKey> =
+        groupMovieStatusDao.getAllMediaKeysForUser(userId)
 
     override suspend fun deleteMovieStatusesByGroup(groupId: String) = groupMovieStatusDao.deleteByGroup(groupId)
     override suspend fun deleteAllMovieStatuses() = groupMovieStatusDao.deleteAll()
 
+    // Skipped Media
+    override suspend fun insertSkippedMedia(entry: SkippedMediaTable) = skippedMediaDao.insert(entry)
+    override fun observeSkippedMedia(userId: String): Flow<List<SkippedMediaTable>> =
+        skippedMediaDao.observeByUser(userId)
+
+    override suspend fun getSkippedMediaKeysForUser(userId: String): List<MediaKey> =
+        skippedMediaDao.getKeysByUser(userId)
+
+    override suspend fun getSkippedMedia(userId: String, mediaKey: MediaKey): SkippedMediaTable? =
+        skippedMediaDao.getByKey(userId, mediaKey.mediaId, mediaKey.mediaType.name)
+
+    override suspend fun deleteSkippedMedia(userId: String, mediaKey: MediaKey) =
+        skippedMediaDao.deleteByKey(userId, mediaKey.mediaId, mediaKey.mediaType.name)
+
+    override suspend fun deleteAllSkippedMedia() = skippedMediaDao.deleteAll()
+
     override suspend fun clearAllData() {
+        skippedMediaDao.deleteAll()
         groupMovieStatusDao.deleteAll()
         groupDao.deleteAll()
         userDao.deleteAll()
@@ -91,7 +112,15 @@ interface RoomDatasource {
     fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMovieStatusTable>>
     fun getMovieStatusesByGroupAndUser(groupId: String, userId: String): Flow<List<GroupMovieStatusTable>>
     fun getMovieStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>>
-    suspend fun getAllMovieIdsForUser(userId: String): List<Int>
+    suspend fun getAllMarkedMediaKeysForUser(userId: String): List<MediaKey>
     suspend fun deleteMovieStatusesByGroup(groupId: String)
     suspend fun deleteAllMovieStatuses()
+
+    // Skipped Media
+    suspend fun insertSkippedMedia(entry: SkippedMediaTable)
+    fun observeSkippedMedia(userId: String): Flow<List<SkippedMediaTable>>
+    suspend fun getSkippedMediaKeysForUser(userId: String): List<MediaKey>
+    suspend fun getSkippedMedia(userId: String, mediaKey: MediaKey): SkippedMediaTable?
+    suspend fun deleteSkippedMedia(userId: String, mediaKey: MediaKey)
+    suspend fun deleteAllSkippedMedia()
 }

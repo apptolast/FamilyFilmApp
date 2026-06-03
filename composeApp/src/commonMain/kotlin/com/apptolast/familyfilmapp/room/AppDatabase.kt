@@ -12,6 +12,7 @@ import androidx.sqlite.execSQL
 import com.apptolast.familyfilmapp.model.room.ChatMessageTable
 import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.model.room.GroupTable
+import com.apptolast.familyfilmapp.model.room.SkippedMediaTable
 import com.apptolast.familyfilmapp.model.room.UserTable
 import com.apptolast.familyfilmapp.room.chat.ChatMessageDao
 import com.apptolast.familyfilmapp.room.converters.DateConverter
@@ -20,6 +21,7 @@ import com.apptolast.familyfilmapp.room.converters.MediaTypeConverter
 import com.apptolast.familyfilmapp.room.converters.StringListConverter
 import com.apptolast.familyfilmapp.room.group.GroupDao
 import com.apptolast.familyfilmapp.room.groupmoviestatus.GroupMovieStatusDao
+import com.apptolast.familyfilmapp.room.skippedmedia.SkippedMediaDao
 import com.apptolast.familyfilmapp.room.user.UserDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -30,8 +32,9 @@ import kotlinx.coroutines.IO
         GroupTable::class,
         GroupMovieStatusTable::class,
         ChatMessageTable::class,
+        SkippedMediaTable::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = true,
 )
 @TypeConverters(
@@ -49,6 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun groupDao(): GroupDao
     abstract fun groupMovieStatusDao(): GroupMovieStatusDao
     abstract fun chatMessageDao(): ChatMessageDao
+    abstract fun skippedMediaDao(): SkippedMediaDao
 
     companion object {
 
@@ -58,6 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
         const val GROUPS_TABLE_NAME = "groups_table"
         const val GROUP_MOVIE_STATUS_TABLE_NAME = "group_movie_status_table"
         const val CHAT_MESSAGES_TABLE_NAME = "chat_messages_table"
+        const val SKIPPED_MEDIA_TABLE_NAME = "skipped_media_table"
 
         // v1 → v2 schemas are identical — intentional no-op.
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -214,6 +219,34 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS $SKIPPED_MEDIA_TABLE_NAME (
+                        userId TEXT NOT NULL,
+                        mediaId INTEGER NOT NULL,
+                        mediaType TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        posterPath TEXT NOT NULL,
+                        overview TEXT NOT NULL,
+                        releaseDate TEXT NOT NULL,
+                        voteAverage REAL NOT NULL,
+                        popularity REAL NOT NULL,
+                        skippedAt INTEGER NOT NULL,
+                        PRIMARY KEY(userId, mediaId, mediaType)
+                    )
+                    """.trimIndent(),
+                )
+                connection.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_${SKIPPED_MEDIA_TABLE_NAME}_userId ON $SKIPPED_MEDIA_TABLE_NAME (userId)",
+                )
+                connection.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_${SKIPPED_MEDIA_TABLE_NAME}_userId_skippedAt ON $SKIPPED_MEDIA_TABLE_NAME (userId, skippedAt)",
+                )
+            }
+        }
     }
 }
 
@@ -234,6 +267,7 @@ fun buildAppDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase = 
         AppDatabase.MIGRATION_7_8,
         AppDatabase.MIGRATION_8_9,
         AppDatabase.MIGRATION_9_10,
+        AppDatabase.MIGRATION_10_11,
     )
     .setDriver(BundledSQLiteDriver())
     .setQueryCoroutineContext(Dispatchers.IO)

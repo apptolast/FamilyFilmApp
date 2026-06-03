@@ -14,6 +14,8 @@ data class DiscoverUiState(
     val groups: List<Group>,
     val selectedGroupIds: Set<String>,
     val selectedFilter: MediaFilter = MediaFilter.ALL,
+    val skippedMedia: List<Media>,
+    val isSkippedSheetVisible: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState {
@@ -25,6 +27,8 @@ data class DiscoverUiState(
         groups = emptyList(),
         selectedGroupIds = emptySet(),
         selectedFilter = MediaFilter.ALL,
+        skippedMedia = emptyList(),
+        isSkippedSheetVisible = false,
         isLoading = false,
         errorMessage = null,
     )

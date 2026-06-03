@@ -32,6 +32,8 @@ import com.apptolast.familyfilmapp.room.buildAppDatabase
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatViewModel
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
+import com.apptolast.familyfilmapp.ui.screens.discover.MediaShuffler
+import com.apptolast.familyfilmapp.ui.screens.discover.RandomMediaShuffler
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel
 import com.apptolast.familyfilmapp.ui.screens.home.HomeViewModel
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileViewModel
@@ -59,6 +61,7 @@ val dataModule = module {
     single { get<AppDatabase>().groupDao() }
     single { get<AppDatabase>().groupMovieStatusDao() }
     single { get<AppDatabase>().chatMessageDao() }
+    single { get<AppDatabase>().skippedMediaDao() }
 
     singleOf(::FirebaseAuthRepositoryImpl) bind FirebaseAuthRepository::class
     singleOf(::GeminiChatService)
@@ -74,6 +77,7 @@ val dataModule = module {
     singleOf(::RecommendedCardStateDatasourceImpl) bind RecommendedCardStateDatasource::class
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
+    singleOf(::RandomMediaShuffler) bind MediaShuffler::class
 }
 
 val presentationModule = module {

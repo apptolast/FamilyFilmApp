@@ -35,6 +35,10 @@ const val TT_DISCOVER_SKIP_BUTTON = "discover_skip_button"
 const val TT_DISCOVER_TO_WATCH_BUTTON = "discover_to_watch_button"
 const val TT_DISCOVER_LOADING = "discover_loading"
 const val TT_DISCOVER_EMPTY = "discover_empty"
+const val TT_DISCOVER_SKIPPED_TOPBAR_ACTION = "discover_skipped_topbar_action"
+const val TT_DISCOVER_SKIPPED_SHEET = "discover_skipped_sheet"
+const val TT_DISCOVER_SKIPPED_EMPTY = "discover_skipped_empty"
+const val TT_DISCOVER_SKIPPED_RESTORE_BUTTON = "discover_skipped_restore_button"
 
 // Detail
 const val TT_DETAIL_POSTER = "detail_poster"

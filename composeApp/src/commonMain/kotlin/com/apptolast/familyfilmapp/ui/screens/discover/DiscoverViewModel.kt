@@ -8,6 +8,8 @@ import com.apptolast.familyfilmapp.exceptions.CustomException
 import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.firebase.CurrentUserIdProvider
 import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.model.local.MediaKey
+import com.apptolast.familyfilmapp.model.local.key
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
@@ -29,6 +31,7 @@ class DiscoverViewModel(
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
     private val currentUserIdProvider: CurrentUserIdProvider,
+    private val mediaShuffler: MediaShuffler,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DiscoverUiState())
@@ -37,11 +40,13 @@ class DiscoverViewModel(
     private val currentUserId: String? get() = currentUserIdProvider.currentUserId()
 
     private var currentPage = 1
-    private var markedMediaIds: Set<Int> = emptySet()
+    private var markedMediaKeys: Set<MediaKey> = emptySet()
+    private var skippedMediaKeys: Set<MediaKey> = emptySet()
 
     init {
         loadUser()
         loadGroups()
+        observeSkippedMedia()
         loadMedia()
         observeAdultContentChanges()
     }
@@ -83,22 +88,25 @@ class DiscoverViewModel(
         }
     }
 
+    private fun observeSkippedMedia() = viewModelScope.launch(dispatcherProvider.io()) {
+        val userId = currentUserId ?: return@launch
+        repository.observeSkippedMedia(userId).collectLatest { skippedMedia ->
+            skippedMediaKeys = skippedMedia.map { it.key }.toSet()
+            _uiState.update { it.copy(skippedMedia = skippedMedia) }
+        }
+    }
+
     private fun loadMedia() = viewModelScope.launch(dispatcherProvider.io()) {
         _uiState.update { it.copy(isLoading = true) }
 
         val userId = currentUserId
         if (userId != null) {
-            markedMediaIds = try {
-                repository.getAllMarkedMovieIdsForUser(userId).toSet()
-            } catch (e: Throwable) {
-                crashReporter.recordException(e)
-                emptySet()
-            }
+            refreshExcludedMediaKeys(userId)
         }
 
         fetchPopularMedia(currentPage)
             .onSuccess { mediaList ->
-                val popularMedia = mediaList.filter { it.id !in markedMediaIds }
+                val popularMedia = mediaList.filteredForDiscover().shuffledForDiscover()
                 _uiState.update {
                     it.copy(
                         mediaList = popularMedia,
@@ -125,6 +133,32 @@ class DiscoverViewModel(
         MediaFilter.TV_SHOWS -> repository.getPopularTvShowsList(page)
     }
 
+    private suspend fun refreshExcludedMediaKeys(userId: String) {
+        markedMediaKeys = try {
+            repository.getAllMarkedMediaKeysForUser(userId).toSet()
+        } catch (e: Throwable) {
+            crashReporter.recordException(e)
+            emptySet()
+        }
+
+        skippedMediaKeys = try {
+            repository.getSkippedMediaKeysForUser(userId).toSet()
+        } catch (e: Throwable) {
+            crashReporter.recordException(e)
+            emptySet()
+        }
+    }
+
+    private fun List<Media>.filteredForDiscover(): List<Media> {
+        val excludedKeys = markedMediaKeys + skippedMediaKeys
+        val loadedKeys = _uiState.value.mediaList.map { it.key }.toSet()
+        return filter { media ->
+            media.key !in excludedKeys && media.key !in loadedKeys
+        }
+    }
+
+    private fun List<Media>.shuffledForDiscover(): List<Media> = mediaShuffler.shuffle(this)
+
     fun toggleGroupSelection(groupId: String) {
         _uiState.update {
             val updated = if (groupId in it.selectedGroupIds) {
@@ -149,7 +183,55 @@ class DiscoverViewModel(
     }
 
     fun skipMedia() {
-        moveToNext()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val currentMedia = _uiState.value.currentMedia ?: return@launch
+            val userId = currentUserId
+            if (userId == null) {
+                triggerError("User not authenticated")
+                return@launch
+            }
+
+            try {
+                repository.skipMedia(userId, currentMedia)
+                skippedMediaKeys = skippedMediaKeys + currentMedia.key
+                moveToNext()
+            } catch (e: Throwable) {
+                crashReporter.recordException(e)
+                triggerError("Error skipping media")
+            }
+        }
+    }
+
+    fun showSkippedSheet() {
+        _uiState.update { it.copy(isSkippedSheetVisible = true) }
+    }
+
+    fun hideSkippedSheet() {
+        _uiState.update { it.copy(isSkippedSheetVisible = false) }
+    }
+
+    fun restoreSkippedMedia(media: Media) = viewModelScope.launch(dispatcherProvider.io()) {
+        val userId = currentUserId
+        if (userId == null) {
+            triggerError("User not authenticated")
+            return@launch
+        }
+
+        try {
+            val restoredMedia = repository.restoreSkippedMedia(userId, media.key) ?: media
+            skippedMediaKeys = skippedMediaKeys - restoredMedia.key
+            _uiState.update { state ->
+                val remainingMedia = state.mediaList.filterNot { it.key == restoredMedia.key }
+                state.copy(
+                    mediaList = listOf(restoredMedia) + remainingMedia,
+                    currentMediaIndex = 0,
+                    skippedMedia = state.skippedMedia.filterNot { it.key == restoredMedia.key },
+                )
+            }
+        } catch (e: Throwable) {
+            crashReporter.recordException(e)
+            triggerError("Error restoring skipped media")
+        }
     }
 
     private fun moveToNext() {
@@ -161,11 +243,10 @@ class DiscoverViewModel(
 
     private fun loadMoreMedia() = viewModelScope.launch(dispatcherProvider.io()) {
         currentPage++
+        currentUserId?.let { userId -> refreshExcludedMediaKeys(userId) }
         fetchPopularMedia(currentPage)
             .onSuccess { mediaList ->
-                val newMedia = mediaList.filter { media ->
-                    media.id !in markedMediaIds && _uiState.value.mediaList.none { it.id == media.id }
-                }
+                val newMedia = mediaList.filteredForDiscover().shuffledForDiscover()
                 _uiState.update { it.copy(mediaList = it.mediaList + newMedia) }
             }
             .onFailure { e -> crashReporter.recordException(e) }
@@ -181,7 +262,7 @@ class DiscoverViewModel(
             }
             repository.updateMovieStatus(selectedGroups, userId, media.id, status, media.mediaType)
                 .onSuccess {
-                    markedMediaIds = markedMediaIds + media.id
+                    markedMediaKeys = markedMediaKeys + media.key
                     logDiscoverStatus(media, status, selectedGroups.size)
                 }
                 .onFailure { e ->

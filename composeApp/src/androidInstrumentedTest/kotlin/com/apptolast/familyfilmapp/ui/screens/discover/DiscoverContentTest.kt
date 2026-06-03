@@ -1,6 +1,7 @@
 package com.apptolast.familyfilmapp.ui.screens.discover
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.filters.MediumTest
@@ -9,6 +10,9 @@ import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_EMPTY
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_EMPTY
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_RESTORE_BUTTON
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_SHEET
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIP_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_TO_WATCH_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_WATCHED_BUTTON
@@ -81,12 +85,51 @@ class DiscoverContentTest {
         assertEquals(true, wanted)
     }
 
+    @Test
+    fun discoverContent_skippedSheetWithItems_displaysSheetAndRestoreButton() {
+        setDiscoverContent(
+            state = DiscoverUiState().copy(
+                skippedMedia = listOf(Media(title = "Skipped", posterPath = "")),
+                isSkippedSheetVisible = true,
+            ),
+        )
+
+        composeTestRule.onNodeWithTag(TT_DISCOVER_SKIPPED_SHEET).assertIsDisplayed()
+        composeTestRule.onAllNodesWithTag(TT_DISCOVER_SKIPPED_RESTORE_BUTTON)[0].assertIsDisplayed()
+    }
+
+    @Test
+    fun discoverContent_skippedSheetEmpty_displaysEmptyState() {
+        setDiscoverContent(
+            state = DiscoverUiState().copy(isSkippedSheetVisible = true),
+        )
+
+        composeTestRule.onNodeWithTag(TT_DISCOVER_SKIPPED_EMPTY).assertIsDisplayed()
+    }
+
+    @Test
+    fun discoverContent_restoreSkippedClick_invokesCallback() {
+        var restored: Media? = null
+        val skipped = Media(title = "Skipped", posterPath = "")
+        setDiscoverContent(
+            state = DiscoverUiState().copy(
+                skippedMedia = listOf(skipped),
+                isSkippedSheetVisible = true,
+            ),
+            onRestoreSkipped = { restored = it },
+        )
+
+        composeTestRule.onAllNodesWithTag(TT_DISCOVER_SKIPPED_RESTORE_BUTTON)[0].performClick()
+        assertEquals(skipped, restored)
+    }
+
     private fun setDiscoverContent(
         state: DiscoverUiState,
         onSkip: () -> Unit = {},
         onWantToWatch: () -> Unit = {},
         onWatched: () -> Unit = {},
         onOpenDetails: (Media) -> Unit = {},
+        onRestoreSkipped: (Media) -> Unit = {},
     ) {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
@@ -96,6 +139,7 @@ class DiscoverContentTest {
                     onWantToWatch = onWantToWatch,
                     onWatched = onWatched,
                     onOpenDetails = onOpenDetails,
+                    onRestoreSkipped = onRestoreSkipped,
                 )
             }
         }

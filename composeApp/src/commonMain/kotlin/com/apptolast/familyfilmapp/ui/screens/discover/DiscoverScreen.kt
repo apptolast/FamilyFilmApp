@@ -21,6 +21,8 @@ fun DiscoverScreen(
         onOpenDetails = { onMediaSelected(it.id, it.mediaType) },
         onFilterSelect = viewModel::setMediaFilter,
         onToggleGroup = viewModel::toggleGroupSelection,
+        onDismissSkipped = viewModel::hideSkippedSheet,
+        onRestoreSkipped = viewModel::restoreSkippedMedia,
         onClearError = viewModel::clearError,
     )
 }

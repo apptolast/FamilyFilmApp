@@ -133,8 +133,8 @@ fun LoginContent(
     onRecoverPassword: (String) -> Unit = {},
     onClearError: () -> Unit = {},
 ) {
-    var email by rememberSaveable(key = initialEmail) { mutableStateOf(initialEmail) }
-    var password by rememberSaveable(key = initialPassword) { mutableStateOf(initialPassword) }
+    var email by rememberSaveable(initialEmail) { mutableStateOf(initialEmail) }
+    var password by rememberSaveable(initialPassword) { mutableStateOf(initialPassword) }
     val snackBarHostState = remember { SnackbarHostState() }
     var showLoginInterface by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }

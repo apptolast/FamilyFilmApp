@@ -4,6 +4,7 @@ import com.apptolast.familyfilmapp.firebase.CrashReporter
 import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.GroupMediaStatus
 import com.apptolast.familyfilmapp.model.local.Media
+import com.apptolast.familyfilmapp.model.local.MediaKey
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.toDomain
@@ -13,6 +14,8 @@ import com.apptolast.familyfilmapp.model.room.toGroup
 import com.apptolast.familyfilmapp.model.room.toGroupMediaStatus
 import com.apptolast.familyfilmapp.model.room.toGroupMediaStatusTable
 import com.apptolast.familyfilmapp.model.room.toGroupTable
+import com.apptolast.familyfilmapp.model.room.toMedia
+import com.apptolast.familyfilmapp.model.room.toSkippedMediaTable
 import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 interface Repository {
     // Media (Movies + TV Shows)
@@ -74,7 +78,13 @@ interface Repository {
     ): Result<Unit>
 
     fun getMovieStatusesByGroup(groupId: String): Flow<List<GroupMediaStatus>>
-    suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int>
+    suspend fun getAllMarkedMediaKeysForUser(userId: String): List<MediaKey>
+
+    // Skipped Media (local only)
+    suspend fun skipMedia(userId: String, media: Media)
+    suspend fun restoreSkippedMedia(userId: String, mediaKey: MediaKey): Media?
+    fun observeSkippedMedia(userId: String): Flow<List<Media>>
+    suspend fun getSkippedMediaKeysForUser(userId: String): List<MediaKey>
 
     // Sync lifecycle
     fun startSync(userId: String)
@@ -294,8 +304,31 @@ class RepositoryImpl(
             tables.map { it.toGroupMediaStatus() }
         }
 
-    override suspend fun getAllMarkedMovieIdsForUser(userId: String): List<Int> =
-        roomDatasource.getAllMovieIdsForUser(userId)
+    override suspend fun getAllMarkedMediaKeysForUser(userId: String): List<MediaKey> =
+        roomDatasource.getAllMarkedMediaKeysForUser(userId)
+
+    // ── Skipped Media ─────────────────────────────────────────────────────
+
+    override suspend fun skipMedia(userId: String, media: Media) {
+        roomDatasource.insertSkippedMedia(
+            media.toSkippedMediaTable(
+                userId = userId,
+                skippedAt = Clock.System.now().toEpochMilliseconds(),
+            ),
+        )
+    }
+
+    override suspend fun restoreSkippedMedia(userId: String, mediaKey: MediaKey): Media? {
+        val skippedMedia = roomDatasource.getSkippedMedia(userId, mediaKey)?.toMedia()
+        roomDatasource.deleteSkippedMedia(userId, mediaKey)
+        return skippedMedia
+    }
+
+    override fun observeSkippedMedia(userId: String): Flow<List<Media>> =
+        roomDatasource.observeSkippedMedia(userId).map { tables -> tables.map { it.toMedia() } }
+
+    override suspend fun getSkippedMediaKeysForUser(userId: String): List<MediaKey> =
+        roomDatasource.getSkippedMediaKeysForUser(userId)
 
     // ── Sync lifecycle ─────────────────────────────────────────────────────
 

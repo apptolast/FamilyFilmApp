@@ -11,13 +11,12 @@ import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
-import com.apptolast.familyfilmapp.utils.DispatcherProvider
+import com.apptolast.familyfilmapp.testing.TestDispatcherProvider
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,14 +34,8 @@ class HomeViewModelTest {
 
     private lateinit var viewModel: HomeViewModel
 
-    private val testDispatcher: CoroutineDispatcher = StandardTestDispatcher()
-
-    private val dispatcherProvider = object : DispatcherProvider {
-        override fun main(): CoroutineDispatcher = testDispatcher
-        override fun default(): CoroutineDispatcher = testDispatcher
-        override fun io(): CoroutineDispatcher = testDispatcher
-        override fun unconfined(): CoroutineDispatcher = testDispatcher
-    }
+    private val testDispatcher = StandardTestDispatcher()
+    private val dispatcherProvider = TestDispatcherProvider(testDispatcher)
 
     private val repository = mock<Repository>(MockMode.autoUnit)
     private val tmdbDatasource = mock<TmdbDatasource>(MockMode.autoUnit)

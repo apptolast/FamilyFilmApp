@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.apptolast.familyfilmapp.model.local.MediaKey
 import com.apptolast.familyfilmapp.model.room.GroupMovieStatusTable
 import com.apptolast.familyfilmapp.room.AppDatabase.Companion.GROUP_MOVIE_STATUS_TABLE_NAME
 import kotlinx.coroutines.flow.Flow
@@ -31,8 +32,10 @@ interface GroupMovieStatusDao {
     @Query("SELECT * FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE userId = :userId")
     fun getStatusesByUser(userId: String): Flow<List<GroupMovieStatusTable>>
 
-    @Query("SELECT DISTINCT movieId FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE userId = :userId")
-    suspend fun getAllMovieIdsForUser(userId: String): List<Int>
+    @Query(
+        "SELECT DISTINCT movieId AS mediaId, mediaType AS mediaType FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE userId = :userId",
+    )
+    suspend fun getAllMediaKeysForUser(userId: String): List<MediaKey>
 
     @Query("DELETE FROM $GROUP_MOVIE_STATUS_TABLE_NAME WHERE groupId = :groupId")
     suspend fun deleteByGroup(groupId: String)

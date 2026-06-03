@@ -73,6 +73,10 @@
     <string name="discover_groups_select">Seleccionar grupos</string>
     <string name="discover_groups_all">Todos los grupos</string>
     <string name="discover_swipe_right">Desliza a la derecha para añadir a tu lista</string>
+    <string name="discover_skipped_action">Elementos omitidos</string>
+    <string name="discover_skipped_title">Elementos omitidos</string>
+    <string name="discover_skipped_empty">Aún no has omitido nada</string>
+    <string name="discover_restore">Restaurar</string>
 
     <!-- PROFILE -->
     <string name="profile_delete_account">Eliminar Cuenta</string>

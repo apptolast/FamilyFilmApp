@@ -12,6 +12,7 @@ const val TT_LOGIN_LOADING = "login_loading"
 const val TT_HOME_SEARCH_TEXT_FIELD = "home_search_text_field"
 const val TT_HOME_SEARCH_TEXT_LABEL = "home_search_text_label"
 const val TT_HOME_MOVIE_ITEM = "home_movie_item"
+const val TT_HOME_PROFILE_TOPBAR_ACTION = "home_profile_topbar_action"
 
 // Groups
 const val TT_GROUPS_TAB = "groups_tab"

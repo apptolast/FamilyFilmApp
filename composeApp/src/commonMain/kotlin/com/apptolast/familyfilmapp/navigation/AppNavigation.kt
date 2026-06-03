@@ -6,9 +6,13 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,13 +30,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.analytics.TrackScreenViews
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
@@ -49,8 +57,10 @@ import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_TOPBAR_ACTION
+import com.apptolast.familyfilmapp.utils.TT_HOME_PROFILE_TOPBAR_ACTION
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.app_name
+import familyfilmkmp.composeapp.generated.resources.back
 import familyfilmkmp.composeapp.generated.resources.discover_skipped_action
 import familyfilmkmp.composeapp.generated.resources.screen_title_chat
 import familyfilmkmp.composeapp.generated.resources.screen_title_discover
@@ -74,10 +84,12 @@ fun AppNavigation() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     var onDiscoverSkippedClick by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val authenticatedUser = (authState as? AuthState.Authenticated)?.user
+    val profilePhotoUrl = authenticatedUser?.photoUrl?.trim().orEmpty()
 
     TrackScreenViews(navController = navController, tracker = analyticsTracker)
 
-    val mainTabRoute = currentDestination?.let { destination ->
+    val topBarTitleRoute = currentDestination?.let { destination ->
         when {
             destination.hasRoute(Routes.Home::class) -> Res.string.app_name
             destination.hasRoute(Routes.Discover::class) -> Res.string.screen_title_discover
@@ -87,8 +99,17 @@ fun AppNavigation() {
             else -> null
         }
     }
-    val showChrome = authState is AuthState.Authenticated && mainTabRoute != null
+    val isMainTabRoute = currentDestination?.let { destination ->
+        destination.hasRoute(Routes.Home::class) ||
+            destination.hasRoute(Routes.Discover::class) ||
+            destination.hasRoute(Routes.Chat::class) ||
+            destination.hasRoute(Routes.Groups::class)
+    } == true
+    val showChrome = authState is AuthState.Authenticated && topBarTitleRoute != null
+    val showBottomNavigation = authState is AuthState.Authenticated && isMainTabRoute
+    val isHomeRoute = currentDestination?.hasRoute(Routes.Home::class) == true
     val isDiscoverRoute = currentDestination?.hasRoute(Routes.Discover::class) == true
+    val isProfileRoute = currentDestination?.hasRoute(Routes.Profile::class) == true
 
     LaunchedEffect(authState, currentDestination) {
         val destination = currentDestination ?: return@LaunchedEffect
@@ -112,8 +133,27 @@ fun AppNavigation() {
     Scaffold(
         topBar = {
             if (showChrome) {
-                val titleRes: StringResource = mainTabRoute
+                val titleRes: StringResource = topBarTitleRoute
                 CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        if (isProfileRoute) {
+                            IconButton(
+                                onClick = {
+                                    if (!navController.navigateUp()) {
+                                        navController.navigate(Routes.Home) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.size(30.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(Res.string.back),
+                                )
+                            }
+                        }
+                    },
                     title = {
                         Text(
                             text = stringResource(titleRes),
@@ -122,19 +162,51 @@ fun AppNavigation() {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                     actions = {
-                        if (isDiscoverRoute) {
-                            IconButton(
-                                onClick = { onDiscoverSkippedClick?.invoke() },
-                                enabled = onDiscoverSkippedClick != null,
-                                modifier = Modifier.testTag(TT_DISCOVER_SKIPPED_TOPBAR_ACTION),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Restore,
-                                    contentDescription = stringResource(Res.string.discover_skipped_action),
-                                )
+                        when {
+                            isHomeRoute -> {
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Routes.Profile) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .testTag(TT_HOME_PROFILE_TOPBAR_ACTION),
+                                ) {
+                                    if (profilePhotoUrl.isNotBlank()) {
+                                        AsyncImage(
+                                            model = profilePhotoUrl,
+                                            contentDescription = stringResource(Res.string.screen_title_profile),
+                                            modifier = Modifier
+                                                .size(48.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.AccountCircle,
+                                            contentDescription = stringResource(Res.string.screen_title_profile),
+                                            modifier = Modifier.size(48.dp),
+                                        )
+                                    }
+                                }
+                            }
+
+                            isDiscoverRoute -> {
+                                IconButton(
+                                    onClick = { onDiscoverSkippedClick?.invoke() },
+                                    enabled = onDiscoverSkippedClick != null,
+                                    modifier = Modifier.testTag(TT_DISCOVER_SKIPPED_TOPBAR_ACTION),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Restore,
+                                        contentDescription = stringResource(Res.string.discover_skipped_action),
+                                    )
+                                }
                             }
                         }
                     },
@@ -142,7 +214,7 @@ fun AppNavigation() {
             }
         },
         bottomBar = {
-            if (showChrome) {
+            if (showBottomNavigation) {
                 Column(modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
                     if (!hasRemovedAds) AdaptiveBanner()
                     BottomNavigationBar(navController = navController)

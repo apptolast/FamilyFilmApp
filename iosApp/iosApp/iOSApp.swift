@@ -100,6 +100,18 @@ final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDeleg
         UserDefaults.standard.set(fcmToken, forKey: "fcm_registration_token")
         AppDiagnostics.set(true, forKey: "fcm_token_present")
         AppDiagnostics.log("FCM registration token refreshed")
+
+        subscribeToReleaseTopic()
+    }
+
+    // Subscribe to a single language-scoped "new releases" topic so the n8n workflow
+    // can fan out localized push notifications. Self-heals on language change by
+    // dropping the other language's topic.
+    private func subscribeToReleaseTopic() {
+        let lang = Locale.current.language.languageCode?.identifier == "es" ? "es" : "en"
+        let other = lang == "es" ? "en" : "es"
+        Messaging.messaging().subscribe(toTopic: "new_releases_\(lang)")
+        Messaging.messaging().unsubscribe(fromTopic: "new_releases_\(other)")
     }
 
     func userNotificationCenter(

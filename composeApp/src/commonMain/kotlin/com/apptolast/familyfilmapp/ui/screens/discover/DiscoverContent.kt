@@ -369,10 +369,7 @@ fun DiscoverContent(
 }
 
 @Composable
-private fun SkippedMediaRow(
-    media: Media,
-    onRestore: () -> Unit,
-) {
+private fun SkippedMediaRow(media: Media, onRestore: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

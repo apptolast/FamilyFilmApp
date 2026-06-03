@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,6 +38,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -272,6 +275,25 @@ fun GroupContent(
                 ScrollableTabRow(
                     selectedTabIndex = safeTabIndex,
                     divider = { VerticalDivider() },
+                    indicator = { tabPositions ->
+                        // Guard against the subcompose/measure race when the tab count
+                        // shrinks (e.g. 2 groups -> 1): the default indicator indexes
+                        // tabPositions[selectedTabIndex] unguarded and would crash.
+                        safeTabIndex.takeIf { it in tabPositions.indices }?.let { index ->
+                            val tab = tabPositions[index]
+                            // Animated offset/width like the deprecated tabIndicatorOffset.
+                            val indicatorWidth by animateDpAsState(tab.width, label = "tabWidth")
+                            val indicatorOffset by animateDpAsState(tab.left, label = "tabOffset")
+                            TabRowDefaults.SecondaryIndicator(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentSize(Alignment.BottomStart)
+                                    .offset(x = indicatorOffset)
+                                    .width(indicatorWidth),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    },
                 ) {
                     groups.forEachIndexed { index, group ->
                         Tab(

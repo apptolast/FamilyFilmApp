@@ -192,12 +192,7 @@ class DiscoverViewModelTest {
         assertEquals(listOf(lastMovie, movie), viewModel.uiState.value.mediaList)
     }
 
-    private fun media(
-        id: Int,
-        title: String,
-        mediaType: MediaType,
-        popularity: Float = id.toFloat(),
-    ): Media = Media(
+    private fun media(id: Int, title: String, mediaType: MediaType, popularity: Float = id.toFloat()): Media = Media(
         id = id,
         title = title,
         adult = false,
@@ -211,5 +206,4 @@ class DiscoverViewModelTest {
         posterPath = "/$id.jpg",
         mediaType = mediaType,
     )
-
 }

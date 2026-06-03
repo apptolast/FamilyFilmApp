@@ -1,7 +1,5 @@
 package com.apptolast.familyfilmapp.ui.screens.profile
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -53,18 +50,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.ui.components.ProfileAvatar
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.screens.profile.components.CountryPickerDialog
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
@@ -87,7 +82,6 @@ import familyfilmkmp.composeapp.generated.resources.chat_premium_upsell_subtitle
 import familyfilmkmp.composeapp.generated.resources.chat_premium_upsell_title
 import familyfilmkmp.composeapp.generated.resources.delete_account
 import familyfilmkmp.composeapp.generated.resources.logout
-import familyfilmkmp.composeapp.generated.resources.profile_avatar
 import familyfilmkmp.composeapp.generated.resources.profile_edit_username
 import familyfilmkmp.composeapp.generated.resources.profile_image_description
 import familyfilmkmp.composeapp.generated.resources.profile_section_user
@@ -112,7 +106,6 @@ import familyfilmkmp.composeapp.generated.resources.username_label
 import familyfilmkmp.composeapp.generated.resources.username_save
 import familyfilmkmp.composeapp.generated.resources.username_taken
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -250,31 +243,13 @@ private fun ProfileBody(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .testTag(TT_PROFILE_AVATAR),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (profilePhotoUrl.isNotBlank()) {
-                AsyncImage(
-                    model = profilePhotoUrl,
-                    contentDescription = stringResource(Res.string.profile_image_description),
-                    placeholder = painterResource(Res.drawable.profile_avatar),
-                    error = painterResource(Res.drawable.profile_avatar),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Image(
-                    painter = painterResource(Res.drawable.profile_avatar),
-                    contentDescription = stringResource(Res.string.profile_image_description),
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
+        ProfileAvatar(
+            photoUrl = profilePhotoUrl,
+            contentDescription = stringResource(Res.string.profile_image_description),
+            modifier = Modifier.testTag(TT_PROFILE_AVATAR),
+            size = 120.dp,
+            borderWidth = 3.dp,
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 

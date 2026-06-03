@@ -16,6 +16,7 @@ import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.firestore.where
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlin.time.Clock
@@ -182,6 +183,10 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
             error("User is already a member of this group")
         }
         updateGroup(group.copy(users = group.users + resolvedUser.id))
+        backfillUserMovieStatusesIntoGroup(
+            userId = resolvedUser.id,
+            targetGroupId = group.id,
+        )
     }
 
     override suspend fun deleteMember(group: Group, user: User) {
@@ -221,6 +226,70 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         movieStatusesCollection(groupId).snapshots.map { snap ->
             snap.documents.mapNotNull { it.toGroupMediaStatusOrNull(groupId) }
         }
+
+    override suspend fun backfillUserMovieStatusesIntoGroup(userId: String, targetGroupId: String) {
+        val existingTargetStatuses = movieStatusesCollection(targetGroupId)
+            .where { "userId" equalTo userId }
+            .get()
+        if (existingTargetStatuses.documents.isNotEmpty()) return
+
+        val statusesByMedia = linkedMapOf<String, GroupMovieStatusFirestoreDto>()
+
+        legacyMovieStatusDtos(userId).forEach { dto ->
+            statusesByMedia[dto.mediaKey] = dto
+        }
+
+        val sourceGroups = try {
+            getMyGroups(userId).first().filterNot { it.id == targetGroupId }
+        } catch (e: Throwable) {
+            crashReporter.recordException(e)
+            emptyList()
+        }
+        sourceGroups.forEach { sourceGroup ->
+            try {
+                val snapshot = movieStatusesCollection(sourceGroup.id)
+                    .where { "userId" equalTo userId }
+                    .get()
+                snapshot.documents.mapNotNull { it.toGroupMovieStatusDtoOrNull() }.forEach { dto ->
+                    statusesByMedia[dto.mediaKey] = dto
+                }
+            } catch (e: Throwable) {
+                crashReporter.recordException(e)
+            }
+        }
+
+        if (statusesByMedia.isEmpty()) return
+
+        statusesByMedia.values.chunked(450).forEach { chunk ->
+            val batch = database.batch()
+            chunk.forEach { dto ->
+                batch.set(
+                    documentRef = movieStatusesCollection(targetGroupId).document(
+                        movieStatusDocId(userId, dto.movieId),
+                    ),
+                    data = dto.copy(userId = userId),
+                )
+            }
+            batch.commit()
+        }
+    }
+
+    private suspend fun legacyMovieStatusDtos(userId: String): List<GroupMovieStatusFirestoreDto> {
+        val userDoc = usersCollection.document(userId).get()
+        if (!userDoc.exists) return emptyList()
+        val statusMoviesRaw: Map<String, String> =
+            userDoc.optional<Map<String, String>>("statusMovies") ?: emptyMap()
+
+        return statusMoviesRaw.mapNotNull { (rawMovieId, status) ->
+            val movieId = rawMovieId.toIntOrNull() ?: return@mapNotNull null
+            GroupMovieStatusFirestoreDto(
+                userId = userId,
+                movieId = movieId,
+                status = status,
+                mediaType = MediaType.MOVIE.name,
+            )
+        }
+    }
 
     // One-shot migration: users/{uid}.statusMovies → groups/{gid}/movieStatuses/{uid_movieId}.
     // Guarded by `movieStatusMigrated` on the user doc so it runs at most once per install.
@@ -307,6 +376,13 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         null
     }
 
+    private fun DocumentSnapshot.toGroupMovieStatusDtoOrNull(): GroupMovieStatusFirestoreDto? = try {
+        if (exists) data<GroupMovieStatusFirestoreDto>() else null
+    } catch (e: Throwable) {
+        crashReporter.recordException(e)
+        null
+    }
+
     private inline fun <reified T> DocumentSnapshot.optional(field: String): T? =
         if (contains(field)) get<T>(field) else null
 
@@ -348,6 +424,7 @@ interface FirebaseDatabaseDatasource {
     )
     suspend fun removeMovieStatus(groupId: String, userId: String, movieId: Int)
     fun observeMovieStatusesForGroup(groupId: String): Flow<List<GroupMediaStatus>>
+    suspend fun backfillUserMovieStatusesIntoGroup(userId: String, targetGroupId: String)
     suspend fun migrateMovieStatusesIfNeeded(userId: String, groups: List<Group>)
 }
 
@@ -406,7 +483,9 @@ private data class GroupMovieStatusFirestoreDto(
     val movieId: Int = 0,
     val status: String = "",
     val mediaType: String = "MOVIE",
-)
+) {
+    val mediaKey: String get() = "$mediaType-$movieId"
+}
 
 @Serializable
 private data class UsernameClaimDto(val userId: String = "")

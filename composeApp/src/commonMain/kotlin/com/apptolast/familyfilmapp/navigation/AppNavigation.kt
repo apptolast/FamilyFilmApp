@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,8 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -40,16 +36,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.analytics.TrackScreenViews
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
 import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
+import com.apptolast.familyfilmapp.ui.components.ProfileAvatar
 import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
 import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupDetailScreen
 import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
 import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
 import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
@@ -110,6 +107,10 @@ fun AppNavigation() {
     val isHomeRoute = currentDestination?.hasRoute(Routes.Home::class) == true
     val isDiscoverRoute = currentDestination?.hasRoute(Routes.Discover::class) == true
     val isProfileRoute = currentDestination?.hasRoute(Routes.Profile::class) == true
+    val isGroupDetailsRoute = currentDestination?.hasRoute(Routes.GroupDetails::class) == true
+    val showBottomBanner = authState is AuthState.Authenticated &&
+        !hasRemovedAds &&
+        (isMainTabRoute || isGroupDetailsRoute)
 
     LaunchedEffect(authState, currentDestination) {
         val destination = currentDestination ?: return@LaunchedEffect
@@ -177,22 +178,11 @@ fun AppNavigation() {
                                         .size(56.dp)
                                         .testTag(TT_HOME_PROFILE_TOPBAR_ACTION),
                                 ) {
-                                    if (profilePhotoUrl.isNotBlank()) {
-                                        AsyncImage(
-                                            model = profilePhotoUrl,
-                                            contentDescription = stringResource(Res.string.screen_title_profile),
-                                            modifier = Modifier
-                                                .size(48.dp)
-                                                .clip(CircleShape),
-                                            contentScale = ContentScale.Crop,
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Outlined.AccountCircle,
-                                            contentDescription = stringResource(Res.string.screen_title_profile),
-                                            modifier = Modifier.size(48.dp),
-                                        )
-                                    }
+                                    ProfileAvatar(
+                                        photoUrl = profilePhotoUrl,
+                                        contentDescription = stringResource(Res.string.screen_title_profile),
+                                        size = 44.dp,
+                                    )
                                 }
                             }
 
@@ -214,10 +204,10 @@ fun AppNavigation() {
             }
         },
         bottomBar = {
-            if (showBottomNavigation) {
+            if (showBottomBanner || showBottomNavigation) {
                 Column(modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
-                    if (!hasRemovedAds) AdaptiveBanner()
-                    BottomNavigationBar(navController = navController)
+                    if (showBottomBanner) AdaptiveBanner()
+                    if (showBottomNavigation) BottomNavigationBar(navController = navController)
                 }
             }
         },
@@ -256,6 +246,16 @@ fun AppNavigation() {
             composable<Routes.Chat> { ChatScreen() }
             composable<Routes.Groups> {
                 GroupsScreen(
+                    onGroupSelected = { groupId ->
+                        navController.navigate(Routes.GroupDetails(groupId))
+                    },
+                )
+            }
+            composable<Routes.GroupDetails> { entry ->
+                val groupDetails: Routes.GroupDetails = entry.toRoute()
+                GroupDetailScreen(
+                    groupId = groupDetails.groupId,
+                    onBack = { navController.navigateUp() },
                     onMediaSelected = { mediaId, mediaType ->
                         navController.navigate(Routes.Details(mediaId, mediaType.name))
                     },

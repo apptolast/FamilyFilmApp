@@ -20,6 +20,9 @@ sealed interface Routes {
     data object Groups : Routes
 
     @Serializable
+    data class GroupDetails(val groupId: String) : Routes
+
+    @Serializable
     data object Profile : Routes
 
     @Serializable

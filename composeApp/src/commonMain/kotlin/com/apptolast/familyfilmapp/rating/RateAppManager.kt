@@ -10,9 +10,9 @@ interface RateAppManager {
 }
 
 class NoOpRateAppManager : RateAppManager {
-    private val _hasRated = MutableStateFlow(false)
-    override val hasRatedApp: StateFlow<Boolean> = _hasRated.asStateFlow()
+    private val _hasRatedApp = MutableStateFlow(false)
+    override val hasRatedApp: StateFlow<Boolean> = _hasRatedApp.asStateFlow()
     override fun markAsRated() {
-        _hasRated.value = true
+        _hasRatedApp.value = true
     }
 }

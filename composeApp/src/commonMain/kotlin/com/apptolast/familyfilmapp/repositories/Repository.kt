@@ -22,11 +22,16 @@ import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -90,6 +95,10 @@ interface Repository {
     fun startSync(userId: String)
     fun stopSync()
     fun getSyncState(): Flow<SyncState>
+
+    /** Emits when a group the user belonged to disappears without the user owning it
+     * (an admin removed them, or the owner deleted the group). One event per removed group. */
+    fun observeRemovedFromGroupEvents(): Flow<Unit>
     suspend fun clearLocalData()
 }
 
@@ -105,7 +114,12 @@ class RepositoryImpl(
 ) : Repository {
 
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Synced)
+    private val removedFromGroupEvents = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
     private var syncJob: Job? = null
+    private val movieStatusSyncJobs = mutableMapOf<String, Job>()
 
     // ── Media ──────────────────────────────────────────────────────────────
 
@@ -334,6 +348,7 @@ class RepositoryImpl(
 
     override fun startSync(userId: String) {
         syncJob?.cancel()
+        stopMovieStatusSyncJobs()
         syncJob = coroutineScope.launch {
             try {
                 _syncState.value = SyncState.Syncing
@@ -350,16 +365,33 @@ class RepositoryImpl(
 
                 // Subscribe to Firestore groups for this user
                 firebaseDatabaseDatasource.getMyGroups(userId).collect { remoteGroups ->
+                    _syncState.value = SyncState.Syncing
+
                     val remoteGroupIds = remoteGroups.map { it.id }.toSet()
+                    val localGroupIds = try {
+                        roomDatasource.getMyGroups(userId).first().map { it.groupId }.toSet()
+                    } catch (e: Throwable) {
+                        crashReporter.recordException(e)
+                        emptySet()
+                    }
 
                     // Differential sync: drop local groups missing remotely
                     try {
-                        val localGroups = roomDatasource.getMyGroups(userId).first()
-                        localGroups.forEach { localGroup ->
-                            if (localGroup.groupId !in remoteGroupIds) {
-                                roomDatasource.deleteGroup(localGroup)
+                        localGroupIds.forEach { localGroupId ->
+                            if (localGroupId !in remoteGroupIds) {
+                                roomDatasource.getGroupById(localGroupId).first()?.let { localGroup ->
+                                    roomDatasource.deleteGroup(localGroup)
+                                    // The group vanished from my list but I don't own it → an admin
+                                    // removed me (or the owner deleted it). Owning it means I deleted
+                                    // it myself, a deliberate action that needs no notification.
+                                    if (localGroup.ownerId != userId) {
+                                        removedFromGroupEvents.tryEmit(Unit)
+                                    }
+                                }
                             }
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Throwable) {
                         crashReporter.recordException(e)
                     }
@@ -380,16 +412,13 @@ class RepositoryImpl(
                         crashReporter.recordException(e)
                     }
 
-                    // Mirror per-group movie statuses into Room
-                    remoteGroups.forEach { group ->
-                        try {
-                            syncMovieStatusesForGroup(group.id)
-                        } catch (e: Throwable) {
-                            crashReporter.recordException(e)
-                        }
-                    }
+                    backfillMissingMemberMovieStatuses(remoteGroups)
+                    syncMovieStatusesForGroups(remoteGroups)
                     _syncState.value = SyncState.Synced
                 }
+            } catch (e: CancellationException) {
+                // Normal shutdown (stopSync / re-startSync) — not an error to surface.
+                throw e
             } catch (e: Throwable) {
                 crashReporter.recordException(e)
                 _syncState.value = SyncState.Error(
@@ -400,23 +429,74 @@ class RepositoryImpl(
         }
     }
 
-    private suspend fun syncMovieStatusesForGroup(groupId: String) {
-        val remoteStatuses = firebaseDatabaseDatasource.observeMovieStatusesForGroup(groupId).first()
-        roomDatasource.deleteMovieStatusesByGroup(groupId)
-        if (remoteStatuses.isNotEmpty()) {
-            roomDatasource.insertAllMovieStatuses(remoteStatuses.map { it.toGroupMediaStatusTable() })
+    private suspend fun backfillMissingMemberMovieStatuses(groups: List<Group>) {
+        groups.forEach { group ->
+            group.users.forEach { memberId ->
+                try {
+                    firebaseDatabaseDatasource.backfillUserMovieStatusesIntoGroup(
+                        userId = memberId,
+                        targetGroupId = group.id,
+                    )
+                } catch (e: Throwable) {
+                    crashReporter.recordException(e)
+                }
+            }
         }
+    }
+
+    private suspend fun syncMovieStatusesForGroups(groups: List<Group>) {
+        val activeGroupIds = groups.map { it.id }.toSet()
+        val removedGroupIds = movieStatusSyncJobs.keys - activeGroupIds
+        removedGroupIds.forEach { groupId ->
+            movieStatusSyncJobs.remove(groupId)?.cancel()
+            roomDatasource.deleteMovieStatusesByGroup(groupId)
+        }
+
+        groups.forEach { group ->
+            if (movieStatusSyncJobs[group.id] != null) return@forEach
+            movieStatusSyncJobs[group.id] = coroutineScope.launch {
+                try {
+                    firebaseDatabaseDatasource.observeMovieStatusesForGroup(group.id).collectLatest { remoteStatuses ->
+                        roomDatasource.deleteMovieStatusesByGroup(group.id)
+                        if (remoteStatuses.isNotEmpty()) {
+                            roomDatasource.insertAllMovieStatuses(
+                                remoteStatuses.map { it.toGroupMediaStatusTable() },
+                            )
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    // Job cancelled because the group left the active set (e.g. user removed
+                    // from it). Expected cleanup — must not be reported as a sync error.
+                    throw e
+                } catch (e: Throwable) {
+                    crashReporter.recordException(e)
+                    _syncState.value = SyncState.Error(
+                        message = e.message ?: "Unknown sync error",
+                        throwable = e,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun stopMovieStatusSyncJobs() {
+        movieStatusSyncJobs.values.forEach { it.cancel() }
+        movieStatusSyncJobs.clear()
     }
 
     override fun stopSync() {
         syncJob?.cancel()
         syncJob = null
+        stopMovieStatusSyncJobs()
         _syncState.value = SyncState.Synced
     }
 
     override suspend fun clearLocalData() {
+        stopMovieStatusSyncJobs()
         roomDatasource.clearAllData()
     }
 
     override fun getSyncState(): Flow<SyncState> = _syncState.asStateFlow()
+
+    override fun observeRemovedFromGroupEvents(): Flow<Unit> = removedFromGroupEvents.asSharedFlow()
 }

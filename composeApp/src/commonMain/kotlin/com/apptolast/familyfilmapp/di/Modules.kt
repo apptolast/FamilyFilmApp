@@ -34,7 +34,8 @@ import com.apptolast.familyfilmapp.ui.screens.detail.DetailsViewModel
 import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
 import com.apptolast.familyfilmapp.ui.screens.discover.MediaShuffler
 import com.apptolast.familyfilmapp.ui.screens.discover.RandomMediaShuffler
-import com.apptolast.familyfilmapp.ui.screens.groups.GroupViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupDetailViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupsViewModel
 import com.apptolast.familyfilmapp.ui.screens.home.HomeViewModel
 import com.apptolast.familyfilmapp.ui.screens.profile.ProfileViewModel
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
@@ -85,8 +86,19 @@ val presentationModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::DiscoverViewModel)
     viewModelOf(::ChatViewModel)
-    viewModelOf(::GroupViewModel)
+    viewModelOf(::GroupsViewModel)
     viewModelOf(::ProfileViewModel)
+
+    viewModel { params ->
+        GroupDetailViewModel(
+            repository = get(),
+            analyticsTracker = get(),
+            crashReporter = get(),
+            currentUserIdProvider = get(),
+            cardStateStore = get(),
+            groupId = params.get<String>(),
+        )
+    }
 
     // DetailsViewModel takes route payload (mediaId + mediaType) as constructor parameters.
     viewModel { params ->

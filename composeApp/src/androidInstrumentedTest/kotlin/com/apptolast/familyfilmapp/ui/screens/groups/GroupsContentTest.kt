@@ -10,7 +10,7 @@ import com.apptolast.familyfilmapp.testing.createFamilyFilmComposeRule
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_EMPTY_TEXT
 import com.apptolast.familyfilmapp.utils.TT_GROUPS_FAB
-import com.apptolast.familyfilmapp.utils.TT_GROUPS_GROUP_CARD
+import com.apptolast.familyfilmapp.utils.TT_GROUPS_LIST_CARD
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -25,65 +25,66 @@ class GroupsContentTest {
         id = "g1",
         ownerId = "u1",
         name = "Family",
-        users = listOf("u1"),
+        users = listOf("u1", "u2"),
         lastUpdated = null,
     )
-    private val testUser = User(
-        id = "u1",
-        email = "owner@example.com",
-        language = "en-US",
-        photoUrl = "",
-        username = "Owner",
+    private val users = listOf(
+        User("u1", "owner@example.com", "en-US", "", "Owner"),
+        User("u2", "member@example.com", "en-US", "", "Member"),
     )
 
     @Test
     fun groupsContent_emptyState_displaysEmptyText() {
-        setGroupsContent(state = GroupViewModel.GroupsState(isLoading = false))
+        setGroupsContent(state = GroupsViewModel.GroupsState(isLoading = false))
         composeTestRule.onNodeWithTag(TT_GROUPS_EMPTY_TEXT).assertIsDisplayed()
     }
 
     @Test
-    fun groupsContent_withGroups_displaysCard() {
+    fun groupsContent_withGroups_displaysListCard() {
+        setGroupsContent(state = groupsState())
+        composeTestRule.onNodeWithTag(TT_GROUPS_LIST_CARD).assertIsDisplayed()
+    }
+
+    @Test
+    fun groupsContent_groupClick_requestsOpenGroup() {
+        var openedGroupId: String? = null
         setGroupsContent(
-            state = GroupViewModel.GroupsState(
-                groups = listOf(testGroup),
-                selectedGroupId = "g1",
-                selectedGroupData = GroupViewModel.GroupData(
-                    group = testGroup,
-                    members = listOf(testUser),
-                    mediaToWatch = emptyList(),
-                    mediaWatched = emptyList(),
-                    recommendedMedia = null,
-                    currentUserId = "u1",
-                ),
-                isLoading = false,
-            ),
+            state = groupsState(),
+            onOpenGroup = { openedGroupId = it },
         )
-        composeTestRule.onNodeWithTag(TT_GROUPS_GROUP_CARD).assertIsDisplayed()
+
+        composeTestRule.onNodeWithTag(TT_GROUPS_LIST_CARD).performClick()
+
+        assertEquals("g1", openedGroupId)
     }
 
     @Test
     fun groupsContent_fabClick_requestsCreateDialog() {
-        var requestedDialog: GroupViewModel.GroupScreenDialogs? = null
+        var requestedDialog: GroupsScreenDialog? = null
         setGroupsContent(
-            state = GroupViewModel.GroupsState(isLoading = false),
+            state = GroupsViewModel.GroupsState(isLoading = false),
             onShowDialog = { requestedDialog = it },
         )
         composeTestRule.onNodeWithTag(TT_GROUPS_FAB).performClick()
-        assertEquals(GroupViewModel.GroupScreenDialogs.CreateGroup, requestedDialog)
+        assertEquals(GroupsScreenDialog.CreateGroup, requestedDialog)
     }
 
+    private fun groupsState(): GroupsViewModel.GroupsState = GroupsViewModel.GroupsState(
+        summaries = listOf(GroupSummary(testGroup, users)),
+        isLoading = false,
+    )
+
     private fun setGroupsContent(
-        state: GroupViewModel.GroupsState,
-        onSelectGroup: (String) -> Unit = {},
-        onShowDialog: (GroupViewModel.GroupScreenDialogs) -> Unit = {},
+        state: GroupsViewModel.GroupsState,
+        onOpenGroup: (String) -> Unit = {},
+        onShowDialog: (GroupsScreenDialog) -> Unit = {},
         onCreateGroup: (String) -> Unit = {},
     ) {
         composeTestRule.setContent {
             FamilyFilmAppTheme {
                 GroupsContent(
                     state = state,
-                    onSelectGroup = onSelectGroup,
+                    onOpenGroup = onOpenGroup,
                     onShowDialog = onShowDialog,
                     onCreateGroup = onCreateGroup,
                 )

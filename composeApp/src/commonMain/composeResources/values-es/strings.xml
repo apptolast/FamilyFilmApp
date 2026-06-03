@@ -52,6 +52,12 @@
     <string name="groups_tooltip_add_member">Añadir miembro</string>
     <string name="groups_tooltip_delete_group">Eliminar grupo</string>
     <string name="groups_member_count">%1$d miembros</string>
+    <string name="groups_empty_title">Crea tu primer grupo</string>
+    <string name="groups_removed_from_group">Ya no formas parte de este grupo</string>
+    <string name="groups_members_title">Miembros</string>
+    <string name="groups_detail_not_found">Grupo no encontrado</string>
+    <string name="groups_member_avatar">Foto de perfil de %1$s</string>
+    <string name="groups_update_loading">Actualizando la información del grupo…</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>

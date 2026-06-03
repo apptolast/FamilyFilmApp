@@ -1,26 +1,28 @@
 package com.apptolast.familyfilmapp.ui.screens.groups
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.apptolast.familyfilmapp.model.local.types.MediaType
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun GroupsScreen(onMediaSelected: (Int, MediaType) -> Unit, viewModel: GroupViewModel = koinViewModel()) {
+fun GroupsScreen(onGroupSelected: (String) -> Unit, viewModel: GroupsViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(state.createdGroupIdToOpen) {
+        state.createdGroupIdToOpen?.let { groupId ->
+            onGroupSelected(groupId)
+            viewModel.onCreatedGroupNavigationHandled()
+        }
+    }
 
     GroupsContent(
         state = state,
-        onSelectGroup = viewModel::selectGroup,
+        onOpenGroup = onGroupSelected,
         onShowDialog = viewModel::showDialog,
         onCreateGroup = viewModel::createGroup,
-        onAddMember = viewModel::addMember,
-        onChangeGroupName = viewModel::changeGroupName,
-        onDeleteGroup = viewModel::deleteGroup,
-        onRemoveMember = viewModel::removeMember,
-        onMediaClick = { media -> onMediaSelected(media.id, media.mediaType) },
-        onRevealRecommended = viewModel::revealRecommendedCard,
         onClearError = viewModel::clearError,
+        onRemovedFromGroupHandled = viewModel::onRemovedFromGroupHandled,
     )
 }

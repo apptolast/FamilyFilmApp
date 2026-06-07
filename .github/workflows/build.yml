@@ -3,15 +3,15 @@
 # Three parallel jobs validate every push:
 #   • ktlint runs on Ubuntu; cheap, fails fast.
 #   • android-build runs on Ubuntu and builds the debug AAB + unit tests.
-#   • ios-build runs on macOS-14 and assembles the Kotlin framework for the
-#     iOS simulator, then drives `xcodebuild` against the Xcode project so
-#     Swift Package Manager resolves all native iOS dependencies. There is
+#   • ios-build runs on macOS-15 (Xcode 16+) and assembles the Kotlin framework
+#     for the iOS simulator, then drives `xcodebuild` against the Xcode project
+#     so Swift Package Manager resolves all native iOS dependencies. There is
 #     no CocoaPods step — SPM is the only iOS dependency manager.
 #
-# Secrets feed BuildKonfig and Firebase config; they're listed inline next
-# to the step that consumes them. None are required for a fork build
-# (every BuildKonfig field falls back to ""), so a forked PR still builds
-# the debug APK — it just runs without Firebase + AdMob keys.
+# Secrets feed BuildKonfig and Firebase config; they're listed inline next to
+# the step that consumes them. FIREBASE_JSON (base64 of
+# composeApp/google-services.json, single line) is required by the Android +
+# ktlint jobs. The iOS GoogleService-Info.plist is committed, not a secret.
 
 name: Build
 
@@ -51,12 +51,22 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode google-services.json
-        # ktlintCheck runs the Android variant tasks (processDebugGoogleServices) that need this file; restore it from the base64 secret.
-        if: ${{ env.HAS_FIREBASE_JSON == 'true' }}
+      - name: Restore google-services.json
+        # ktlintCheck pulls in the Android variant tasks (processGoogleServices),
+        # which need this gitignored file. The secret must be the base64 of the
+        # file on a single line, NOT raw JSON — fix command is in the error.
         env:
-          HAS_FIREBASE_JSON: ${{ secrets.FIREBASE_JSON != '' }}
-        run: echo "${{ secrets.FIREBASE_JSON }}" | base64 -d > composeApp/google-services.json
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+          if [ -z "$FIREBASE_JSON" ]; then
+            echo "::error::FIREBASE_JSON secret is empty."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_JSON" | tr -d '[:space:]' | base64 -d > composeApp/google-services.json 2>/dev/null || true
+          if ! python3 -c "import json; json.load(open('composeApp/google-services.json'))" 2>/dev/null; then
+            echo "::error::FIREBASE_JSON must be the BASE64 of google-services.json on a single line, not raw JSON. Recreate it:  base64 -i composeApp/google-services.json | tr -d '\n' | gh secret set FIREBASE_JSON"
+            exit 1
+          fi
 
       - name: Run ktlint
         run: ./gradlew :composeApp:ktlintCheck --continue
@@ -78,16 +88,22 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode google-services.json
-        # The com.google.gms.google-services plugin requires this file during
-        # processDebugGoogleServices. It's gitignored, so we restore it from
-        # a base64-encoded GitHub Secret. Skipped when the secret is missing
-        # (PRs from forks) — the plugin then fails clearly rather than
-        # mid-build.
-        if: ${{ env.HAS_FIREBASE_JSON == 'true' }}
+      - name: Restore google-services.json
+        # Required by the google-services Gradle plugin (processGoogleServices).
+        # Gitignored, so restored from a base64 secret. The secret must be the
+        # base64 of the file on a single line, NOT raw JSON — fix in the error.
         env:
-          HAS_FIREBASE_JSON: ${{ secrets.FIREBASE_JSON != '' }}
-        run: echo "${{ secrets.FIREBASE_JSON }}" | base64 -d > composeApp/google-services.json
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+          if [ -z "$FIREBASE_JSON" ]; then
+            echo "::error::FIREBASE_JSON secret is empty."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_JSON" | tr -d '[:space:]' | base64 -d > composeApp/google-services.json 2>/dev/null || true
+          if ! python3 -c "import json; json.load(open('composeApp/google-services.json'))" 2>/dev/null; then
+            echo "::error::FIREBASE_JSON must be the BASE64 of google-services.json on a single line, not raw JSON. Recreate it:  base64 -i composeApp/google-services.json | tr -d '\n' | gh secret set FIREBASE_JSON"
+            exit 1
+          fi
 
       - name: Render local.properties
         # All BuildKonfig fields plus the AdMob `admob_app_id` resValue read
@@ -146,14 +162,7 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode GoogleService-Info.plist
-        # Firebase config for iOS lives at iosApp/iosApp/GoogleService-Info.plist
-        # (gitignored). FirebaseApp.configure() reads it at runtime; the
-        # build doesn't strictly need it but Xcode warns when it's missing.
-        if: ${{ env.HAS_PLIST == 'true' }}
-        env:
-          HAS_PLIST: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 != '' }}
-        run: echo "${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+      # GoogleService-Info.plist is committed in the repo, so no decode step is needed here.
 
       - name: Render local.properties
         run: |

@@ -94,14 +94,22 @@ jobs:
           echo "${{ secrets.SIGNING_KEY_B64 }}" | base64 -d > "$RUNNER_TEMP/secrets/keystore.jks"
           printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/secrets/play.json"
 
-      - name: Decode google-services.json
-        # Consumed by the `com.google.gms.google-services` Gradle plugin
-        # during processReleaseGoogleServices. Lives at
-        # composeApp/google-services.json (the canonical Firebase location);
-        # gitignored, so we restore it from a base64-encoded GitHub Secret
-        # on every run. Without this the Gradle release build fails before
-        # producing the AAB.
-        run: echo "${{ secrets.FIREBASE_JSON }}" | base64 -d > composeApp/google-services.json
+      - name: Restore google-services.json
+        # Consumed by the google-services Gradle plugin (processReleaseGoogleServices).
+        # Gitignored, so restored from a base64 secret. The secret must be the
+        # base64 of the file on a single line, NOT raw JSON — fix in the error.
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+          if [ -z "$FIREBASE_JSON" ]; then
+            echo "::error::FIREBASE_JSON secret is empty."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_JSON" | tr -d '[:space:]' | base64 -d > composeApp/google-services.json 2>/dev/null || true
+          if ! python3 -c "import json; json.load(open('composeApp/google-services.json'))" 2>/dev/null; then
+            echo "::error::FIREBASE_JSON must be the BASE64 of google-services.json on a single line, not raw JSON. Recreate it:  base64 -i composeApp/google-services.json | tr -d '\n' | gh secret set FIREBASE_JSON"
+            exit 1
+          fi
 
       - name: Render local.properties
         # Combines BuildKonfig secrets with the signing config the

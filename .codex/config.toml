@@ -1,0 +1,12 @@
+[mcp_servers.n8n-server]
+command = "npx"
+args = [
+    "-y",
+    "n8n-mcp",
+]
+
+[mcp_servers.n8n-server.env]
+N8N_API_URL = "https://n8n.apptolast.com"
+N8N_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZTE2M2ViMi02NmU5LTQ4MzMtODhlZC04ZGIyZjZhMmFjNDciLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiN2I2NjZkYjYtMTcwZS00NTdjLTk5NWMtZmE3NDQ2NDlhYjhhIiwiaWF0IjoxNzgwNDg2NTI2fQ.fK7gMPHpfManmowkOY0tikDmVL4Uka0_fmn1f4BN6MU"
+MCP_MODE = "stdio"
+DISABLE_CONSOLE_OUTPUT = "true"

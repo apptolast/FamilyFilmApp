@@ -1,0 +1,157 @@
+# iOS TestFlight upload — driven by `v*` Git tags.
+#
+# Trigger model:
+#   • push a `vX.Y.Z` (or `vX.Y.Z-suffix`) tag on any branch → the workflow
+#     fires on macOS-14. Fastlane reads the tag from $GITHUB_REF_NAME,
+#     increments CFBundleVersion from App Store Connect, builds a signed
+#     .ipa via `gym`, and uploads it to TestFlight. You decide manually when
+#     to attach a processed build to an App Store version and submit it.
+#   • workflow_dispatch with an existing tag name → re-runs the release for
+#     that tag.
+#
+# Signing is delegated to `match` (read-only on CI): the workflow pulls the
+# App Store distribution certificate + provisioning profile from a private
+# Git repo, decrypts them with MATCH_PASSWORD, and installs them on the
+# runner keychain. No `cocoapods` step — SPM is the only iOS dependency
+# manager, resolved automatically by `gym`/`xcodebuild`.
+#
+# Secrets required (Settings → Secrets and variables → Actions):
+#   APP_STORE_CONNECT_API_KEY_ID         App Store Connect API key id
+#   APP_STORE_CONNECT_API_KEY_ISSUER_ID  App Store Connect API issuer id
+#   APP_STORE_CONNECT_API_KEY_BASE64     base64 of the .p8 key contents
+#   MATCH_GIT_URL                        e.g. https://github.com/apptolast/ios-certificates.git
+#   MATCH_PASSWORD                       passphrase used to decrypt match repo
+#   MATCH_GIT_BASIC_AUTHORIZATION        base64 of "user:PAT" for pulling match repo
+#   FASTLANE_TEAM_ID                     Apple Developer Team ID
+#   FASTLANE_ITC_TEAM_ID                 App Store Connect Team ID
+#   IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 base64 of GoogleService-Info.plist
+#   WEB_ID_CLIENT                        Google OAuth Web Client ID (BuildKonfig)
+#   TMDB_ACCESS_TOKEN                    TMDB API v4 Bearer token (BuildKonfig)
+#   ADMOB_APPLICATION_ID                 ca-app-pub-… app id (BuildKonfig)
+#   ADMOB_BOTTOM_BANNER_ID               banner ad unit id (BuildKonfig)
+#   ADMOB_APP_OPEN_ID                    app-open ad unit id (BuildKonfig)
+#   ADMOB_NATIVE_HOME_ID                 native home ad unit id (BuildKonfig)
+#   ADMOB_APPLICATION_ID_IOS             iOS AdMob app id (BuildKonfig)
+#   ADMOB_BOTTOM_BANNER_ID_IOS           iOS banner ad unit id (BuildKonfig)
+#   ADMOB_APP_OPEN_ID_IOS                iOS app-open ad unit id (BuildKonfig)
+#   ADMOB_NATIVE_HOME_ID_IOS             iOS native home ad unit id (BuildKonfig)
+#   REVENUECAT_PLAY_SDK_KEY              RevenueCat Play SDK key (BuildKonfig, unused on iOS but referenced by common)
+#   REVENUECAT_PLAY_SDK_KEY_TEST         RevenueCat Play sandbox SDK key
+#   REVENUECAT_APPSTORE_SDK_KEY          RevenueCat App Store SDK key (iOS-specific)
+
+name: iOS TestFlight
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)release, e.g. v1.1.0'
+        required: true
+        type: string
+
+concurrency:
+  # Serialise releases — two tag pushes back-to-back must not race for the
+  # same CFBundleVersion on App Store Connect. Per-tag so unrelated tags
+  # run in parallel.
+  group: ios-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & upload to TestFlight
+    runs-on: macos-15
+    environment: release
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Select Xcode 16+
+        # Project is objectVersion 77 (Xcode 16+) — gym/xcodebuild need Xcode 16+ to open it.
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write App Store Connect API key
+        # Fastlane reads the .p8 contents from APP_STORE_CONNECT_API_KEY_BASE64
+        # (decoded by the helper in iosApp/fastlane/Fastfile). No file write
+        # needed here — keeping the key purely as an env var avoids leaving
+        # it on disk.
+        run: echo "Using API key id ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} on issuer ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}"
+
+        #      - name: Decode GoogleService-Info.plist
+        # FirebaseApp.configure() loads this at app launch; bundle build is
+        # fine without it but the resulting binary would crash on launch
+        # against production Firebase.
+      #        run: echo "${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+
+      - name: Render local.properties
+        # The KMP framework build reads BuildKonfig fields from local.properties.
+        # Signing config (`signing.*`) is NOT needed here — iOS code signing
+        # is handled by `match`, not by Gradle.
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=$ANDROID_HOME
+          WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}
+          TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+          ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}
+          ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
+          ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
+          ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          ADMOB_APPLICATION_ID_IOS=${{ secrets.ADMOB_APPLICATION_ID_IOS }}
+          ADMOB_BOTTOM_BANNER_ID_IOS=${{ secrets.ADMOB_BOTTOM_BANNER_ID_IOS }}
+          ADMOB_APP_OPEN_ID_IOS=${{ secrets.ADMOB_APP_OPEN_ID_IOS }}
+          ADMOB_NATIVE_HOME_ID_IOS=${{ secrets.ADMOB_NATIVE_HOME_ID_IOS }}
+          REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
+          REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
+          REVENUECAT_APPSTORE_SDK_KEY=${{ secrets.REVENUECAT_APPSTORE_SDK_KEY }}
+          EOF
+
+      - name: Run fastlane release_from_tag
+        # fastlane only looks for `fastlane/` in cwd, so we must cd into the
+        # iosApp directory. Match pulls signing artifacts from MATCH_GIT_URL
+        # using MATCH_GIT_BASIC_AUTHORIZATION for HTTPS basic auth.
+        working-directory: iosApp
+        env:
+          # On workflow_dispatch the auto-set GITHUB_REF_NAME is the workflow
+          # branch, not the tag — override it so the lane parses correctly.
+          GITHUB_REF_NAME: ${{ inputs.tag || github.ref_name }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+          FASTLANE_ITC_TEAM_ID: ${{ secrets.FASTLANE_ITC_TEAM_ID }}
+        run: bundle exec fastlane ios release_from_tag
+
+      - name: Upload .ipa as workflow artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iosApp-release-${{ inputs.tag || github.ref_name }}
+          path: iosApp/iosApp.ipa
+          retention-days: 30
+          if-no-files-found: warn

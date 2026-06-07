@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.507506960715-l6mapvfc6l7fpsqlhdm9hsuu04t9vhc2</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>507506960715-6a67bd897e2saug6sph33mpkh51hvms3.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAmdfU_tEI0a2GPJEzgEdlpL__uTcsv-Bo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>507506960715</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.apptolast.familyfilmapp</string>
+	<key>PROJECT_ID</key>
+	<string>familyfilmapp-4f3cb</string>
+	<key>STORAGE_BUCKET</key>
+	<string>familyfilmapp-4f3cb.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:507506960715:ios:0b9e95be45ed86856020ce</string>
+</dict>
+</plist>

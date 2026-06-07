@@ -1,5 +1,56 @@
 # Release Notes
 
+## v1.1.0 — Kotlin Multiplatform migration
+
+### Headline
+- **iOS app**: the codebase now targets Android **and** iOS from a single
+  Kotlin Multiplatform / Compose Multiplatform module (`composeApp/`).
+  The legacy Android-only `app/` module is gone.
+
+### Architecture
+- Replaced **Hilt** with **Koin** (BOM 4.2.1) across the entire app
+- Replaced **Retrofit** with **Ktor Client 3.4** (OkHttp on Android,
+  Darwin on iOS)
+- Replaced **MockK** with **Mokkery 3.3** in unit tests
+- Migrated Firebase to **GitLive 2.4.0** (Auth, Firestore, Functions,
+  Analytics, Crashlytics) running entirely from commonMain
+- App Check kept as `expect`/`actual`: PlayIntegrity on Android, AppAttest on
+  iOS (the only native bridge that survived the migration)
+- Removed WorkManager — background sync was already real-time Firestore
+  listeners
+- Removed Timber + Kermit — logging now flows through a thin
+  `CrashReporter` wrapper over `Firebase.crashlytics`
+
+### Build & tooling
+- Bumped to **AGP 8.13.2**, **Kotlin 2.3.21**, **Compose Multiplatform 1.10.3**
+- JVM bytecode target raised to 17 (required by GitLive + `kotlin.uuid`)
+- Build secrets now flow through **BuildKonfig** (`gmazzo` 6.0.9), exposing
+  `local.properties` keys as constants in commonMain
+- **Room KMP 2.8.4** + `sqlite-bundled` driver, KSP per Apple target
+- iOS native dependencies migrated from **CocoaPods to Swift Package
+  Manager**: Firebase iOS SDK, GoogleMobileAds, UserMessagingPlatform,
+  GoogleSignIn-iOS, RevenueCat
+- KMP framework embedded into Xcode via the standard
+  `:composeApp:embedAndSignAppleFrameworkForXcode` Gradle task — no
+  `cocoapods { }` block, no `Podfile`
+
+### Deployment
+- New **Fastlane** setup with per-platform lanes (`composeApp/fastlane/`
+  for Android, `iosApp/fastlane/` for iOS). Tag-driven release model:
+  pushing a `vX.Y.Z` tag derives versionName / CFBundleShortVersionString
+  from the tag and computes the next versionCode / build number from the
+  store at lane runtime.
+- New GitHub Actions workflows: `build.yml` (PR validation across
+  ktlint + Android + iOS-simulator), `deploy-android.yml` (Play
+  Production as DRAFT), `deploy-ios.yml` (App Store Connect as DRAFT)
+- iOS code signing delegated to `match` (read-only on CI)
+
+### Known follow-ups
+- iOS scaffolds need cinterop wiring before parity with Android is
+  complete: Google Sign-In, RevenueCat purchases, AdMob native +
+  adaptive banner. Each class's KDoc lists the `.def` and
+  `cinterops { }` snippet still to add.
+
 ## v.0.5.1
 
 ### New Features

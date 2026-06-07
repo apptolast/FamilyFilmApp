@@ -1,0 +1,227 @@
+[
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "androidx.sqlite",
+        "name": "sqlite-bundled"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "androidx.sqlite",
+        "name": "sqlite-bundled"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/androidx.sqlite-sqlite-bundled-2.6.2-nativeMain-cinterop/androidx.sqlite_sqlite-bundled-cinterop-androidXBundledSqlite-dCYVRw.klib",
+    "sourceSetName": "nativeMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-auth"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-auth"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-auth-2.4.0-iosMain-cinterop/dev.gitlive_firebase-auth-cinterop-FirebaseAuth-OB0GoA.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-firestore"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-firestore"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-firestore-2.4.0-iosMain-cinterop/dev.gitlive_firebase-firestore-cinterop-FirebaseFirestoreInternal-7URPeQ.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-firestore"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-firestore"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-firestore-2.4.0-iosMain-cinterop/dev.gitlive_firebase-firestore-cinterop-FirebaseFirestore-7URPeQ.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-functions"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-functions"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-functions-2.4.0-iosMain-cinterop/dev.gitlive_firebase-functions-cinterop-FirebaseFunctions-X-QYLA.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-analytics"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-analytics"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-analytics-2.4.0-iosMain-cinterop/dev.gitlive_firebase-analytics-cinterop-FirebaseAnalytics-3_phsA.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-crashlytics"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-crashlytics"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-crashlytics-2.4.0-iosMain-cinterop/dev.gitlive_firebase-crashlytics-cinterop-FirebaseCrashlytics-Fw1YDA.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-storage"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-storage"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-storage-2.4.0-iosMain-cinterop/dev.gitlive_firebase-storage-cinterop-FirebaseStorage-MqMMGw.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "org.jetbrains.compose.ui",
+        "name": "ui-uikit"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "org.jetbrains.compose.ui",
+        "name": "ui-uikit"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/org.jetbrains.compose.ui-ui-uikit-1.11.1-iosMain-cinterop/org.jetbrains.compose.ui_ui-uikit-cinterop-utils-g8M-QQ.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "org.jetbrains.kotlinx",
+        "name": "atomicfu"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "org.jetbrains.kotlinx",
+        "name": "atomicfu"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/org.jetbrains.kotlinx-atomicfu-0.28.0-iosMain-cinterop/org.jetbrains.kotlinx_atomicfu-cinterop-interop-NDYgJg.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "org.jetbrains.skiko",
+        "name": "skiko"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "org.jetbrains.skiko",
+        "name": "skiko"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/org.jetbrains.skiko-skiko-0.144.6-iosMain-cinterop/org.jetbrains.skiko_skiko-cinterop-uikit-9wZN-w.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "androidx.sqlite",
+        "name": "sqlite-framework"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "androidx.sqlite",
+        "name": "sqlite-framework"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/androidx.sqlite-sqlite-framework-2.6.2-nativeMain-cinterop/androidx.sqlite_sqlite-framework-cinterop-sqlite3-5Ubkcg.klib",
+    "sourceSetName": "nativeMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "dev.gitlive",
+        "name": "firebase-app"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "dev.gitlive",
+        "name": "firebase-app"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/dev.gitlive-firebase-app-2.4.0-iosMain-cinterop/dev.gitlive_firebase-app-cinterop-FirebaseCore-UFIspw.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "io.ktor",
+        "name": "ktor-utils"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "io.ktor",
+        "name": "ktor-utils"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/io.ktor-ktor-utils-3.5.0-iosMain-cinterop/io.ktor_ktor-utils-cinterop-threadUtils-TXWDDA.klib",
+    "sourceSetName": "iosMain"
+  },
+  {
+    "moduleId": {
+      "groupAndName": {
+        "group": "io.ktor",
+        "name": "ktor-io"
+      },
+      "componentId": {
+        "type": "module",
+        "group": "io.ktor",
+        "name": "ktor-io"
+      }
+    },
+    "file": "/Users/hgarcia/Documents/Companies/AppToLast/KMP/FamilyFilmKmp/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/io.ktor-ktor-io-3.5.0-iosMain-cinterop/io.ktor_ktor-io-cinterop-mutex-j26R_A.klib",
+    "sourceSetName": "iosMain"
+  }
+]

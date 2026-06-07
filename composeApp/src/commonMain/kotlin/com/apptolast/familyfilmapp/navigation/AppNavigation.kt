@@ -1,0 +1,277 @@
+package com.apptolast.familyfilmapp.navigation
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.apptolast.familyfilmapp.analytics.TrackScreenViews
+import com.apptolast.familyfilmapp.model.local.types.MediaType
+import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.ui.components.AdaptiveBanner
+import com.apptolast.familyfilmapp.ui.components.BottomNavigationBar
+import com.apptolast.familyfilmapp.ui.components.ProfileAvatar
+import com.apptolast.familyfilmapp.ui.screens.chat.ChatScreen
+import com.apptolast.familyfilmapp.ui.screens.detail.DetailsScreen
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverScreen
+import com.apptolast.familyfilmapp.ui.screens.discover.DiscoverViewModel
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupDetailScreen
+import com.apptolast.familyfilmapp.ui.screens.groups.GroupsScreen
+import com.apptolast.familyfilmapp.ui.screens.home.HomeScreen
+import com.apptolast.familyfilmapp.ui.screens.login.LoginScreen
+import com.apptolast.familyfilmapp.ui.screens.profile.ProfileScreen
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthState
+import com.apptolast.familyfilmapp.ui.sharedViewmodel.AuthViewModel
+import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIPPED_TOPBAR_ACTION
+import com.apptolast.familyfilmapp.utils.TT_HOME_PROFILE_TOPBAR_ACTION
+import familyfilmkmp.composeapp.generated.resources.Res
+import familyfilmkmp.composeapp.generated.resources.app_name
+import familyfilmkmp.composeapp.generated.resources.back
+import familyfilmkmp.composeapp.generated.resources.discover_skipped_action
+import familyfilmkmp.composeapp.generated.resources.screen_title_chat
+import familyfilmkmp.composeapp.generated.resources.screen_title_discover
+import familyfilmkmp.composeapp.generated.resources.screen_title_groups
+import familyfilmkmp.composeapp.generated.resources.screen_title_profile
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppNavigation() {
+    val authViewModel: AuthViewModel = koinViewModel()
+    val authState by authViewModel.authState.collectAsState()
+    val analyticsTracker = koinInject<com.apptolast.familyfilmapp.analytics.AnalyticsTracker>()
+    val purchaseManager = koinInject<PurchaseManager>()
+    val hasRemovedAds by purchaseManager.hasRemovedAds.collectAsState()
+
+    val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+    var onDiscoverSkippedClick by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val authenticatedUser = (authState as? AuthState.Authenticated)?.user
+    val profilePhotoUrl = authenticatedUser?.photoUrl?.trim().orEmpty()
+
+    TrackScreenViews(navController = navController, tracker = analyticsTracker)
+
+    val topBarTitleRoute = currentDestination?.let { destination ->
+        when {
+            destination.hasRoute(Routes.Home::class) -> Res.string.app_name
+            destination.hasRoute(Routes.Discover::class) -> Res.string.screen_title_discover
+            destination.hasRoute(Routes.Chat::class) -> Res.string.screen_title_chat
+            destination.hasRoute(Routes.Groups::class) -> Res.string.screen_title_groups
+            destination.hasRoute(Routes.Profile::class) -> Res.string.screen_title_profile
+            else -> null
+        }
+    }
+    val isMainTabRoute = currentDestination?.let { destination ->
+        destination.hasRoute(Routes.Home::class) ||
+            destination.hasRoute(Routes.Discover::class) ||
+            destination.hasRoute(Routes.Chat::class) ||
+            destination.hasRoute(Routes.Groups::class)
+    } == true
+    val showChrome = authState is AuthState.Authenticated && topBarTitleRoute != null
+    val showBottomNavigation = authState is AuthState.Authenticated && isMainTabRoute
+    val isHomeRoute = currentDestination?.hasRoute(Routes.Home::class) == true
+    val isDiscoverRoute = currentDestination?.hasRoute(Routes.Discover::class) == true
+    val isProfileRoute = currentDestination?.hasRoute(Routes.Profile::class) == true
+    val isGroupDetailsRoute = currentDestination?.hasRoute(Routes.GroupDetails::class) == true
+    val showBottomBanner = authState is AuthState.Authenticated &&
+        !hasRemovedAds &&
+        (isMainTabRoute || isGroupDetailsRoute)
+
+    LaunchedEffect(authState, currentDestination) {
+        val destination = currentDestination ?: return@LaunchedEffect
+        when {
+            authState is AuthState.Authenticated && destination.hasRoute(Routes.Login::class) -> {
+                navController.navigate(Routes.Home) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            authState is AuthState.Unauthenticated && !destination.hasRoute(Routes.Login::class) -> {
+                navController.navigate(Routes.Login) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            if (showChrome) {
+                val titleRes: StringResource = topBarTitleRoute
+                CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        if (isProfileRoute) {
+                            IconButton(
+                                onClick = {
+                                    if (!navController.navigateUp()) {
+                                        navController.navigate(Routes.Home) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.size(30.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(Res.string.back),
+                                )
+                            }
+                        }
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(titleRes),
+                            style = MaterialTheme.typography.headlineMedium,
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    actions = {
+                        when {
+                            isHomeRoute -> {
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Routes.Profile) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .testTag(TT_HOME_PROFILE_TOPBAR_ACTION),
+                                ) {
+                                    ProfileAvatar(
+                                        photoUrl = profilePhotoUrl,
+                                        contentDescription = stringResource(Res.string.screen_title_profile),
+                                        size = 44.dp,
+                                    )
+                                }
+                            }
+
+                            isDiscoverRoute -> {
+                                IconButton(
+                                    onClick = { onDiscoverSkippedClick?.invoke() },
+                                    enabled = onDiscoverSkippedClick != null,
+                                    modifier = Modifier.testTag(TT_DISCOVER_SKIPPED_TOPBAR_ACTION),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Restore,
+                                        contentDescription = stringResource(Res.string.discover_skipped_action),
+                                    )
+                                }
+                            }
+                        }
+                    },
+                )
+            }
+        },
+        bottomBar = {
+            if (showBottomBanner || showBottomNavigation) {
+                Column(modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
+                    if (showBottomBanner) AdaptiveBanner()
+                    if (showBottomNavigation) BottomNavigationBar(navController = navController)
+                }
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = if (authState is AuthState.Authenticated) Routes.Home else Routes.Login,
+            modifier = Modifier
+                .padding(paddingValues)
+                .consumeWindowInsets(paddingValues),
+        ) {
+            composable<Routes.Login> {
+                LoginScreen(viewModel = authViewModel)
+            }
+            composable<Routes.Home> {
+                HomeScreen(
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
+                    },
+                )
+            }
+            composable<Routes.Discover> {
+                val discoverViewModel: DiscoverViewModel = koinViewModel()
+                DisposableEffect(discoverViewModel) {
+                    onDiscoverSkippedClick = discoverViewModel::showSkippedSheet
+                    onDispose { onDiscoverSkippedClick = null }
+                }
+                DiscoverScreen(
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
+                    },
+                    viewModel = discoverViewModel,
+                )
+            }
+            composable<Routes.Chat> { ChatScreen() }
+            composable<Routes.Groups> {
+                GroupsScreen(
+                    onGroupSelected = { groupId ->
+                        navController.navigate(Routes.GroupDetails(groupId))
+                    },
+                )
+            }
+            composable<Routes.GroupDetails> { entry ->
+                val groupDetails: Routes.GroupDetails = entry.toRoute()
+                GroupDetailScreen(
+                    groupId = groupDetails.groupId,
+                    onBack = { navController.navigateUp() },
+                    onMediaSelected = { mediaId, mediaType ->
+                        navController.navigate(Routes.Details(mediaId, mediaType.name))
+                    },
+                )
+            }
+            composable<Routes.Profile> {
+                ProfileScreen(authViewModel = authViewModel)
+            }
+            composable<Routes.Details> { entry ->
+                val details: Routes.Details = entry.toRoute()
+                DetailsScreen(
+                    mediaId = details.mediaId,
+                    mediaType = MediaType.valueOf(details.mediaType),
+                    onBack = { navController.navigateUp() },
+                )
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+# Appfile — fixed identifiers for the Android side of FamilyFilmApp (KMP).
+#
+# fastlane reads this automatically when running any lane in this directory.
+# Anything that changes per-developer or per-environment (e.g., the path to
+# the Play Console service account JSON) is read from environment variables
+# loaded by fastlane-dotenv from `composeApp/fastlane/.env*`.
+
+# Application package as declared in composeApp/build.gradle.kts:applicationId.
+# Must match the Play Console listing exactly — Google rejects mismatches.
+package_name("com.apptolast.familyfilmapp")
+
+# Path to the Play Console service account JSON key file. Set in `.env` locally
+# (gitignored) or as an env var in CI. Resolved at lane runtime so a missing
+# value only blows up when a lane that actually needs Play access runs.
+json_key_file(ENV["SUPPLY_JSON_KEY"]) if ENV["SUPPLY_JSON_KEY"]

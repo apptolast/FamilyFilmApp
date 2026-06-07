@@ -602,7 +602,7 @@ iOSInjectionProject/
 ### SwiftPackageManager ###
 Packages
 xcuserdata
-*.xcodeproj
+# Do NOT ignore *.xcodeproj here — CI needs project.pbxproj + the shared scheme (the Xcode Patch block below already ignores only the user-specific parts)
 
 
 ### Windows ###

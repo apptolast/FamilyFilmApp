@@ -1,9 +1,9 @@
 [versions]
 # Toolchain & build
 agp = "9.2.1"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 ksp = "2.3.7"
-composeMultiplatform = "1.11.0"
+composeMultiplatform = "1.11.1"
 material3 = "1.11.0-alpha07"
 
 # SDKs
@@ -15,7 +15,7 @@ ios-deploymentTarget = "16.0"
 # JetBrains/AndroidX libs in commonMain
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
-androidx-core = "1.18.0"
+androidx-core = "1.19.0"
 androidx-lifecycle = "2.10.0"
 androidx-navigation-compose-mp = "2.9.2"
 androidx-room = "2.8.4"
@@ -39,6 +39,9 @@ multiplatformSettings = "1.3.0"
 
 # Images
 coil = "3.4.0"
+
+# Files / media picker (KMP)
+filekit = "0.14.1"
 
 # Firebase
 firebase-gitlive = "2.4.0"
@@ -150,6 +153,9 @@ multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-sett
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
+# FileKit — gallery/file picker (Android + iOS, no cinterop)
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+
 # Firebase via GitLive (commonMain)
 firebase-gitlive-common = { module = "dev.gitlive:firebase-common", version.ref = "firebase-gitlive" }
 firebase-gitlive-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebase-gitlive" }
@@ -157,6 +163,7 @@ firebase-gitlive-firestore = { module = "dev.gitlive:firebase-firestore", versio
 firebase-gitlive-functions = { module = "dev.gitlive:firebase-functions", version.ref = "firebase-gitlive" }
 firebase-gitlive-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebase-gitlive" }
 firebase-gitlive-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase-gitlive" }
+firebase-gitlive-storage = { module = "dev.gitlive:firebase-storage", version.ref = "firebase-gitlive" }
 # Note: GitLive does NOT publish firebase-app-check. App Check uses native
 # Firebase Android SDK in androidMain and cinterop bindings in iosMain (block 10).
 

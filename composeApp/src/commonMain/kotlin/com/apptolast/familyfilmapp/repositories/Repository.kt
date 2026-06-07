@@ -20,6 +20,7 @@ import com.apptolast.familyfilmapp.model.room.toUser
 import com.apptolast.familyfilmapp.model.room.toUserTable
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import kotlinx.coroutines.CancellationException
@@ -51,6 +52,7 @@ interface Repository {
     fun getMyGroups(userId: String): Flow<List<Group>>
     suspend fun createGroup(groupName: String, userId: String): Result<Group>
     suspend fun updateGroup(group: Group): Result<Unit>
+    suspend fun updateGroupImage(group: Group, imageBytes: ByteArray): Result<Unit>
     suspend fun deleteGroup(groupId: String): Result<Unit>
     suspend fun addMember(groupId: String, identifier: String): Result<Unit>
     suspend fun removeMember(groupId: String, userId: String): Result<Unit>
@@ -107,6 +109,7 @@ interface Repository {
 class RepositoryImpl(
     private val roomDatasource: RoomDatasource,
     private val firebaseDatabaseDatasource: FirebaseDatabaseDatasource,
+    private val firebaseStorageDatasource: FirebaseStorageDatasource,
     private val tmdbDatasource: TmdbDatasource,
     private val coroutineScope: CoroutineScope,
     private val tmdbLocaleManager: TmdbLocaleManager,
@@ -178,6 +181,13 @@ class RepositoryImpl(
     override suspend fun updateGroup(group: Group): Result<Unit> = runCatching {
         firebaseDatabaseDatasource.updateGroup(group)
         roomDatasource.insertGroup(group.toGroupTable())
+    }
+
+    override suspend fun updateGroupImage(group: Group, imageBytes: ByteArray): Result<Unit> = runCatching {
+        val imageUrl = firebaseStorageDatasource.uploadGroupImage(group.id, imageBytes)
+        val updated = group.copy(imageUrl = imageUrl)
+        firebaseDatabaseDatasource.updateGroup(updated)
+        roomDatasource.insertGroup(updated.toGroupTable())
     }
 
     override suspend fun deleteGroup(groupId: String): Result<Unit> = runCatching {

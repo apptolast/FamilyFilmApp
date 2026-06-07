@@ -58,6 +58,9 @@
     <string name="groups_detail_not_found">Grupo no encontrado</string>
     <string name="groups_member_avatar">Foto de perfil de %1$s</string>
     <string name="groups_update_loading">Actualizando la información del grupo…</string>
+    <string name="group_avatar">Imagen del grupo %1$s</string>
+    <string name="group_change_image">Cambiar imagen del grupo</string>
+    <string name="group_image_upload_error">No se pudo actualizar la imagen del grupo</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Buscar película o serie</string>
@@ -75,9 +78,6 @@
     <string name="discover_no_more_movies">¡No hay más películas! Vuelve más tarde</string>
     <string name="discover_loading">Cargando películas…</string>
     <string name="discover_swipe_left">Desliza a la izquierda para marcar como vista</string>
-    <string name="discover_groups_label">Grupos: %1$s</string>
-    <string name="discover_groups_select">Seleccionar grupos</string>
-    <string name="discover_groups_all">Todos los grupos</string>
     <string name="discover_swipe_right">Desliza a la derecha para añadir a tu lista</string>
     <string name="discover_skipped_action">Elementos omitidos</string>
     <string name="discover_skipped_title">Elementos omitidos</string>

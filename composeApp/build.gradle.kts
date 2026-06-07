@@ -98,6 +98,9 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
 
+            // Gallery/file picker (Android + iOS, no cinterop)
+            implementation(libs.filekit.dialogs.compose)
+
             // Firebase (multiplatform via GitLive)
             implementation(libs.firebase.gitlive.common)
             implementation(libs.firebase.gitlive.auth)
@@ -105,6 +108,7 @@ kotlin {
             implementation(libs.firebase.gitlive.functions)
             implementation(libs.firebase.gitlive.analytics)
             implementation(libs.firebase.gitlive.crashlytics)
+            implementation(libs.firebase.gitlive.storage)
             // App Check is not in GitLive; provider factories are installed natively per platform.
         }
 

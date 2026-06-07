@@ -159,6 +159,7 @@ class FirebaseDatabaseDatasourceImpl(private val crashReporter: CrashReporter) :
         groupsCollection.document(group.id).update(
             "name" to group.name,
             "ownerId" to group.ownerId,
+            "imageUrl" to group.imageUrl,
             "users" to group.users,
             "lastUpdated" to Clock.System.now().toEpochMilliseconds(),
         )
@@ -475,6 +476,7 @@ private data class GroupFirestoreDto(
     val id: String = "",
     val ownerId: String = "",
     val name: String = "",
+    val imageUrl: String = "",
     val users: List<String> = emptyList(),
     val lastUpdated: Long? = null,
 )
@@ -483,6 +485,7 @@ private fun GroupFirestoreDto.toDomain(): Group = Group(
     id = id,
     ownerId = ownerId,
     name = name,
+    imageUrl = imageUrl,
     users = users,
     lastUpdated = lastUpdated?.let { kotlin.time.Instant.fromEpochMilliseconds(it) },
 )

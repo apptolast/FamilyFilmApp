@@ -16,6 +16,7 @@ data class GroupTable(
     val groupId: String,
     var ownerId: String,
     var name: String,
+    var imageUrl: String,
     val users: List<String>,
     val lastUpdated: Instant?,
 ) {
@@ -23,6 +24,7 @@ data class GroupTable(
         groupId = groupId,
         ownerId = "",
         name = "",
+        imageUrl = "",
         users = emptyList(),
         lastUpdated = null,
     )
@@ -32,6 +34,7 @@ fun Group.toGroupTable() = GroupTable(
     groupId = id,
     ownerId = ownerId,
     name = name,
+    imageUrl = imageUrl,
     users = users,
     lastUpdated = lastUpdated,
 )
@@ -40,6 +43,7 @@ fun GroupTable.toGroup() = Group(
     id = groupId,
     ownerId = ownerId,
     name = name,
+    imageUrl = imageUrl,
     users = users,
     lastUpdated = lastUpdated,
 )

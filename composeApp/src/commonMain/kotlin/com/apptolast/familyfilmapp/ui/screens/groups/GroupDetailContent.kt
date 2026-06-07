@@ -3,6 +3,7 @@ package com.apptolast.familyfilmapp.ui.screens.groups
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ModeEditOutline
@@ -38,8 +40,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +55,7 @@ import com.apptolast.familyfilmapp.model.local.Group
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.SyncState
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.ui.components.GroupAvatar
 import com.apptolast.familyfilmapp.ui.components.dialogs.BasicDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.EmailFieldDialog
 import com.apptolast.familyfilmapp.ui.components.dialogs.TextFieldDialog
@@ -73,6 +78,7 @@ import familyfilmkmp.composeapp.generated.resources.dialog_change_group_title
 import familyfilmkmp.composeapp.generated.resources.dialog_delete_group_description
 import familyfilmkmp.composeapp.generated.resources.dialog_delete_group_title
 import familyfilmkmp.composeapp.generated.resources.dialog_ok
+import familyfilmkmp.composeapp.generated.resources.group_change_image
 import familyfilmkmp.composeapp.generated.resources.group_recommended_label
 import familyfilmkmp.composeapp.generated.resources.groups_detail_not_found
 import familyfilmkmp.composeapp.generated.resources.groups_members_title
@@ -83,6 +89,10 @@ import familyfilmkmp.composeapp.generated.resources.groups_tooltip_delete_group
 import familyfilmkmp.composeapp.generated.resources.groups_tooltip_edit_name
 import familyfilmkmp.composeapp.generated.resources.groups_update_loading
 import familyfilmkmp.composeapp.generated.resources.screen_title_groups
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.readBytes
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,6 +103,7 @@ fun GroupDetailContent(
     onBack: () -> Unit = {},
     onShowDialog: (GroupDetailDialog) -> Unit = {},
     onChangeGroupName: (Group) -> Unit = {},
+    onPickGroupImage: (Group, ByteArray) -> Unit = { _, _ -> },
     onAddMember: (groupId: String, identifier: String) -> Unit = { _, _ -> },
     onDeleteGroup: (String) -> Unit = {},
     onRemoveMember: (groupId: String, userId: String) -> Unit = { _, _ -> },
@@ -161,7 +172,9 @@ fun GroupDetailContent(
                 GroupDetailBody(
                     groupData = groupData,
                     syncState = state.syncState,
+                    isUploadingImage = state.isUploadingImage,
                     modifier = Modifier.padding(paddingValues),
+                    onPickGroupImage = onPickGroupImage,
                     onDeleteUser = { user -> onRemoveMember(groupData.group.id, user.id) },
                     onMediaClick = onMediaClick,
                     onRevealRecommended = onRevealRecommended,
@@ -310,7 +323,9 @@ private fun GroupDetailTopBar(
 private fun GroupDetailBody(
     groupData: GroupDetailViewModel.GroupData,
     syncState: SyncState,
+    isUploadingImage: Boolean,
     modifier: Modifier = Modifier,
+    onPickGroupImage: (Group, ByteArray) -> Unit,
     onDeleteUser: (User) -> Unit,
     onMediaClick: (Media) -> Unit,
     onRevealRecommended: () -> Unit,
@@ -356,6 +371,16 @@ private fun GroupDetailBody(
         }
 
         item {
+            GroupImageHeader(
+                group = groupData.group,
+                canEdit = groupData.isCurrentUserOwner,
+                isUploading = isUploadingImage,
+                onPickImage = onPickGroupImage,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+
+        item {
             GroupMembersSection(
                 groupData = groupData,
                 onDeleteUser = onDeleteUser,
@@ -392,6 +417,73 @@ private fun GroupDetailBody(
                     mediaList = groupData.mediaWatched,
                     onMediaClick = onMediaClick,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupImageHeader(
+    group: Group,
+    canEdit: Boolean,
+    isUploading: Boolean,
+    onPickImage: (Group, ByteArray) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    val launcher = rememberFilePickerLauncher(type = FileKitType.Image) { file ->
+        file?.let { picked -> scope.launch { onPickImage(group, picked.readBytes()) } }
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .then(
+                    if (canEdit && !isUploading) {
+                        Modifier.clickable { launcher.launch() }
+                    } else {
+                        Modifier
+                    },
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            GroupAvatar(group = group, size = 96.dp, textStyle = MaterialTheme.typography.headlineMedium)
+
+            if (isUploading) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            }
+
+            if (canEdit && !isUploading) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ModeEditOutline,
+                        contentDescription = stringResource(Res.string.group_change_image),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
         }
     }
@@ -542,7 +634,7 @@ private fun previewGroupData(currentUserId: String): GroupDetailViewModel.GroupD
         ),
         mediaToWatch = emptyList(),
         mediaWatched = emptyList(),
-        recommendedMedia = null,
+        recommendedMedia = Media(),
         currentUserId = currentUserId,
     )
 }

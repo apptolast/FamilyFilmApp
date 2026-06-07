@@ -16,6 +16,8 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.crashlytics.crashlytics
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.manualFileKitCoreInitialization
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,6 +44,9 @@ class FamilyFilmApp :
 
     override fun onCreate() {
         super.onCreate()
+        // App Startup's InitializationProvider is disabled in the manifest, so FileKit Core
+        // (used to read picked images) must be initialized manually.
+        FileKit.manualFileKitCoreInitialization(this)
         initKoin {
             androidContext(this@FamilyFilmApp)
         }
@@ -98,7 +103,7 @@ class FamilyFilmApp :
         if (isDebug) {
             MobileAds.setRequestConfiguration(
                 RequestConfiguration.Builder()
-                    .setTestDeviceIds(listOf(TEST_DEVICE_ID))
+                    .setTestDeviceIds(TEST_DEVICES_ID)
                     .build(),
             )
         }
@@ -135,6 +140,9 @@ class FamilyFilmApp :
     override fun onActivityDestroyed(activity: Activity) = Unit
 
     private companion object {
-        const val TEST_DEVICE_ID = "6EBCD242716D331EAA6673852DA6C4FA"
+        val TEST_DEVICES_ID = listOf(
+            "6EBCD242716D331EAA6673852DA6C4FA",
+            "629EF1EF630FCDF00556AE00515328A1",
+        )
     }
 }

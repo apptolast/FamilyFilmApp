@@ -6,6 +6,7 @@ data class Group(
     val id: String,
     val ownerId: String,
     val name: String,
+    val imageUrl: String = "",
     val users: List<String>,
     val lastUpdated: Instant?,
 ) {
@@ -13,6 +14,7 @@ data class Group(
         id = "",
         ownerId = "",
         name = "",
+        imageUrl = "",
         users = emptyList(),
         lastUpdated = null,
     )

@@ -34,7 +34,7 @@ import kotlinx.coroutines.IO
         ChatMessageTable::class,
         SkippedMediaTable::class,
     ],
-    version = 11,
+    version = 12,
     exportSchema = true,
 )
 @TypeConverters(
@@ -247,6 +247,14 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    "ALTER TABLE $GROUPS_TABLE_NAME ADD COLUMN imageUrl TEXT NOT NULL DEFAULT ''",
+                )
+            }
+        }
     }
 }
 
@@ -268,6 +276,7 @@ fun buildAppDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase = 
         AppDatabase.MIGRATION_8_9,
         AppDatabase.MIGRATION_9_10,
         AppDatabase.MIGRATION_10_11,
+        AppDatabase.MIGRATION_11_12,
     )
     .setDriver(BundledSQLiteDriver())
     .setQueryCoroutineContext(Dispatchers.IO)

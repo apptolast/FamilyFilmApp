@@ -11,6 +11,7 @@ import com.apptolast.familyfilmapp.model.room.GroupTable
 import com.apptolast.familyfilmapp.model.room.toGroupMediaStatusTable
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.TmdbDatasource
 import dev.mokkery.MockMode
@@ -44,6 +45,7 @@ class RepositoryImplSyncTest {
 
     private val room = mock<RoomDatasource>(MockMode.autoUnit)
     private val firebase = mock<FirebaseDatabaseDatasource>(MockMode.autoUnit)
+    private val firebaseStorage = mock<FirebaseStorageDatasource>(MockMode.autoUnit)
     private val tmdb = mock<TmdbDatasource>(MockMode.autoUnit)
     private val localeManager = mock<TmdbLocaleManager>(MockMode.autoUnit)
     private val crashReporter = mock<CrashReporter>(MockMode.autoUnit)
@@ -69,7 +71,8 @@ class RepositoryImplSyncTest {
         every { room.getMyGroups(userId) } returns flowOf(emptyList<GroupTable>())
     }
 
-    private fun createRepository() = RepositoryImpl(room, firebase, tmdb, repositoryScope, localeManager, crashReporter)
+    private fun createRepository() =
+        RepositoryImpl(room, firebase, firebaseStorage, tmdb, repositoryScope, localeManager, crashReporter)
 
     @AfterTest
     fun tearDown() {

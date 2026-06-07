@@ -199,6 +199,21 @@ class GroupDetailViewModel(
             }
     }
 
+    fun updateGroupImage(group: Group, imageBytes: ByteArray) = viewModelScope.launch {
+        _state.update { it.copy(isUploadingImage = true, error = null) }
+        repository.updateGroupImage(group, imageBytes)
+            .onSuccess {
+                analyticsTracker.logEvent(AnalyticsEvents.GROUP_IMAGE_UPDATED)
+                _state.update { it.copy(isUploadingImage = false) }
+            }
+            .onFailure { error ->
+                crashReporter.recordException(error)
+                _state.update {
+                    it.copy(error = error.message ?: "Error updating group image", isUploadingImage = false)
+                }
+            }
+    }
+
     fun addMember(groupId: String, identifier: String) = viewModelScope.launch {
         _state.update { it.copy(isLoading = true, error = null) }
         repository.addMember(groupId, identifier)
@@ -266,6 +281,7 @@ class GroupDetailViewModel(
     data class GroupDetailState(
         val groupData: GroupData? = null,
         val isLoading: Boolean = true,
+        val isUploadingImage: Boolean = false,
         val error: String? = null,
         val showDialog: GroupDetailDialog = GroupDetailDialog.None,
         val syncState: SyncState = SyncState.Synced,

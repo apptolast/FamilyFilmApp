@@ -23,8 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,11 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +54,7 @@ import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.ui.components.GroupFilterChips
 import com.apptolast.familyfilmapp.ui.components.MediaFilterChips
 import com.apptolast.familyfilmapp.ui.screens.discover.components.SwipeableMediaCard
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
@@ -71,9 +67,6 @@ import com.apptolast.familyfilmapp.utils.TT_DISCOVER_SKIP_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_TO_WATCH_BUTTON
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_WATCHED_BUTTON
 import familyfilmkmp.composeapp.generated.resources.Res
-import familyfilmkmp.composeapp.generated.resources.discover_groups_all
-import familyfilmkmp.composeapp.generated.resources.discover_groups_label
-import familyfilmkmp.composeapp.generated.resources.discover_groups_select
 import familyfilmkmp.composeapp.generated.resources.discover_loading
 import familyfilmkmp.composeapp.generated.resources.discover_no_more_movies
 import familyfilmkmp.composeapp.generated.resources.discover_restore
@@ -101,7 +94,6 @@ fun DiscoverContent(
     onClearError: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var showGroupSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.error?.let { error ->
@@ -178,24 +170,11 @@ fun DiscoverContent(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             if (state.groups.isNotEmpty()) {
-                                val groupSummary = buildGroupSummaryText(state)
-
-                                OutlinedButton(
-                                    onClick = { showGroupSheet = true },
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Groups,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = groupSummary,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
+                                GroupFilterChips(
+                                    groups = state.groups,
+                                    selectedGroupIds = state.selectedGroupIds,
+                                    onToggleGroup = onToggleGroup,
+                                )
 
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
@@ -323,49 +302,6 @@ fun DiscoverContent(
             }
         }
     }
-
-    if (showGroupSheet) {
-        val sheetState = rememberModalBottomSheetState()
-
-        ModalBottomSheet(
-            onDismissRequest = { showGroupSheet = false },
-            sheetState = sheetState,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp),
-            ) {
-                Text(
-                    text = stringResource(Res.string.discover_groups_select),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                )
-
-                state.groups.forEach { group ->
-                    val isChecked = group.id in state.selectedGroupIds
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = isChecked,
-                            onCheckedChange = { onToggleGroup(group.id) },
-                        )
-                        Text(
-                            text = group.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 8.dp),
-                        )
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -468,20 +404,6 @@ private fun DiscoverActionButton(
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
-@Composable
-private fun buildGroupSummaryText(uiState: DiscoverUiState): String {
-    val selectedGroups = uiState.groups.filter { it.id in uiState.selectedGroupIds }
-    return when {
-        selectedGroups.size == uiState.groups.size -> stringResource(Res.string.discover_groups_all)
-        selectedGroups.isEmpty() -> stringResource(Res.string.discover_groups_select)
-        selectedGroups.size == 1 -> stringResource(Res.string.discover_groups_label, selectedGroups.first().name)
-        else -> stringResource(
-            Res.string.discover_groups_label,
-            "${selectedGroups.first().name}, +${selectedGroups.size - 1}",
         )
     }
 }

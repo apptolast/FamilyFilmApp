@@ -21,6 +21,8 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.repositories.RepositoryImpl
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasource
+import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.RoomDatasource
@@ -71,6 +73,7 @@ val dataModule = module {
     singleOf(::CrashReporter)
     singleOf(::FirebaseCurrentUserIdProvider) bind CurrentUserIdProvider::class
     singleOf(::FirebaseDatabaseDatasourceImpl) bind FirebaseDatabaseDatasource::class
+    singleOf(::FirebaseStorageDatasourceImpl) bind FirebaseStorageDatasource::class
 
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     singleOf(::TmdbDatasourceImpl) bind TmdbDatasource::class

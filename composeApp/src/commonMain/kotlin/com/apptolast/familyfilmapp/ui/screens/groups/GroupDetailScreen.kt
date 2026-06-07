@@ -29,6 +29,7 @@ fun GroupDetailScreen(
         onBack = onBack,
         onShowDialog = viewModel::showDialog,
         onChangeGroupName = viewModel::changeGroupName,
+        onPickGroupImage = viewModel::updateGroupImage,
         onAddMember = viewModel::addMember,
         onDeleteGroup = viewModel::deleteGroup,
         onRemoveMember = viewModel::removeMember,

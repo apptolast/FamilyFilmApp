@@ -20,6 +20,7 @@ object AnalyticsEvents {
     const val GROUP_DELETED = "group_deleted"
     const val GROUP_SWITCHED = "group_switched"
     const val GROUP_RENAMED = "group_renamed"
+    const val GROUP_IMAGE_UPDATED = "group_image_updated"
     const val GROUP_MEMBER_ADDED = "group_member_added"
     const val GROUP_MEMBER_REMOVED = "group_member_removed"
     const val GROUP_INVITE_SHARED = "group_invite_shared"

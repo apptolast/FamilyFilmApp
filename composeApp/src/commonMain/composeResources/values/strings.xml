@@ -57,6 +57,9 @@
     <string name="groups_detail_not_found">Group not found</string>
     <string name="groups_member_avatar">%1$s profile picture</string>
     <string name="groups_update_loading">Updating group information…</string>
+    <string name="group_avatar">%1$s group image</string>
+    <string name="group_change_image">Change group image</string>
+    <string name="group_image_upload_error">Couldn\'t update the group image</string>
 
     <!-- SEARCH -->
     <string name="search_film_or_series">Search film or series</string>
@@ -74,9 +77,6 @@
     <string name="discover_no_more_movies">No more movies! Check back later</string>
     <string name="discover_loading">Loading movies…</string>
     <string name="discover_swipe_left">Swipe left to mark as watched</string>
-    <string name="discover_groups_label">Groups: %1$s</string>
-    <string name="discover_groups_select">Select groups</string>
-    <string name="discover_groups_all">All groups</string>
     <string name="discover_swipe_right">Swipe right to add to watchlist</string>
     <string name="discover_skipped_action">Skipped media</string>
     <string name="discover_skipped_title">Skipped media</string>

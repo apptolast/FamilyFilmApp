@@ -51,6 +51,13 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Decode google-services.json
+        # ktlintCheck runs the Android variant tasks (processDebugGoogleServices) that need this file; restore it from the base64 secret.
+        if: ${{ env.HAS_FIREBASE_JSON == 'true' }}
+        env:
+          HAS_FIREBASE_JSON: ${{ secrets.FIREBASE_JSON != '' }}
+        run: echo "${{ secrets.FIREBASE_JSON }}" | base64 -d > composeApp/google-services.json
+
       - name: Run ktlint
         run: ./gradlew :composeApp:ktlintCheck --continue
 
@@ -198,5 +205,6 @@ jobs:
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages" \
+            ARCHS=arm64 \
             CODE_SIGNING_ALLOWED=NO \
             build

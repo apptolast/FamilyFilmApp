@@ -164,7 +164,6 @@ fun appTypography(): Typography {
     )
 }
 
-
 @Preview
 @Composable
 private fun PreviewTypographyScale() {

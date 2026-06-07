@@ -1,0 +1,181 @@
+# Fastfile — Android lanes for FamilyFilmApp (KMP composeApp module).
+#
+# Tag-driven release model:
+#   • versionName comes from the Git tag (`v1.2.3` → `1.2.3`).
+#   • versionCode is `max(existing on all Play tracks) + 1` — fastlane queries
+#     Play Console at lane runtime, no state in the repo.
+#   • Both values are injected into Gradle as `-PappVersionCode=N
+#     -PappVersionName=X`, so build.gradle.kts is never modified by CI.
+#
+# Lanes (run from `composeApp/`; fastlane does not walk up looking for the
+# `fastlane/` folder, so cwd matters even though Bundler walks up for the
+# root Gemfile):
+#   cd composeApp
+#   bundle exec fastlane android version          # show current local defaults
+#   bundle exec fastlane android validate_play    # sanity-check Play credentials
+#   bundle exec fastlane android build            # build a signed AAB locally
+#   bundle exec fastlane android internal         # build + upload to Internal testing as DRAFT
+#   bundle exec fastlane android release_from_tag # CI-only: tag → Internal testing as DRAFT
+
+default_platform(:android)
+
+# ---------------------------------------------------------------------------
+# Path constants — resolved from this file's location, not the cwd, so lanes
+# work whether you launch fastlane from the repo root, composeApp/, or CI.
+# ---------------------------------------------------------------------------
+
+COMPOSE_APP_DIR = File.expand_path("..", __dir__)        # …/FamilyFilmKmp/composeApp
+ROOT_DIR        = File.expand_path("../..", __dir__)     # …/FamilyFilmKmp
+BUILD_GRADLE    = File.join(COMPOSE_APP_DIR, "build.gradle.kts")
+AAB_PATH        = File.join(
+  COMPOSE_APP_DIR,
+  "build/outputs/bundle/release/composeApp-release.aab"
+)
+
+# Tracks fastlane queries when computing the next versionCode. Play enforces
+# global uniqueness across tracks, so we have to take the max of all of them.
+PLAY_TRACKS = %w[production beta alpha internal].freeze
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+# Reads the *default* versionCode declared in build.gradle.kts (after the `?:`
+# fallback). Used only by the `version` and `build` lanes when no override is
+# passed; release lanes compute the real value from Play.
+def default_version_code
+  text = File.read(BUILD_GRADLE)
+  # Match `versionCode = ... ?: 30` (Kotlin elvis fallback) OR plain `versionCode = 30`.
+  match = text.match(/versionCode\s*=.*\?:\s*(\d+)/) || text.match(/versionCode\s*=\s*(\d+)/)
+  UI.user_error!("versionCode default not found in #{BUILD_GRADLE}") unless match
+  match[1].to_i
+end
+
+def default_version_name
+  text = File.read(BUILD_GRADLE)
+  match = text.match(/versionName\s*=.*\?:\s*"([^"]+)"/) || text.match(/versionName\s*=\s*"([^"]+)"/)
+  UI.user_error!("versionName default not found in #{BUILD_GRADLE}") unless match
+  match[1]
+end
+
+# Returns the next versionCode by querying every Play track and adding 1 to
+# the highest code seen anywhere. Stateless from the repo's perspective —
+# nothing has to be committed back.
+def next_version_code_from_play
+  codes = PLAY_TRACKS.flat_map do |track|
+    google_play_track_version_codes(track: track)
+  rescue StandardError => e
+    # Empty tracks (e.g. you've never released to alpha) raise — treat as [].
+    UI.message "Track '#{track}' returned no codes (#{e.class}); treating as empty."
+    []
+  end
+  highest = codes.max || 0
+  highest + 1
+end
+
+# Extracts the semver portion of a `v*` Git tag.
+#   "v1.2.3"      → "1.2.3"
+#   "v1.2.3-rc1"  → "1.2.3-rc1"
+def parse_tag(tag)
+  match = tag.to_s.match(/\Av(\d+\.\d+\.\d+(?:[-+][\w.\-]+)?)\z/)
+  UI.user_error!("Tag '#{tag}' is not in form `vMAJOR.MINOR.PATCH[-suffix]`") unless match
+  match[1]
+end
+
+# ---------------------------------------------------------------------------
+# Lanes
+# ---------------------------------------------------------------------------
+
+platform :android do
+
+  desc "Print versionCode/versionName as currently declared in build.gradle.kts (defaults for local debug builds)"
+  lane :version do
+    UI.message "default versionCode = #{default_version_code}"
+    UI.message "default versionName = #{default_version_name}"
+    UI.message "(release builds via fastlane override these from the Git tag + Play)"
+  end
+
+  desc "Sanity-check Play Console credentials by listing existing versionCodes across all tracks"
+  lane :validate_play do
+    PLAY_TRACKS.each do |track|
+      codes = google_play_track_version_codes(track: track) rescue []
+      UI.message "Play '#{track}' versionCodes: #{codes.inspect}"
+    end
+  end
+
+  desc "Clean & build a signed release AAB. Pass version_code:N version_name:X to override the defaults from build.gradle.kts."
+  lane :build do |options|
+    vcode = options[:version_code] || default_version_code
+    vname = options[:version_name] || default_version_name
+
+    gradle(
+      task: ":composeApp:clean",
+      project_dir: ROOT_DIR
+    )
+    gradle(
+      task: ":composeApp:bundleRelease",
+      project_dir: ROOT_DIR,
+      properties: {
+        "appVersionCode" => vcode,
+        "appVersionName" => vname
+      },
+      # Configuration cache + supply uploads have caused friction historically;
+      # disabling for release builds is cheap insurance.
+      flags: "--no-configuration-cache"
+    )
+    UI.success "Built versionCode #{vcode}, versionName #{vname}"
+    UI.message "  → #{AAB_PATH}"
+  end
+
+  desc "Build & upload to Internal testing as DRAFT. Useful for local manual testing of an unreleased branch. Pass version_name:'1.1.0-rc1' to set the user-facing label."
+  lane :internal do |options|
+    vcode = next_version_code_from_play
+    # When the caller didn't specify a version_name, label it as "<default>-internal-<code>"
+    # so QA can see at a glance that this isn't a tagged release.
+    vname = options[:version_name] || "#{default_version_name}-internal-#{vcode}"
+
+    build(version_code: vcode, version_name: vname)
+
+    upload_to_play_store(
+      track: "internal",
+      aab: AAB_PATH,
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true
+    )
+    UI.success "Uploaded to Internal testing as DRAFT — versionCode #{vcode}, versionName #{vname}"
+    UI.message "Open Play Console → Internal testing to review and roll out."
+  end
+
+  desc "CI-only: read the Git tag from GITHUB_REF_NAME, compute versionCode from Play, build, upload to Internal testing as DRAFT."
+  lane :release_from_tag do
+    tag = ENV["GITHUB_REF_NAME"]
+    UI.user_error!("GITHUB_REF_NAME not set — this lane is meant to run from a tag-triggered GitHub Actions job") if tag.to_s.empty?
+
+    vname = parse_tag(tag)
+    vcode = next_version_code_from_play
+
+    build(version_code: vcode, version_name: vname)
+
+    upload_to_play_store(
+      track: "internal",
+      aab: AAB_PATH,
+      # DRAFT means the internal release is staged in Play Console but NOT
+      # rolled out until you review and publish it from Internal testing.
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true
+    )
+    UI.success "Uploaded v#{vname} (versionCode #{vcode}) to Internal testing as DRAFT"
+  end
+
+  error do |lane, exception|
+    UI.error "Lane `#{lane}` failed: #{exception.message}"
+  end
+end

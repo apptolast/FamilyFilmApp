@@ -1,4 +1,19 @@
-name: Android Build
+# PR / develop pipeline for FamilyFilmApp (KMP).
+#
+# Three parallel jobs validate every push:
+#   • ktlint runs on Ubuntu; cheap, fails fast.
+#   • android-build runs on Ubuntu and builds the debug AAB + unit tests.
+#   • ios-build runs on macOS-15 (Xcode 16+) and assembles the Kotlin framework
+#     for the iOS simulator, then drives `xcodebuild` against the Xcode project
+#     so Swift Package Manager resolves all native iOS dependencies. There is
+#     no CocoaPods step — SPM is the only iOS dependency manager.
+#
+# Secrets feed BuildKonfig and Firebase config; they're listed inline next to
+# the step that consumes them. FIREBASE_JSON (base64 of
+# composeApp/google-services.json, single line) is required by the Android +
+# ktlint jobs. The iOS GoogleService-Info.plist is committed, not a secret.
+
+name: Build
 
 on:
   pull_request:
@@ -7,81 +22,198 @@ on:
   push:
     branches:
       - develop
-
   workflow_dispatch:
 
+# Cancel superseded runs on the same branch — the latest push is the only one
+# whose status we care about. Tagged release runs (deploy-*.yml) live in a
+# different concurrency group and are never cancelled.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    name: Build
+  ktlint:
+    name: ktlint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Restore Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'adopt'
-
-      - name: Decode google-services.json
-        env:
-          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
-        run: echo $FIREBASE_JSON > app/google-services.json
-
-      - name: Create local.properties
-        run: |
-          echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
-          echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
-          echo "ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}" >> local.properties
-          echo "ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}" >> local.properties
-          echo "ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}" >> local.properties
-          echo "ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}" >> local.properties
-
-      - name: Run Debug Tests
-        run: ./gradlew build test --continue
-
-      - name: Upload Test Reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: '**/build/reports/tests/'
-
-  dependency-submission:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout project sources
         uses: actions/checkout@v4
 
-      - name: Create local.properties
-        run: |
-          echo "WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}" >> local.properties
-          echo "TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}" >> local.properties
-          echo "ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}" >> local.properties
-          echo "ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}" >> local.properties
-          echo "ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}" >> local.properties
-          echo "ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}" >> local.properties
-          echo "REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}" >> local.properties
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@v3
+      - name: Set up JDK 17
+        # AGP 9 + Kotlin 2.3 toolchain. JVM bytecode target is configured in
+        # build.gradle.kts (JVM 17 for both androidTarget and main JVM).
+        uses: actions/setup-java@v4
         with:
-          build-scan-publish: true
-          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-use-agree: "yes"
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore google-services.json
+        # ktlintCheck pulls in the Android variant tasks (processGoogleServices),
+        # which need this gitignored file. The secret must be the base64 of the
+        # file on a single line, NOT raw JSON — fix command is in the error.
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+          if [ -z "$FIREBASE_JSON" ]; then
+            echo "::error::FIREBASE_JSON secret is empty."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_JSON" | tr -d '[:space:]' | base64 -d > composeApp/google-services.json 2>/dev/null || true
+          if ! python3 -c "import json; json.load(open('composeApp/google-services.json'))" 2>/dev/null; then
+            echo "::error::FIREBASE_JSON must be the BASE64 of google-services.json on a single line, not raw JSON. Recreate it:  base64 -i composeApp/google-services.json | tr -d '\n' | gh secret set FIREBASE_JSON"
+            exit 1
+          fi
+
+      - name: Run ktlint
+        run: ./gradlew :composeApp:ktlintCheck --continue
+
+  android-build:
+    name: Android build & unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore google-services.json
+        # Required by the google-services Gradle plugin (processGoogleServices).
+        # Gitignored, so restored from a base64 secret. The secret must be the
+        # base64 of the file on a single line, NOT raw JSON — fix in the error.
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+          if [ -z "$FIREBASE_JSON" ]; then
+            echo "::error::FIREBASE_JSON secret is empty."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_JSON" | tr -d '[:space:]' | base64 -d > composeApp/google-services.json 2>/dev/null || true
+          if ! python3 -c "import json; json.load(open('composeApp/google-services.json'))" 2>/dev/null; then
+            echo "::error::FIREBASE_JSON must be the BASE64 of google-services.json on a single line, not raw JSON. Recreate it:  base64 -i composeApp/google-services.json | tr -d '\n' | gh secret set FIREBASE_JSON"
+            exit 1
+          fi
+
+      - name: Render local.properties
+        # All BuildKonfig fields plus the AdMob `admob_app_id` resValue read
+        # from local.properties. Anything missing becomes an empty string at
+        # build time — the app will still compile, just with placeholders.
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=$ANDROID_HOME
+          WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}
+          TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+          ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}
+          ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
+          ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
+          ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          ADMOB_APPLICATION_ID_IOS=${{ secrets.ADMOB_APPLICATION_ID_IOS }}
+          ADMOB_BOTTOM_BANNER_ID_IOS=${{ secrets.ADMOB_BOTTOM_BANNER_ID_IOS }}
+          ADMOB_APP_OPEN_ID_IOS=${{ secrets.ADMOB_APP_OPEN_ID_IOS }}
+          ADMOB_NATIVE_HOME_ID_IOS=${{ secrets.ADMOB_NATIVE_HOME_ID_IOS }}
+          REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
+          REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
+          REVENUECAT_APPSTORE_SDK_KEY=${{ secrets.REVENUECAT_APPSTORE_SDK_KEY }}
+          EOF
+
+      - name: Build composeApp (debug) + unit tests
+        run: ./gradlew :composeApp:assembleDebug :composeApp:testDebugUnitTest --continue
+
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: composeApp-unit-test-report
+          path: composeApp/build/reports/tests/testDebugUnitTest
+          retention-days: 14
+          if-no-files-found: ignore
+
+  ios-build:
+    name: iOS simulator build
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 16+
+        # Project is objectVersion 77 (Xcode 16 file-system synchronized groups) — only Xcode 16+ can open it.
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      # GoogleService-Info.plist is committed in the repo, so no decode step is needed here.
+
+      - name: Render local.properties
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=$ANDROID_HOME
+          WEB_ID_CLIENT=${{ secrets.WEB_ID_CLIENT }}
+          TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+          ADMOB_APPLICATION_ID=${{ secrets.ADMOB_APPLICATION_ID }}
+          ADMOB_BOTTOM_BANNER_ID=${{ secrets.ADMOB_BOTTOM_BANNER_ID }}
+          ADMOB_APP_OPEN_ID=${{ secrets.ADMOB_APP_OPEN_ID }}
+          ADMOB_NATIVE_HOME_ID=${{ secrets.ADMOB_NATIVE_HOME_ID }}
+          ADMOB_APPLICATION_ID_IOS=${{ secrets.ADMOB_APPLICATION_ID_IOS }}
+          ADMOB_BOTTOM_BANNER_ID_IOS=${{ secrets.ADMOB_BOTTOM_BANNER_ID_IOS }}
+          ADMOB_APP_OPEN_ID_IOS=${{ secrets.ADMOB_APP_OPEN_ID_IOS }}
+          ADMOB_NATIVE_HOME_ID_IOS=${{ secrets.ADMOB_NATIVE_HOME_ID_IOS }}
+          REVENUECAT_PLAY_SDK_KEY=${{ secrets.REVENUECAT_PLAY_SDK_KEY }}
+          REVENUECAT_PLAY_SDK_KEY_TEST=${{ secrets.REVENUECAT_PLAY_SDK_KEY_TEST }}
+          REVENUECAT_APPSTORE_SDK_KEY=${{ secrets.REVENUECAT_APPSTORE_SDK_KEY }}
+          EOF
+
+      - name: Link Kotlin framework for iOS simulator
+        # Pre-builds the KMP framework so Kotlin compile errors fail this
+        # step (clear logs) rather than getting buried in xcodebuild output.
+        # Xcode's Run Script Phase re-runs `embedAndSignAppleFrameworkForXcode`
+        # during build_app to do the embed step, but the heavy lifting
+        # (link) is already cached at that point.
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --no-configuration-cache
+
+      - name: Resolve Swift Package dependencies
+        # Equivalent of `pod install` from the CocoaPods era. -clonedSourcePackagesDirPath
+        # points at a stable cache that gradle/actions/setup-gradle does NOT
+        # touch (it lives outside ~/.gradle); xcodebuild will reuse it.
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -resolvePackageDependencies \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages"
+
+      - name: Build iosApp for simulator
+        # Generic iOS Simulator destination so we don't have to keep this
+        # workflow in sync with whichever device names the runner image
+        # happens to bake in this month.
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages" \
+            ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            build

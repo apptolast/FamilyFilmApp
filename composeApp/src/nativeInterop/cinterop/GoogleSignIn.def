@@ -1,0 +1,4 @@
+language = Objective-C
+package = ios.googlesignin
+modules = GoogleSignIn
+linkerOpts = -framework GoogleSignIn

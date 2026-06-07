@@ -79,6 +79,7 @@ jobs:
         # ruby version, so repeated runs skip the gem install entirely.
         uses: ruby/setup-ruby@v1
         with:
+          ruby-version: '3.3'
           bundler-cache: true
 
       - name: Set up Gradle cache

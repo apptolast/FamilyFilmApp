@@ -48,7 +48,6 @@ class ProfileViewModel(
     private val _isPurchaseLoading = MutableStateFlow(false)
     val isPurchaseLoading: StateFlow<Boolean> = _isPurchaseLoading.asStateFlow()
 
-    val includeAdult: StateFlow<Boolean> = tmdbLocaleManager.includeAdult
     val hasRatedApp: StateFlow<Boolean> = rateAppManager.hasRatedApp
     val hasChatPremium: StateFlow<Boolean> = purchaseManager.hasChatPremium
 
@@ -93,10 +92,6 @@ class ProfileViewModel(
         usernameCheckJob?.cancel()
         _usernameValidationState.update { UsernameValidationState.Idle }
         _saveError.update { null }
-    }
-
-    fun saveIncludeAdult(value: Boolean) {
-        tmdbLocaleManager.updateIncludeAdult(value)
     }
 
     fun markAppAsRated() {

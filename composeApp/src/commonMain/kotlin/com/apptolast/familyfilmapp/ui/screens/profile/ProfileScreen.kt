@@ -16,7 +16,6 @@ fun ProfileScreen(
     val usernameValidationState by profileViewModel.usernameValidationState.collectAsState()
     val isSaving by profileViewModel.isSaving.collectAsState()
     val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsState()
-    val includeAdult by profileViewModel.includeAdult.collectAsState()
     val hasRatedApp by profileViewModel.hasRatedApp.collectAsState()
     val hasChatPremium by profileViewModel.hasChatPremium.collectAsState()
 
@@ -27,11 +26,9 @@ fun ProfileScreen(
         usernameValidationState = usernameValidationState,
         isSaving = isSaving,
         isPurchaseLoading = isPurchaseLoading,
-        includeAdult = includeAdult,
         hasRatedApp = hasRatedApp,
         hasChatPremium = hasChatPremium,
         purchaseEvents = profileViewModel.purchaseEvent,
-        onIncludeAdultChange = profileViewModel::saveIncludeAdult,
         onUsernameChange = profileViewModel::onUsernameChange,
         onSaveUsername = profileViewModel::saveUsername,
         onCancelEditUsername = profileViewModel::resetValidationState,

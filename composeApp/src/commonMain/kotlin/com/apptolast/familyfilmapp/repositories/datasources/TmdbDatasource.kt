@@ -14,7 +14,6 @@ class TmdbDatasourceImpl(private val tmdbApi: TmdbApi, private val tmdbLocaleMan
 
     override suspend fun searchMovieByName(string: String): List<TmdbMovieRemote> = tmdbApi.searchMovieByName(
         query = string,
-        includeAdult = tmdbLocaleManager.includeAdult.value,
         language = currentLanguage(),
     ).results.filterAdult()
 
@@ -26,7 +25,6 @@ class TmdbDatasourceImpl(private val tmdbApi: TmdbApi, private val tmdbLocaleMan
 
     override suspend fun searchMulti(query: String): List<TmdbMultiSearchResultRemote> = tmdbApi.searchMulti(
         query = query,
-        includeAdult = tmdbLocaleManager.includeAdult.value,
         language = currentLanguage(),
     ).results.filterAdult()
 
@@ -35,15 +33,12 @@ class TmdbDatasourceImpl(private val tmdbApi: TmdbApi, private val tmdbLocaleMan
 
     private fun currentLanguage(): String = tmdbLocaleManager.languageTag.value
 
-    private fun <T : Any> List<T>.filterAdult(): List<T> {
-        if (tmdbLocaleManager.includeAdult.value) return this
-        return filter { item ->
-            when (item) {
-                is TmdbMovieRemote -> !item.adult
-                is TmdbTvShowRemote -> !item.adult
-                is TmdbMultiSearchResultRemote -> !item.adult
-                else -> true
-            }
+    private fun <T : Any> List<T>.filterAdult(): List<T> = filter { item ->
+        when (item) {
+            is TmdbMovieRemote -> !item.adult
+            is TmdbTvShowRemote -> !item.adult
+            is TmdbMultiSearchResultRemote -> !item.adult
+            else -> true
         }
     }
 }

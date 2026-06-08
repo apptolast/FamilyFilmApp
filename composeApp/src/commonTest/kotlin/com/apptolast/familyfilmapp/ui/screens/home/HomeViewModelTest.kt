@@ -49,7 +49,6 @@ class HomeViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        every { tmdbLocaleManager.includeAdult } returns MutableStateFlow(false)
         every { nativeAdManager.nativeAds } returns MutableStateFlow(emptyList())
         everySuspend { repository.getPopularMoviesList(1) } returns Result.success(emptyList())
         everySuspend { repository.getPopularTvShowsList(1) } returns Result.success(emptyList())

@@ -29,9 +29,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -70,15 +67,6 @@ class HomeViewModel(
             }
         }
         nativeAdManager.loadAds()
-        observeAdultContentChanges()
-    }
-
-    private fun observeAdultContentChanges() = viewModelScope.launch(dispatcherProvider.io()) {
-        tmdbLocaleManager.includeAdult
-            .drop(1)
-            .collect {
-                activeSearchQuery.value?.takeIf { it.isNotEmpty() }?.let { runSearch(it) }
-            }
     }
 
     override fun onCleared() {
@@ -86,12 +74,8 @@ class HomeViewModel(
         nativeAdManager.destroyAds()
     }
 
-    val media: Flow<PagingData<Media>> = combine(
-        selectedFilter,
-        tmdbLocaleManager.includeAdult,
-    ) { filter, includeAdult -> filter to includeAdult }
-        .distinctUntilChanged()
-        .flatMapLatest { (filter, _) ->
+    val media: Flow<PagingData<Media>> = selectedFilter
+        .flatMapLatest { filter ->
             val countryCode = tmdbLocaleManager.countryCode
             val pagingSourceFactory = when (filter) {
                 MediaFilter.ALL, MediaFilter.MOVIES -> {

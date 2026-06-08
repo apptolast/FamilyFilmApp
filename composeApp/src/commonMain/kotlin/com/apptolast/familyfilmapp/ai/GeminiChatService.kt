@@ -23,7 +23,7 @@ class GeminiChatService(private val tmdbLocaleManager: TmdbLocaleManager) {
         val payload = ChatCompleteRequest(
             prompt = prompt,
             languageTag = tmdbLocaleManager.languageTag.value,
-            includeAdult = tmdbLocaleManager.includeAdult.value,
+            includeAdult = false,
             isPremium = isPremium,
             history = history.map { msg ->
                 ChatHistoryMessage(

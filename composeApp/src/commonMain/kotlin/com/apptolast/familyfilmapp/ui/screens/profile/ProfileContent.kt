@@ -37,8 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -74,8 +72,6 @@ import com.apptolast.familyfilmapp.utils.getCountryDisplayName
 import com.apptolast.familyfilmapp.utils.toErrorString
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.account_title
-import familyfilmkmp.composeapp.generated.resources.adult_content_subtitle
-import familyfilmkmp.composeapp.generated.resources.adult_content_title
 import familyfilmkmp.composeapp.generated.resources.chat_premium_active_subtitle
 import familyfilmkmp.composeapp.generated.resources.chat_premium_active_title
 import familyfilmkmp.composeapp.generated.resources.chat_premium_upsell_subtitle
@@ -115,11 +111,9 @@ fun ProfileContent(
     usernameValidationState: UsernameValidationState,
     isSaving: Boolean,
     isPurchaseLoading: Boolean,
-    includeAdult: Boolean,
     hasRatedApp: Boolean,
     hasChatPremium: Boolean,
     purchaseEvents: Flow<PurchaseEvent>,
-    onIncludeAdultChange: (Boolean) -> Unit,
     onUsernameChange: (String) -> Unit,
     onSaveUsername: (User, String) -> Unit,
     onCancelEditUsername: () -> Unit,
@@ -171,10 +165,8 @@ fun ProfileContent(
                     user = user,
                     usernameValidationState = usernameValidationState,
                     isSaving = isSaving,
-                    includeAdult = includeAdult,
                     hasRatedApp = hasRatedApp,
                     hasChatPremium = hasChatPremium,
-                    onIncludeAdultChange = onIncludeAdultChange,
                     onUsernameChange = onUsernameChange,
                     onSaveUsername = { newUsername -> onSaveUsername(user, newUsername) },
                     onCancelEditUsername = onCancelEditUsername,
@@ -212,10 +204,8 @@ private fun ProfileBody(
     user: User,
     usernameValidationState: UsernameValidationState,
     isSaving: Boolean,
-    includeAdult: Boolean,
     hasRatedApp: Boolean,
     hasChatPremium: Boolean,
-    onIncludeAdultChange: (Boolean) -> Unit,
     onUsernameChange: (String) -> Unit,
     onSaveUsername: (String) -> Unit,
     onCancelEditUsername: () -> Unit,
@@ -382,15 +372,6 @@ private fun ProfileBody(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
-            )
-
-            HorizontalDivider()
-
-            ProfileSwitchItem(
-                title = stringResource(Res.string.adult_content_title),
-                subtitle = stringResource(Res.string.adult_content_subtitle),
-                checked = includeAdult,
-                onCheckedChange = onIncludeAdultChange,
             )
         }
 
@@ -585,52 +566,6 @@ fun ProfileItem(
 }
 
 @Composable
-fun ProfileSwitchItem(
-    title: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .clickable { onCheckedChange(!checked) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                checkedBorderColor = MaterialTheme.colorScheme.primary,
-                uncheckedThumbColor = MaterialTheme.colorScheme.surface,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
-            ),
-        )
-    }
-}
-
-@Composable
 private fun PurchaseLoadingDialog() {
     Dialog(onDismissRequest = {}) {
         Card(
@@ -668,11 +603,9 @@ private fun PreviewProfileContent() {
             usernameValidationState = UsernameValidationState.Idle,
             isSaving = false,
             isPurchaseLoading = false,
-            includeAdult = false,
             hasRatedApp = false,
             hasChatPremium = false,
             purchaseEvents = kotlinx.coroutines.flow.emptyFlow(),
-            onIncludeAdultChange = {},
             onUsernameChange = {},
             onSaveUsername = { _, _ -> },
             onCancelEditUsername = {},

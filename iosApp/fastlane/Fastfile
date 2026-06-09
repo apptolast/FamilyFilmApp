@@ -89,6 +89,8 @@ def prebuild_kotlin_framework(configuration: RELEASE_CONFIG)
   gradle(
     task: ":composeApp:#{task}",
     project_dir: ROOT_DIR,
+    # Mirror the Xcode run script: release framework → FFA/release Firestore/Storage root.
+    properties: configuration == RELEASE_CONFIG ? { "appBuildType" => "release" } : {},
     flags: "--no-configuration-cache"
   )
 end

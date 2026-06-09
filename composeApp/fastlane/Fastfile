@@ -117,7 +117,9 @@ platform :android do
       project_dir: ROOT_DIR,
       properties: {
         "appVersionCode" => vcode,
-        "appVersionName" => vname
+        "appVersionName" => vname,
+        # Points the Firestore/Storage root at FFA/release (not the dev FFA/debug tree).
+        "appBuildType" => "release"
       },
       # Configuration cache + supply uploads have caused friction historically;
       # disabling for release builds is cheap insurance.

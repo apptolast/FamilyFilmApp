@@ -751,3 +751,6 @@ obj/
 /.kotlin/sessions/
 *.klib
 .hotswan/
+
+# Temp migration notes (PII) — do not commit
+debug-users-migration-TEMP.md

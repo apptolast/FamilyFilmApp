@@ -190,8 +190,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         // Release builds via Fastlane override these with -PappVersionCode/-PappVersionName.
-        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 32
-        versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.1"
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 33
+        versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.2"
 
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -268,8 +268,12 @@ buildConfig {
     packageName("com.apptolast.familyfilmapp")
     useKotlinOutput { internalVisibility = false }
 
-    // TODO: switch to "release" (or wire a variant-aware flavorConfig) before publishing.
-    buildConfigField("BUILD_TYPE", "debug")
+    // Firestore/Storage root is FFA/<BUILD_TYPE>/… (see FirebaseDatabaseDatasource).
+    // Release builds inject -PappBuildType=release (Fastlane bundleRelease on Android, the
+    // Xcode "Compile Kotlin Framework" run script when CONFIGURATION=Release on iOS); local
+    // and dev builds fall back to "debug" so development never touches production data.
+    val appBuildType = (project.findProperty("appBuildType") as String?) ?: "debug"
+    buildConfigField("BUILD_TYPE", appBuildType)
     buildConfigField("WEB_ID_CLIENT", localProperty("WEB_ID_CLIENT"))
     buildConfigField("TMDB_ACCESS_TOKEN", localProperty("TMDB_ACCESS_TOKEN"))
     buildConfigField("ADMOB_APPLICATION_ID", localProperty("ADMOB_APPLICATION_ID"))

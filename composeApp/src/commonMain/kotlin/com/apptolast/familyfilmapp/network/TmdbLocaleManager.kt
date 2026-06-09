@@ -14,11 +14,6 @@ open class TmdbLocaleManager(private val settings: Settings) {
     )
     open val languageTag: StateFlow<String> = _languageTag.asStateFlow()
 
-    private val _includeAdult = MutableStateFlow(
-        settings.getBoolean(PREF_INCLUDE_ADULT, defaultValue = false),
-    )
-    open val includeAdult: StateFlow<Boolean> = _includeAdult.asStateFlow()
-
     open val countryCode: String
         get() {
             return countryCodeFromLanguageTag(
@@ -33,13 +28,7 @@ open class TmdbLocaleManager(private val settings: Settings) {
         settings.putString(PREF_LANGUAGE_TAG, effective)
     }
 
-    open fun updateIncludeAdult(value: Boolean) {
-        _includeAdult.value = value
-        settings.putBoolean(PREF_INCLUDE_ADULT, value)
-    }
-
     companion object {
         private const val PREF_LANGUAGE_TAG = "tmdb_language_tag"
-        private const val PREF_INCLUDE_ADULT = "include_adult"
     }
 }

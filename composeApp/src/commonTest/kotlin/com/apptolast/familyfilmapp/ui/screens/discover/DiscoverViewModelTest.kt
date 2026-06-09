@@ -11,7 +11,6 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.model.local.key
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaType
-import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.testing.TestDispatcherProvider
 import dev.mokkery.MockMode
@@ -43,7 +42,6 @@ class DiscoverViewModelTest {
     private val dispatcherProvider = TestDispatcherProvider(testDispatcher)
 
     private val repository = mock<Repository>(MockMode.autoUnit)
-    private val tmdbLocaleManager = mock<TmdbLocaleManager>(MockMode.autoUnit)
     private val analyticsTracker = mock<AnalyticsTracker>(MockMode.autoUnit)
     private val crashReporter = mock<CrashReporter>(MockMode.autoUnit)
     private val currentUserIdProvider = mock<CurrentUserIdProvider>(MockMode.autoUnit)
@@ -68,7 +66,6 @@ class DiscoverViewModelTest {
         shuffler = MediaShuffler { media -> media }
 
         every { currentUserIdProvider.currentUserId() } returns testUserId
-        every { tmdbLocaleManager.includeAdult } returns MutableStateFlow(false)
         every { repository.getUserById(testUserId) } returns flowOf(testUser)
         every { repository.getMyGroups(testUserId) } returns flowOf(listOf(testGroup))
         every { repository.observeSkippedMedia(testUserId) } returns skippedFlow
@@ -87,7 +84,6 @@ class DiscoverViewModelTest {
         viewModel = DiscoverViewModel(
             repository = repository,
             dispatcherProvider = dispatcherProvider,
-            tmdbLocaleManager = tmdbLocaleManager,
             analyticsTracker = analyticsTracker,
             crashReporter = crashReporter,
             currentUserIdProvider = currentUserIdProvider,

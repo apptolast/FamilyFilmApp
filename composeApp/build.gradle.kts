@@ -190,8 +190,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         // Release builds via Fastlane override these with -PappVersionCode/-PappVersionName.
-        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 31
-        versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.0"
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toInt() ?: 32
+        versionName = (project.findProperty("appVersionName") as String?) ?: "1.1.1"
 
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -12,7 +12,6 @@ import com.apptolast.familyfilmapp.model.local.MediaKey
 import com.apptolast.familyfilmapp.model.local.key
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
-import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.screens.home.toAnalyticsContentType
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -20,14 +19,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DiscoverViewModel(
     private val repository: Repository,
     private val dispatcherProvider: DispatcherProvider,
-    private val tmdbLocaleManager: TmdbLocaleManager,
     private val analyticsTracker: AnalyticsTracker,
     private val crashReporter: CrashReporter,
     private val currentUserIdProvider: CurrentUserIdProvider,
@@ -48,17 +45,6 @@ class DiscoverViewModel(
         loadGroups()
         observeSkippedMedia()
         loadMedia()
-        observeAdultContentChanges()
-    }
-
-    private fun observeAdultContentChanges() = viewModelScope.launch {
-        tmdbLocaleManager.includeAdult
-            .drop(1)
-            .collect {
-                currentPage = 1
-                _uiState.update { it.copy(mediaList = emptyList(), currentMediaIndex = 0) }
-                loadMedia()
-            }
     }
 
     private fun loadUser() = viewModelScope.launch {

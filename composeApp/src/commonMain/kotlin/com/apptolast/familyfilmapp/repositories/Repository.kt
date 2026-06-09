@@ -160,10 +160,7 @@ class RepositoryImpl(
             .filterAdultContent()
     }
 
-    private fun List<Media>.filterAdultContent(): List<Media> {
-        if (tmdbLocaleManager.includeAdult.value) return this
-        return filterNot { it.adult }
-    }
+    private fun List<Media>.filterAdultContent(): List<Media> = filterNot { it.adult }
 
     // ── Groups ─────────────────────────────────────────────────────────────
 

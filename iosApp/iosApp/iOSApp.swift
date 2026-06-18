@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import ComposeApp
 import AppTrackingTransparency
 import FirebaseCore
@@ -73,7 +74,8 @@ final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDeleg
     private override init() {
     }
 
-    func configure(application: UIApplication = .shared) {
+    func configure(application: UIApplication = .shared, onAuthorizationFinished: @escaping () -> Void = {
+    }) {
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
 
@@ -86,6 +88,9 @@ final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDeleg
 
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
+                // The notification dialog has now been dismissed, so the next system
+                // alert (ATT) can be presented without colliding with it.
+                onAuthorizationFinished()
             }
         }
     }
@@ -147,7 +152,6 @@ struct iOSApp: App {
 
         FirebaseApp.configure()
         Analytics.setAnalyticsCollectionEnabled(true)
-        PushNotificationCoordinator.shared.configure()
         AppDiagnostics.log("iOS app launched")
 
         // Install the GIDSignIn bridge so IosGoogleSignInClient can drive the
@@ -178,18 +182,26 @@ struct iOSApp: App {
             AppDiagnostics.record("RevenueCat skipped: App Store SDK key is empty", domain: "RevenueCat")
         }
 
-        // AdMob — register Kotlin↔Swift bridges before MobileAds.start so the first
+        // AdMob — register Kotlin↔Swift bridges before MobileAds starts so the first
         // composable that needs a banner finds the factory ready.
         BannerAdBridge.shared.factory = IOSBannerAdViewFactory()
         NativeAdBridge.shared.loader = IOSNativeAdLoader()
         NativeAdBridge.shared.viewFactory = IOSNativeAdViewFactory()
 
-        ATTrackingManager.requestTrackingAuthorization { _ in
-            // Result is observed by AdMob internally.
-        }
-        MobileAds.shared.start { _ in
-            AppDiagnostics.log("AdMob MobileAds.start completed")
-            AppOpenAdManager.shared.loadAd()
+        // Request notification permission first; only once its dialog is dismissed do we
+        // gather UMP consent and request ATT. iOS suppresses the ATT prompt (the request
+        // returns notDetermined without showing) when it's made while another system alert
+        // — the notification dialog — is still on screen. Sequencing them fixes that.
+        PushNotificationCoordinator.shared.configure {
+            let rootVC = UIApplication.shared.connectedScenes
+            .compactMap {
+                $0 as? UIWindowScene
+            }
+            .first?.windows.first?.rootViewController
+            ConsentManager.shared.gatherConsent(from: rootVC) {
+                AppDiagnostics.log("Consent gathered; loading app open ad")
+                AppOpenAdManager.shared.loadAd()
+            }
         }
 
         // GoogleSignIn reads `GIDClientID` from Info.plist on first use, so

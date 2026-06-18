@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +73,8 @@ import com.apptolast.familyfilmapp.utils.getCountryDisplayName
 import com.apptolast.familyfilmapp.utils.toErrorString
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.account_title
+import familyfilmkmp.composeapp.generated.resources.attribution_tmdb
+import familyfilmkmp.composeapp.generated.resources.attribution_tmdb_link_label
 import familyfilmkmp.composeapp.generated.resources.chat_premium_active_subtitle
 import familyfilmkmp.composeapp.generated.resources.chat_premium_active_title
 import familyfilmkmp.composeapp.generated.resources.chat_premium_upsell_subtitle
@@ -487,9 +490,43 @@ private fun ProfileBody(
             )
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        TmdbAttribution()
+
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
+
+// TMDB Terms of Use require crediting the data source. Text attribution (instead of the
+// TMDB logo) is an accepted form; the link opens via the multiplatform LocalUriHandler.
+@Composable
+private fun TmdbAttribution(modifier: Modifier = Modifier) {
+    val uriHandler = LocalUriHandler.current
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(Res.string.attribution_tmdb),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(Res.string.attribution_tmdb_link_label),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickable { uriHandler.openUri(TMDB_URL) },
+        )
+    }
+}
+
+private const val TMDB_URL = "https://www.themoviedb.org/"
 
 @Composable
 fun ProfileSection(title: String, content: @Composable () -> Unit) {
@@ -585,6 +622,14 @@ private fun PurchaseLoadingDialog() {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewTmdbAttribution() {
+    FamilyFilmAppTheme {
+        TmdbAttribution()
     }
 }
 

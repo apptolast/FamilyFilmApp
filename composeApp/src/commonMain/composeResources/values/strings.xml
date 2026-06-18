@@ -234,4 +234,8 @@
     <string name="delete_account_password_error">Please enter your password</string>
     <string name="delete_account_action">Delete</string>
 
+    <!-- TMDB attribution -->
+    <string name="attribution_tmdb">Movie and TV data and images are provided by The Movie Database (TMDB). This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+    <string name="attribution_tmdb_link_label">themoviedb.org</string>
+
 </resources>

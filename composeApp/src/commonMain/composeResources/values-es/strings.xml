@@ -235,4 +235,8 @@
     <string name="delete_account_password_error">Por favor, introduce tu contraseña</string>
     <string name="delete_account_action">Eliminar</string>
 
+    <!-- Atribución TMDB -->
+    <string name="attribution_tmdb">Los datos e imágenes de películas y series provienen de The Movie Database (TMDB). Este producto usa la API de TMDB, pero no está avalado ni certificado por TMDB.</string>
+    <string name="attribution_tmdb_link_label">themoviedb.org</string>
+
 </resources>

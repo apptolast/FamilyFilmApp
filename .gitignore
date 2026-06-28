@@ -581,6 +581,9 @@ fastlane/test_output
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots/**/*.png
+# fastlane snapshot writes these index files into the screenshots output dir.
+**/fastlane/screenshots/screenshots.html
+**/fastlane/screenshots/README.md
 **/fastlane/test_output
 **/fastlane/README.md
 # Local secrets — keep paths/keys out of git. .env.example IS tracked.

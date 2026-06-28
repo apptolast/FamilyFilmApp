@@ -2,6 +2,7 @@ package com.apptolast.familyfilmapp.ui.screens.chat
 
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
+import com.apptolast.familyfilmapp.purchases.SubscriptionPricing
 
 data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
@@ -12,6 +13,7 @@ data class ChatUiState(
     val isChatPremium: Boolean = false,
     val showPaywall: Boolean = false,
     val isPurchasing: Boolean = false,
+    val pricing: SubscriptionPricing? = null,
 ) {
     val allMessages: List<ChatMessage>
         get() = if (streamingMessage != null) messages + streamingMessage else messages

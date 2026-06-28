@@ -75,6 +75,36 @@ class IosRevenueCatPurchaseManager(private val crashReporter: CrashReporter) : P
         }
     }
 
+    override suspend fun getChatPremiumPricing(): SubscriptionPricing? {
+        val bridge = bridge ?: return null
+        return suspendCancellableCoroutine { cont ->
+            bridge.fetchChatPremiumPricing { priceString, periodUnit, periodCount, errorMessage ->
+                if (priceString == null || errorMessage != null) {
+                    if (errorMessage != null) {
+                        crashReporter.log("RevenueCat fetchChatPremiumPricing failed: $errorMessage")
+                    }
+                    cont.resume(null)
+                } else {
+                    cont.resume(
+                        SubscriptionPricing(
+                            priceString = priceString,
+                            periodUnit = periodUnit.toPeriodUnit(),
+                            periodCount = if (periodCount > 0) periodCount else 1,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun String?.toPeriodUnit(): PeriodUnit = when (this?.uppercase()) {
+        "DAY" -> PeriodUnit.DAY
+        "WEEK" -> PeriodUnit.WEEK
+        "MONTH" -> PeriodUnit.MONTH
+        "YEAR" -> PeriodUnit.YEAR
+        else -> PeriodUnit.UNKNOWN
+    }
+
     private suspend fun purchaseEntitlement(entitlement: String): Result<Unit> {
         val bridge = bridge
         if (bridge == null) {

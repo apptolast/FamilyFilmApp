@@ -50,11 +50,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
 import com.apptolast.familyfilmapp.model.local.types.MediaType
 import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.ui.components.PosterImage
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.ui.theme.redAgeMovie
 import com.apptolast.familyfilmapp.utils.TT_DETAIL_BACK_BUTTON
@@ -148,15 +148,15 @@ fun DetailsContent(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AsyncImage(
-                model = "${TmdbConfig.POSTER_DETAIL}${state.media.posterPath}",
-                contentDescription = "Media Poster",
+            PosterImage(
+                media = state.media,
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .fillMaxWidth(0.68f)
                     .height(350.dp)
                     .clip(MaterialTheme.shapes.small)
                     .testTag(TT_DETAIL_POSTER),
+                sizePath = TmdbConfig.POSTER_DETAIL,
                 contentScale = ContentScale.Fit,
             )
             MediaInfo(media = state.media)

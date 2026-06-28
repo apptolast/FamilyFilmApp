@@ -17,3 +17,8 @@ What you can do with Fliksy:
 Use Fliksy for family film nights, weekend plans, shared watchlists, date nights and any moment when “what should we watch?” takes too long.
 
 Fliksy is designed for people who love films and series, but do not want to spend the whole evening scrolling.
+
+Chat Premium is an auto-renewable subscription billed monthly. Payment is charged to your Apple Account at confirmation of purchase and renews automatically at the same price unless cancelled at least 24 hours before the end of the current period. Manage or cancel it anytime in your App Store account settings.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://apptolast.github.io/FamilyFilmApp/privacy-policy

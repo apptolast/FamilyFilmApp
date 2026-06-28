@@ -18,6 +18,8 @@ fun ProfileScreen(
     val isPurchaseLoading by profileViewModel.isPurchaseLoading.collectAsState()
     val hasRatedApp by profileViewModel.hasRatedApp.collectAsState()
     val hasChatPremium by profileViewModel.hasChatPremium.collectAsState()
+    val showChatPremiumPaywall by profileViewModel.showChatPremiumPaywall.collectAsState()
+    val chatPremiumPricing by profileViewModel.chatPremiumPricing.collectAsState()
 
     val user = (authState as? AuthState.Authenticated)?.user
 
@@ -28,6 +30,8 @@ fun ProfileScreen(
         isPurchaseLoading = isPurchaseLoading,
         hasRatedApp = hasRatedApp,
         hasChatPremium = hasChatPremium,
+        showChatPremiumPaywall = showChatPremiumPaywall,
+        chatPremiumPricing = chatPremiumPricing,
         purchaseEvents = profileViewModel.purchaseEvent,
         onUsernameChange = profileViewModel::onUsernameChange,
         onSaveUsername = profileViewModel::saveUsername,
@@ -35,7 +39,9 @@ fun ProfileScreen(
         onSaveLanguage = profileViewModel::saveLanguage,
         onLogout = authViewModel::logOut,
         onRemoveAds = profileViewModel::purchaseRemoveAds,
-        onChatPremium = profileViewModel::purchaseChatPremium,
+        onChatPremium = profileViewModel::showChatPremiumPaywall,
+        onChatPremiumPaywallConfirm = profileViewModel::purchaseChatPremium,
+        onChatPremiumPaywallDismiss = profileViewModel::dismissChatPremiumPaywall,
         onRestorePurchases = profileViewModel::restorePurchases,
         onRateApp = profileViewModel::markAppAsRated,
         onDeleteAccount = { email, password -> authViewModel.deleteUser(email, password) },

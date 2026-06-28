@@ -1,14 +1,12 @@
 import Foundation
 import UIKit
-import AppTrackingTransparency
 import GoogleMobileAds
 import UserMessagingPlatform
 
-/// Gathers Google UMP consent and requests App Tracking Transparency before starting
-/// AdMob. ATT is requested from inside the UMP `requestConsentInfoUpdate` completion,
-/// which runs on the main thread after a network round-trip — by which point the app is
-/// foreground-active, the only state in which iOS presents the ATT prompt. This mirrors
-/// the proven flow used in the InemSellar app.
+/// Gathers Google UMP consent and starts AdMob. App Tracking Transparency is requested
+/// earlier and independently (see `AppBootstrap`) so the ATT prompt can never collide with
+/// another system alert nor be dropped because the app is not foreground-active — the
+/// failure mode that kept ATT from appearing on iOS/iPadOS 26.
 final class ConsentManager {
     static let shared = ConsentManager()
 
@@ -36,7 +34,6 @@ final class ConsentManager {
                         AppDiagnostics.record(error, context: "UMP loadAndPresentIfRequired")
                     }
                 }
-                self.requestATTIfNeeded()
                 if ConsentInformation.shared.canRequestAds {
                     self.startMobileAdsOnce(onReady: onReady)
                 }
@@ -45,18 +42,7 @@ final class ConsentManager {
 
         // Fast-path: a previous session already granted consent.
         if ConsentInformation.shared.canRequestAds {
-            requestATTIfNeeded()
             startMobileAdsOnce(onReady: onReady)
-        }
-    }
-
-    private func requestATTIfNeeded() {
-        guard #available(iOS 14, *) else {
-            return
-        }
-        ATTrackingManager.requestTrackingAuthorization { status in
-            AppDiagnostics.set(status.rawValue, forKey: "att_status")
-            AppDiagnostics.log("ATT authorization resolved status=\(status.rawValue)")
         }
     }
 

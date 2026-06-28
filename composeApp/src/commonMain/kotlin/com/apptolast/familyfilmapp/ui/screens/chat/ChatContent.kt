@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,13 +24,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -42,7 +37,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,6 +60,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
+import com.apptolast.familyfilmapp.purchases.PeriodUnit
+import com.apptolast.familyfilmapp.purchases.SubscriptionPricing
+import com.apptolast.familyfilmapp.ui.components.ChatPremiumPaywallDialog
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.chat_empty_state_subtitle
@@ -74,14 +71,7 @@ import familyfilmkmp.composeapp.generated.resources.chat_error_generic
 import familyfilmkmp.composeapp.generated.resources.chat_error_network
 import familyfilmkmp.composeapp.generated.resources.chat_error_quota_exceeded
 import familyfilmkmp.composeapp.generated.resources.chat_input_placeholder
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_bullet_cancel
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_bullet_priority
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_bullet_questions
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_cta
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_dismiss
 import familyfilmkmp.composeapp.generated.resources.chat_paywall_error
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_subtitle
-import familyfilmkmp.composeapp.generated.resources.chat_paywall_title
 import familyfilmkmp.composeapp.generated.resources.chat_quota_banner
 import familyfilmkmp.composeapp.generated.resources.chat_quota_banner_premium
 import familyfilmkmp.composeapp.generated.resources.chat_quota_exceeded_subtitle
@@ -167,80 +157,12 @@ fun ChatContent(
 
         if (state.showPaywall) {
             ChatPremiumPaywallDialog(
+                pricing = state.pricing,
                 isPurchasing = state.isPurchasing,
                 onConfirm = onPaywallConfirm,
                 onDismiss = onPaywallDismiss,
             )
         }
-    }
-}
-
-@Composable
-private fun ChatPremiumPaywallDialog(isPurchasing: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = { if (!isPurchasing) onDismiss() },
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Chat,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(stringResource(Res.string.chat_paywall_title))
-            }
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(
-                    text = stringResource(Res.string.chat_paywall_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                PaywallBullet(stringResource(Res.string.chat_paywall_bullet_questions))
-                PaywallBullet(stringResource(Res.string.chat_paywall_bullet_priority))
-                PaywallBullet(stringResource(Res.string.chat_paywall_bullet_cancel))
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                enabled = !isPurchasing,
-                modifier = Modifier.heightIn(min = 44.dp),
-            ) {
-                if (isPurchasing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
-                    Text(stringResource(Res.string.chat_paywall_cta))
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isPurchasing) {
-                Text(stringResource(Res.string.chat_paywall_dismiss))
-            }
-        },
-    )
-}
-
-@Composable
-private fun PaywallBullet(text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = Icons.Outlined.CheckCircle,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(18.dp),
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
     }
 }
 
@@ -569,6 +491,29 @@ private fun PreviewChatEmpty() {
     FamilyFilmAppTheme {
         ChatContent(
             state = ChatUiState(),
+            onSend = {},
+            onSuggestionClick = {},
+            onErrorDismiss = {},
+            onUpgradeClick = {},
+            onPaywallConfirm = {},
+            onPaywallDismiss = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewChatPaywall() {
+    FamilyFilmAppTheme {
+        ChatContent(
+            state = ChatUiState(
+                showPaywall = true,
+                pricing = SubscriptionPricing(
+                    priceString = "4,99 €",
+                    periodUnit = PeriodUnit.MONTH,
+                    periodCount = 1,
+                ),
+            ),
             onSend = {},
             onSuggestionClick = {},
             onErrorDismiss = {},

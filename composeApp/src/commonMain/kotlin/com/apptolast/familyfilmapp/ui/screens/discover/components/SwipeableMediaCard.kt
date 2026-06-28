@@ -46,9 +46,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.ui.components.PosterImage
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_MOVIE_CARD
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -145,10 +145,10 @@ fun SwipeableMediaCard(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    AsyncImage(
-                        model = "${TmdbConfig.POSTER_DETAIL}${media.posterPath}",
-                        contentDescription = media.title,
+                    PosterImage(
+                        media = media,
                         modifier = Modifier.fillMaxSize(),
+                        sizePath = TmdbConfig.POSTER_DETAIL,
                         contentScale = ContentScale.Crop,
                     )
 

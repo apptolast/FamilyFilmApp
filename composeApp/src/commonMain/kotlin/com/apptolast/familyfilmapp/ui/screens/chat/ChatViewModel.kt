@@ -14,6 +14,7 @@ import com.apptolast.familyfilmapp.model.local.ChatMessage
 import com.apptolast.familyfilmapp.model.local.ChatQuota
 import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.purchases.SubscriptionPricing
 import com.apptolast.familyfilmapp.repositories.ChatRepository
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
 import kotlin.time.Clock
@@ -73,6 +74,7 @@ class ChatViewModel(
             isChatPremium = isPremium,
             showPaywall = paywall.shown,
             isPurchasing = paywall.isPurchasing,
+            pricing = paywall.pricing,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -167,6 +169,7 @@ class ChatViewModel(
                                 ),
                             )
                             paywallState.update { it.copy(shown = true, error = null) }
+                            loadChatPremiumPricing()
                         }
                     }
                 }
@@ -211,6 +214,20 @@ class ChatViewModel(
                 ),
             )
             paywallState.update { it.copy(shown = true, error = null) }
+            loadChatPremiumPricing()
+        }
+    }
+
+    /** Resolve the localized billed amount so the paywall can display it (Guideline 3.1.2(c)). */
+    private fun loadChatPremiumPricing() {
+        if (paywallState.value.pricing != null) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val pricing = runCatching { purchaseManager.getChatPremiumPricing() }
+                .onFailure { crashReporter.recordException(it) }
+                .getOrNull()
+            if (pricing != null) {
+                paywallState.update { it.copy(pricing = pricing) }
+            }
         }
     }
 
@@ -246,6 +263,7 @@ class ChatViewModel(
         val shown: Boolean = false,
         val isPurchasing: Boolean = false,
         val error: ChatError? = null,
+        val pricing: SubscriptionPricing? = null,
     )
 
     private companion object {

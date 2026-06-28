@@ -49,6 +49,12 @@ const val TT_DISCOVER_SKIPPED_SHEET = "discover_skipped_sheet"
 const val TT_DISCOVER_SKIPPED_EMPTY = "discover_skipped_empty"
 const val TT_DISCOVER_SKIPPED_RESTORE_BUTTON = "discover_skipped_restore_button"
 
+// Bottom navigation — stable identifiers for UI tests / screenshot automation.
+const val TT_NAV_HOME = "nav_home"
+const val TT_NAV_DISCOVER = "nav_discover"
+const val TT_NAV_CHAT = "nav_chat"
+const val TT_NAV_GROUPS = "nav_groups"
+
 // Detail
 const val TT_DETAIL_POSTER = "detail_poster"
 const val TT_DETAIL_TITLE = "detail_title"

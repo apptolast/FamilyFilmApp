@@ -50,12 +50,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaFilter
-import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.components.GroupFilterChips
 import com.apptolast.familyfilmapp.ui.components.MediaFilterChips
+import com.apptolast.familyfilmapp.ui.components.PosterImage
 import com.apptolast.familyfilmapp.ui.screens.discover.components.SwipeableMediaCard
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import com.apptolast.familyfilmapp.utils.TT_DISCOVER_EMPTY
@@ -312,13 +311,8 @@ private fun SkippedMediaRow(media: Media, onRestore: () -> Unit) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AsyncImage(
-            model = if (media.posterPath.isEmpty()) {
-                TmdbConfig.PLACEHOLDER_URL
-            } else {
-                "${TmdbConfig.POSTER_GRID}${media.posterPath}"
-            },
-            contentDescription = media.title,
+        PosterImage(
+            media = media,
             modifier = Modifier
                 .width(56.dp)
                 .height(84.dp)

@@ -17,6 +17,8 @@ import com.apptolast.familyfilmapp.network.systemLanguageTag
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
 import com.apptolast.familyfilmapp.repositories.FirebaseAuthRepository
 import com.apptolast.familyfilmapp.repositories.Repository
+import com.apptolast.familyfilmapp.screenshot.ScreenshotDemoData
+import com.apptolast.familyfilmapp.screenshot.ScreenshotMode
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.LoginRegisterState
 import com.apptolast.familyfilmapp.ui.screens.login.uistates.RecoverPassState
 import com.apptolast.familyfilmapp.utils.DispatcherProvider
@@ -96,15 +98,22 @@ class AuthViewModel(
     private var usernameCheckJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            awaitAll(
-                async { checkIsUserLogged() },
-                async { verifyEmail() },
-            )
+        if (ScreenshotMode.enabled) {
+            // Offline screenshot session: skip the Firebase login gate so the UI test
+            // reaches the main UI with the fake TMDB data. OFF in production.
+            _authState.update { AuthState.Authenticated(ScreenshotDemoData.user) }
+        } else {
+            viewModelScope.launch {
+                awaitAll(
+                    async { checkIsUserLogged() },
+                    async { verifyEmail() },
+                )
+            }
         }
 
         viewModelScope.launch(dispatcherProvider.io()) {
             purchaseManager.hasRemovedAds.collectLatest { adsRemoved ->
+                if (ScreenshotMode.enabled) return@collectLatest
                 val currentUser = (authState.value as? AuthState.Authenticated)?.user
                     ?: return@collectLatest
                 if (currentUser.hasRemovedAds != adsRemoved) {

@@ -1,0 +1,56 @@
+# Snapfile — fastlane snapshot configuration for FamilyFilmApp (Fliksy) App Store screenshots.
+#
+# Screenshots are produced by the `iosAppUITests` UI testing bundle running the
+# app in DEMO MODE (launch argument -FFADemoMode YES). Demo mode swaps the live
+# TMDB datasource for an offline fake one that serves fictional titles with
+# original Compose-drawn posters — no real/copyrighted artwork, no network image
+# (Apple Guideline 5.2.1).
+#
+# Run:  cd iosApp && bundle exec fastlane screenshots
+#  (or: cd iosApp && fastlane snapshot)
+
+# App Store screenshot reference devices. These two cover the required
+# 6.9" iPhone and 13" iPad display classes for App Store Connect.
+devices([
+  "iPhone 17 Pro Max",
+  "iPad Pro 13-inch (M5)",
+])
+
+languages([
+  "en-GB",
+  "es-ES",
+])
+
+# Pin the simulator runtime. Use 26.2 — NOT the 26.0 runtime, whose build is "26.0.1":
+# fastlane/simctl sees that runtime as "26.0" while xcodebuild's -destination demands
+# "26.0.1", and the two never agree (the cause of the iPad failure). The 26.1/26.2
+# runtimes have matching version strings on both layers. Both devices above exist at 26.2.
+# If you change devices, pick a version `xcrun simctl list runtimes` shows for both,
+# avoiding any runtime whose name ≠ build version.
+ios_version("26.2")
+
+# Xcode scheme that contains the iosAppUITests test target.
+scheme("iosApp")
+
+# Only run the screenshot test class (avoids any other future UI tests).
+only_testing("iosAppUITests/ScreenshotUITests")
+
+# Output: iosApp/fastlane/screenshots
+output_directory("./screenshots")
+
+# Wipe previously captured screenshots so stale frames never reach the store.
+clear_previous_screenshots(true)
+
+# Re-install the app on each run so demo-mode state is deterministic.
+reinstall_app(true)
+app_identifier("com.apptolast.familyfilmapp")
+
+# Keep the run quiet but capture failures.
+stop_after_first_error(false)
+# Serial run: booting two simulators at once is flaky with Compose + Firebase.
+concurrent_simulators(false)
+# Clean status bar (9:41, full battery/signal) for App Store-ready frames.
+override_status_bar(true)
+
+# Skip the auto-generated HTML summary's open; CI has no browser.
+skip_open_summary(true)

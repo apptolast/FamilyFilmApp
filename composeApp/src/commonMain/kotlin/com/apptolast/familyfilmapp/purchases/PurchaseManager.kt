@@ -20,6 +20,9 @@ interface PurchaseManager {
 
     /** Restore the user's prior purchases. Returns `true` if any entitlement was restored. */
     suspend fun restorePurchases(): Result<Boolean>
+
+    /** Localized pricing for the Chat Premium subscription, or `null` if it can't be resolved. */
+    suspend fun getChatPremiumPricing(): SubscriptionPricing?
 }
 
 class NoOpPurchaseManager : PurchaseManager {
@@ -42,4 +45,5 @@ class NoOpPurchaseManager : PurchaseManager {
     override suspend fun purchaseRemoveAds(): Result<Unit> = Result.failure(PurchaseFailure.Cancelled)
     override suspend fun purchaseChatPremium(): Result<Unit> = Result.failure(PurchaseFailure.Cancelled)
     override suspend fun restorePurchases(): Result<Boolean> = Result.success(false)
+    override suspend fun getChatPremiumPricing(): SubscriptionPricing? = null
 }

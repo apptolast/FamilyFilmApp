@@ -206,13 +206,22 @@
 
     <!-- CHAT PREMIUM PAYWALL -->
     <string name="chat_paywall_title">Unlock 50 questions/month</string>
-    <string name="chat_paywall_subtitle">Subscribe to Chat Premium for unlimited cinema recommendations — cancel anytime.</string>
+    <string name="chat_paywall_subtitle">Subscribe to Chat Premium for 50 AI movie &amp; TV recommendations every month.</string>
     <string name="chat_paywall_bullet_questions">50 Gemini questions every month</string>
     <string name="chat_paywall_bullet_priority">Priority model access</string>
     <string name="chat_paywall_bullet_cancel">Cancel anytime from the store</string>
     <string name="chat_paywall_cta">Subscribe</string>
     <string name="chat_paywall_dismiss">Not now</string>
     <string name="chat_paywall_error">Could not start purchase. Try again in a moment.</string>
+    <string name="chat_paywall_price_loading">Loading price…</string>
+    <string name="chat_paywall_price_per_period">%1$s/%2$s</string>
+    <string name="chat_paywall_renewal_disclosure">Payment is charged to your Apple Account at confirmation of purchase. The subscription renews automatically at the same price unless cancelled at least 24 hours before the end of the current period. Manage or cancel it anytime in your App Store account settings.</string>
+    <string name="subscription_period_day">day</string>
+    <string name="subscription_period_week">week</string>
+    <string name="subscription_period_month">month</string>
+    <string name="subscription_period_year">year</string>
+    <string name="subscription_privacy_policy">Privacy Policy</string>
+    <string name="subscription_terms_of_use">Terms of Use (EULA)</string>
     <string name="chat_premium_active_title">Chat Premium active</string>
     <string name="chat_premium_active_subtitle">Manage your subscription in the store</string>
     <string name="chat_premium_upsell_title">Chat Premium</string>

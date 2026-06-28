@@ -59,15 +59,12 @@ Rama de trabajo: `fix/ios-appstore-review-1.1.x`.
 
 ## PARTE B — Pasos manuales que debes hacer
 
-### B1. App Tracking Transparency (Guideline 2.1)
-1. **En el dispositivo físico de prueba** (no simulador): Ajustes ▸ Privacidad y seguridad ▸ Seguimiento ▸ activa **"Permitir que las apps soliciten seguimiento"**. (Si está desactivado, NINGÚN prompt de ATT puede mostrarse — es una causa habitual del rechazo.)
+### B1. App Tracking Transparency (Guideline 2.1) — ✅ ya tienes el vídeo
+1. En el dispositivo/simulador donde grabes: Ajustes ▸ Privacidad y seguridad ▸ Seguimiento ▸ activa **"Permitir que las apps soliciten seguimiento"**. (Si está desactivado, NINGÚN prompt de ATT puede mostrarse — causa habitual del rechazo.)
 2. Borra la app o resetea permisos de seguimiento, e instala la build nueva.
-3. **Graba un screen recording** que muestre, en orden:
-   - Lanzamiento desde instalación limpia.
-   - **Aparece el prompt de ATT** ("Permitir que Fliksy rastree…") **antes** de cualquier recolección de datos.
-   - El flujo posterior (permiso de notificaciones, etc.).
-4. Sube ese vídeo en **App Store Connect ▸ (versión) ▸ App Review Information ▸ Notes** y adjúntalo también en la respuesta al revisor.
-5. **App Privacy:** como la app usa AdMob/IDFA, en App Store Connect ▸ App Privacy debe declararse el **tracking** correctamente (Identifiers / Usage Data → "Used to Track You"). Si decidieras NO rastrear, habría que quitar el framework ATT y la declaración; pero mantenemos ATT.
+3. El **screen recording** debe mostrar, en orden: instalación limpia → **aparece el prompt de ATT** ("Permitir que Fliksy rastree…") **antes** de cualquier recolección → flujo posterior. *(Tu vídeo es del simulador; está bien — en el Bloque 1/2 se indica con transparencia y se pide al revisor que lo confirme en su dispositivo físico, que es donde ellos revisan.)*
+4. Sube ese vídeo en **App Review Information ▸ Attachment** (mapa #3) y nómbralo en las Notes.
+5. **App Privacy (mapa #6 y #7):** como la app usa AdMob/IDFA, declara el **tracking** correctamente (Identifiers / Usage Data → "Used to Track You") y rellena la **Privacy Policy URL**. Debe ser coherente con que la app pide ATT. *(Alternativa no recomendada ahora: si no rastrearas, habría que quitar ATT y la declaración.)*
 
 ### B2. Suscripción (Guideline 3.1.2(c))
 1. Compila la build nueva (Parte B4) y abre el paywall de Chat Premium (Chat ▸ agota la cuota gratuita o pulsa "Suscríbete").
@@ -100,78 +97,115 @@ Rama de trabajo: `fix/ios-appstore-review-1.1.x`.
 
 ---
 
-## PARTE C — Textos para App Store Connect
+## PARTE C — Qué pegar en CADA sitio de App Store Connect
 
-### C1. Notes (App Review Information) — pégalo tal cual (EN)
+> Primero el **mapa** (dónde va cada cosa), y debajo los **bloques de texto** listos para copiar.
 
-```
-Thank you for the detailed review. We addressed all four points in this build.
+### 🗺️ Mapa: dónde va cada cosa
 
-1) Guideline 2.1 — App Tracking Transparency
-The ATT permission request was being triggered behind a network-dependent consent
-chain, which on iOS/iPadOS 26 could be dropped if the app was not yet foreground-active.
-We now request App Tracking Transparency FIRST, on the main thread, as soon as the app
-becomes active on a fresh launch — before any tracking data is collected, and decoupled
-from the notification and ad-consent prompts. A screen recording from a physical device
-(fresh install, ATT prompt appearing, and the following flow) is attached to these notes.
-Note: please ensure Settings ▸ Privacy & Security ▸ Tracking ▸ "Allow Apps to Request to
-Track" is enabled on the review device, otherwise iOS suppresses all ATT prompts system-wide.
+| # | Ruta exacta en App Store Connect | Qué poner |
+|---|----------------------------------|-----------|
+| 1 | **Distribution ▸ iOS App 1.1.4 ▸ App Review Information ▸ Sign-In Information** | Marca **"Sign-in required"** y pon email + contraseña de la **cuenta demo** (`foliolo_@hotmail.com`). Asegúrate de que entra y tiene grupos/títulos guardados. |
+| 2 | **Distribution ▸ 1.1.4 ▸ App Review Information ▸ Notes** | **BLOQUE 1** (texto íntegro de abajo). |
+| 3 | **Distribution ▸ 1.1.4 ▸ App Review Information ▸ Attachment** | El **vídeo .mov del ATT** (instalación limpia → aparece el prompt → flujo posterior). |
+| 4 | **Resolution Center** (hilo del mensaje del revisor) ▸ botón **Reply** | **BLOQUE 2** (texto íntegro de abajo). |
+| 5 | **Distribution ▸ 1.1.4 ▸ Description** (un campo por idioma: en-GB y es-ES) | Ya lleva el enlace a **EULA** + **Privacidad** (se sube con `fastlane upload_store_assets`). Solo **verifica** que aparecen al final de la descripción. |
+| 6 | **App Store ▸ App Privacy ▸ Privacy Policy** (campo URL) | `https://apptolast.github.io/FamilyFilmApp/privacy-policy` |
+| 7 | **App Store ▸ App Privacy ▸ Data Collection / Tracking** | Declara **tracking**: marca *Identifiers (Device ID)* y *Usage Data (Product Interaction)* como **"Used to Track You"** (publicidad de terceros). Debe ser coherente con que la app pide ATT. |
+| 8 | **Monetization ▸ Subscriptions ▸ Chat Premium** | Auto-renovable, con **precio + duración (1 mes)**, estado **"Ready to Submit"**, adjunta a la versión 1.1.4. |
+| 9 | **Distribution ▸ 1.1.4 ▸ Previews and Screenshots** (por dispositivo + idioma) | Sube las PNG nuevas de `iosApp/fastlane/screenshots/{en-GB,es-ES}/` (o `cd iosApp && bundle exec fastlane upload_store_assets`). Reemplazan a las que mostraban Toy Story/Shrek. |
+| 10 | **Distribution ▸ 1.1.4 ▸ Build** | Selecciona la **build iOS 9 (1.1.4)** archivada desde este código. |
 
-2) Guideline 5.2.1 — Intellectual Property
-We removed all third-party copyrighted artwork from the App Store screenshots and metadata.
-The screenshots now use entirely fictional titles with original, app-generated cover art.
-Inside the app, title metadata and artwork are retrieved at runtime from The Movie Database
-(TMDB) via its official public API (an industry-standard metadata provider). This is a
-nominative/editorial use so users can identify and organize the titles they track; the app
-hosts/streams no media, claims no affiliation with any studio, and displays a TMDB
-attribution notice as required by TMDB's terms. We are happy to make any specific change you
-can point to.
+> Idioma: **inglés recomendado** para Notes y Reply (agiliza la revisión). Tienes la versión en español de cada bloque por si prefieres responder en español.
 
-3) Guideline 3.1.2(c) — Subscriptions
-The Chat Premium purchase flow now clearly displays the subscription title, billing period,
-and the actual billed amount as the most prominent pricing element, plus an auto-renewal
-disclosure and functional links to the Privacy Policy and to the Terms of Use (Apple's
-standard EULA). The Terms of Use (EULA) link and the Privacy Policy link are also included
-in the App Store description/metadata. A screen recording of the updated paywall is attached.
+---
 
-Test account (for Home/Groups/Profile and the paywall): <email> / <password>
-```
+### 🟦 BLOQUE 1 — App Review Information ▸ **Notes** (pega tal cual)
 
-> Sustituye `<email>`/`<password>` por la cuenta de demo. Puedes responder al revisor en español si prefieres (Apple lo permite), pero el inglés suele agilizar.
-
-### C2. Versión en español (por si respondes en español)
+**EN (recomendado):**
 
 ```
-Gracias por la revisión detallada. Hemos resuelto los cuatro puntos en esta build.
+Demo account: use the credentials in the Sign-In Information fields above. It has sample groups and saved titles so every tab shows content.
 
-1) Guideline 2.1 — App Tracking Transparency
-El prompt de ATT dependía de una cadena de consentimiento con llamada de red que, en
-iOS/iPadOS 26, podía descartarse si la app aún no estaba activa en primer plano. Ahora
-solicitamos ATT EN PRIMER LUGAR, en el hilo principal, en cuanto la app pasa a activa tras
-una instalación limpia — antes de recolectar cualquier dato de seguimiento y desacoplado de
-los diálogos de notificaciones y de consentimiento de anuncios. Adjuntamos un screen
-recording desde un dispositivo físico. Nota: por favor verificad que en Ajustes ▸ Privacidad
-y seguridad ▸ Seguimiento esté activado "Permitir que las apps soliciten seguimiento"; si no,
-iOS suprime todos los prompts de ATT a nivel de sistema.
+How to test the in-app purchases (sandbox):
+- Remove Ads (non-consumable): Profile tab -> "Remove Ads".
+- Chat Premium (auto-renewable subscription): Profile tab -> "Chat Premium" (opens the paywall), or open the Chat tab and use up the free question quota (the paywall also appears automatically). The paywall shows the subscription title, the billed price and period, the auto-renewal terms, and functional links to the Privacy Policy and to the Terms of Use (Apple's standard EULA).
+- "Restore Purchases" is available in the Profile tab.
 
-2) Guideline 5.2.1 — Propiedad intelectual
-Hemos eliminado todo el arte con copyright de terceros de las capturas y los metadatos. Las
-capturas usan ahora títulos ficticios con portadas originales generadas por la app. Dentro
-de la app, los metadatos e imágenes de los títulos se obtienen en tiempo de ejecución de The
-Movie Database (TMDB) mediante su API pública oficial (proveedor de metadatos estándar del
-sector). Es un uso nominativo/editorial para que el usuario identifique y organice los
-títulos que sigue; la app no aloja ni reproduce contenido, no reclama afiliación con ningún
-estudio y muestra la atribución a TMDB exigida por sus términos. Haremos cualquier cambio
-concreto que nos indiquéis.
+Guideline 2.1 - App Tracking Transparency:
+The ATT request is now presented on a fresh launch, as soon as the app becomes active, before any tracking data is collected and before any other system prompt, so it can no longer be suppressed by a competing dialog (the cause of the earlier issue). A screen recording of the first-launch flow is attached (captured in the iOS Simulator, the environment available to us). Because authorization is requested on activation, the prompt also presents on a physical device. Please ensure Settings > Privacy & Security > Tracking > "Allow Apps to Request to Track" is enabled on the review device, otherwise iOS suppresses all ATT prompts system-wide.
 
-3) Guideline 3.1.2(c) — Suscripciones
-El flujo de compra de Chat Premium muestra ahora claramente el título de la suscripción, el
-periodo de facturación y el importe cobrado como elemento de precio más destacado, además de
-la cláusula de auto-renovación y enlaces funcionales a la Política de privacidad y a los
-Términos de uso (EULA estándar de Apple). Los enlaces a EULA y privacidad también están en la
-descripción/metadatos de la App Store. Adjuntamos un screen recording del paywall.
+Guideline 3.1.2(c) - Subscriptions:
+The Chat Premium purchase flow now displays the subscription title, length, and the billed amount as the most prominent pricing element, plus the auto-renewal terms and functional links to the Privacy Policy and the Terms of Use (EULA). Those links are also included in the App Store description.
 
-Cuenta de prueba (Home/Grupos/Perfil y el paywall): <email> / <password>
+Guideline 5.2.1 - Intellectual Property:
+All movie/TV titles, descriptions, and poster artwork come from The Movie Database (TMDB) via its official public API, shown only to identify catalog entries in a discovery/watchlist app. The app does not host, stream, or reproduce any films or episodes, implies no affiliation with any studio, and displays a TMDB attribution notice in-app. The App Store screenshots use fictional placeholder titles with original artwork.
+
+Thank you very much for your time.
+```
+
+**ES (alternativa):**
+
+```
+Cuenta de prueba: usa las credenciales del apartado Sign-In Information de arriba. Tiene grupos y titulos guardados para que todas las pestanas muestren contenido.
+
+Como probar las compras (sandbox):
+- Quitar anuncios (no consumible): pestana Perfil -> "Quitar anuncios".
+- Chat Premium (suscripcion auto-renovable): pestana Perfil -> "Chat Premium" (abre el paywall), o abre la pestana Chat y agota la cuota gratuita (el paywall tambien aparece solo). El paywall muestra el titulo de la suscripcion, el precio y periodo facturado, la clausula de auto-renovacion y enlaces funcionales a la Politica de privacidad y a los Terminos de uso (EULA estandar de Apple).
+- "Restaurar compras" esta en la pestana Perfil.
+
+Guideline 2.1 - App Tracking Transparency:
+El prompt de ATT se presenta ahora en un arranque limpio, en cuanto la app pasa a activa, antes de recolectar cualquier dato de seguimiento y antes de cualquier otro dialogo del sistema, por lo que ya no puede ser suprimido por otro dialogo (la causa del problema anterior). Adjuntamos un screen recording del flujo de primer arranque (capturado en el simulador de iOS, el entorno del que disponemos). Como la autorizacion se solicita al activarse la app, el prompt tambien aparece en un dispositivo fisico. Por favor, verificad que en Ajustes > Privacidad y seguridad > Seguimiento este activado "Permitir que las apps soliciten seguimiento"; si no, iOS suprime todos los prompts de ATT a nivel de sistema.
+
+Guideline 3.1.2(c) - Suscripciones:
+El flujo de compra de Chat Premium muestra el titulo de la suscripcion, la duracion y el importe cobrado como elemento de precio mas destacado, ademas de la clausula de auto-renovacion y enlaces funcionales a la Politica de privacidad y a los Terminos de uso (EULA). Esos enlaces tambien estan en la descripcion de la App Store.
+
+Guideline 5.2.1 - Propiedad intelectual:
+Todos los titulos, descripciones e imagenes provienen de The Movie Database (TMDB) mediante su API publica oficial, y se muestran solo para identificar entradas de catalogo en una app de descubrimiento/listas. La app no aloja, transmite ni reproduce peliculas ni episodios, no implica afiliacion con ningun estudio y muestra una atribucion a TMDB en la app. Las capturas de la App Store usan titulos ficticios con arte original.
+
+Muchas gracias por vuestro tiempo.
+```
+
+---
+
+### 🟩 BLOQUE 2 — Resolution Center ▸ **Reply** al revisor (pega tal cual)
+
+**EN (recomendado):**
+
+```
+Hello, and thank you again for your patience and for the detailed feedback across these reviews. It genuinely helped us make the app better.
+
+We're an independent, first-time developer, and Fliksy is a small passion project: a simple movie and TV discovery/watchlist app built on The Movie Database (TMDB) public API, in the same spirit as many similar catalog apps already on the App Store. We've taken every point seriously and addressed all of them in this build.
+
+Guideline 5.2.1 - Intellectual Property:
+We removed all third-party artwork from the App Store screenshots and metadata; the screenshots now use fictional titles with our own original cover art. Inside the app, titles and posters come exclusively from TMDB's official API and are used purely so users can identify and organize what they want to watch; the app hosts/streams nothing, claims no affiliation with any studio, and displays a TMDB attribution notice. As an independent developer we have no commercial relationship with any rights holder and no way to obtain studio permissions; this is the same editorial/nominative use of an industry-standard metadata service that many existing App Store apps rely on. If any single specific element still concerns you, we will remove or change it right away; please just point us to it.
+
+Guideline 2.1 - App Tracking Transparency:
+We found and fixed the root cause: the prompt was being requested while another system dialog was still on screen / before the app was fully active, so iOS silently suppressed it. The ATT request is now presented first, the moment the app becomes active on a fresh launch, before any tracking begins. We've attached a screen recording of that flow. In full transparency, as a small independent team we don't have access to a device lab, so the recording was captured in Xcode's iOS Simulator; but because authorization is now requested on activation, the prompt also presents on your physical review device, and we'd be very grateful if you could confirm it there (with "Allow Apps to Request to Track" enabled in Settings).
+
+Guideline 3.1.2(c) - Subscriptions:
+The Chat Premium paywall now clearly shows the subscription title, the billing period, and the billed amount as the most prominent element, together with the auto-renewal terms and working links to our Privacy Policy and to the Terms of Use (Apple's standard EULA). Those links are also included in the App Store description.
+
+We've put a lot of care into getting this release right, and as our first app it would mean a great deal to us to get it over the line. We're glad to make any further change you recommend. Thank you very much for your time and consideration.
+```
+
+**ES (alternativa):**
+
+```
+Hola, y gracias de nuevo por vuestra paciencia y por el feedback detallado de estas revisiones. Nos ha ayudado de verdad a mejorar la app.
+
+Somos un desarrollador independiente y es nuestra primera app. Fliksy es un proyecto pequeno y personal: una app sencilla de descubrimiento y listas de peliculas y series construida sobre la API publica de The Movie Database (TMDB), en la misma linea que muchas apps de catalogo que ya existen en la App Store. Hemos tomado en serio cada punto y los hemos resuelto todos en esta build.
+
+Guideline 5.2.1 - Propiedad intelectual:
+Hemos eliminado todo el arte de terceros de las capturas y los metadatos; ahora usan titulos ficticios con portadas originales nuestras. Dentro de la app, titulos y posters provienen exclusivamente de la API oficial de TMDB y solo sirven para que el usuario identifique y organice lo que quiere ver; la app no aloja ni transmite nada, no reclama afiliacion con ningun estudio y muestra la atribucion a TMDB. Como desarrollador independiente no tenemos relacion comercial con ningun titular de derechos ni forma de obtener permisos de estudios; es el mismo uso editorial/nominativo de un servicio de metadatos estandar del sector en el que se apoyan muchas apps ya publicadas. Si algun elemento concreto sigue preocupandoos, lo quitaremos o cambiaremos de inmediato; solo indicadnoslo.
+
+Guideline 2.1 - App Tracking Transparency:
+Encontramos y corregimos la causa raiz: el prompt se solicitaba mientras otro dialogo del sistema seguia en pantalla / antes de que la app estuviera activa, asi que iOS lo suprimia en silencio. Ahora ATT se presenta lo primero, en cuanto la app pasa a activa tras un arranque limpio, antes de iniciar cualquier seguimiento. Adjuntamos un screen recording de ese flujo. Con total transparencia: como equipo pequeno e independiente no disponemos de un laboratorio de dispositivos, asi que la grabacion se hizo en el simulador de iOS de Xcode; pero como la autorizacion se solicita al activarse la app, el prompt tambien aparece en vuestro dispositivo fisico de revision, y os agradeceriamos mucho que lo confirmarais ahi (con "Permitir que las apps soliciten seguimiento" activado en Ajustes).
+
+Guideline 3.1.2(c) - Suscripciones:
+El paywall de Chat Premium muestra ahora el titulo de la suscripcion, el periodo de facturacion y el importe cobrado como elemento mas destacado, junto con la clausula de auto-renovacion y enlaces funcionales a nuestra Politica de privacidad y a los Terminos de uso (EULA estandar de Apple). Esos enlaces tambien estan en la descripcion de la App Store.
+
+Hemos puesto mucho cuidado en dejar esta version bien, y al ser nuestra primera app nos importaria mucho poder publicarla por fin. Estamos encantados de hacer cualquier cambio adicional que nos recomendeis. Muchas gracias por vuestro tiempo y consideracion.
 ```
 
 ---

@@ -87,6 +87,51 @@ final class RevenueCatPurchaseBridgeImpl: NSObject, IosRevenueCatPurchaseBridge 
         }
     }
 
+    func fetchChatPremiumPricing(
+        completion: @escaping @Sendable (String?, String?, KotlinInt, String?) -> Void
+    ) {
+        DispatchQueue.main.async {
+            guard Purchases.isConfigured else {
+                AppDiagnostics.record("RevenueCat fetchChatPremiumPricing before configure()", domain: "RevenueCat")
+                completion(nil, nil, kotlinInt(0), "RevenueCat is not configured.")
+                return
+            }
+            Purchases.shared.getOfferings { offerings, error in
+                if let error = error {
+                    AppDiagnostics.record(error, context: "RevenueCat getOfferings (pricing) failed")
+                    completion(nil, nil, kotlinInt(0), error.localizedDescription)
+                    return
+                }
+                guard let package = Self.package(
+                    for: IosRevenueCatPurchaseManager.companion.ENTITLEMENT_CHAT_PREMIUM,
+                    in: offerings
+                ) else {
+                    let message = Self.missingPackageMessage(
+                        entitlement: IosRevenueCatPurchaseManager.companion.ENTITLEMENT_CHAT_PREMIUM,
+                        offerings: offerings
+                    )
+                    AppDiagnostics.record(message, domain: "RevenueCat")
+                    completion(nil, nil, kotlinInt(0), message)
+                    return
+                }
+                let product = package.storeProduct
+                var unit: String?
+                var count: Int32 = 0
+                if let period = product.subscriptionPeriod {
+                    count = Int32(period.value)
+                    switch period.unit {
+                    case .day: unit = "DAY"
+                    case .week: unit = "WEEK"
+                    case .month: unit = "MONTH"
+                    case .year: unit = "YEAR"
+                    @unknown default: unit = nil
+                    }
+                }
+                completion(product.localizedPriceString, unit, kotlinInt(count), nil)
+            }
+        }
+    }
+
     private static func isConfigured(
         completion: @escaping @Sendable (KotlinBoolean, KotlinBoolean, String?) -> Void
     ) -> Bool {
@@ -182,4 +227,8 @@ final class RevenueCatPurchaseBridgeImpl: NSObject, IosRevenueCatPurchaseBridge 
 
 private func kotlinBool(_ value: Bool) -> KotlinBoolean {
     KotlinBoolean(bool: value)
+}
+
+private func kotlinInt(_ value: Int32) -> KotlinInt {
+    KotlinInt(int: value)
 }

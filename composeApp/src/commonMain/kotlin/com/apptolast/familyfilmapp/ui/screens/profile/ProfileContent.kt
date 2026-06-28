@@ -58,6 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.apptolast.familyfilmapp.model.local.User
+import com.apptolast.familyfilmapp.purchases.SubscriptionPricing
+import com.apptolast.familyfilmapp.ui.components.ChatPremiumPaywallDialog
 import com.apptolast.familyfilmapp.ui.components.ProfileAvatar
 import com.apptolast.familyfilmapp.ui.components.dialogs.DeleteAccountDialog
 import com.apptolast.familyfilmapp.ui.screens.profile.components.CountryPickerDialog
@@ -116,6 +118,8 @@ fun ProfileContent(
     isPurchaseLoading: Boolean,
     hasRatedApp: Boolean,
     hasChatPremium: Boolean,
+    showChatPremiumPaywall: Boolean,
+    chatPremiumPricing: SubscriptionPricing?,
     purchaseEvents: Flow<PurchaseEvent>,
     onUsernameChange: (String) -> Unit,
     onSaveUsername: (User, String) -> Unit,
@@ -124,6 +128,8 @@ fun ProfileContent(
     onLogout: () -> Unit,
     onRemoveAds: () -> Unit,
     onChatPremium: () -> Unit,
+    onChatPremiumPaywallConfirm: () -> Unit,
+    onChatPremiumPaywallDismiss: () -> Unit,
     onRestorePurchases: () -> Unit,
     onRateApp: () -> Unit,
     onDeleteAccount: (email: String, password: String) -> Unit,
@@ -195,7 +201,18 @@ fun ProfileContent(
                 )
             }
 
-            if (isPurchaseLoading) {
+            if (showChatPremiumPaywall) {
+                ChatPremiumPaywallDialog(
+                    pricing = chatPremiumPricing,
+                    isPurchasing = isPurchaseLoading,
+                    onConfirm = onChatPremiumPaywallConfirm,
+                    onDismiss = onChatPremiumPaywallDismiss,
+                )
+            }
+
+            // While the paywall is up, its own button spinner conveys progress — avoid the
+            // extra full-screen loading overlay so we don't stack two dialogs.
+            if (isPurchaseLoading && !showChatPremiumPaywall) {
                 PurchaseLoadingDialog()
             }
         }
@@ -650,6 +667,8 @@ private fun PreviewProfileContent() {
             isPurchaseLoading = false,
             hasRatedApp = false,
             hasChatPremium = false,
+            showChatPremiumPaywall = false,
+            chatPremiumPricing = null,
             purchaseEvents = kotlinx.coroutines.flow.emptyFlow(),
             onUsernameChange = {},
             onSaveUsername = { _, _ -> },
@@ -658,6 +677,8 @@ private fun PreviewProfileContent() {
             onLogout = {},
             onRemoveAds = {},
             onChatPremium = {},
+            onChatPremiumPaywallConfirm = {},
+            onChatPremiumPaywallDismiss = {},
             onRestorePurchases = {},
             onRateApp = {},
             onDeleteAccount = { _, _ -> },

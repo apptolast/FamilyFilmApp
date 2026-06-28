@@ -20,11 +20,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
 import com.apptolast.familyfilmapp.model.local.types.MediaStatus
-import com.apptolast.familyfilmapp.network.TmdbConfig
 import com.apptolast.familyfilmapp.ui.components.MediaTypeBadge
+import com.apptolast.familyfilmapp.ui.components.PosterImage
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 
 @Composable
@@ -42,13 +41,8 @@ fun MediaItem(
             .clip(shape = MaterialTheme.shapes.small)
             .clickable { onClick(media) },
     ) {
-        AsyncImage(
-            model = if (media.posterPath.isEmpty()) {
-                TmdbConfig.PLACEHOLDER_URL
-            } else {
-                "${TmdbConfig.POSTER_GRID}${media.posterPath}"
-            },
-            contentDescription = media.title,
+        PosterImage(
+            media = media,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
         )

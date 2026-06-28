@@ -207,13 +207,22 @@
 
     <!-- CHAT PREMIUM PAYWALL -->
     <string name="chat_paywall_title">Desbloquea 50 preguntas al mes</string>
-    <string name="chat_paywall_subtitle">Suscríbete a Chat Premium para recomendaciones de cine sin límite — cancela cuando quieras.</string>
+    <string name="chat_paywall_subtitle">Suscríbete a Chat Premium y obtén 50 recomendaciones de cine y series con IA cada mes.</string>
     <string name="chat_paywall_bullet_questions">50 preguntas al mes con Gemini</string>
     <string name="chat_paywall_bullet_priority">Acceso prioritario al modelo</string>
     <string name="chat_paywall_bullet_cancel">Cancela cuando quieras desde la tienda</string>
     <string name="chat_paywall_cta">Suscribirse</string>
     <string name="chat_paywall_dismiss">Ahora no</string>
     <string name="chat_paywall_error">No se pudo iniciar la compra. Inténtalo en un momento.</string>
+    <string name="chat_paywall_price_loading">Cargando precio…</string>
+    <string name="chat_paywall_price_per_period">%1$s/%2$s</string>
+    <string name="chat_paywall_renewal_disclosure">El pago se cargará a tu cuenta de Apple al confirmar la compra. La suscripción se renueva automáticamente al mismo precio salvo que se cancele al menos 24 horas antes del final del periodo actual. Puedes gestionarla o cancelarla cuando quieras en los ajustes de tu cuenta del App Store.</string>
+    <string name="subscription_period_day">día</string>
+    <string name="subscription_period_week">semana</string>
+    <string name="subscription_period_month">mes</string>
+    <string name="subscription_period_year">año</string>
+    <string name="subscription_privacy_policy">Política de privacidad</string>
+    <string name="subscription_terms_of_use">Términos de uso (EULA)</string>
     <string name="chat_premium_active_title">Chat Premium activo</string>
     <string name="chat_premium_active_subtitle">Gestiona tu suscripción en la tienda</string>
     <string name="chat_premium_upsell_title">Chat Premium</string>

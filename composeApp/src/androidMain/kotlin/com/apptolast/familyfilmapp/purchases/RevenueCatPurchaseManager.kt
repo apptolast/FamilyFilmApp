@@ -167,6 +167,27 @@ class RevenueCatPurchaseManager(
         )
     }
 
+    override suspend fun getChatPremiumPricing(): SubscriptionPricing? {
+        if (!isConfigured) return null
+        val offerings = fetchOfferings().getOrNull() ?: return null
+        val pkg = offerings.packageForOffering(CHAT_PREMIUM_OFFERING_ID) ?: return null
+        val product = pkg.product
+        val period = product.period
+        return SubscriptionPricing(
+            priceString = product.price.formatted,
+            periodUnit = period?.unit.toPeriodUnit(),
+            periodCount = period?.value ?: 1,
+        )
+    }
+
+    private fun com.revenuecat.purchases.models.Period.Unit?.toPeriodUnit(): PeriodUnit = when (this) {
+        com.revenuecat.purchases.models.Period.Unit.DAY -> PeriodUnit.DAY
+        com.revenuecat.purchases.models.Period.Unit.WEEK -> PeriodUnit.WEEK
+        com.revenuecat.purchases.models.Period.Unit.MONTH -> PeriodUnit.MONTH
+        com.revenuecat.purchases.models.Period.Unit.YEAR -> PeriodUnit.YEAR
+        else -> PeriodUnit.UNKNOWN
+    }
+
     private suspend fun launchPurchaseFlow(
         offeringId: String?,
         entitlementId: String,

@@ -12,12 +12,18 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.apptolast.familyfilmapp.navigation.Routes
+import com.apptolast.familyfilmapp.utils.TT_NAV_CHAT
+import com.apptolast.familyfilmapp.utils.TT_NAV_DISCOVER
+import com.apptolast.familyfilmapp.utils.TT_NAV_GROUPS
+import com.apptolast.familyfilmapp.utils.TT_NAV_HOME
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.screen_title_chat
 import familyfilmkmp.composeapp.generated.resources.screen_title_discover
@@ -33,13 +39,32 @@ private data class BottomTab(
     val route: Routes,
     val title: StringResource,
     val icon: ImageVector,
+    val testTag: String,
 )
 
 private val tabs: List<BottomTab> = listOf(
-    BottomTab(Routes.Home::class, Routes.Home, Res.string.screen_title_home, Icons.Outlined.Home),
-    BottomTab(Routes.Discover::class, Routes.Discover, Res.string.screen_title_discover, Icons.Outlined.Explore),
-    BottomTab(Routes.Chat::class, Routes.Chat, Res.string.screen_title_chat, Icons.AutoMirrored.Outlined.Chat),
-    BottomTab(Routes.Groups::class, Routes.Groups, Res.string.screen_title_groups, Icons.Outlined.Groups),
+    BottomTab(Routes.Home::class, Routes.Home, Res.string.screen_title_home, Icons.Outlined.Home, TT_NAV_HOME),
+    BottomTab(
+        Routes.Discover::class,
+        Routes.Discover,
+        Res.string.screen_title_discover,
+        Icons.Outlined.Explore,
+        TT_NAV_DISCOVER,
+    ),
+    BottomTab(
+        Routes.Chat::class,
+        Routes.Chat,
+        Res.string.screen_title_chat,
+        Icons.AutoMirrored.Outlined.Chat,
+        TT_NAV_CHAT,
+    ),
+    BottomTab(
+        Routes.Groups::class,
+        Routes.Groups,
+        Res.string.screen_title_groups,
+        Icons.Outlined.Groups,
+        TT_NAV_GROUPS,
+    ),
 )
 
 @Composable
@@ -52,6 +77,7 @@ fun BottomNavigationBar(navController: NavController) {
         tabs.forEach { tab ->
             val selected = backStackEntry?.destination?.hasRoute(tab.routeClass) == true
             NavigationBarItem(
+                modifier = Modifier.testTag(tab.testTag),
                 icon = {
                     Icon(imageVector = tab.icon, contentDescription = stringResource(tab.title))
                 },

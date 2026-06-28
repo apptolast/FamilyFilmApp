@@ -21,6 +21,7 @@ import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.repositories.RepositoryImpl
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseDatabaseDatasourceImpl
+import com.apptolast.familyfilmapp.repositories.datasources.FakeTmdbDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasource
 import com.apptolast.familyfilmapp.repositories.datasources.FirebaseStorageDatasourceImpl
 import com.apptolast.familyfilmapp.repositories.datasources.RecommendedCardStateDatasource
@@ -82,6 +83,14 @@ val dataModule = module {
     singleOf(::ChatRepositoryImpl) bind ChatRepository::class
     singleOf(::RepositoryImpl) bind Repository::class
     singleOf(::RandomMediaShuffler) bind MediaShuffler::class
+}
+
+// Demo/screenshot override module. Only added to the Koin graph when the app is
+// launched in demo mode (see initKoin). Replaces the networked TMDB datasource
+// with the fully offline, fictional FakeTmdbDatasource so App Store screenshots
+// never surface real TMDB titles or copyrighted posters.
+val demoModule = module {
+    singleOf(::FakeTmdbDatasource) bind TmdbDatasource::class
 }
 
 val presentationModule = module {

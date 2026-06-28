@@ -9,6 +9,7 @@ import com.apptolast.familyfilmapp.model.local.User
 import com.apptolast.familyfilmapp.network.TmdbLocaleManager
 import com.apptolast.familyfilmapp.purchases.PurchaseFailure
 import com.apptolast.familyfilmapp.purchases.PurchaseManager
+import com.apptolast.familyfilmapp.purchases.SubscriptionPricing
 import com.apptolast.familyfilmapp.rating.RateAppManager
 import com.apptolast.familyfilmapp.repositories.Repository
 import com.apptolast.familyfilmapp.ui.sharedViewmodel.UsernameValidationState
@@ -50,6 +51,14 @@ class ProfileViewModel(
 
     val hasRatedApp: StateFlow<Boolean> = rateAppManager.hasRatedApp
     val hasChatPremium: StateFlow<Boolean> = purchaseManager.hasChatPremium
+
+    // Chat Premium paywall shown from the Profile screen, so the purchase flow always
+    // surfaces the price + Terms/Privacy links before reaching the store (Guideline 3.1.2(c)).
+    private val _showChatPremiumPaywall = MutableStateFlow(false)
+    val showChatPremiumPaywall: StateFlow<Boolean> = _showChatPremiumPaywall.asStateFlow()
+
+    private val _chatPremiumPricing = MutableStateFlow<SubscriptionPricing?>(null)
+    val chatPremiumPricing: StateFlow<SubscriptionPricing?> = _chatPremiumPricing.asStateFlow()
 
     private val _purchaseEvent = MutableSharedFlow<PurchaseEvent>()
     val purchaseEvent: SharedFlow<PurchaseEvent> = _purchaseEvent.asSharedFlow()
@@ -127,8 +136,9 @@ class ProfileViewModel(
         _isPurchaseLoading.update { false }
     }
 
-    fun purchaseChatPremium() = viewModelScope.launch(dispatcherProvider.io()) {
-        if (_isPurchaseLoading.value) return@launch
+    /** Opens the Chat Premium paywall (price + Terms/Privacy) instead of going straight to the store. */
+    fun showChatPremiumPaywall() {
+        if (hasChatPremium.value) return
         analyticsTracker.logEvent(
             AnalyticsEvents.PAYWALL_SHOWN,
             mapOf(
@@ -136,9 +146,32 @@ class ProfileViewModel(
                 AnalyticsEvents.Param.ENTITLEMENT to AnalyticsEvents.Entitlement.CHAT_PREMIUM,
             ),
         )
+        _showChatPremiumPaywall.update { true }
+        loadChatPremiumPricing()
+    }
+
+    fun dismissChatPremiumPaywall() {
+        _showChatPremiumPaywall.update { false }
+    }
+
+    private fun loadChatPremiumPricing() {
+        if (_chatPremiumPricing.value != null) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val pricing = runCatching { purchaseManager.getChatPremiumPricing() }
+                .onFailure { crashReporter.recordException(it) }
+                .getOrNull()
+            if (pricing != null) _chatPremiumPricing.update { pricing }
+        }
+    }
+
+    fun purchaseChatPremium() = viewModelScope.launch(dispatcherProvider.io()) {
+        if (_isPurchaseLoading.value) return@launch
         _isPurchaseLoading.update { true }
         purchaseManager.purchaseChatPremium()
-            .onSuccess { _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess) }
+            .onSuccess {
+                _showChatPremiumPaywall.update { false }
+                _purchaseEvent.emit(PurchaseEvent.PurchaseSuccess)
+            }
             .onFailure { error ->
                 if (error !is PurchaseFailure.Cancelled) {
                     crashReporter.recordException(error)

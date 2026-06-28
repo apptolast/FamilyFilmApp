@@ -19,6 +19,7 @@
 #   bundle exec fastlane ios build                # local Release build (no upload)
 #   bundle exec fastlane ios beta                 # build + upload to TestFlight
 #   bundle exec fastlane ios release_from_tag     # CI-only: tag → TestFlight
+#   bundle exec fastlane ios screenshots          # demo-mode App Store screenshots (Snapfile)
 
 default_platform(:ios)
 
@@ -298,6 +299,31 @@ platform :ios do
       skip_submission: true
     )
     UI.success "Uploaded v#{vname} (build #{next_build}) to TestFlight"
+  end
+
+  desc "Capture App Store screenshots in demo mode (offline fictional data + generated posters). Reads iosApp/fastlane/Snapfile."
+  # NOTE: this lane must NOT be named `capture_screenshots` — that is also a fastlane
+  # action (alias of `snapshot`). A same-named lane shadows the action and the call
+  # below would recurse into this lane forever. Keep the lane name `screenshots`.
+  lane :screenshots do
+    # Pre-link the SIMULATOR Kotlin framework (snapshot runs on the simulator) so any
+    # Kotlin error surfaces before the simulator boots. The Xcode Run Script Phase
+    # re-links/embeds the correct framework during the test build anyway — this is
+    # purely fail-fast feedback.
+    gradle(
+      task: ":composeApp:linkDebugFrameworkIosSimulatorArm64",
+      project_dir: ROOT_DIR,
+      flags: "--no-configuration-cache"
+    )
+
+    # `capture_screenshots` here is the snapshot ACTION (no lane shares its name now);
+    # all capture options live in iosApp/fastlane/Snapfile.
+    capture_screenshots(
+      project: XCODEPROJ,
+      scheme: SCHEME,
+      output_directory: SCREENSHOTS_PATH
+    )
+    UI.success "Screenshots written to #{SCREENSHOTS_PATH}"
   end
 
   error do |lane, exception|

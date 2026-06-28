@@ -23,9 +23,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import coil3.compose.AsyncImage
 import com.apptolast.familyfilmapp.model.local.Media
-import com.apptolast.familyfilmapp.network.TmdbConfig
+import com.apptolast.familyfilmapp.ui.components.PosterImage
 import com.apptolast.familyfilmapp.ui.theme.FamilyFilmAppTheme
 import familyfilmkmp.composeapp.generated.resources.Res
 import familyfilmkmp.composeapp.generated.resources.card_sin_borde
@@ -120,13 +119,8 @@ fun RecommendedMediaFlipCard(
 
 @Composable
 private fun CardFront(media: Media, modifier: Modifier = Modifier) {
-    AsyncImage(
-        model = if (media.posterPath.isEmpty()) {
-            TmdbConfig.PLACEHOLDER_URL
-        } else {
-            "${TmdbConfig.POSTER_GRID}${media.posterPath}"
-        },
-        contentDescription = media.title,
+    PosterImage(
+        media = media,
         modifier = modifier,
         contentScale = ContentScale.Crop,
     )

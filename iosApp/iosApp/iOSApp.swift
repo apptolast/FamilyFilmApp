@@ -137,9 +137,98 @@ final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDeleg
     }
 }
 
+/// Orchestrates the privacy/consent chain once the app is foreground-active.
+///
+/// App Tracking Transparency MUST be requested while the app is `.active` and on the main
+/// thread; otherwise iOS presents nothing and returns `.notDetermined` (the recurring
+/// "ATT prompt not found" rejection). We therefore request ATT FIRST — before the
+/// notification prompt, the UMP form, AdMob and any tracking — decoupled from any network
+/// round-trip, and only when the status is still undetermined. The rest of the chain runs
+/// in its completion.
+final class AppBootstrap {
+    static let shared = AppBootstrap()
+
+    private var hasRun = false
+
+    private init() {
+    }
+
+    @MainActor
+    func runWhenActive() {
+        guard !hasRun else {
+            return
+        }
+        hasRun = true
+        // Screenshot/demo mode: skip the ATT, notification, UMP and AdMob bootstrap so no
+        // system dialog or ad pollutes App Store screenshots. OFF in production.
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-FFADemoMode") || args.contains("FFA_DEMO_MODE") {
+            return
+        }
+        requestTrackingThenContinue()
+    }
+
+    @MainActor
+    private func requestTrackingThenContinue() {
+        guard #available(iOS 14, *) else {
+            continueAfterTracking()
+            return
+        }
+
+        let status = ATTrackingManager.trackingAuthorizationStatus
+        guard status == .notDetermined else {
+            AppDiagnostics.set(status.rawValue, forKey: "att_status")
+            applyTrackingConsent(authorized: status == .authorized)
+            continueAfterTracking()
+            return
+        }
+
+        // Defer one run loop so the window is fully active before the prompt is presented.
+        DispatchQueue.main.async {
+            ATTrackingManager.requestTrackingAuthorization { newStatus in
+                AppDiagnostics.set(newStatus.rawValue, forKey: "att_status")
+                AppDiagnostics.log("ATT authorization resolved status=\(newStatus.rawValue)")
+                DispatchQueue.main.async {
+                    self.applyTrackingConsent(authorized: newStatus == .authorized)
+                    self.continueAfterTracking()
+                }
+            }
+        }
+    }
+
+    private func applyTrackingConsent(authorized: Bool) {
+        // Both FirebaseAnalytics and UserMessagingPlatform export a `ConsentStatus`; qualify it.
+        let adConsent: FirebaseAnalytics.ConsentStatus = authorized ? .granted : .denied
+        Analytics.setConsent([
+            .analyticsStorage: .granted,
+            .adStorage: adConsent,
+            .adUserData: adConsent,
+            .adPersonalization: adConsent,
+        ])
+    }
+
+    @MainActor
+    private func continueAfterTracking() {
+        // Notification permission is requested next; its dialog can no longer collide with
+        // the already-resolved ATT prompt. Then UMP consent, then AdMob.
+        PushNotificationCoordinator.shared.configure {
+            let rootVC = UIApplication.shared.connectedScenes
+                .compactMap {
+                    $0 as? UIWindowScene
+                }
+                .first?.windows.first?.rootViewController
+            ConsentManager.shared.gatherConsent(from: rootVC) {
+                AppDiagnostics.log("Consent gathered; loading app open ad")
+                AppOpenAdManager.shared.loadAd()
+            }
+        }
+    }
+}
+
 @main
 struct iOSApp: App {
     @UIApplicationDelegateAdaptor(FamilyFilmAppDelegate.self) private var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         // App Check must be configured before FirebaseApp.configure() so the
@@ -152,6 +241,14 @@ struct iOSApp: App {
 
         FirebaseApp.configure()
         Analytics.setAnalyticsCollectionEnabled(true)
+        // Default consent denies ad-related storage until the user resolves the ATT
+        // prompt. Updated in AppBootstrap once tracking authorization is known.
+        Analytics.setConsent([
+            .analyticsStorage: .granted,
+            .adStorage: .denied,
+            .adUserData: .denied,
+            .adPersonalization: .denied,
+        ])
         AppDiagnostics.log("iOS app launched")
 
         // Install the GIDSignIn bridge so IosGoogleSignInClient can drive the
@@ -188,21 +285,10 @@ struct iOSApp: App {
         NativeAdBridge.shared.loader = IOSNativeAdLoader()
         NativeAdBridge.shared.viewFactory = IOSNativeAdViewFactory()
 
-        // Request notification permission first; only once its dialog is dismissed do we
-        // gather UMP consent and request ATT. iOS suppresses the ATT prompt (the request
-        // returns notDetermined without showing) when it's made while another system alert
-        // — the notification dialog — is still on screen. Sequencing them fixes that.
-        PushNotificationCoordinator.shared.configure {
-            let rootVC = UIApplication.shared.connectedScenes
-            .compactMap {
-                $0 as? UIWindowScene
-            }
-            .first?.windows.first?.rootViewController
-            ConsentManager.shared.gatherConsent(from: rootVC) {
-                AppDiagnostics.log("Consent gathered; loading app open ad")
-                AppOpenAdManager.shared.loadAd()
-            }
-        }
+        // The privacy/consent chain (ATT → notifications → UMP → AdMob) is started from
+        // AppBootstrap on the first scene activation, NOT here. `init()` runs before the
+        // scene is foreground-active, and iOS silently drops the ATT prompt when it is
+        // requested while the app is not active — the bug that kept ATT from appearing.
 
         // GoogleSignIn reads `GIDClientID` from Info.plist on first use, so
         // no imperative configure is needed here.
@@ -214,6 +300,17 @@ struct iOSApp: App {
                 .onOpenURL { url in
                     // GoogleSignIn callback URL scheme handler.
                     GIDSignIn.sharedInstance.handle(url)
+                }
+                .onChange(of: scenePhase) { phase in
+                    if phase == .active {
+                        AppBootstrap.shared.runWhenActive()
+                    }
+                }
+                .onAppear {
+                    // Fallback in case the initial transition into `.active` is missed.
+                    if scenePhase == .active {
+                        AppBootstrap.shared.runWhenActive()
+                    }
                 }
         }
     }

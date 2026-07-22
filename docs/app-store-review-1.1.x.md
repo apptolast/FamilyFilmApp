@@ -232,3 +232,111 @@ Apple ya rechazó dos veces el argumento "solo usamos TMDB". El cambio decisivo 
 - Responde solicitando que indiquen **exactamente** qué elemento concreto infringe (Apple debe señalarlo).
 - Solicita una **App Review Appointment** (Meet with Apple, martes/jueves) o escala al **App Review Board**.
 - Último recurso (frágil y no recomendado salvo exigencia explícita): filtrar/ocultar pósters de estudios concretos en el feed por defecto.
+
+---
+---
+
+# RONDA 2 — Rechazo del 07/07/2026 (solo Guideline 5.2.1) → build 1.1.5
+
+> Build rechazada: **1.1.4 (9)** · Submission ID `dae9a9d1-71b1-4f23-bbdd-70506cc4e957` · Revisada el 06/07/2026 en iPhone 17 Pro Max.
+> Apple: *"The app includes content that resembles Disney/Pixar material, Pixar and other content, without the necessary authorization."*
+>
+> **Causa raíz identificada tras la App Review Appointment con Melissa**: no era el contenido en vivo de TMDB, sino **12 imágenes de fondo con copyright empaquetadas dentro del `.ipa`** que la pantalla de login mostraba de forma aleatoria — y las capturas que enseñaban ese login.
+
+## Cambio de código (hecho)
+
+| Qué | Detalle |
+|-----|---------|
+| Assets eliminados | `composeApp/src/commonMain/composeResources/drawable/movie_background{,_2..._12}.jpg` (12 ficheros, ~1 MB) |
+| Código eliminado | `LoginContent.kt`: `imageList`, `Random.nextInt(...)`, el `Image` de fondo y el `Box` con el degradado de scrim que lo oscurecía |
+| Resultado visual | El login usa el color de fondo del tema (`Scaffold` → `colorScheme.background`), el logo propio y el formulario |
+| Verificado | `./gradlew :composeApp:ktlintFormat` compila commonMain + iosMain sin errores; `grep -r movie_background` no devuelve nada fuera de `build/` |
+
+El binario ya **no contiene ninguna imagen de terceros**. `card_sin_borde.png` (carta de Fliksy) y los iconos propios se mantienen: son arte original nuestro.
+
+## Versionado 1.1.5 — estado del repo
+
+| Sitio | Valor | Quién manda en el release |
+|-------|-------|---------------------------|
+| `composeApp/build.gradle.kts` | `versionName 1.1.5` / `versionCode 36` | Fastlane Android sobrescribe con `-PappVersionName` (tag) y `-PappVersionCode` (Play max+1) |
+| `iosApp/iosApp.xcodeproj/project.pbxproj` (Debug + Release) | `MARKETING_VERSION 1.1.5` / `CURRENT_PROJECT_VERSION 10` | `release_from_tag` sobrescribe con `increment_version_number` (tag) e `increment_build_number` (ASC latest+1) |
+| `iosApp/Configuration/Config.xcconfig` | `MARKETING_VERSION 1.1.5` / `CURRENT_PROJECT_VERSION 10` | Nivel de proyecto: lo pisan los ajustes del target en el pbxproj. Se mantiene sincronizado por claridad |
+
+En el release por tag manda **siempre el tag** (`v1.1.5`). Los valores del repo solo afectan a builds locales de Xcode/Android Studio y al lane `screenshots`.
+
+## Pasos manuales pendientes
+
+- [ ] Eliminar de App Store Connect las capturas (iPhone e iPad, `en-GB` y `es-ES`) que muestren el login con esos fondos.
+- [ ] Crear y pushear el tag `v1.1.5` (dispara los dos workflows de deploy).
+- [ ] Pegar el BLOQUE 1 en *App Review Information ▸ Notes* y el BLOQUE 2 en *Resolution Center ▸ Reply*.
+- [ ] Rellenar en ambos textos la **fecha de la llamada con Melissa**.
+
+---
+
+### 🟦 BLOQUE 1 — App Review Information ▸ **Notes** (reemplaza el texto actual)
+
+```
+Demo account: use the credentials in the Sign-In Information fields above.
+
+Guideline 5.2.1 - fixed in build 1.1.5, following the App Review appointment
+with Melissa on [FECHA]:
+- The 12 movie backdrop images that were bundled inside the .ipa and shown at
+  random on the sign-in screen have been deleted from the project. The sign-in
+  screen now uses only our own logo and background colour. The binary contains
+  no third-party imagery.
+- The App Store screenshots that showed that screen (iPhone and iPad, en-GB and
+  es-ES) have been removed from the metadata.
+- All titles, synopses and posters are fetched at runtime from The Movie
+  Database (TMDB) through its official API and are used only to identify
+  catalog entries. We understood from the appointment that this is not what the
+  rejection was about. The app does not host, stream or reproduce any content,
+  implies no affiliation with any studio, and displays TMDB attribution in-app.
+
+In-app purchases (sandbox):
+- Remove Ads (non-consumable): Profile tab, "Remove Ads".
+- Chat Premium (auto-renewable): Profile tab, "Chat Premium", or use up the free
+  question quota in the Chat tab and the paywall appears automatically.
+- "Restore Purchases" is in the Profile tab.
+
+App Tracking Transparency (Guideline 2.1): the attached recording shows a fresh
+install and the ATT prompt, which appears after the notification dialog is
+dismissed and before any tracking data is collected.
+
+The app contains no graphic content. Thank you for the review.
+```
+
+---
+
+### 🟩 BLOQUE 2 — Resolution Center ▸ **Reply** al revisor
+
+```
+Hello,
+
+Thank you for the App Review appointment with Melissa on [FECHA]. It helped us
+identify exactly what was causing this rejection, and build 1.1.5 fixes it.
+
+1. Artwork inside the .ipa
+The sign-in screen used to show, at random, one of 12 movie backdrop images
+bundled in the binary. Those were the images resembling Disney/Pixar material.
+All 12 files have been deleted from the project, and the sign-in screen now
+shows only our own logo and background colour. The binary no longer contains
+any third-party imagery.
+
+2. Metadata
+The screenshots showing that sign-in screen (iPhone and iPad, en-GB and es-ES)
+have been removed from the App Store metadata.
+
+3. Remaining content
+Titles, synopses and posters are not bundled with the app: they are fetched at
+runtime from The Movie Database (TMDB) through its official API and are used
+only to identify catalog entries in a discovery and watchlist app. We understood
+from the appointment that this is not what the rejection was about. Fliksy does
+not host, stream or reproduce any film or episode, claims no affiliation with
+any studio, and shows the TMDB attribution in-app.
+
+If anything else needs attention, please point out the specific element and we
+will change it right away.
+
+Thank you for your time,
+Alberto Hidalgo
+```

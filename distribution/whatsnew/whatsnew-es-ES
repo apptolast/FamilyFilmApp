@@ -1,3 +1,2 @@
-- NUEVO: FamilyFilmApp ya está disponible también en iOS, además de Android.
-- MEJORADO: Arranque más rápido y sincronización de grupos más fiable.
-- CORREGIDO: Entrada de chat más fluida y apariencia renovada en toda la app.
+- MEJORADO: Pantalla de inicio de sesión más limpia, con la imagen propia de la app en lugar de fondos rotatorios.
+- MEJORADO: Descarga más ligera al eliminar imágenes que la app ya no necesita.

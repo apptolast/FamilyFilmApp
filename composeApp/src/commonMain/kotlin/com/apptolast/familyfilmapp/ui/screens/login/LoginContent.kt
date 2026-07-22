@@ -2,7 +2,6 @@ package com.apptolast.familyfilmapp.ui.screens.login
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,9 +49,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -90,27 +86,13 @@ import familyfilmkmp.composeapp.generated.resources.login_text_email_sent
 import familyfilmkmp.composeapp.generated.resources.login_text_field_email
 import familyfilmkmp.composeapp.generated.resources.login_text_field_password
 import familyfilmkmp.composeapp.generated.resources.login_text_forgot_your_password
-import familyfilmkmp.composeapp.generated.resources.movie_background
-import familyfilmkmp.composeapp.generated.resources.movie_background_10
-import familyfilmkmp.composeapp.generated.resources.movie_background_11
-import familyfilmkmp.composeapp.generated.resources.movie_background_12
-import familyfilmkmp.composeapp.generated.resources.movie_background_2
-import familyfilmkmp.composeapp.generated.resources.movie_background_3
-import familyfilmkmp.composeapp.generated.resources.movie_background_4
-import familyfilmkmp.composeapp.generated.resources.movie_background_5
-import familyfilmkmp.composeapp.generated.resources.movie_background_6
-import familyfilmkmp.composeapp.generated.resources.movie_background_7
-import familyfilmkmp.composeapp.generated.resources.movie_background_8
-import familyfilmkmp.composeapp.generated.resources.movie_background_9
 import familyfilmkmp.composeapp.generated.resources.or_else
 import familyfilmkmp.composeapp.generated.resources.username_available
 import familyfilmkmp.composeapp.generated.resources.username_label
 import familyfilmkmp.composeapp.generated.resources.username_taken
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,22 +122,6 @@ fun LoginContent(
     var passwordVisible by remember { mutableStateOf(false) }
     val isAuthLoading = authState is AuthState.Loading
 
-    val imageList: List<DrawableResource> = listOf(
-        Res.drawable.movie_background,
-        Res.drawable.movie_background_2,
-        Res.drawable.movie_background_3,
-        Res.drawable.movie_background_4,
-        Res.drawable.movie_background_5,
-        Res.drawable.movie_background_6,
-        Res.drawable.movie_background_7,
-        Res.drawable.movie_background_8,
-        Res.drawable.movie_background_9,
-        Res.drawable.movie_background_10,
-        Res.drawable.movie_background_11,
-        Res.drawable.movie_background_12,
-    )
-    val randomImage = remember { imageList[Random.nextInt(imageList.size)] }
-
     LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.Error -> {
@@ -175,7 +141,7 @@ fun LoginContent(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        // Background image must reach screen edges; only interactive content respects safe area.
+        // Content applies its own safeDrawingPadding, so the Scaffold must not pad it twice.
         contentWindowInsets = WindowInsets(0),
     ) { innerPadding ->
         Box(
@@ -183,29 +149,6 @@ fun LoginContent(
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            Image(
-                painter = painterResource(randomImage),
-                contentDescription = "Background Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.scrim.copy(alpha = 0.9f),
-                                MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f),
-                                Color.Transparent,
-                            ),
-                            startY = 0f,
-                            endY = Float.POSITIVE_INFINITY,
-                        ),
-                    ),
-            )
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,

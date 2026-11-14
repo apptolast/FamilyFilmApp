@@ -757,3 +757,6 @@ obj/
 
 # Temp migration notes (PII) — do not commit
 debug-users-migration-TEMP.md
+
+# Codex local config (contains secrets)
+.codex/config.toml
